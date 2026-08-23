@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { defaultProducts } from "@/lib/default-catalog";
+import { defaultSiteSections, editableTexts, readSiteSections, readSiteTexts, type SiteSection } from "@/lib/site-editor";
 import "./admin.css";
 
 type Row = Record<string, string | number | boolean | null>;
-type Section = "dashboard" | "products" | "orders" | "promotions" | "subscribers" | "settings";
+type Section = "dashboard" | "products" | "orders" | "promotions" | "subscribers" | "editor" | "settings";
 
 const categories: Record<string, string> = { eveil: "Jouets éducatifs", poupees: "Mon monde de poupées", bebe: "Bébé", vetements: "Vêtements", chaussures: "Chaussures", scolaire: "Fournitures scolaires", sacs: "Sacs et gourdes", vehicules: "Véhicules" };
-const labels: Record<Section, string> = { dashboard: "Tableau de bord", products: "Produits", orders: "Commandes", promotions: "Promotions", subscribers: "Abonnés", settings: "Réglages" };
+const labels: Record<Section, string> = { dashboard: "Tableau de bord", products: "Produits", orders: "Commandes", promotions: "Promotions", subscribers: "Abonnés", editor: "Éditeur du site", settings: "Réglages" };
 const blankProduct: Row = { name_fr: "", name_en: "", description_fr: "", description_en: "", category: "eveil", price: 0, stock: 1, status: "available", badge: "", ages: "3+", image_url: "", brand: "", material: "", dimensions: "", exchange_terms_fr: "", exchange_terms_en: "", visible: true };
 const formatPrice = (value: unknown) => `${Number(value || 0).toLocaleString("fr-GN")} GNF`;
 
@@ -31,6 +33,9 @@ export default function Administration() {
   const [promotions, setPromotions] = useState<Row[]>([]);
   const [subscribers, setSubscribers] = useState<Row[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [siteSections, setSiteSections] = useState<SiteSection[]>(defaultSiteSections.map((item) => ({ ...item })));
+  const [siteTexts, setSiteTexts] = useState<Record<string, string>>({});
+  const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | null>(null);
   const [editingType, setEditingType] = useState<"product" | "promotion" | "order">("product");
   const [search, setSearch] = useState("");
@@ -42,11 +47,28 @@ export default function Administration() {
 
   async function load() {
     const results = await Promise.allSettled([request("/api/admin/products"), request("/api/admin/orders"), request("/api/admin/promotions"), request("/api/admin/subscribers"), request("/api/admin/settings")]);
-    if (results[0].status === "fulfilled") setProducts(results[0].value.products as Row[]);
+    const loadedProducts = results[0].status === "fulfilled" ? results[0].value.products as Row[] : null;
+    if (loadedProducts) setProducts(loadedProducts);
     if (results[1].status === "fulfilled") setOrders(results[1].value.orders as Row[]);
     if (results[2].status === "fulfilled") setPromotions(results[2].value.promotions as Row[]);
     if (results[3].status === "fulfilled") setSubscribers(results[3].value.subscribers as Row[]);
-    if (results[4].status === "fulfilled") setSettings(results[4].value.settings as Record<string, string>);
+    if (results[4].status === "fulfilled") {
+      const loadedSettings = results[4].value.settings as Record<string, string>;
+      setSettings(loadedSettings);
+      setSiteSections(readSiteSections(loadedSettings.site_sections));
+      setSiteTexts(readSiteTexts(loadedSettings.site_texts));
+      if (loadedProducts?.length === 0 && loadedSettings.catalog_initialized !== "true") {
+        try {
+          const result = await request("/api/admin/products/import", { method: "POST", body: JSON.stringify({ products: defaultProducts }) });
+          const refreshed = await request("/api/admin/products");
+          setProducts(refreshed.products as Row[]);
+          setSettings((current) => ({ ...current, catalog_initialized: "true" }));
+          flash(`${Number(result.imported || 0)} produits importés automatiquement depuis la boutique.`);
+        } catch (failure) {
+          setError(failure instanceof Error ? failure.message : "Import automatique impossible.");
+        }
+      }
+    }
   }
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
@@ -89,6 +111,38 @@ export default function Administration() {
     finally { setBusy(false); }
   }
 
+  async function synchronizeProducts() {
+    setBusy(true); setError("");
+    try {
+      const result = await request("/api/admin/products/import", { method: "POST", body: JSON.stringify({ products: defaultProducts }) });
+      await load();
+      flash(`${Number(result.imported || 0)} produit(s) ajouté(s), ${Number(result.skipped || 0)} déjà présent(s).`);
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "Synchronisation impossible."); }
+    finally { setBusy(false); }
+  }
+
+  function moveSection(id: string, nextIndex: number) {
+    setSiteSections((current) => {
+      const previousIndex = current.findIndex((item) => item.id === id);
+      if (previousIndex < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
+      const updated = [...current];
+      const [moved] = updated.splice(previousIndex, 1);
+      updated.splice(nextIndex, 0, moved);
+      return updated;
+    });
+  }
+
+  async function saveSiteEditor(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setBusy(true); setError("");
+    const changes = { site_sections: JSON.stringify(siteSections), site_texts: JSON.stringify(siteTexts) };
+    try {
+      await request("/api/admin/settings", { method: "POST", body: JSON.stringify(changes) });
+      setSettings((current) => ({ ...current, ...changes }));
+      flash("Site mis à jour : textes, ordre et visibilité enregistrés.");
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "Modification du site impossible."); }
+    finally { setBusy(false); }
+  }
+
   async function changePassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError("");
     try { await request("/api/admin/password", { method: "POST", body: JSON.stringify(passwords) }); setPasswords({ current_password: "", new_password: "" }); flash("Mot de passe modifié."); }
@@ -102,11 +156,18 @@ export default function Administration() {
   const filtered = products.filter((item) => `${item.name_fr} ${item.name_en} ${item.category}`.toLowerCase().includes(search.toLowerCase()));
   const stats = [{ title: "Produits en catalogue", value: products.length, tone: "blue" }, { title: "Commandes à traiter", value: orders.filter((item) => item.status === "new").length, tone: "orange" }, { title: "Abonnés", value: subscribers.length, tone: "green" }, { title: "Produits en rupture", value: products.filter((item) => Number(item.stock) === 0 || item.status === "sold").length, tone: "red" }];
 
-  return <main className="cms-app"><aside className="cms-sidebar"><a className="cms-logo" href="/"><img src="/envol-reference.png" alt="Envol des Enfants"/></a><span className="cms-eyebrow">Administration</span><nav>{(Object.keys(labels) as Section[]).map((key) => <button key={key} className={section === key ? "active" : ""} onClick={() => { setSection(key); setEditing(null); setError(""); }}><span>{({ dashboard: "◉", products: "▣", orders: "☷", promotions: "✦", subscribers: "♡", settings: "⚙" } as Record<Section,string>)[key]}</span>{labels[key]}</button>)}</nav><div className="cms-account"><strong>{admin.name}</strong><small>{admin.email}</small><button onClick={() => void signOut()}>Déconnexion</button></div></aside><div className="cms-main"><header className="cms-topbar"><div><span className="cms-eyebrow">Envol des Enfants · Conakry</span><h1>{labels[section]}</h1></div><a href="/" target="_blank">Voir la boutique ↗</a></header>{notice && <div className="cms-notice">✓ {notice}</div>}{error && <div className="cms-error">{error}</div>}
+  return <main className="cms-app"><aside className="cms-sidebar"><a className="cms-logo" href="/"><img src="/envol-reference.png" alt="Envol des Enfants"/></a><span className="cms-eyebrow">Administration</span><nav>{(Object.keys(labels) as Section[]).map((key) => <button key={key} className={section === key ? "active" : ""} onClick={() => { setSection(key); setEditing(null); setError(""); }}><span>{({ dashboard: "◉", products: "▣", orders: "☷", promotions: "✦", subscribers: "♡", editor: "✎", settings: "⚙" } as Record<Section,string>)[key]}</span>{labels[key]}</button>)}</nav><div className="cms-account"><strong>{admin.name}</strong><small>{admin.email}</small><button onClick={() => void signOut()}>Déconnexion</button></div></aside><div className="cms-main"><header className="cms-topbar"><div><span className="cms-eyebrow">Envol des Enfants · Conakry</span><h1>{labels[section]}</h1></div><a href="/" target="_blank">Voir la boutique ↗</a></header>{notice && <div className="cms-notice">✓ {notice}</div>}{error && <div className="cms-error">{error}</div>}
+
+  {section === "editor" && <form className="cms-site-editor" onSubmit={saveSiteEditor}>
+    <div className="cms-editor-toolbar"><div><h2>Personnalisez votre boutique</h2><p>Réorganisez les sections, masquez celles que vous ne souhaitez pas afficher et modifiez les textes en français et en anglais.</p></div><button className="cms-primary" disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer le site"}</button></div>
+    <section className="cms-panel cms-section-manager"><div className="cms-panel-title"><h2>Ordre et visibilité des sections</h2><button type="button" className="cms-inline" onClick={() => setSiteSections(defaultSiteSections.map((item) => ({ ...item })))}>Rétablir l’ordre initial</button></div><p className="cms-editor-help">Glissez les sections ou utilisez les flèches pour modifier leur emplacement sur la page.</p><div className="cms-section-list">{siteSections.map((item, index) => <article className={`cms-section-row${item.visible ? "" : " is-hidden"}${draggedSection === item.id ? " is-dragging" : ""}`} key={item.id} draggable onDragStart={() => setDraggedSection(item.id)} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (draggedSection) moveSection(draggedSection, index); setDraggedSection(null); }} onDragEnd={() => setDraggedSection(null)}><span className="cms-drag-handle" aria-hidden="true">⠿</span><span className="cms-section-number">{String(index + 1).padStart(2, "0")}</span><strong>{item.label}</strong><div className="cms-section-controls"><button type="button" aria-label={`Monter ${item.label}`} disabled={index === 0} onClick={() => moveSection(item.id, index - 1)}>↑</button><button type="button" aria-label={`Descendre ${item.label}`} disabled={index === siteSections.length - 1} onClick={() => moveSection(item.id, index + 1)}>↓</button><label className="cms-visibility-toggle"><input type="checkbox" checked={item.visible} onChange={() => setSiteSections((current) => current.map((entry) => entry.id === item.id ? { ...entry, visible: !entry.visible } : entry))}/><span>{item.visible ? "Visible" : "Masquée"}</span></label></div></article>)}</div></section>
+    <section className="cms-panel cms-copy-manager"><div className="cms-panel-title"><h2>Textes du site</h2><span className="cms-language-hint">FR + EN</span></div><p className="cms-editor-help">Laissez un champ vide pour conserver le texte original.</p><div className="cms-copy-list">{editableTexts.map((item) => <fieldset className="cms-copy-field" key={item.key}><legend>{item.label}</legend><div className="cms-copy-languages">{(["fr", "en"] as const).map((language) => <label key={language}><span>{language === "fr" ? "Français" : "English"}</span>{item.multiline ? <textarea value={siteTexts[`${item.key}_${language}`] || ""} placeholder={language === "fr" ? item.french : item.english} onChange={(event) => setSiteTexts((current) => ({ ...current, [`${item.key}_${language}`]: event.target.value }))}/> : <input value={siteTexts[`${item.key}_${language}`] || ""} placeholder={language === "fr" ? item.french : item.english} onChange={(event) => setSiteTexts((current) => ({ ...current, [`${item.key}_${language}`]: event.target.value }))}/>}</label>)}</div></fieldset>)}</div></section>
+    <div className="cms-editor-footer"><a href="/" target="_blank" rel="noreferrer">Aperçu de la boutique ↗</a><button className="cms-primary" disabled={busy}>Enregistrer toutes les modifications</button></div>
+  </form>}
 
   {section === "dashboard" && <><div className="cms-stats">{stats.map((stat) => <article className={`cms-stat ${stat.tone}`} key={stat.title}><span>{stat.title}</span><strong>{stat.value}</strong></article>)}</div><div className="cms-dashboard-grid"><section className="cms-panel"><div className="cms-panel-title"><h2>Derniers produits</h2><button onClick={() => setSection("products")}>Tout voir →</button></div>{products.length ? products.slice(0, 6).map((product) => <div className="cms-list-item" key={String(product.id)}><strong>{String(product.name_fr)}</strong><span>{formatPrice(product.price)}</span></div>) : <p className="cms-empty">Ajoutez votre premier produit pour alimenter votre catalogue.</p>}</section><section className="cms-panel"><div className="cms-panel-title"><h2>Commandes récentes</h2><button onClick={() => setSection("orders")}>Tout voir →</button></div>{orders.length ? orders.slice(0, 6).map((order) => <div className="cms-list-item" key={String(order.id)}><strong>{String(order.customer_name)}</strong><span>{String(order.product_name)}</span></div>) : <p className="cms-empty">Aucune commande enregistrée pour le moment.</p>}</section></div></>}
 
-  {section === "products" && <section className="cms-panel"><div className="cms-panel-title"><input className="cms-search" placeholder="Rechercher un produit…" value={search} onChange={(event) => setSearch(event.target.value)}/><button className="cms-primary" onClick={() => { setEditingType("product"); setEditing({ ...blankProduct }); }}>+ Ajouter un produit</button></div><div className="cms-table-wrap"><table><thead><tr><th>Produit</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>État</th><th></th></tr></thead><tbody>{filtered.map((product) => <tr key={String(product.id)}><td><strong>{String(product.name_fr)}</strong><small>{String(product.name_en || "")}</small></td><td>{categories[String(product.category)] || String(product.category)}</td><td>{formatPrice(product.price)}</td><td>{String(product.stock)}</td><td><span className={`cms-status ${product.status}`}>{({ available: "Disponible", reserved: "Réservé", sold: "Épuisé" } as Record<string,string>)[String(product.status)]}</span></td><td><button className="cms-inline" onClick={() => { setEditingType("product"); setEditing({ ...product, visible: Boolean(product.visible) }); }}>Modifier</button><button className="cms-inline danger" onClick={() => void remove("products", String(product.id))}>Supprimer</button></td></tr>)}</tbody></table></div>{!filtered.length && <p className="cms-empty">Aucun produit trouvé.</p>}</section>}
+  {section === "products" && <section className="cms-panel"><div className="cms-panel-title"><input className="cms-search" placeholder="Rechercher un produit…" value={search} onChange={(event) => setSearch(event.target.value)}/><div className="cms-product-actions"><button className="cms-secondary" disabled={busy} onClick={() => void synchronizeProducts()}>↻ Synchroniser la boutique</button><button className="cms-primary" onClick={() => { setEditingType("product"); setEditing({ ...blankProduct }); }}>+ Ajouter un produit</button></div></div><div className="cms-table-wrap"><table><thead><tr><th>Produit</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>État</th><th></th></tr></thead><tbody>{filtered.map((product) => <tr key={String(product.id)}><td><strong>{String(product.name_fr)}</strong><small>{String(product.name_en || "")}</small></td><td>{categories[String(product.category)] || String(product.category)}</td><td>{formatPrice(product.price)}</td><td>{String(product.stock)}</td><td><span className={`cms-status ${product.status}`}>{({ available: "Disponible", reserved: "Réservé", sold: "Épuisé" } as Record<string,string>)[String(product.status)]}</span></td><td><button className="cms-inline" onClick={() => { setEditingType("product"); setEditing({ ...product, visible: Boolean(product.visible) }); }}>Modifier</button><button className="cms-inline danger" onClick={() => void remove("products", String(product.id))}>Supprimer</button></td></tr>)}</tbody></table></div>{!filtered.length && <p className="cms-empty">Aucun produit trouvé.</p>}</section>}
 
   {section === "orders" && <section className="cms-panel"><div className="cms-panel-title"><h2>Suivi des commandes</h2><button className="cms-primary" onClick={() => { setEditingType("order"); setEditing({ customer_name: "", customer_phone: "", product_name: "", quantity: 1, total: 0, status: "new", notes: "" }); }}>+ Nouvelle commande</button></div><div className="cms-table-wrap"><table><thead><tr><th>Client</th><th>Produit</th><th>Total</th><th>Statut</th><th></th></tr></thead><tbody>{orders.map((order) => <tr key={String(order.id)}><td><strong>{String(order.customer_name)}</strong><small>{String(order.customer_phone)}</small></td><td>{String(order.product_name)}</td><td>{formatPrice(order.total)}</td><td><span className={`cms-status ${String(order.status)}`}>{({ new: "Nouvelle", preparing: "En préparation", delivered: "Livrée", cancelled: "Annulée" } as Record<string,string>)[String(order.status)]}</span></td><td><button className="cms-inline" onClick={() => { setEditingType("order"); setEditing({ ...order }); }}>Modifier</button></td></tr>)}</tbody></table></div>{!orders.length && <p className="cms-empty">Aucune commande enregistrée.</p>}</section>}
 

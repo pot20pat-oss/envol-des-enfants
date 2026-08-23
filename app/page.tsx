@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { defaultProducts, type Product, type Translation } from "@/lib/default-catalog";
+import { readSiteSections, readSiteTexts } from "@/lib/site-editor";
 
-const whatsappNumber = "224666547976";
-const facebookUrl = "https://www.facebook.com/rachetteboutique/";
-const whatsappUrl = `https://wa.me/${whatsappNumber}`;
-const address = "Immeuble Famille Diallo, Cameroun, Dixinn, Conakry, Guinée";
 const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Immeuble%20Famille%20Diallo%20Cameroun%20Dixinn%20Conakry";
 
 type Language = "fr" | "en";
-type Translation = { fr: string; en: string };
 
 const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Tout voir", en: "View all" }, value: "all" },
@@ -21,43 +18,6 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Fournitures scolaires", en: "School supplies" }, value: "scolaire" },
   { label: { fr: "Sacs & gourdes", en: "Bags & bottles" }, value: "sacs" },
   { label: { fr: "Véhicules", en: "Vehicles" }, value: "vehicules" },
-];
-
-type Product = { id?: string; name: Translation; category: string; price: number; ages: string; sheet: string; position: number; imageUrl?: string; stock?: number; status: "available" | "reserved" | "sold"; badge?: "new" | "school"; detail: Translation };
-
-const products: Product[] = [
-  { name: {fr:"Puzzle animaux 48 pièces",en:"48-piece animal puzzle"}, category:"eveil", price:25000, ages:"3–6", sheet:"17", position:0, status:"available", badge:"new", detail:{fr:"Développe motricité fine et logique.",en:"Builds fine motor skills and reasoning."} },
-  { name: {fr:"Blocs de construction 100 pièces",en:"100-piece building blocks"}, category:"eveil", price:35000, ages:"4+", sheet:"17", position:1, status:"available", detail:{fr:"Construis, imagine, apprends.",en:"Build, imagine and learn."} },
-  { name: {fr:"Kit peinture Crayola",en:"Crayola painting set"}, category:"scolaire", price:18000, ages:"3+", sheet:"17", position:2, status:"available", badge:"school", detail:{fr:"Coloriage et arts créatifs.",en:"Colouring and creative arts."} },
-  { name: {fr:"Peluche douce Ourson",en:"Soft teddy bear"}, category:"bebe", price:15000, ages:"0+", sheet:"17", position:3, status:"available", detail:{fr:"Compagnon tout doux pour bébé.",en:"A cuddly companion for baby."} },
-  { name: {fr:"Jouets d’éveil bébé",en:"Baby sensory toys"}, category:"bebe", price:12000, ages:"0–2", sheet:"16", position:0, status:"reserved", detail:{fr:"Stimule les sens dès la naissance.",en:"Encourages sensory discovery from birth."} },
-  { name: {fr:"Poupées Disney Princesses",en:"Disney Princess dolls"}, category:"poupees", price:28000, ages:"3+", sheet:"16", position:1, status:"available", badge:"new", detail:{fr:"Princesses Disney petit et grand format.",en:"Disney princesses in different sizes."} },
-  { name: {fr:"Body bébé coton",en:"Cotton baby bodysuit"}, category:"bebe", price:9000, ages:"0–12 mois", sheet:"16", position:2, status:"available", detail:{fr:"Confort et douceur pour bébé.",en:"Soft, comfortable essentials for baby."} },
-  { name: {fr:"T-shirt enfant coloré",en:"Colourful kids’ T-shirt"}, category:"vetements", price:11000, ages:"2–10", sheet:"16", position:3, status:"available", badge:"school", detail:{fr:"Coton respirant, plusieurs tailles.",en:"Breathable cotton in several sizes."} },
-  { name: {fr:"Robe fillette",en:"Little girl’s dress"}, category:"vetements", price:22000, ages:"3–8", sheet:"15", position:0, status:"reserved", detail:{fr:"Parfaite pour les occasions.",en:"Perfect for special occasions."} },
-  { name: {fr:"Sweat à capuche enfant",en:"Kids’ hooded sweatshirt"}, category:"vetements", price:19000, ages:"4–12", sheet:"15", position:1, status:"available", detail:{fr:"Chaud et stylé.",en:"Cosy and stylish."} },
-  { name: {fr:"Sandales enfant",en:"Kids’ sandals"}, category:"chaussures", price:14000, ages:"2–10", sheet:"15", position:2, status:"available", detail:{fr:"Légères pour l’école.",en:"Light and comfortable for school."} },
-  { name: {fr:"Baskets école",en:"School sneakers"}, category:"chaussures", price:26000, ages:"4–12", sheet:"15", position:3, status:"available", badge:"school", detail:{fr:"Confort pour la rentrée.",en:"Comfort for a fresh school year."} },
-  { name: {fr:"Bottes pluie enfant",en:"Kids’ rain boots"}, category:"chaussures", price:17000, ages:"3–10", sheet:"14", position:0, status:"sold", detail:{fr:"Imperméables et rigolotes.",en:"Waterproof and wonderfully fun."} },
-  { name: {fr:"Cartable école primaire",en:"Primary school backpack"}, category:"sacs", price:30000, ages:"6–11", sheet:"14", position:1, status:"available", badge:"school", detail:{fr:"Solide, plusieurs compartiments.",en:"Durable, with multiple compartments."} },
-  { name: {fr:"Sac à lunch fille",en:"Girls’ lunch bag"}, category:"sacs", price:12000, ages:"3–8", sheet:"14", position:2, status:"available", badge:"school", detail:{fr:"Isotherme, facile à nettoyer.",en:"Insulated and easy to clean."} },
-  { name: {fr:"Gourde inox",en:"Stainless steel water bottle"}, category:"sacs", price:8000, ages:"3+", sheet:"14", position:3, status:"available", badge:"school", detail:{fr:"Garde l’eau fraîche.",en:"Keeps water cool."} },
-  { name: {fr:"Ensemble géométrique",en:"Geometry set"}, category:"scolaire", price:9500, ages:"6–11", sheet:"13", position:0, status:"available", badge:"school", detail:{fr:"Règles et formes pour maths.",en:"Rulers and shapes for math class."} },
-  { name: {fr:"Cahiers + fournitures rentrée",en:"Notebooks and school supplies"}, category:"scolaire", price:15000, ages:"6–12", sheet:"13", position:1, status:"available", badge:"school", detail:{fr:"Lot complet, rentrée préparée.",en:"A complete set for the school year."} },
-  { name: {fr:"Jeu de société familial",en:"Family board game"}, category:"eveil", price:21000, ages:"5+", sheet:"13", position:2, status:"available", detail:{fr:"Moments de partage en famille.",en:"Special moments together."} },
-  { name: {fr:"Véhicule jouet interactif",en:"Interactive toy vehicle"}, category:"vehicules", price:24000, ages:"3+", sheet:"13", position:3, status:"reserved", badge:"new", detail:{fr:"Sons et lumières.",en:"Fun lights and sounds."} },
-  { name: {fr:"Livre éveil premiers mots",en:"First words learning book"}, category:"eveil", price:10000, ages:"2–5", sheet:"12", position:0, status:"available", detail:{fr:"Lecture et imaginaire.",en:"First stories and imagination."} },
-  { name: {fr:"Couverture bébé douillette",en:"Cosy baby blanket"}, category:"bebe", price:13000, ages:"0+", sheet:"12", position:1, status:"available", detail:{fr:"Chaleur et douceur.",en:"Warm, soft and comforting."} },
-  { name: {fr:"Pantalon enfant",en:"Kids’ trousers"}, category:"vetements", price:16000, ages:"3–12", sheet:"12", position:2, status:"available", detail:{fr:"Respirant et résistant.",en:"Breathable and durable."} },
-  { name: {fr:"Chaussures de ville",en:"Dress shoes"}, category:"chaussures", price:23000, ages:"4–12", sheet:"12", position:3, status:"available", detail:{fr:"Élégantes pour toutes occasions.",en:"Elegant for every occasion."} },
-  { name: {fr:"Trousse scolaire",en:"School pencil case"}, category:"sacs", price:7000, ages:"6–12", sheet:"11", position:0, status:"available", badge:"school", detail:{fr:"Organise le matériel.",en:"Keeps school supplies organised."} },
-  { name: {fr:"Sac à dos préscolaire",en:"Preschool backpack"}, category:"sacs", price:18000, ages:"2–5", sheet:"11", position:1, status:"available", detail:{fr:"Petit et léger.",en:"Small, light and easy to carry."} },
-  { name: {fr:"Pyramide d’éveil",en:"Rainbow stacking rings"}, category:"eveil", price:16000, ages:"0–2", sheet:"11", position:2, status:"available", badge:"new", detail:{fr:"Empile et découvre les couleurs.",en:"Stack, sort and discover colours."} },
-  { name: {fr:"Polo enfant",en:"Kids’ polo shirt"}, category:"vetements", price:12000, ages:"3–12", sheet:"11", position:3, status:"sold", detail:{fr:"Classique et confortable.",en:"Classic and comfortable."} },
-  { name: {fr:"Jeu de construction petit",en:"Little building block set"}, category:"eveil", price:13000, ages:"2–5", sheet:"10", position:0, status:"available", detail:{fr:"Premiers pas de la logique.",en:"First steps in logical thinking."} },
-  { name: {fr:"Baskets lumineuses",en:"Light-up sneakers"}, category:"chaussures", price:28000, ages:"4–12", sheet:"10", position:1, status:"reserved", badge:"new", detail:{fr:"Effet lumineux à la mode.",en:"Trendy light-up effects."} },
-  { name: {fr:"Lot rentrée complet fille",en:"Complete school set for girls"}, category:"scolaire", price:45000, ages:"3–8", sheet:"10", position:2, status:"available", badge:"school", detail:{fr:"Cartable, sac lunch, gourde et fournitures.",en:"Backpack, lunch bag, bottle and school supplies."} },
-  { name: {fr:"Déguisement princesse",en:"Princess costume"}, category:"poupees", price:20000, ages:"3–8", sheet:"10", position:3, status:"available", badge:"new", detail:{fr:"Rêve et imagination.",en:"Dreams and imagination."} },
 ];
 
 function PhoneIcon() {
@@ -81,10 +41,24 @@ export default function Home() {
   const [showAll, setShowAll] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [managedProducts, setManagedProducts] = useState<Product[] | null>(null);
+  const [storeSettings, setStoreSettings] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
-  const storeProducts = managedProducts?.length ? managedProducts : products;
+  const storeProducts = managedProducts === null ? defaultProducts : managedProducts;
+  const siteSections = readSiteSections(storeSettings.site_sections);
+  const siteTexts = readSiteTexts(storeSettings.site_texts);
+  const storePhone = storeSettings.phone || "+224 666 54 79 76";
+  const whatsappNumber = (storeSettings.whatsapp || "224666547976").replace(/[^\d]/g, "");
+  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  const facebookUrl = storeSettings.facebook || "https://www.facebook.com/rachetteboutique/";
+  const address = storeSettings.address || "Immeuble Famille Diallo, Cameroun, Dixinn, Conakry, Guinée";
   const isEnglish = language === "en";
   const say = (french: string, english: string) => isEnglish ? english : french;
+  const editable = (key: string, french: string, english: string) => siteTexts[`${key}_${language}`]?.trim() || say(french, english);
+  const sectionStyle = (id: string): CSSProperties => {
+    const index = siteSections.findIndex((section) => section.id === id);
+    const section = siteSections[index];
+    return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible ? { display: "none" } : {}) };
+  };
   const matchingProducts = storeProducts.filter((item) => (active === "all" || item.category === active) && (status === "all" || item.status === status) && (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase())));
   const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
   const featuredCollections = [
@@ -93,9 +67,11 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    fetch("/api/catalog").then((response) => response.json()).then((payload: { products?: Record<string, unknown>[] }) => {
-      if (!payload.products?.length) return;
-      setManagedProducts(payload.products.map((item) => ({
+    fetch("/api/catalog").then((response) => response.json()).then((payload: { products?: Record<string, unknown>[]; settings?: Record<string, string> }) => {
+      const savedSettings = payload.settings || {};
+      setStoreSettings(savedSettings);
+      if (!payload.products?.length && savedSettings.catalog_initialized !== "true") return;
+      setManagedProducts((payload.products || []).map((item) => ({
         id: String(item.id), name: { fr: String(item.name_fr || ""), en: String(item.name_en || item.name_fr || "") },
         category: String(item.category), price: Number(item.price || 0), ages: String(item.ages || "3+"),
         sheet: String(item.image_sheet || "17"), position: Number(item.image_position || 0), imageUrl: item.image_url ? String(item.image_url) : undefined,
@@ -118,6 +94,62 @@ export default function Home() {
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".editable-storefront");
+    if (!root) return;
+    const selectors: Record<string, string> = {
+      hero: ".hero", ribbon: ".service-ribbon", catalogue: "#catalogue", nouveautes: "#nouveautes",
+      rentree: "#rentree-scolaire", promise: ".promise", promotions: "#promotions", services: "#services",
+      story: "#notre-histoire", brands: ".brands-section", delivery: "#livraison", testimonials: ".testimonials-section",
+      faq: "#faq", contact: "#contact", cta: ".cta",
+    };
+    readSiteSections(storeSettings.site_sections).forEach((section, index) => {
+      const element = root.querySelector<HTMLElement>(selectors[section.id]);
+      if (!element) return;
+      element.style.order = String(index + 10);
+      if (section.visible) element.style.removeProperty("display");
+      else element.style.display = "none";
+    });
+
+    const texts = readSiteTexts(storeSettings.site_texts);
+    const replaceText = (key: string, selector: string, firstOnly = false) => {
+      const value = texts[`${key}_${language}`]?.trim();
+      const element = root.querySelector<HTMLElement>(selector);
+      if (!value || !element) return;
+      if (firstOnly && element.firstChild) element.firstChild.textContent = value;
+      else element.textContent = value;
+    };
+    replaceText("story_title", ".story-copy h2", true);
+    replaceText("story_description", ".story-copy > p:not(.eyebrow)");
+    replaceText("services_title", "#services .center-heading h2", true);
+    replaceText("services_description", "#services .center-heading > p:not(.eyebrow)");
+    replaceText("delivery_description", "#livraison .section-heading > p");
+    replaceText("contact_title", "#contact .contact-copy h2", true);
+    replaceText("welcome_eyebrow", ".cta .eyebrow");
+
+    const phone = storeSettings.phone?.trim();
+    if (phone) {
+      root.querySelectorAll<HTMLAnchorElement>('a[href^="tel:"]').forEach((anchor) => anchor.href = `tel:${phone.replace(/\s/g, "")}`);
+      const contactPhone = root.querySelector<HTMLElement>(".contact-phone");
+      if (contactPhone) contactPhone.textContent = phone;
+    }
+    if (storeSettings.opening_hours?.trim()) {
+      const hours = root.querySelector<HTMLElement>(".contact-hour > span");
+      if (hours) hours.textContent = storeSettings.opening_hours;
+    }
+    if (storeSettings.delivery_conditions?.trim() && !texts[`delivery_description_${language}`]?.trim()) {
+      const delivery = root.querySelector<HTMLElement>("#livraison .section-heading > p");
+      if (delivery) delivery.textContent = storeSettings.delivery_conditions;
+    }
+    const discount = Number(storeSettings.welcome_discount || 10);
+    if (Number.isFinite(discount) && discount > 0 && discount <= 100) {
+      const announcement = root.querySelector<HTMLElement>(".announcement strong");
+      if (announcement) announcement.textContent = language === "fr" ? `${discount} % de rabais` : `${discount}% off`;
+      const modalDiscount = root.querySelector<HTMLElement>(".promo-modal h2 > span");
+      if (modalDiscount) modalDiscount.textContent = `${discount} %`;
+    }
+  }, [storeSettings.site_sections, storeSettings.site_texts, storeSettings.phone, storeSettings.opening_hours, storeSettings.delivery_conditions, storeSettings.welcome_discount, language, promoOpen]);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -184,7 +216,7 @@ export default function Home() {
   const visitorRegion = visitorZone.startsWith("Africa/") ? say("Vous consultez depuis l’Afrique", "You are browsing from Africa") : visitorZone.startsWith("America/") ? say("Vous consultez depuis l’Amérique", "You are browsing from the Americas") : say("Votre heure locale", "Your local time");
 
   return (
-    <main>
+    <main className="editable-storefront">
       <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={() => setPromoOpen(true)}>{say("J’en profite", "Get the offer")} →</button></div>
 
       <header className="header wrap">
@@ -222,12 +254,12 @@ export default function Home() {
 
       <section className="timezone-strip" aria-label={say("Heures locales", "Local times")}><div className="wrap"><div className="timezone-place"><span className="timezone-dot quebec-dot"></span><span>Québec</span><strong>{formatClock("America/Toronto")}</strong></div><span className="timezone-divider"></span><div className="timezone-place"><span className="timezone-dot conakry-dot"></span><span>Conakry</span><strong>{formatClock("Africa/Conakry")}</strong></div><p className="timezone-context">{visitorRegion}{visitorZone ? ` · ${formatClock(visitorZone)}` : ""}</p></div></section>
 
-      <section className="hero wrap" id="accueil">
+      <section className="hero wrap" id="accueil" style={sectionStyle("hero")}>
         <div className="hero-copy">
-          <p className="eyebrow"><span></span> {say("Boutique de jouets éducatifs · Conakry", "Educational toy shop · Conakry")}</p>
-          <h1>{say("Le jeu qui fait", "Play that helps")}<br /><span>{say("grandir vos enfants.", "your children grow.")}</span></h1>
-          <p className="hero-text">{say("Jouets, articles pour bébé, vélos et fournitures scolaires choisis pour éveiller leur curiosité.", "Toys, baby essentials, bicycles and school supplies chosen to spark their curiosity.")}</p>
-          <div className="hero-buttons"><a className="button hero-call" href="tel:+224666547976"><PhoneIcon/>{say("Nous appeler", "Call us")}</a><a className="button button-dark hero-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>{say("Commander sur WhatsApp", "Order on WhatsApp")}</a></div>
+          <p className="eyebrow"><span></span> {editable("hero_eyebrow", "Boutique de jouets éducatifs · Conakry", "Educational toy shop · Conakry")}</p>
+          <h1>{editable("hero_title", "Le jeu qui fait", "Play that helps")}<br /><span>{editable("hero_accent", "grandir vos enfants.", "your children grow.")}</span></h1>
+          <p className="hero-text">{editable("hero_description", "Jouets, articles pour bébé, vélos et fournitures scolaires choisis pour éveiller leur curiosité.", "Toys, baby essentials, bicycles and school supplies chosen to spark their curiosity.")}</p>
+          <div className="hero-buttons"><a className="button hero-call" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Nous appeler", "Call us")}</a><a className="button button-dark hero-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>{say("Commander sur WhatsApp", "Order on WhatsApp")}</a></div>
           <p className="tiny-note">{say("Livraison et paiement à la réception.", "Delivery available. Pay upon arrival.")}</p>
         </div>
 
@@ -237,10 +269,10 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="service-ribbon wrap"><span>{say("Jouets éducatifs", "Educational toys")}</span><span>{say("Livraison chez vous", "Delivered to you")}</span><span>{say("Paiement à la réception", "Pay on delivery")}</span><a href={facebookUrl} target="_blank" rel="noreferrer">{say("Suivez-nous sur Facebook", "Follow us on Facebook")} ↗</a></div>
+      <div className="service-ribbon wrap" style={sectionStyle("ribbon")}><span>{say("Jouets éducatifs", "Educational toys")}</span><span>{say("Livraison chez vous", "Delivered to you")}</span><span>{say("Paiement à la réception", "Pay on delivery")}</span><a href={facebookUrl} target="_blank" rel="noreferrer">{say("Suivez-nous sur Facebook", "Follow us on Facebook")} ↗</a></div>
 
-      <section className="univers section wrap" id="catalogue">
-        <div className="section-heading"><div><p className="eyebrow">{say("Nos trouvailles en boutique", "Discover our favourite finds")}</p><h2>{say("Le catalogue", "A little shop")}<br /><span>{say("des petits bonheurs.", "full of joy.")}</span></h2></div><p>{say("Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")}</p></div>
+      <section className="univers section wrap" id="catalogue" style={sectionStyle("catalogue")}>
+        <div className="section-heading"><div><p className="eyebrow">{say("Nos trouvailles en boutique", "Discover our favourite finds")}</p><h2>{editable("catalogue_title", "Le catalogue", "A little shop")}<br /><span>{editable("catalogue_accent", "des petits bonheurs.", "full of joy.")}</span></h2></div><p>{editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")}</p></div>
         <div className="catalog-search"><label className="search-box"><span aria-hidden="true">⌕</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={say("Rechercher un jouet, un cartable, une poupée…", "Search for a toy, a backpack, a doll…")} /></label><select value={status} onChange={(event) => setStatus(event.target.value)} aria-label={say("Filtrer par disponibilité", "Filter by availability")}><option value="all">{say("Tous les statuts", "All availability")}</option><option value="available">{say("Disponible", "Available")}</option><option value="reserved">{say("Réservé", "Reserved")}</option><option value="sold">{say("Vendu", "Sold out")}</option></select></div>
         <div className="category-tabs" role="group" aria-label={say("Filtrer les univers", "Filter collections")}>
           {categories.map((category) => <button key={category.value} className={active === category.value ? "active" : ""} onClick={() => setActive(category.value)}>{category.label[language]}</button>)}
