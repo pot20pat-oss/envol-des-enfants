@@ -1,0 +1,5 @@
+# Copier ce fichier vers .dev.vars pour le développement local uniquement.
+# Ne jamais publier les vraies valeurs sur GitHub.
+ADMIN_EMAILS="votre-adresse@example.com,autre-adresse@example.com"
+ADMIN_BOOTSTRAP_PASSWORD="choisir-un-mot-de-passe-long-et-unique"
+SESSION_SECRET="remplacer-par-une-valeur-aleatoire-de-32-caracteres-minimum"
