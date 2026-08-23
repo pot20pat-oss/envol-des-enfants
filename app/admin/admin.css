@@ -2,3 +2,5 @@
 @media(max-width:820px){.cms-app{grid-template-columns:1fr}.cms-sidebar{position:relative;height:auto;padding:12px}.cms-logo img{height:65px;width:120px;margin-bottom:0}.cms-sidebar>.cms-eyebrow,.cms-account{display:none}.cms-sidebar nav{display:flex;overflow:auto;margin-top:8px}.cms-sidebar nav button{white-space:nowrap}.cms-main{padding:20px 15px}.cms-topbar h1{font-size:20px}.cms-stats{grid-template-columns:1fr 1fr;gap:10px}.cms-dashboard-grid,.cms-settings-grid{grid-template-columns:1fr}.cms-panel{padding:14px}.cms-panel-title{flex-wrap:wrap}.cms-form-grid{grid-template-columns:1fr}.cms-login-card{padding:28px}.cms-login-card h1{font-size:32px}}
 
 .cms-login-card>img,.cms-logo img{object-position:center 20%}
+
+.cms-login-card>img,.cms-logo img{clip-path:inset(0 18% 0 18%)}
