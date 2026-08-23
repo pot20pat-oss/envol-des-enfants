@@ -89,3 +89,5 @@
 /* Present the location map inside a softly illuminated raised frame. */
 .contact-map{padding:8px;border:1px solid #d9e1e6;border-radius:14px;background:linear-gradient(145deg,#fff 0%,#eef2f4 100%);box-shadow:0 12px 30px #17364a22,0 2px 5px #17364a17,inset 0 1px 0 #fff}.contact-map iframe{display:block;border-radius:8px;box-shadow:inset 0 1px 3px #17364a20}.contact-map>a{left:18px;bottom:18px;border-radius:6px;box-shadow:0 2px 8px #17364a20}
 @media(max-width:700px){.contact-map{padding:6px;border-radius:11px}.contact-map iframe{border-radius:6px}.contact-map>a{left:14px;bottom:14px}}
+
+.header-actions .contact-button{display:none!important}
