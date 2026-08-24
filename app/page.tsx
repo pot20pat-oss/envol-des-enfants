@@ -33,8 +33,6 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [requested, setRequested] = useState(false);
   const [language, setLanguage] = useState<Language>("fr");
-  const [now, setNow] = useState<Date | null>(null);
-  const [visitorZone, setVisitorZone] = useState("");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [showAll, setShowAll] = useState(false);
@@ -98,10 +96,6 @@ export default function Home() {
     const saved = window.localStorage.getItem("envol-language");
     const initialLanguage: Language = saved === "fr" || saved === "en" ? saved : navigator.language.toLowerCase().startsWith("en") ? "en" : "fr";
     setLanguage(initialLanguage);
-    setVisitorZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    setNow(new Date());
-    const timer = window.setInterval(() => setNow(new Date()), 30000);
-    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -221,13 +215,6 @@ export default function Home() {
     setOpenMenu(null);
   }
 
-  function formatClock(timeZone: string) {
-    if (!now) return "--:--";
-    return new Intl.DateTimeFormat(isEnglish ? "en-CA" : "fr-CA", { timeZone, hour: "2-digit", minute: "2-digit", hour12: false }).format(now);
-  }
-
-  const visitorRegion = visitorZone.startsWith("Africa/") ? say("Vous consultez depuis l’Afrique", "You are browsing from Africa") : visitorZone.startsWith("America/") ? say("Vous consultez depuis l’Amérique", "You are browsing from the Americas") : say("Votre heure locale", "Your local time");
-
   return (
     <main className="editable-storefront">
       <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={() => setPromoOpen(true)}>{say("J’en profite", "Get the offer")} →</button></div>
@@ -264,8 +251,6 @@ export default function Home() {
           <a href="#contact">{say("Nous trouver", "Find us")}</a>
         </div>
       </nav>
-
-      <section className="timezone-strip" aria-label={say("Heures locales", "Local times")}><div className="wrap"><div className="timezone-place"><span className="timezone-dot quebec-dot"></span><span>Québec</span><strong>{formatClock("America/Toronto")}</strong></div><span className="timezone-divider"></span><div className="timezone-place"><span className="timezone-dot conakry-dot"></span><span>Conakry</span><strong>{formatClock("Africa/Conakry")}</strong></div><p className="timezone-context">{visitorRegion}{visitorZone ? ` · ${formatClock(visitorZone)}` : ""}</p></div></section>
 
       <section className="hero wrap" id="accueil" style={sectionStyle("hero")}>
         <div className="hero-copy">

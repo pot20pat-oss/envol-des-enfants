@@ -35,8 +35,8 @@ test("renders the localized storefront without a public market selector", async 
   const html = await response.text();
   assert.match(html, /<title>Envol des Enfants<\/title>/);
   assert.doesNotMatch(html, /class="market-switch"/);
+  assert.doesNotMatch(html, /class="timezone-strip"/);
   assert.match(html, /class="language-switch"/);
-  assert.match(html, /Québec/);
   assert.match(html, /Conakry/);
   assert.match(html, /Mon monde de poupées/);
 });
