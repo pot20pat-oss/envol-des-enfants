@@ -8,6 +8,13 @@
       "when": 1787464241910,
       "tag": "0000_clumsy_rage",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787500000000,
+      "tag": "0001_multiregion_commerce",
+      "breakpoints": true
     }
   ]
 }

@@ -94,3 +94,4 @@
 .editable-storefront{display:flex;flex-direction:column}.editable-storefront>.announcement{order:-40}.editable-storefront>.header{order:-30}.editable-storefront>.shop-nav{order:-20}.editable-storefront>.timezone-strip{order:-10}.editable-storefront>.footer{order:900}.editable-storefront>.floating-actions{order:910}.editable-storefront>.promo-backdrop{order:920}
 
 .header-actions .contact-button{display:none!important}
+.market-switch{display:flex;align-items:center;padding:4px;border:1px solid #e1e6e8;border-radius:999px;background:#f7f8f7}.market-switch button{border:0;background:transparent;padding:8px 11px;border-radius:999px;color:#65727a;font-size:10px;font-weight:600;cursor:pointer}.market-switch button.selected{background:#173652;color:#fff;box-shadow:0 2px 8px #17365226}.header-actions{gap:10px}@media(max-width:700px){.market-switch button{padding:7px 8px;font-size:9px}.header-actions{gap:6px}.header-location{display:none}}

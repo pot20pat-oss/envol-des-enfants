@@ -40,6 +40,18 @@ export const products = sqliteTable("products", {
   exchangeTermsFr: text("exchange_terms_fr"),
   exchangeTermsEn: text("exchange_terms_en"),
   visible: integer("visible", { mode: "boolean" }).notNull().default(true),
+  priceQc: integer("price_qc"),
+  priceConakry: integer("price_conakry"),
+  stockQc: integer("stock_qc").notNull().default(0),
+  stockConakry: integer("stock_conakry").notNull().default(0),
+  visibleQc: integer("visible_qc", { mode: "boolean" }).notNull().default(false),
+  visibleConakry: integer("visible_conakry", { mode: "boolean" }).notNull().default(true),
+  alertThreshold: integer("alert_threshold").notNull().default(2),
+  featured: integer("featured", { mode: "boolean" }).notNull().default(false),
+  promoPriceQc: integer("promo_price_qc"),
+  promoPriceConakry: integer("promo_price_conakry"),
+  variantsJson: text("variants_json").notNull().default("[]"),
+  imagesJson: text("images_json").notNull().default("[]"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -50,6 +62,7 @@ export const subscribers = sqliteTable("subscribers", {
   language: text("language").notNull().default("fr"),
   consent: integer("consent", { mode: "boolean" }).notNull().default(false),
   source: text("source").notNull().default("promotion"),
+  region: text("region").notNull().default("conakry"),
   createdAt: text("created_at").notNull(),
 });
 
@@ -63,6 +76,13 @@ export const promotions = sqliteTable("promotions", {
   active: integer("active", { mode: "boolean" }).notNull().default(true),
   startsAt: text("starts_at"),
   endsAt: text("ends_at"),
+  region: text("region").notNull().default("both"),
+  promoCode: text("promo_code"),
+  discountType: text("discount_type").notNull().default("percent"),
+  discountAmount: integer("discount_amount").notNull().default(0),
+  minimumPurchase: integer("minimum_purchase").notNull().default(0),
+  usageCount: integer("usage_count").notNull().default(0),
+  usageLimit: integer("usage_limit"),
   createdAt: text("created_at").notNull(),
 });
 
@@ -75,6 +95,9 @@ export const orders = sqliteTable("orders", {
   total: integer("total").notNull().default(0),
   status: text("status").notNull().default("new"),
   notes: text("notes").notNull().default(""),
+  region: text("region").notNull().default("conakry"),
+  currency: text("currency").notNull().default("GNF"),
+  deliveryZone: text("delivery_zone"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -84,3 +107,23 @@ export const settings = sqliteTable("settings", {
   value: text("value").notNull(),
   updatedAt: text("updated_at").notNull(),
 }, (table) => [uniqueIndex("settings_key_idx").on(table.key)]);
+
+export const stockMovements = sqliteTable("stock_movements", {
+  id: text("id").primaryKey(),
+  productId: text("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  region: text("region").notNull(),
+  previousStock: integer("previous_stock").notNull(),
+  newStock: integer("new_stock").notNull(),
+  delta: integer("delta").notNull(),
+  reason: text("reason").notNull().default(""),
+  adminId: text("admin_id").references(() => admins.id, { onDelete: "set null" }),
+  createdAt: text("created_at").notNull(),
+});
+
+export const siteVersions = sqliteTable("site_versions", {
+  id: text("id").primaryKey(),
+  region: text("region").notNull(),
+  settingsJson: text("settings_json").notNull(),
+  adminId: text("admin_id").references(() => admins.id, { onDelete: "set null" }),
+  createdAt: text("created_at").notNull(),
+});
