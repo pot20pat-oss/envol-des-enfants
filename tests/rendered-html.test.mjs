@@ -7,7 +7,7 @@ register(`data:text/javascript,${encodeURIComponent(`export async function resol
   return nextResolve(specifier, context);
 }`)}`, import.meta.url);
 
-test("renders the storefront with Québec and Conakry market controls", async () => {
+test("renders the localized storefront without a public market selector", async () => {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
@@ -34,8 +34,9 @@ test("renders the storefront with Québec and Conakry market controls", async ()
   );
   const html = await response.text();
   assert.match(html, /<title>Envol des Enfants<\/title>/);
-  assert.match(html, /class="market-switch"/);
-  assert.match(html, />Québec<\/button>/);
-  assert.match(html, />Conakry<\/button>/);
+  assert.doesNotMatch(html, /class="market-switch"/);
+  assert.match(html, /class="language-switch"/);
+  assert.match(html, /Québec/);
+  assert.match(html, /Conakry/);
   assert.match(html, /Mon monde de poupées/);
 });

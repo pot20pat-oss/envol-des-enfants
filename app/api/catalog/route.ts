@@ -4,9 +4,10 @@ import { marketSettings, normalizeMarket, type Market } from "@/lib/markets";
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const geography = (request as Request & { cf?: { country?: string; regionCode?: string } }).cf;
-    const country = geography?.country || request.headers.get("cf-ipcountry") || "";
-    const detectedRegion: Market = country.toUpperCase() === "CA" ? "qc" : "conakry";
+    const geography = (request as Request & { cf?: { country?: string; regionCode?: string; timezone?: string } }).cf;
+    const country = (geography?.country || request.headers.get("cf-ipcountry") || request.headers.get("x-vercel-ip-country") || "").toUpperCase();
+    const timezone = geography?.timezone || url.searchParams.get("timezone") || "";
+    const detectedRegion: Market = country === "CA" || (!country && timezone.startsWith("America/")) ? "qc" : "conakry";
     const region = url.searchParams.has("region") ? normalizeMarket(url.searchParams.get("region")) : detectedRegion;
     const visibility = region === "qc" ? "visible_qc" : "visible_conakry";
     const { results } = await cmsEnv().DB.prepare(`SELECT * FROM products WHERE ${visibility}=1 ORDER BY featured DESC,updated_at DESC`).all<Record<string, unknown>>();

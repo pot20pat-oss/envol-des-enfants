@@ -69,13 +69,15 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const preferred = new URLSearchParams(window.location.search).get("region") || window.localStorage.getItem("envol-market");
+    const preferred = new URLSearchParams(window.location.search).get("region");
+    window.localStorage.removeItem("envol-market");
     void loadMarket(preferred === "qc" || preferred === "conakry" ? preferred : undefined);
   }, []);
 
   async function loadMarket(preferred?: Market) {
     try {
-      const response = await fetch(preferred ? `/api/catalog?region=${preferred}` : "/api/catalog");
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const response = await fetch(preferred ? `/api/catalog?region=${preferred}&timezone=${encodeURIComponent(timezone)}` : `/api/catalog?timezone=${encodeURIComponent(timezone)}`);
       const payload = await response.json() as { products?: Record<string, unknown>[]; settings?: Record<string, string>; region?: string };
       const selected = normalizeMarket(payload.region || preferred);
       setMarket(selected);
@@ -90,15 +92,6 @@ export default function Home() {
         detail: { fr: String(item.description_fr || ""), en: String(item.description_en || item.description_fr || "") },
       })));
     } catch {}
-  }
-
-  function changeMarket(next: Market) {
-    if (market === next) return;
-    window.localStorage.setItem("envol-market", next);
-    setMarket(next);
-    setManagedProducts([]);
-    setStoreSettings({});
-    void loadMarket(next);
   }
 
   useEffect(() => {
@@ -244,7 +237,7 @@ export default function Home() {
           <span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span>
         </a>
         <p className="header-location">{markets[market].label} <span>•</span> {say("Des jouets qui font grandir", "Toys that help little ones grow")}</p>
-        <div className="header-actions"><div className="market-switch" role="group" aria-label={say("Choisir votre boutique", "Choose your store")}><button className={market === "conakry" ? "selected" : ""} onClick={() => changeMarket("conakry")}>Conakry</button><button className={market === "qc" ? "selected" : ""} onClick={() => changeMarket("qc")}>Québec</button></div><div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}><button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button><button className={language === "en" ? "selected" : ""} onClick={() => changeLanguage("en")}>EN</button></div><a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler la boutique", "Call the store")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a><a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>WhatsApp</span></a></div>
+        <div className="header-actions"><div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}><button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button><button className={language === "en" ? "selected" : ""} onClick={() => changeLanguage("en")}>EN</button></div><a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler la boutique", "Call the store")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a><a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>WhatsApp</span></a></div>
       </header>
 
       <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}>
