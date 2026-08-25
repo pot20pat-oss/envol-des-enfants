@@ -11,6 +11,7 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Tout voir", en: "View all" }, value: "all" },
   { label: { fr: "Jouets éducatifs", en: "Educational toys" }, value: "eveil" },
   { label: { fr: "Mon monde de poupées", en: "My world of dolls" }, value: "poupees" },
+  { label: { fr: "↳ Princesses", en: "↳ Princesses" }, value: "princesses" },
   { label: { fr: "Bébé", en: "Baby" }, value: "bebe" },
   { label: { fr: "Vêtements", en: "Clothing" }, value: "vetements" },
   { label: { fr: "Chaussures", en: "Shoes" }, value: "chaussures" },
@@ -59,7 +60,7 @@ export default function Home() {
     const section = siteSections[index];
     return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible ? { display: "none" } : {}) };
   };
-  const matchingProducts = storeProducts.filter((item) => (active === "all" || item.category === active) && (status === "all" || item.status === status) && (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase())));
+  const matchingProducts = storeProducts.filter((item) => (active === "all" || item.category === active || (active === "poupees" && item.category === "princesses")) && (status === "all" || item.status === status) && (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase())));
   const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
   const featuredCollections = [
     { id: "nouveautes", eyebrow: say("Tout juste arrivés en boutique", "Freshly arrived in store"), title: say("Les nouveautés", "Our newest arrivals"), detail: say("Des découvertes à ne pas laisser filer.", "Little discoveries worth catching."), items: storeProducts.filter((item) => item.badge === "new").slice(0, 4) },
@@ -236,7 +237,7 @@ export default function Home() {
           </div>
           <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}
+            {openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("princesses")}>{say("↳ Princesses", "↳ Princesses")}</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}
           </div>
           <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a>
           <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>

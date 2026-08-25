@@ -20,8 +20,17 @@ export async function POST(request: Request) {
     if (!frenchName || names.has(frenchName.toLocaleLowerCase("fr"))) continue;
     names.add(frenchName.toLocaleLowerCase("fr"));
 
-    statements.push(database.prepare("INSERT INTO products (id,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,material,dimensions,exchange_terms_fr,exchange_terms_en,visible,price_conakry,stock_conakry,visible_conakry,visible_qc,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-      .bind(crypto.randomUUID(), frenchName, stringValue(name.en), stringValue(detail.fr), stringValue(detail.en), stringValue(product.category, "eveil"), numberValue(product.price), product.status === "sold" ? 0 : 1, stringValue(product.status, "available"), stringValue(product.badge) || null, stringValue(product.ages, "3+"), stringValue(product.imageUrl) || null, stringValue(product.sheet) || null, numberValue(product.position), null, null, null, null, null, 1, numberValue(product.price), product.status === "sold" ? 0 : 1, 1, 0, now, now));
+    const status = stringValue(product.status, "available");
+    const defaultStock = status === "sold" ? 0 : 1;
+    const priceConakry = numberValue(product.priceConakry ?? product.price);
+    const priceQc = numberValue(product.priceQc);
+    const stockConakry = numberValue(product.stockConakry, defaultStock);
+    const stockQc = numberValue(product.stockQc, defaultStock);
+    const visibleConakry = product.visibleConakry === false ? 0 : 1;
+    const visibleQc = product.visibleQc ? 1 : 0;
+
+    statements.push(database.prepare("INSERT INTO products (id,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,material,dimensions,exchange_terms_fr,exchange_terms_en,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+      .bind(crypto.randomUUID(), frenchName, stringValue(name.en), stringValue(detail.fr), stringValue(detail.en), stringValue(product.category, "eveil"), priceConakry, stockConakry, status, stringValue(product.badge) || null, stringValue(product.ages, "3+"), stringValue(product.imageUrl) || null, stringValue(product.sheet) || null, numberValue(product.position), stringValue(product.brand) || null, null, null, null, null, 1, priceQc, priceConakry, stockQc, stockConakry, visibleQc, visibleConakry, now, now));
   }
 
   statements.push(database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").bind("catalog_initialized", "true", now));

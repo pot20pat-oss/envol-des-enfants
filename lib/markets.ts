@@ -11,6 +11,7 @@ export function normalizeMarket(value: unknown): Market {
 
 export function marketPrice(value: unknown, market: Market, language = "fr"): string {
   const amount = Number(value || 0);
+  if (amount <= 0) return language === "en" ? "Price to be confirmed" : "Prix à confirmer";
   if (market === "qc") return new Intl.NumberFormat(language === "en" ? "en-CA" : "fr-CA", { style: "currency", currency: "CAD" }).format(amount / 100);
   return `${new Intl.NumberFormat(language === "en" ? "en-CA" : "fr-GN").format(amount)} GNF`;
 }
