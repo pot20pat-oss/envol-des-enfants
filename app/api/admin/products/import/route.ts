@@ -1,9 +1,22 @@
 import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import { defaultProducts, removedProductNames } from "@/lib/default-catalog";
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   const data = await body(request);
-  if (!Array.isArray(data.products)) return Response.json({ error: "Catalogue à importer manquant." }, { status: 400 });
+  const requestedProducts = Array.isArray(data.products) ? data.products : [];
+  const products = [...requestedProducts, ...defaultProducts].filter((candidate, index, all) => {
+    if (!candidate || typeof candidate !== "object") return false;
+    const product = candidate as Record<string, unknown>;
+    const name = product.name && typeof product.name === "object" ? product.name as Record<string, unknown> : {};
+    const frenchName = stringValue(name.fr).trim().toLocaleLowerCase("fr");
+    return Boolean(frenchName) && all.findIndex((entry) => {
+      if (!entry || typeof entry !== "object") return false;
+      const entryProduct = entry as Record<string, unknown>;
+      const entryName = entryProduct.name && typeof entryProduct.name === "object" ? entryProduct.name as Record<string, unknown> : {};
+      return stringValue(entryName.fr).trim().toLocaleLowerCase("fr") === frenchName;
+    }) === index;
+  });
 
   const database = cmsEnv().DB;
   const existing = await database.prepare("SELECT id,name_fr FROM products").all<{ id: string; name_fr: string }>();
@@ -14,8 +27,9 @@ export async function POST(request: Request) {
   let removed = 0;
   const now = new Date().toISOString();
 
-  if (Array.isArray(data.removedProductNames)) {
-    for (const candidate of data.removedProductNames.slice(0, 100)) {
+  const productsToRemove = [...(Array.isArray(data.removedProductNames) ? data.removedProductNames : []), ...removedProductNames];
+  if (productsToRemove.length) {
+    for (const candidate of [...new Set(productsToRemove.map((name) => stringValue(name).trim()))].slice(0, 100)) {
       const name = stringValue(candidate).trim();
       if (!name) continue;
       statements.push(database.prepare("DELETE FROM products WHERE name_fr=?").bind(name));
@@ -23,7 +37,7 @@ export async function POST(request: Request) {
     }
   }
 
-  for (const candidate of data.products.slice(0, 250)) {
+  for (const candidate of products.slice(0, 250)) {
     if (!candidate || typeof candidate !== "object") continue;
     const product = candidate as Record<string, unknown>;
     const name = product.name && typeof product.name === "object" ? product.name as Record<string, unknown> : {};
@@ -57,5 +71,5 @@ export async function POST(request: Request) {
 
   statements.push(database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").bind("catalog_initialized", "true", now));
   await database.batch(statements);
-  return Response.json({ imported, updated, removed, skipped: Math.min(data.products.length, 250) - imported - updated });
+  return Response.json({ imported, updated, removed, skipped: Math.min(products.length, 250) - imported - updated });
 }
