@@ -11,7 +11,17 @@ export async function POST(request: Request) {
   const statements = [];
   let imported = 0;
   let updated = 0;
+  let removed = 0;
   const now = new Date().toISOString();
+
+  if (Array.isArray(data.removedProductNames)) {
+    for (const candidate of data.removedProductNames.slice(0, 100)) {
+      const name = stringValue(candidate).trim();
+      if (!name) continue;
+      statements.push(database.prepare("DELETE FROM products WHERE name_fr=?").bind(name));
+      if (productsByName.has(name.toLocaleLowerCase("fr"))) removed += 1;
+    }
+  }
 
   for (const candidate of data.products.slice(0, 250)) {
     if (!candidate || typeof candidate !== "object") continue;
@@ -47,5 +57,5 @@ export async function POST(request: Request) {
 
   statements.push(database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").bind("catalog_initialized", "true", now));
   await database.batch(statements);
-  return Response.json({ imported, updated, skipped: Math.min(data.products.length, 250) - imported - updated });
+  return Response.json({ imported, updated, removed, skipped: Math.min(data.products.length, 250) - imported - updated });
 }

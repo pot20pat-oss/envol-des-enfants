@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { defaultProducts } from "@/lib/default-catalog";
+import { defaultProducts, removedProductNames } from "@/lib/default-catalog";
 import { defaultSiteSections, editableTexts, readSiteSections, readSiteTexts, type SiteSection } from "@/lib/site-editor";
 import { marketPrice, markets, type Market } from "@/lib/markets";
 import "./admin.css";
@@ -122,9 +122,9 @@ export default function Administration() {
   async function synchronizeProducts() {
     setBusy(true); setError("");
     try {
-      const result = await request("/api/admin/products/import", { method: "POST", body: JSON.stringify({ products: defaultProducts }) });
+      const result = await request("/api/admin/products/import", { method: "POST", body: JSON.stringify({ products: defaultProducts, removedProductNames }) });
       await load();
-      flash(`${Number(result.imported || 0)} produit(s) ajouté(s), ${Number(result.updated || 0)} produit(s) mis à jour.`);
+      flash(`${Number(result.imported || 0)} produit(s) ajouté(s), ${Number(result.updated || 0)} mis à jour, ${Number(result.removed || 0)} retiré(s).`);
     } catch (failure) { setError(failure instanceof Error ? failure.message : "Synchronisation impossible."); }
     finally { setBusy(false); }
   }
