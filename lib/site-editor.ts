@@ -5,7 +5,7 @@ export const defaultSiteSections: SiteSection[] = [
   { id: "ribbon", label: "Avantages de la boutique", visible: true },
   { id: "nouveautes", label: "Nouveautés", visible: true },
   { id: "catalogue", label: "Catalogue des produits", visible: true },
-  { id: "rentree", label: "Rentrée scolaire", visible: true },
+  { id: "rentree", label: "Articles scolaires", visible: true },
   { id: "promotions", label: "Promotions", visible: true },
   { id: "promise", label: "Engagements", visible: true },
   { id: "services", label: "Services", visible: true },

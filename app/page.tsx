@@ -16,7 +16,7 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Bébé", en: "Baby" }, value: "bebe" },
   { label: { fr: "Vêtements", en: "Clothing" }, value: "vetements" },
   { label: { fr: "Chaussures", en: "Shoes" }, value: "chaussures" },
-  { label: { fr: "Fournitures scolaires", en: "School supplies" }, value: "scolaire" },
+  { label: { fr: "Articles scolaires", en: "School supplies" }, value: "scolaire" },
   { label: { fr: "Sacs & gourdes", en: "Bags & bottles" }, value: "sacs" },
   { label: { fr: "Véhicules", en: "Vehicles" }, value: "vehicules" },
 ];
@@ -61,6 +61,7 @@ export default function Home() {
     const section = siteSections[index];
     return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible ? { display: "none" } : {}) };
   };
+  const sectionVisible = (id: string) => siteSections.find((section) => section.id === id)?.visible !== false;
   const matchingProducts = storeProducts.filter((item) => (active === "all" || item.category === active || (active === "disney" && item.category === "princesses") || (active === "poupees" && ["poupees", "princesses", "disney", "barbie"].includes(item.category))) && (status === "all" || item.status === status) && (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase())));
   const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
   const featuredCollections = [
@@ -231,26 +232,26 @@ export default function Home() {
 
       <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}>
         <div className="wrap">
-          <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>
-          <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
+          {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
+          {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>
             {openMenu === "catalogue" && <div className="nav-dropdown-panel">{categories.map((category) => <a href="#catalogue" key={category.value} onClick={() => chooseCategory(category.value)}>{category.label[language]}</a>)}</div>}
-          </div>
-          <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
+          </div>}
+          {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
             {openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("disney")}>↳ Disney</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("barbie")}>↳ Barbie</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}
-          </div>
-          <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a>
-          <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
+          </div>}
+          {sectionVisible("catalogue") && <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a>}
+          {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>
             {openMenu === "enfants" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("bebe")}>{say("Bébé", "Baby")}</a><a href="#catalogue" onClick={() => chooseCategory("vetements")}>{say("Vêtements", "Clothing")}</a><a href="#catalogue" onClick={() => chooseCategory("chaussures")}>{say("Chaussures", "Shoes")}</a></div>}
-          </div>
-          <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}>
-            <button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Rentrée", "School")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "rentree" && <div className="nav-dropdown-panel"><a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection rentrée scolaire", "Back-to-school selection")}</a><a href="#catalogue" onClick={() => chooseCategory("scolaire")}>{say("Fournitures scolaires", "School supplies")}</a><a href="#catalogue" onClick={() => chooseCategory("sacs")}>{say("Sacs & gourdes", "Bags & bottles")}</a></div>}
-          </div>
-          <a href="#promotions">{say("Promotions", "Offers")}</a>
-          <a href="#contact">{say("Nous trouver", "Find us")}</a>
+          </div>}
+          {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}>
+            <button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>
+            {openMenu === "rentree" && <div className="nav-dropdown-panel"><a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a><a href="#catalogue" onClick={() => chooseCategory("scolaire")}>{say("Articles scolaires", "School supplies")}</a><a href="#catalogue" onClick={() => chooseCategory("sacs")}>{say("Sacs & gourdes", "Bags & bottles")}</a></div>}
+          </div>}
+          {sectionVisible("promotions") && <a href="#promotions">{say("Promotions", "Offers")}</a>}
+          {sectionVisible("contact") && <a href="#contact">{say("Nous trouver", "Find us")}</a>}
         </div>
       </nav>
 
