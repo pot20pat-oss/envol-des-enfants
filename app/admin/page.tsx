@@ -1536,8 +1536,8 @@ export default function Administration() {
         )}
 
         <div className="cms-quick-scroll" aria-label="Défilement rapide">
-          <button type="button" aria-label="Maintenir pour monter" title="Maintenir pour monter" onMouseDown={() => startQuickScroll(-1)} onTouchStart={() => startQuickScroll(-1)} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(-1); }} onKeyUp={stopQuickScroll}>↑</button>
-          <button type="button" aria-label="Maintenir pour descendre" title="Maintenir pour descendre" onMouseDown={() => startQuickScroll(1)} onTouchStart={() => startQuickScroll(1)} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(1); }} onKeyUp={stopQuickScroll}>↓</button>
+          <button type="button" aria-label="Revenir complètement en haut" title="Retour en haut" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button>
+          <button type="button" aria-label="Aller complètement en bas" title="Aller en bas" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button>
         </div>
 
         {editing && (
