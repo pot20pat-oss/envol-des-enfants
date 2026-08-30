@@ -324,6 +324,11 @@ export default function Home() {
 
       <footer className="footer footer-expanded wrap"><div><a href="#accueil" className="footer-brand">Envol <span>des Enfants</span></a><p>{address}</p></div><nav aria-label={say("Liens de bas de page", "Footer navigation")}><a href="#catalogue">{say("Catalogue", "Catalogue")}</a><a href="#services">{say("Services", "Services")}</a><a href="#promotions">{say("Promotions", "Offers")}</a><a href="#faq">FAQ</a><a href="#livraison">{say("Livraison", "Delivery")}</a><a href="/admin">{say("Administration", "Administration")}</a></nav><div className="footer-social"><a href={facebookUrl} target="_blank" rel="noreferrer">Facebook ↗</a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a></div><small>© 2026 Envol des Enfants</small></footer>
 
+      <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}>
+        <button type="button" aria-label={say("Revenir en haut de la page", "Scroll to the top")} title={say("Retour en haut", "Back to top")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button>
+        <button type="button" aria-label={say("Aller au bas de la page", "Scroll to the bottom")} title={say("Aller en bas", "Go to bottom")} onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button>
+      </div>
+
       <div className="floating-actions">{storePhone && <a className="floating-call" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler", "Call")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}{whatsappNumber && <a className="whatsapp-floating" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Nous joindre sur WhatsApp", "Contact us on WhatsApp")}><WhatsAppIcon/><span>WhatsApp</span></a>}</div>
 
       {promoOpen && <div className="promo-backdrop" onClick={(event) => {if (event.target === event.currentTarget) closePromo();}}>
