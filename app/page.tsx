@@ -204,20 +204,19 @@ export default function Home() {
   }
 
   function stopQuickScroll() {
-    if (quickScrollFrame.current !== null) window.cancelAnimationFrame(quickScrollFrame.current);
+    if (quickScrollFrame.current !== null) window.clearInterval(quickScrollFrame.current);
     quickScrollFrame.current = null;
   }
 
   function startQuickScroll(direction: -1 | 1) {
     stopQuickScroll();
-    const startedAt = window.performance.now();
-    window.scrollBy({ top: direction * 18, behavior: "auto" });
-    const scroll = (time: number) => {
-      const speed = Math.min(26, 7 + (time - startedAt) / 220);
+    const startedAt = Date.now();
+    const scroll = () => {
+      const speed = Math.min(28, 8 + (Date.now() - startedAt) / 180);
       window.scrollBy({ top: direction * speed, behavior: "auto" });
-      quickScrollFrame.current = window.requestAnimationFrame(scroll);
     };
-    quickScrollFrame.current = window.requestAnimationFrame(scroll);
+    scroll();
+    quickScrollFrame.current = window.setInterval(scroll, 16);
   }
 
   useEffect(() => {
@@ -225,12 +224,16 @@ export default function Home() {
     window.addEventListener("mouseup", stop);
     window.addEventListener("pointerup", stop);
     window.addEventListener("pointercancel", stop);
+    window.addEventListener("touchend", stop);
+    window.addEventListener("touchcancel", stop);
     window.addEventListener("blur", stop);
     return () => {
       stop();
       window.removeEventListener("mouseup", stop);
       window.removeEventListener("pointerup", stop);
       window.removeEventListener("pointercancel", stop);
+      window.removeEventListener("touchend", stop);
+      window.removeEventListener("touchcancel", stop);
       window.removeEventListener("blur", stop);
     };
   }, []);
@@ -358,8 +361,8 @@ export default function Home() {
       <footer className="footer footer-expanded wrap"><div><a href="#accueil" className="footer-brand">Envol <span>des Enfants</span></a><p>{address}</p></div><nav aria-label={say("Liens de bas de page", "Footer navigation")}><a href="#catalogue">{say("Catalogue", "Catalogue")}</a><a href="#services">{say("Services", "Services")}</a><a href="#promotions">{say("Promotions", "Offers")}</a><a href="#faq">FAQ</a><a href="#livraison">{say("Livraison", "Delivery")}</a><a href="/admin">{say("Administration", "Administration")}</a></nav><div className="footer-social"><a href={facebookUrl} target="_blank" rel="noreferrer">Facebook ↗</a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a></div><small>© 2026 Envol des Enfants</small></footer>
 
       <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}>
-        <button type="button" aria-label={say("Maintenir pour monter", "Hold to scroll up")} title={say("Maintenir pour monter", "Hold to scroll up")} onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startQuickScroll(-1); }} onPointerUp={stopQuickScroll} onPointerCancel={stopQuickScroll} onLostPointerCapture={stopQuickScroll} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(-1); }} onKeyUp={stopQuickScroll}>↑</button>
-        <button type="button" aria-label={say("Maintenir pour descendre", "Hold to scroll down")} title={say("Maintenir pour descendre", "Hold to scroll down")} onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startQuickScroll(1); }} onPointerUp={stopQuickScroll} onPointerCancel={stopQuickScroll} onLostPointerCapture={stopQuickScroll} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(1); }} onKeyUp={stopQuickScroll}>↓</button>
+        <button type="button" aria-label={say("Maintenir pour monter", "Hold to scroll up")} title={say("Maintenir pour monter", "Hold to scroll up")} onMouseDown={() => startQuickScroll(-1)} onTouchStart={() => startQuickScroll(-1)} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(-1); }} onKeyUp={stopQuickScroll}>↑</button>
+        <button type="button" aria-label={say("Maintenir pour descendre", "Hold to scroll down")} title={say("Maintenir pour descendre", "Hold to scroll down")} onMouseDown={() => startQuickScroll(1)} onTouchStart={() => startQuickScroll(1)} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(1); }} onKeyUp={stopQuickScroll}>↓</button>
       </div>
 
       <div className="floating-actions">{storePhone && <a className="floating-call" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler", "Call")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}{whatsappNumber && <a className="whatsapp-floating" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Nous joindre sur WhatsApp", "Contact us on WhatsApp")}><WhatsAppIcon/><span>WhatsApp</span></a>}</div>
