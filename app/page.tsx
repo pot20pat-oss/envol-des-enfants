@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { defaultProducts, type Product, type Translation } from "@/lib/default-catalog";
 import { readSiteSections, readSiteTexts } from "@/lib/site-editor";
 import { marketPrice, markets, normalizeMarket, type Market } from "@/lib/markets";
@@ -47,6 +47,7 @@ export default function Home() {
   const [storeSettings, setStoreSettings] = useState<Record<string, string>>({});
   const [market, setMarket] = useState<Market>("conakry");
   const [consent, setConsent] = useState(false);
+  const quickScrollFrame = useRef<number | null>(null);
   const storeProducts = managedProducts === null ? market === "conakry" ? defaultProducts : [] : managedProducts;
   const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => ["poupees", "princesses", "disney", "barbie"].includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const siteSections = readSiteSections(storeSettings.site_sections);
@@ -202,6 +203,23 @@ export default function Home() {
     window.sessionStorage.setItem("envol-promo-dismissed", "yes");
   }
 
+  function stopQuickScroll() {
+    if (quickScrollFrame.current !== null) window.cancelAnimationFrame(quickScrollFrame.current);
+    quickScrollFrame.current = null;
+  }
+
+  function startQuickScroll(direction: -1 | 1) {
+    stopQuickScroll();
+    const startedAt = window.performance.now();
+    window.scrollBy({ top: direction * 18, behavior: "auto" });
+    const scroll = (time: number) => {
+      const speed = Math.min(26, 7 + (time - startedAt) / 220);
+      window.scrollBy({ top: direction * speed, behavior: "auto" });
+      quickScrollFrame.current = window.requestAnimationFrame(scroll);
+    };
+    quickScrollFrame.current = window.requestAnimationFrame(scroll);
+  }
+
   async function requestDiscount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!consent) return;
@@ -325,8 +343,8 @@ export default function Home() {
       <footer className="footer footer-expanded wrap"><div><a href="#accueil" className="footer-brand">Envol <span>des Enfants</span></a><p>{address}</p></div><nav aria-label={say("Liens de bas de page", "Footer navigation")}><a href="#catalogue">{say("Catalogue", "Catalogue")}</a><a href="#services">{say("Services", "Services")}</a><a href="#promotions">{say("Promotions", "Offers")}</a><a href="#faq">FAQ</a><a href="#livraison">{say("Livraison", "Delivery")}</a><a href="/admin">{say("Administration", "Administration")}</a></nav><div className="footer-social"><a href={facebookUrl} target="_blank" rel="noreferrer">Facebook ↗</a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a></div><small>© 2026 Envol des Enfants</small></footer>
 
       <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}>
-        <button type="button" aria-label={say("Revenir en haut de la page", "Scroll to the top")} title={say("Retour en haut", "Back to top")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button>
-        <button type="button" aria-label={say("Aller au bas de la page", "Scroll to the bottom")} title={say("Aller en bas", "Go to bottom")} onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button>
+        <button type="button" aria-label={say("Maintenir pour monter", "Hold to scroll up")} title={say("Maintenir pour monter", "Hold to scroll up")} onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startQuickScroll(-1); }} onPointerUp={stopQuickScroll} onPointerCancel={stopQuickScroll} onLostPointerCapture={stopQuickScroll} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(-1); }} onKeyUp={stopQuickScroll}>↑</button>
+        <button type="button" aria-label={say("Maintenir pour descendre", "Hold to scroll down")} title={say("Maintenir pour descendre", "Hold to scroll down")} onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startQuickScroll(1); }} onPointerUp={stopQuickScroll} onPointerCancel={stopQuickScroll} onLostPointerCapture={stopQuickScroll} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(1); }} onKeyUp={stopQuickScroll}>↓</button>
       </div>
 
       <div className="floating-actions">{storePhone && <a className="floating-call" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler", "Call")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}{whatsappNumber && <a className="whatsapp-floating" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Nous joindre sur WhatsApp", "Contact us on WhatsApp")}><WhatsAppIcon/><span>WhatsApp</span></a>}</div>

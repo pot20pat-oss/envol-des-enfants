@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { defaultProducts, removedProductNames } from "@/lib/default-catalog";
 import {
   defaultSiteSections,
@@ -146,6 +146,7 @@ export default function Administration() {
     current_password: "",
     new_password: "",
   });
+  const quickScrollFrame = useRef<number | null>(null);
 
   useEffect(() => {
     request("/api/admin/session")
@@ -521,6 +522,23 @@ export default function Administration() {
     } catch {
       setError("Cette version ne peut pas être restaurée.");
     }
+  }
+
+  function stopQuickScroll() {
+    if (quickScrollFrame.current !== null) window.cancelAnimationFrame(quickScrollFrame.current);
+    quickScrollFrame.current = null;
+  }
+
+  function startQuickScroll(direction: -1 | 1) {
+    stopQuickScroll();
+    const startedAt = window.performance.now();
+    window.scrollBy({ top: direction * 18, behavior: "auto" });
+    const scroll = (time: number) => {
+      const speed = Math.min(26, 7 + (time - startedAt) / 220);
+      window.scrollBy({ top: direction * speed, behavior: "auto" });
+      quickScrollFrame.current = window.requestAnimationFrame(scroll);
+    };
+    quickScrollFrame.current = window.requestAnimationFrame(scroll);
   }
 
   if (checking)
@@ -1498,6 +1516,11 @@ export default function Administration() {
             </form>
           </div>
         )}
+
+        <div className="cms-quick-scroll" aria-label="Défilement rapide">
+          <button type="button" aria-label="Maintenir pour monter" title="Maintenir pour monter" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startQuickScroll(-1); }} onPointerUp={stopQuickScroll} onPointerCancel={stopQuickScroll} onLostPointerCapture={stopQuickScroll} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(-1); }} onKeyUp={stopQuickScroll}>↑</button>
+          <button type="button" aria-label="Maintenir pour descendre" title="Maintenir pour descendre" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startQuickScroll(1); }} onPointerUp={stopQuickScroll} onPointerCancel={stopQuickScroll} onLostPointerCapture={stopQuickScroll} onKeyDown={(event) => { if (!event.repeat && (event.key === "Enter" || event.key === " ")) startQuickScroll(1); }} onKeyUp={stopQuickScroll}>↓</button>
+        </div>
 
         {editing && (
           <div
