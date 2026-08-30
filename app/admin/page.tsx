@@ -39,22 +39,6 @@ const categories: Record<string, string> = {
   sacs: "Sacs et gourdes",
   vehicules: "Véhicules",
 };
-const productTree = [
-  {
-    label: "Jouets",
-    children: [
-      "eveil",
-      "imitation",
-      "dinosaures",
-      "animaux",
-      "vehicules",
-      "piscine",
-    ],
-  },
-  { label: "Mon monde de poupées", children: ["poupees", "disney", "barbie"] },
-  { label: "Bébé et enfants", children: ["bebe", "vetements", "chaussures"] },
-  { label: "Articles scolaires", children: ["scolaire", "sacs"] },
-] as const;
 const labels: Record<Section, string> = {
   dashboard: "Tableau de bord",
   products: "Produits",
@@ -152,7 +136,6 @@ export default function Administration() {
     "product" | "promotion" | "order"
   >("product");
   const [search, setSearch] = useState("");
-  const [productView, setProductView] = useState<"tree" | "list">("tree");
   const [productCategory, setProductCategory] = useState("all");
   const [productVisibility, setProductVisibility] = useState("all");
   const [productStock, setProductStock] = useState("all");
@@ -956,10 +939,6 @@ export default function Administration() {
                 onChange={(event) => setSearch(event.target.value)}
               />
               <div className="cms-product-actions">
-                <div className="cms-view-switch" role="group" aria-label="Mode d’affichage des produits">
-                  <button type="button" className={productView === "tree" ? "active" : ""} onClick={() => setProductView("tree")}>Arbre</button>
-                  <button type="button" className={productView === "list" ? "active" : ""} onClick={() => setProductView("list")}>Liste</button>
-                </div>
                 <button
                   className="cms-secondary"
                   disabled={busy}
@@ -988,33 +967,7 @@ export default function Administration() {
               <span className="cms-filter-count">{filtered.length} résultat(s)</span>
               <button type="button" className="cms-secondary" onClick={() => { setSearch(""); setProductCategory("all"); setProductVisibility("all"); setProductStock("all"); }}>Réinitialiser</button>
             </div>
-            {productView === "tree" ? (
-              <div className="cms-product-tree">
-                {productTree.map((group) => {
-                  const groupProducts = filtered.filter((product) => group.children.includes(String(product.category) as never));
-                  if (!groupProducts.length) return null;
-                  return <details key={group.label} open>
-                    <summary><span className="cms-tree-folder">▾</span><strong>{group.label}</strong><span>{groupProducts.length} produit(s)</span></summary>
-                    <div className="cms-tree-branches">
-                      {group.children.map((category) => {
-                        const categoryProducts = groupProducts.filter((product) => product.category === category);
-                        if (!categoryProducts.length) return null;
-                        return <details key={category} open>
-                          <summary><span className="cms-tree-folder">▾</span><strong>{categories[category]}</strong><span>{categoryProducts.length}</span></summary>
-                          <div className="cms-tree-products">{categoryProducts.map((product) => <article key={String(product.id)}>
-                            <span className="cms-tree-line" aria-hidden="true">└</span>
-                            {product.image_url ? <img src={String(product.image_url)} alt=""/> : <span className="cms-tree-image">□</span>}
-                            <div><strong>{String(product.name_fr)}</strong><small>{marketPrice(product[`price_${market}`], market)} · Stock {String(product[`stock_${market}`] || 0)}</small></div>
-                            <span className={`cms-status ${product[`visible_${market}`] ? "available" : "sold"}`}>{product[`visible_${market}`] ? "Visible" : "Masqué"}</span>
-                            <button className="cms-inline" onClick={() => { setEditingType("product"); setEditing({ ...product, visible: Boolean(product.visible), visible_qc: Boolean(product.visible_qc), visible_conakry: Boolean(product.visible_conakry), featured: Boolean(product.featured) }); }}>Modifier</button>
-                          </article>)}</div>
-                        </details>;
-                      })}
-                    </div>
-                  </details>;
-                })}
-              </div>
-            ) : <div className="cms-table-wrap">
+            <div className="cms-table-wrap">
               <table>
                 <thead>
                   <tr>
@@ -1104,7 +1057,7 @@ export default function Administration() {
                   ))}
                 </tbody>
               </table>
-            </div>}
+            </div>
             {!filtered.length && (
               <p className="cms-empty">Aucun produit trouvé.</p>
             )}
