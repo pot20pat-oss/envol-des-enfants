@@ -1,0 +1,25 @@
+WITH arrivals(id, name_fr, name_en, description_fr, description_en, category, ages, image_url, brand) AS (
+  VALUES
+    ('seed-new-01','Ensemble de piscine Stitch','Stitch pool set','Bouée ronde et brassards Stitch.','Stitch swim tube and armbands.','piscine','3–6','/products/nouveautes/stitch-piscine.webp','Bestway'),
+    ('seed-new-02','Transporteur dragon','Dragon car carrier playset','Dragon transporteur avec véhicules et accessoires.','Dragon carrier with vehicles and accessories.','vehicules','3+','/products/nouveautes/dragon-transporteur.webp','Kid Connection'),
+    ('seed-new-03','Ensemble d’outils motorisés · 28 pièces','Power tool playset · 28 pieces','Jeu d’imitation avec outils, sons et lumières.','Pretend tool set with lights and sounds.','imitation','3+','/products/nouveautes/outils-motorises.webp','Kid Connection'),
+    ('seed-new-04','Ensemble de docteur · 19 pièces','Doctor playset · 19 pieces','Jeu de docteur avec accessoires, sons et lumières.','Doctor role-play set with accessories, lights and sounds.','imitation','3+','/products/nouveautes/jeu-docteur.webp','Kid Connection'),
+    ('seed-new-05','Centre de secours des dinosaures','Dinosaur rescue centre','Centre d’aventure avec dinosaures, véhicule et personnages.','Adventure centre with dinosaurs, vehicle and figures.','dinosaures','3+','/products/nouveautes/centre-secours-dinosaures.webp',''),
+    ('seed-new-06','Mission requin · 52 pièces','Shark mission playset · 52 pieces','Camion, hélicoptère, requin et accessoires d’aventure.','Truck, helicopter, shark and adventure accessories.','vehicules','3+','/products/nouveautes/mission-requin.webp','Kid Connection'),
+    ('seed-new-07','Licorne marcheuse','Walking unicorn pet','Licorne en peluche interactive à promener.','Interactive plush unicorn to walk.','animaux','3+','/products/nouveautes/licorne-marcheuse.webp','Kid Connection'),
+    ('seed-new-08','Écurie transportable avec cheval','Portable horse stable playset','Écurie avec cheval, véhicule et personnages.','Stable with horse, vehicle and figures.','animaux','3+','/products/nouveautes/ecurie-chevaux.webp',''),
+    ('seed-new-09','Ensemble de vaisselle · 23 pièces','Dish drainer playset · 23 pieces','Vaisselle colorée avec égouttoir pour jouer à la cuisine.','Colourful dishes and drainer for pretend kitchen play.','imitation','2+','/products/nouveautes/vaisselle.webp','Kid Connection'),
+    ('seed-new-10','Chien marcheur','Walking puppy pet','Petit chien en peluche interactif à promener.','Interactive plush puppy to walk.','animaux','3+','/products/nouveautes/chien-marcheur.webp','Kid Connection'),
+    ('seed-new-11','Ensemble dinosaures deluxe · 52 pièces','Deluxe dinosaur playset · 52 pieces','Grand ensemble avec dinosaures, volcan et véhicules.','Large set with dinosaurs, volcano and vehicles.','dinosaures','3+','/products/nouveautes/dinosaures-deluxe.webp','Kid Connection'),
+    ('seed-new-12','Véhicules de construction · 12 pièces','Construction vehicles · 12 pieces','Camions de chantier, personnages et feu de circulation.','Construction trucks, figures and traffic light.','vehicules','3+','/products/nouveautes/vehicules-construction.webp','Kid Connection'),
+    ('seed-new-13','Camion de pompiers · 16 pièces','Fire truck playset · 16 pieces','Grand camion de pompiers avec sons et lumières.','Large fire truck with lights and sounds.','vehicules','3+','/products/nouveautes/camion-pompier.webp','Kid Connection'),
+    ('seed-new-14','Bouée Aquapal','Aquapal swim tube','Bouée d’apprentissage Aquapal de 51 cm.','51 cm Aquapal learner swim tube.','piscine','3–6','/products/nouveautes/bouee-aquapal.webp','Bestway'),
+    ('seed-new-15','Brassards dinosaures Intex','Intex dinosaur armbands','Brassards gonflables aux motifs de dinosaures.','Inflatable armbands with dinosaur designs.','piscine','3–6','/products/nouveautes/brassards-dinosaures.webp','Intex'),
+    ('seed-new-16','Brassards Intex Wet Set','Intex Wet Set armbands','Brassards gonflables Wet Set pour l’apprentissage.','Wet Set inflatable learner armbands.','piscine','3–6','/products/nouveautes/brassards-intex.webp','Intex'),
+    ('seed-new-17','Ensemble de piscine Spider-Man','Spider-Man pool set','Bouée ronde et brassards Spider-Man.','Spider-Man swim tube and armbands.','piscine','3–6','/products/nouveautes/spiderman-piscine.webp','Bestway'),
+    ('seed-new-18','Ensemble de piscine Minnie','Minnie pool set','Bouée ronde et brassards Minnie.','Minnie swim tube and armbands.','piscine','3–6','/products/nouveautes/minnie-piscine.webp','Bestway')
+)
+INSERT INTO products (id,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,alert_threshold,featured,variants_json,images_json,brand,created_at,updated_at)
+SELECT id,name_fr,name_en,description_fr,description_en,category,0,1,'available','new',ages,image_url,1,0,0,1,1,1,1,2,0,'[]','[]',brand,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP
+FROM arrivals
+WHERE NOT EXISTS (SELECT 1 FROM products WHERE products.name_fr = arrivals.name_fr);

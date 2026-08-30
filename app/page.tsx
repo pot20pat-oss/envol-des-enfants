@@ -19,6 +19,10 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Articles scolaires", en: "School supplies" }, value: "scolaire" },
   { label: { fr: "Sacs & gourdes", en: "Bags & bottles" }, value: "sacs" },
   { label: { fr: "Véhicules", en: "Vehicles" }, value: "vehicules" },
+  { label: { fr: "Piscine & jeux d’eau", en: "Pool & water play" }, value: "piscine" },
+  { label: { fr: "Métiers & imitation", en: "Pretend play" }, value: "imitation" },
+  { label: { fr: "Dinosaures & aventures", en: "Dinosaurs & adventures" }, value: "dinosaures" },
+  { label: { fr: "Animaux & compagnons", en: "Animals & companions" }, value: "animaux" },
 ];
 
 function PhoneIcon() {
@@ -239,7 +243,7 @@ export default function Home() {
           </div>}
           {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("disney")}>↳ Disney</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("barbie")}>↳ Barbie</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}
+            {openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("disney")}>↳ Disney</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("barbie")}>↳ Barbie</a><a href="#catalogue" onClick={() => chooseCategory("piscine")}>{say("Piscine & jeux d’eau", "Pool & water play")}</a><a href="#catalogue" onClick={() => chooseCategory("imitation")}>{say("Métiers & imitation", "Pretend play")}</a><a href="#catalogue" onClick={() => chooseCategory("dinosaures")}>{say("Dinosaures & aventures", "Dinosaurs & adventures")}</a><a href="#catalogue" onClick={() => chooseCategory("animaux")}>{say("Animaux & compagnons", "Animals & companions")}</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}
           </div>}
           {sectionVisible("catalogue") && <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées", "My world of dolls")}</a>}
           {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
