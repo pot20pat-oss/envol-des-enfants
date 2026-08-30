@@ -48,6 +48,7 @@ export default function Home() {
   const [market, setMarket] = useState<Market>("conakry");
   const [consent, setConsent] = useState(false);
   const storeProducts = managedProducts === null ? market === "conakry" ? defaultProducts : [] : managedProducts;
+  const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => ["poupees", "princesses", "disney", "barbie"].includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const siteSections = readSiteSections(storeSettings.site_sections);
   const siteTexts = readSiteTexts(storeSettings.site_texts);
   const storePhone = storeSettings.phone || (market === "conakry" ? "+224 666 54 79 76" : "");
@@ -239,7 +240,7 @@ export default function Home() {
           {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
           {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "catalogue" && <div className="nav-dropdown-panel">{categories.map((category) => <a href="#catalogue" key={category.value} onClick={() => chooseCategory(category.value)}>{category.label[language]}</a>)}</div>}
+            {openMenu === "catalogue" && <div className="nav-dropdown-panel">{availableCategories.map((category) => <a href="#catalogue" key={category.value} onClick={() => chooseCategory(category.value)}>{category.label[language]}</a>)}</div>}
           </div>}
           {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
             <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
@@ -280,7 +281,7 @@ export default function Home() {
         <div className="section-heading"><div><p className="eyebrow">{say("Nos trouvailles en boutique", "Discover our favourite finds")}</p><h2>{editable("catalogue_title", "Le catalogue", "A little shop")}<br /><span>{editable("catalogue_accent", "des petits bonheurs.", "full of joy.")}</span></h2></div><p>{editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")}</p></div>
         <div className="catalog-search"><label className="search-box"><span aria-hidden="true">⌕</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={say("Rechercher un jouet, un cartable, une poupée…", "Search for a toy, a backpack, a doll…")} /></label><select value={status} onChange={(event) => setStatus(event.target.value)} aria-label={say("Filtrer par disponibilité", "Filter by availability")}><option value="all">{say("Tous les statuts", "All availability")}</option><option value="available">{say("Disponible", "Available")}</option><option value="reserved">{say("Réservé", "Reserved")}</option><option value="sold">{say("Vendu", "Sold out")}</option></select></div>
         <div className="category-tabs" role="group" aria-label={say("Filtrer les univers", "Filter collections")}>
-          {categories.map((category) => <button key={category.value} className={active === category.value ? "active" : ""} onClick={() => setActive(category.value)}>{category.label[language]}</button>)}
+          {availableCategories.map((category) => <button key={category.value} className={active === category.value ? "active" : ""} onClick={() => setActive(category.value)}>{category.label[language]}</button>)}
         </div>
         <div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
         <div className="product-grid" id="coups-de-coeur">
