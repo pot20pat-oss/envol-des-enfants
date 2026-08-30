@@ -50,6 +50,7 @@ const labels: Record<Section, string> = {
   settings: "Réglages",
 };
 const blankProduct: Row = {
+  article_number: "",
   name_fr: "",
   name_en: "",
   description_fr: "",
@@ -609,7 +610,7 @@ export default function Administration() {
     Boolean(item[`visible_${market}`]),
   );
   const filtered = products.filter((item) => {
-    const matchesSearch = `${item.name_fr} ${item.name_en} ${item.category} ${item.brand || ""}`.toLowerCase().includes(search.trim().toLowerCase());
+    const matchesSearch = `${item.article_number || ""} ${item.name_fr} ${item.name_en} ${item.category} ${item.brand || ""}`.toLowerCase().includes(search.trim().toLowerCase());
     const matchesCategory = productCategory === "all" || item.category === productCategory;
     const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : !Boolean(item[`visible_${market}`]));
     const stock = Number(item[`stock_${market}`] || 0);
@@ -970,7 +971,7 @@ export default function Administration() {
             <div className="cms-panel-title">
               <input
                 className="cms-search"
-                placeholder="Rechercher un produit…"
+                placeholder="Nom, marque ou numéro d’article…"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -1008,6 +1009,7 @@ export default function Administration() {
                 <thead>
                   <tr>
                     <th>Produit</th>
+                    <th>No d’article</th>
                     <th>Catégorie</th>
                     <th>Prix · {markets[market].label}</th>
                     <th>Stock</th>
@@ -1030,6 +1032,7 @@ export default function Administration() {
                           </div>
                         </div>
                       </td>
+                      <td><strong className="cms-article-number">{String(product.article_number || "—")}</strong></td>
                       <td>
                         {categories[String(product.category)] ||
                           String(product.category)}
@@ -1607,6 +1610,16 @@ export default function Administration() {
               )}
               {editingType === "product" && (
                 <>
+                  {editing.id && (
+                    <label>
+                      Numéro d’article
+                      <input
+                        className="cms-article-number-input"
+                        value={String(editing.article_number || "Attribué automatiquement")}
+                        readOnly
+                      />
+                    </label>
+                  )}
                   <div className="cms-form-grid">
                     <label>
                       Nom du produit · FR
@@ -2128,12 +2141,21 @@ export default function Administration() {
                   <label>
                     Produit commandé
                     <input
+                      list="cms-product-options"
                       value={String(editing.product_name || "")}
                       onChange={(event) =>
                         update("product_name", event.target.value)
                       }
                       required
                     />
+                    <datalist id="cms-product-options">
+                      {products.map((product) => (
+                        <option
+                          key={String(product.id)}
+                          value={`${product.article_number ? `[${String(product.article_number)}] ` : ""}${String(product.name_fr)}`}
+                        />
+                      ))}
+                    </datalist>
                   </label>
                   <div className="cms-form-grid">
                     <label>

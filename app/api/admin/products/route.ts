@@ -1,4 +1,5 @@
 import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import { generateArticleNumber } from "@/lib/article-number";
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -13,12 +14,13 @@ export async function POST(request: Request) {
   const category = stringValue(data.category);
   if (!name || !category) return Response.json({ error: "Le nom français et la catégorie sont obligatoires." }, { status: 400 });
   const id = crypto.randomUUID();
+  const articleNumber = generateArticleNumber(category);
   const now = new Date().toISOString();
   const conakryPrice = numberValue(data.price_conakry ?? data.price);
   const conakryStock = numberValue(data.stock_conakry ?? data.stock, 1);
-  await cmsEnv().DB.prepare("INSERT INTO products (id,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,material,dimensions,exchange_terms_fr,exchange_terms_en,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,alert_threshold,featured,promo_price_qc,promo_price_conakry,variants_json,images_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-    .bind(id, name, stringValue(data.name_en), stringValue(data.description_fr), stringValue(data.description_en), category, conakryPrice, conakryStock, stringValue(data.status, "available"), stringValue(data.badge) || null, stringValue(data.ages, "3+"), stringValue(data.image_url) || null, stringValue(data.image_sheet) || null, numberValue(data.image_position), stringValue(data.brand) || null, stringValue(data.material) || null, stringValue(data.dimensions) || null, stringValue(data.exchange_terms_fr) || null, stringValue(data.exchange_terms_en) || null, data.visible === false ? 0 : 1, numberValue(data.price_qc), conakryPrice, numberValue(data.stock_qc), conakryStock, data.visible_qc ? 1 : 0, data.visible_conakry === false || data.visible_conakry === 0 ? 0 : 1, numberValue(data.alert_threshold, 2), data.featured ? 1 : 0, numberValue(data.promo_price_qc) || null, numberValue(data.promo_price_conakry) || null, stringValue(data.variants_json, "[]"), stringValue(data.images_json, "[]"), now, now).run();
-  return Response.json({ id }, { status: 201 });
+  await cmsEnv().DB.prepare("INSERT INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,material,dimensions,exchange_terms_fr,exchange_terms_en,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,alert_threshold,featured,promo_price_qc,promo_price_conakry,variants_json,images_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+    .bind(id, articleNumber, name, stringValue(data.name_en), stringValue(data.description_fr), stringValue(data.description_en), category, conakryPrice, conakryStock, stringValue(data.status, "available"), stringValue(data.badge) || null, stringValue(data.ages, "3+"), stringValue(data.image_url) || null, stringValue(data.image_sheet) || null, numberValue(data.image_position), stringValue(data.brand) || null, stringValue(data.material) || null, stringValue(data.dimensions) || null, stringValue(data.exchange_terms_fr) || null, stringValue(data.exchange_terms_en) || null, data.visible === false ? 0 : 1, numberValue(data.price_qc), conakryPrice, numberValue(data.stock_qc), conakryStock, data.visible_qc ? 1 : 0, data.visible_conakry === false || data.visible_conakry === 0 ? 0 : 1, numberValue(data.alert_threshold, 2), data.featured ? 1 : 0, numberValue(data.promo_price_qc) || null, numberValue(data.promo_price_conakry) || null, stringValue(data.variants_json, "[]"), stringValue(data.images_json, "[]"), now, now).run();
+  return Response.json({ id, article_number: articleNumber }, { status: 201 });
 }
 
 export async function PUT(request: Request) {
