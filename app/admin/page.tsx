@@ -541,6 +541,21 @@ export default function Administration() {
     quickScrollFrame.current = window.requestAnimationFrame(scroll);
   }
 
+  useEffect(() => {
+    const stop = () => stopQuickScroll();
+    window.addEventListener("mouseup", stop);
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+    window.addEventListener("blur", stop);
+    return () => {
+      stop();
+      window.removeEventListener("mouseup", stop);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+      window.removeEventListener("blur", stop);
+    };
+  }, []);
+
   if (checking)
     return <main className="cms-loading">Chargement de l’administration…</main>;
   if (!admin)

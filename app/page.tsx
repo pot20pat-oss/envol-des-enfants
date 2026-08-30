@@ -220,6 +220,21 @@ export default function Home() {
     quickScrollFrame.current = window.requestAnimationFrame(scroll);
   }
 
+  useEffect(() => {
+    const stop = () => stopQuickScroll();
+    window.addEventListener("mouseup", stop);
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+    window.addEventListener("blur", stop);
+    return () => {
+      stop();
+      window.removeEventListener("mouseup", stop);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+      window.removeEventListener("blur", stop);
+    };
+  }, []);
+
   async function requestDiscount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!consent) return;
