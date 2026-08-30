@@ -3,7 +3,17 @@ import { generateArticleNumber } from "@/lib/article-number";
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const { results } = await cmsEnv().DB.prepare("SELECT * FROM products ORDER BY updated_at DESC").all();
+  const database = cmsEnv().DB;
+  const missing = await database.prepare("SELECT id,category FROM products WHERE article_number IS NULL OR TRIM(article_number) = ''").all<{ id: string; category: string }>();
+  if (missing.results.length) {
+    await database.batch(
+      missing.results.map((product) =>
+        database.prepare("UPDATE products SET article_number=? WHERE id=? AND (article_number IS NULL OR TRIM(article_number) = '')")
+          .bind(generateArticleNumber(product.category), product.id),
+      ),
+    );
+  }
+  const { results } = await database.prepare("SELECT * FROM products ORDER BY updated_at DESC").all();
   return Response.json({ products: results });
 }
 
