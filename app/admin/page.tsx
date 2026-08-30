@@ -153,6 +153,9 @@ export default function Administration() {
   >("product");
   const [search, setSearch] = useState("");
   const [productView, setProductView] = useState<"tree" | "list">("tree");
+  const [productCategory, setProductCategory] = useState("all");
+  const [productVisibility, setProductVisibility] = useState("all");
+  const [productStock, setProductStock] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [orderDate, setOrderDate] = useState("");
   const [busy, setBusy] = useState(false);
@@ -586,11 +589,14 @@ export default function Administration() {
   const regionalProducts = products.filter((item) =>
     Boolean(item[`visible_${market}`]),
   );
-  const filtered = products.filter((item) =>
-    `${item.name_fr} ${item.name_en} ${item.category}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
+  const filtered = products.filter((item) => {
+    const matchesSearch = `${item.name_fr} ${item.name_en} ${item.category} ${item.brand || ""}`.toLowerCase().includes(search.trim().toLowerCase());
+    const matchesCategory = productCategory === "all" || item.category === productCategory;
+    const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : !Boolean(item[`visible_${market}`]));
+    const stock = Number(item[`stock_${market}`] || 0);
+    const matchesStock = productStock === "all" || (productStock === "available" ? stock > 0 : productStock === "low" ? stock > 0 && stock <= Number(item.alert_threshold || 2) : stock <= 0);
+    return matchesSearch && matchesCategory && matchesVisibility && matchesStock;
+  });
   const filteredOrders = orders.filter(
     (item) =>
       (orderStatus === "all" || item.status === orderStatus) &&
@@ -974,6 +980,13 @@ export default function Administration() {
                   + Ajouter un produit
                 </button>
               </div>
+            </div>
+            <div className="cms-product-filters">
+              <label>Catégorie<select value={productCategory} onChange={(event) => setProductCategory(event.target.value)}><option value="all">Toutes les catégories</option>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+              <label>Visibilité<select value={productVisibility} onChange={(event) => setProductVisibility(event.target.value)}><option value="all">Tous</option><option value="visible">Visibles</option><option value="hidden">Masqués</option></select></label>
+              <label>Stock<select value={productStock} onChange={(event) => setProductStock(event.target.value)}><option value="all">Tous</option><option value="available">En stock</option><option value="low">Stock faible</option><option value="empty">Épuisés</option></select></label>
+              <span className="cms-filter-count">{filtered.length} résultat(s)</span>
+              <button type="button" className="cms-secondary" onClick={() => { setSearch(""); setProductCategory("all"); setProductVisibility("all"); setProductStock("all"); }}>Réinitialiser</button>
             </div>
             {productView === "tree" ? (
               <div className="cms-product-tree">
