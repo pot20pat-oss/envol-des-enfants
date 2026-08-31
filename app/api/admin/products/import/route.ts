@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   const database = cmsEnv().DB;
   const nextArticleNumber = await createArticleNumberGenerator(database);
-  const existing = await database.prepare("SELECT id,name_fr,article_number FROM products").all<{ id: string; name_fr: string; article_number?: string }>();
+  const existing = await database.prepare("SELECT id,name_fr,article_number,category FROM products").all<{ id: string; name_fr: string; article_number?: string; category: string }>();
   const productsByName = new Map(existing.results.map((product) => [product.name_fr.trim().toLocaleLowerCase("fr"), product]));
   const statements = [];
   let imported = 0;
@@ -56,21 +56,23 @@ export async function POST(request: Request) {
     const stockQc = numberValue(product.stockQc, defaultStock);
     const visibleConakry = product.visibleConakry === false ? 0 : 1;
     const visibleQc = product.visibleQc ? 1 : 0;
+    const category = stringValue(product.category, "eveil");
 
     const current = productsByName.get(normalizedName);
     if (current) {
-      const category = stringValue(product.category, "eveil");
-      const articleNumber = current.article_number?.trim() || nextArticleNumber();
+      const sameCategory = current.category === category;
+      const articleNumber = sameCategory && current.article_number?.trim()
+        ? current.article_number.trim()
+        : nextArticleNumber(category);
       statements.push(database.prepare("UPDATE products SET category=?,image_url=?,brand=?,article_number=?,updated_at=? WHERE id=?")
         .bind(category, stringValue(product.imageUrl) || null, stringValue(product.brand) || null, articleNumber, now, current.id));
       updated += 1;
       continue;
     }
-    productsByName.set(normalizedName, { id: "", name_fr: frenchName });
+    productsByName.set(normalizedName, { id: "", name_fr: frenchName, category });
 
-    const category = stringValue(product.category, "eveil");
     statements.push(database.prepare("INSERT INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,material,dimensions,exchange_terms_fr,exchange_terms_en,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-      .bind(crypto.randomUUID(), nextArticleNumber(), frenchName, stringValue(name.en), stringValue(detail.fr), stringValue(detail.en), category, priceConakry, stockConakry, status, stringValue(product.badge) || null, stringValue(product.ages, "3+"), stringValue(product.imageUrl) || null, stringValue(product.sheet) || null, numberValue(product.position), stringValue(product.brand) || null, null, null, null, null, 1, priceQc, priceConakry, stockQc, stockConakry, visibleQc, visibleConakry, now, now));
+      .bind(crypto.randomUUID(), nextArticleNumber(category), frenchName, stringValue(name.en), stringValue(detail.fr), stringValue(detail.en), category, priceConakry, stockConakry, status, stringValue(product.badge) || null, stringValue(product.ages, "3+"), stringValue(product.imageUrl) || null, stringValue(product.sheet) || null, numberValue(product.position), stringValue(product.brand) || null, null, null, null, null, 1, priceQc, priceConakry, stockQc, stockConakry, visibleQc, visibleConakry, now, now));
     imported += 1;
   }
 
