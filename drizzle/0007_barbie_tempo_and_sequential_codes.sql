@@ -1,0 +1,48 @@
+-- Article codes are numeric, start at 1 and remain sequential.
+-- First renumber every existing product without collisions on the unique index.
+UPDATE products SET article_number = NULL;
+WITH numbered AS (
+  SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE(created_at, updated_at, ''), id) AS rn
+  FROM products
+)
+UPDATE products
+SET article_number = CAST((SELECT rn FROM numbered WHERE numbered.id = products.id) AS TEXT);
+
+WITH arrivals(seq,id,name_fr,name_en,description_fr,description_en,category,ages,image_url,brand) AS (
+  VALUES
+    (1,'tempo-barbie-01','Barbie · station beauté et accessoires','Barbie · beauty station and accessories','Coffret Barbie avec station beauté et accessoires de jeu.','Barbie playset with beauty station and accessories.','barbie','3+','/products/barbie/tempo-01.svg','Barbie'),
+    (2,'tempo-barbie-02','Barbie · cuisine et poupée','Barbie · kitchen and doll playset','Poupée Barbie avec cuisine et accessoires pour inventer des scènes du quotidien.','Barbie doll with kitchen and accessories for everyday pretend play.','barbie','3+','/products/barbie/tempo-02.svg','Barbie'),
+    (3,'tempo-barbie-03','Barbie · coffret soins licorne','Barbie · unicorn care set','Coffret Barbie sur le thème de la licorne avec accessoires.','Barbie unicorn-themed set with accessories.','barbie','3+','/products/barbie/tempo-03.svg','Barbie'),
+    (4,'tempo-barbie-04','Barbie · coffret accessoires rose','Barbie · pink accessory set','Coffret d’accessoires Barbie pour compléter les jeux de poupées.','Barbie accessory set for doll play.','barbie','3+','/products/barbie/tempo-04.svg','Barbie'),
+    (5,'tempo-barbie-05','Barbie · tête à coiffer 21 pièces','Barbie · 21-piece styling head','Tête à coiffer Barbie avec accessoires de coiffure et de beauté.','Barbie styling head with hair and beauty accessories.','barbie','3+','/products/barbie/tempo-05.svg','Barbie'),
+    (6,'tempo-barbie-06','Barbie Extra · poupée mode','Barbie Extra · fashion doll','Poupée Barbie Extra au style coloré avec accessoires.','Colourful Barbie Extra fashion doll with accessories.','barbie','3+','/products/barbie/tempo-06.svg','Barbie Extra'),
+    (7,'tempo-barbie-07','Barbie · coffret 4 poupées mode','Barbie · 4 fashion dolls set','Coffret de quatre poupées Barbie avec tenues variées.','Set of four Barbie dolls with assorted outfits.','barbie','3+','/products/barbie/tempo-07.svg','Barbie'),
+    (8,'tempo-barbie-08','Barbie · poupée et animaux','Barbie · doll and pets playset','Poupée Barbie avec plusieurs petits animaux et accessoires.','Barbie doll with several pets and accessories.','barbie','3+','/products/barbie/tempo-08.svg','Barbie'),
+    (9,'tempo-barbie-09','Barbie · coffret trio de poupées','Barbie · three-doll set','Coffret Barbie comprenant trois poupées et accessoires.','Barbie set with three dolls and accessories.','barbie','3+','/products/barbie/tempo-09.svg','Barbie'),
+    (10,'tempo-barbie-10','Barbie · joueuse de soccer','Barbie · soccer player doll','Poupée Barbie sportive avec but, ballon et accessoires de soccer.','Sporty Barbie doll with goal, ball and soccer accessories.','barbie','3+','/products/barbie/tempo-10.svg','Barbie'),
+    (11,'tempo-barbie-11','Barbie · playset boutique','Barbie · shop playset','Poupée Barbie avec mobilier et accessoires de boutique.','Barbie doll with shop furniture and accessories.','barbie','3+','/products/barbie/tempo-11.svg','Barbie'),
+    (12,'tempo-barbie-12','Barbie · poupée avec accessoires mode','Barbie · doll with fashion accessories','Poupée Barbie avec vêtements et accessoires de mode.','Barbie doll with fashion clothing and accessories.','barbie','3+','/products/barbie/tempo-12.svg','Barbie'),
+    (13,'tempo-barbie-13','Barbie Pop Reveal · capsule turquoise','Barbie Pop Reveal · turquoise capsule','Surprise Barbie Pop Reveal dans une capsule à découvrir.','Barbie Pop Reveal surprise in a reveal capsule.','barbie','3+','/products/barbie/tempo-13.svg','Barbie Pop Reveal'),
+    (14,'tempo-barbie-14','Barbie · poupée avec compagnon','Barbie · doll with companion','Poupée Barbie avec petit compagnon et accessoires.','Barbie doll with a small companion and accessories.','barbie','3+','/products/barbie/tempo-14.svg','Barbie'),
+    (15,'tempo-barbie-15','Barbie Color Reveal · capsule bleue','Barbie Color Reveal · blue capsule','Capsule Barbie Color Reveal avec surprises à découvrir.','Barbie Color Reveal capsule with surprises to discover.','barbie','3+','/products/barbie/tempo-15.svg','Barbie Color Reveal'),
+    (16,'tempo-barbie-16','Barbie · poupée et animaux fantastiques','Barbie · doll and fantasy pets','Poupée Barbie avec animaux colorés et accessoires.','Barbie doll with colourful pets and accessories.','barbie','3+','/products/barbie/tempo-16.svg','Barbie'),
+    (17,'tempo-barbie-17','Barbie · poupée créative','Barbie · creative doll','Poupée Barbie avec accessoires créatifs et tenue colorée.','Barbie doll with creative accessories and a colourful outfit.','barbie','3+','/products/barbie/tempo-17.svg','Barbie'),
+    (18,'tempo-barbie-18','Barbie · soins pour chiot','Barbie · puppy care playset','Coffret Barbie avec poupée, chiot et accessoires de soins.','Barbie set with doll, puppy and care accessories.','barbie','3+','/products/barbie/tempo-18.svg','Barbie'),
+    (19,'tempo-barbie-19','Barbie Twinning Looks · poupée mode','Barbie Twinning Looks · fashion doll','Poupée Barbie Twinning Looks avec tenue assortie et accessoires.','Barbie Twinning Looks doll with coordinated outfit and accessories.','barbie','3+','/products/barbie/tempo-19.svg','Barbie'),
+    (20,'tempo-barbie-20','Barbie Skipper · coffret deux poupées','Barbie Skipper · two-doll set','Coffret Barbie Skipper avec deux poupées et accessoires.','Barbie Skipper set with two dolls and accessories.','barbie','3+','/products/barbie/tempo-20.svg','Barbie Skipper'),
+    (21,'tempo-barbie-21','Barbie Cutie Reveal · capsule rose','Barbie Cutie Reveal · pink capsule','Capsule Barbie Cutie Reveal avec poupée surprise et accessoires.','Barbie Cutie Reveal capsule with surprise doll and accessories.','barbie','3+','/products/barbie/tempo-21.svg','Barbie Cutie Reveal'),
+    (22,'tempo-barbie-22','Barbie · ensemble mode et accessoires','Barbie · fashion accessory pack','Ensemble Barbie avec accessoires de mode pour habiller et compléter les poupées.','Barbie fashion accessory pack for styling dolls.','barbie','3+','/products/barbie/tempo-22.svg','Barbie'),
+    (23,'tempo-barbie-23','Barbie · tête à coiffer 30 pièces','Barbie · 30-piece styling head','Tête à coiffer Barbie avec un grand assortiment d’accessoires.','Barbie styling head with a large assortment of accessories.','barbie','3+','/products/barbie/tempo-23.svg','Barbie'),
+    (24,'tempo-barbie-24','Barbie Cutie Reveal · capsule multicolore','Barbie Cutie Reveal · multicolour capsule','Capsule Barbie Cutie Reveal multicolore avec surprise.','Multicolour Barbie Cutie Reveal surprise capsule.','barbie','3+','/products/barbie/tempo-24.svg','Barbie Cutie Reveal'),
+    (25,'tempo-barbie-25','Barbie · poupée cheveux arc-en-ciel','Barbie · rainbow-hair doll','Poupée Barbie avec accessoires pour créer des looks colorés.','Barbie doll with accessories for colourful styling.','barbie','3+','/products/barbie/tempo-25.svg','Barbie'),
+    (26,'tempo-barbie-26','Barbie · poupée coiffure créative','Barbie · creative hair doll','Poupée Barbie avec accessoires de coiffure et de personnalisation.','Barbie doll with hair-styling and customisation accessories.','barbie','3+','/products/barbie/tempo-26.svg','Barbie'),
+    (27,'tempo-barbie-27','Barbie · playset magasin','Barbie · store playset','Playset Barbie avec comptoir, produits miniatures et accessoires de magasin.','Barbie playset with counter, miniature products and store accessories.','barbie','3+','/products/barbie/tempo-27.svg','Barbie'),
+    (28,'tempo-barbie-28','Barbie · poupée danseuse violette','Barbie · purple dancer doll','Poupée Barbie en tenue violette de danse avec accessoires.','Barbie doll in a purple dance outfit with accessories.','barbie','3+','/products/barbie/tempo-28.svg','Barbie'),
+    (29,'tempo-barbie-29','Barbie · poupée métier avec accessoires','Barbie · career doll with accessories','Poupée Barbie avec tenue de métier et nombreux accessoires.','Barbie career doll with outfit and multiple accessories.','barbie','3+','/products/barbie/tempo-29.svg','Barbie'),
+    (30,'tempo-barbie-30','Barbie Color Reveal · capsule rose et bleue','Barbie Color Reveal · pink and blue capsule','Capsule Barbie Color Reveal avec plusieurs surprises.','Barbie Color Reveal capsule with multiple surprises.','barbie','3+','/products/barbie/tempo-30.svg','Barbie Color Reveal'),
+    (31,'tempo-barbie-31','Barbie · poupée avec animaux et accessoires','Barbie · doll with pets and accessories','Poupée Barbie avec animaux et accessoires de jeu.','Barbie doll with pets and play accessories.','barbie','3+','/products/barbie/tempo-31.svg','Barbie')
+), base AS (SELECT COUNT(*) AS n FROM products)
+INSERT INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,alert_threshold,featured,variants_json,images_json,brand,created_at,updated_at)
+SELECT id,CAST((SELECT n FROM base)+seq AS TEXT),name_fr,name_en,description_fr,description_en,category,0,1,'available','new',ages,image_url,1,0,0,1,1,1,1,2,0,'[]','[]',brand,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP
+FROM arrivals
+WHERE NOT EXISTS (SELECT 1 FROM products WHERE products.id = arrivals.id OR products.name_fr = arrivals.name_fr);
