@@ -1,0 +1,14 @@
+WITH arrivals(id, article_number, name_fr, name_en, description_fr, description_en, category, ages, image_url, brand) AS (
+  VALUES
+    ('seed-new-19','EDU-10001','Baladeur musical Bluey','Bluey musical player','Baladeur avec casque, plus de 40 chansons et quatre styles musicaux.','Musical player with headphones, over 40 songs and four music styles.','eveil','3+','/products/nouveautes/bluey-baladeur-musical.webp','VTech Bluey'),
+    ('seed-new-20','SCO-10002','Ordinateur Genio Bilingual JuniorBook','Genio Bilingual JuniorBook laptop','Ordinateur éducatif bilingue avec 164 activités et mallette de rangement.','Bilingual learning laptop with 164 activities and storage case.','scolaire','5+','/products/nouveautes/genio-juniorbook.webp','VTech'),
+    ('seed-new-21','MET-10003','Service à thé coloré','Colourful tea set','Service à thé et desserts colorés dans un panier transportable.','Colourful tea and dessert set in a portable basket.','imitation','3+','/products/nouveautes/service-a-the.webp',''),
+    ('seed-new-22','EDU-10004','Console Bluey · machine à pince magique','Bluey magic claw machine console','Console parlante Bluey avec six jeux et récompenses à collectionner.','Talking Bluey console with six games and collectible rewards.','eveil','3+','/products/nouveautes/bluey-console-pince.webp','VTech Bluey'),
+    ('seed-new-23','POU-10005','Ensemble magique avec biberon','Magic bottle set','Ensemble pour poupée avec deux biberons magiques, bavette et suce.','Doll care set with two magic bottles, bib and pacifier.','poupees','3+','/products/nouveautes/ensemble-biberon-magique.webp','My Sweet Baby'),
+    ('seed-new-24','POU-10006','Ensemble repas pour poupée','Doll feeding time playset','Ensemble de quatre accessoires pour préparer le repas de la poupée.','Four-piece playset for feeding a favourite doll.','poupees','3+','/products/nouveautes/ensemble-repas-poupee.webp','My Sweet Baby'),
+    ('seed-new-25','DIS-10007','Poupée Disney Darlings Minnie','Disney Darlings Minnie doll','Poupée interactive Minnie avec accessoires et petit compagnon.','Interactive Minnie doll with accessories and a little companion.','disney','2+','/products/nouveautes/disney-darlings-minnie.webp','Disney Darlings')
+)
+INSERT INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,alert_threshold,featured,variants_json,images_json,brand,created_at,updated_at)
+SELECT id,article_number,name_fr,name_en,description_fr,description_en,category,0,1,'available','new',ages,image_url,1,0,0,1,1,1,1,2,0,'[]','[]',brand,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP
+FROM arrivals
+WHERE NOT EXISTS (SELECT 1 FROM products WHERE products.name_fr = arrivals.name_fr);
