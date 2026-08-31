@@ -1,7 +1,45 @@
+const CATEGORY_PREFIXES: Record<string, string> = {
+  barbie: "BAR",
+  disney: "DIS",
+  princesses: "DIS",
+  poupees: "POU",
+  eveil: "EDU",
+  bebe: "BEB",
+  vetements: "VET",
+  chaussures: "CHA",
+  scolaire: "SCO",
+  sacs: "SAC",
+  vehicules: "VEH",
+  piscine: "PIS",
+  imitation: "IMI",
+  dinosaures: "DIN",
+  animaux: "ANI",
+};
+
+export function articlePrefix(category: string) {
+  return CATEGORY_PREFIXES[category] || "ART";
+}
+
 export async function createArticleNumberGenerator(database: D1Database) {
-  const row = await database.prepare(
-    "SELECT COALESCE(MAX(CASE WHEN article_number GLOB '[0-9]*' AND article_number NOT GLOB '*[^0-9]*' THEN CAST(article_number AS INTEGER) ELSE 0 END), 0) AS max_number FROM products",
-  ).first<{ max_number: number }>();
-  let next = Number(row?.max_number || 0) + 1;
-  return () => String(next++);
+  const { results } = await database.prepare(
+    "SELECT category, article_number FROM products WHERE article_number IS NOT NULL AND TRIM(article_number) <> ''",
+  ).all<{ category: string; article_number: string }>();
+
+  const nextByPrefix = new Map<string, number>();
+
+  for (const product of results) {
+    const prefix = articlePrefix(product.category);
+    const match = product.article_number.trim().toUpperCase().match(/^([A-Z]{3})(\d{4,})$/);
+    if (!match || match[1] !== prefix) continue;
+    const number = Number(match[2]);
+    if (!Number.isFinite(number)) continue;
+    nextByPrefix.set(prefix, Math.max(nextByPrefix.get(prefix) || 0, number));
+  }
+
+  return (category: string) => {
+    const prefix = articlePrefix(category);
+    const next = (nextByPrefix.get(prefix) || 0) + 1;
+    nextByPrefix.set(prefix, next);
+    return `${prefix}${String(next).padStart(4, "0")}`;
+  };
 }
