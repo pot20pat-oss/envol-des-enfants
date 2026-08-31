@@ -29,7 +29,6 @@ export default function RootLayout({
   return (
     <html lang="fr-GN">
       <body className="antialiased">{children}</body>
-      <script src="/catalog-tabs-fix.js" defer />
     </html>
   );
 }
