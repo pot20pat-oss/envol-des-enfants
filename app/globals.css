@@ -98,3 +98,60 @@
 
 .header-actions .contact-button{display:none!important}
 .header-actions{gap:10px}@media(max-width:700px){.header-actions{gap:6px}.header-location{display:none}}
+
+/* Onglets arborescents du catalogue */
+.category-tree{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.category-tree>.category-branch{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:7px;
+}
+.category-tree .category-children{
+  position:relative;
+  display:flex;
+  gap:7px;
+  padding-left:26px;
+}
+.category-tree .category-children::before{
+  content:"";
+  position:absolute;
+  left:10px;
+  top:-7px;
+  width:12px;
+  height:24px;
+  border-left:1px solid #cfd9df;
+  border-bottom:1px solid #cfd9df;
+  border-bottom-left-radius:7px;
+}
+.category-tree .category-child{
+  background:#f7f9fa;
+  border-color:#d9e1e6;
+  padding:8px 14px;
+  font-size:10px;
+}
+.category-tree .category-child.active{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+.category-tree .parent-active{
+  box-shadow:0 0 0 2px rgba(18,60,99,.08);
+}
+@media(max-width:800px){
+  .category-tree{
+    gap:9px;
+  }
+  .category-tree>.category-branch{
+    width:100%;
+  }
+  .category-tree .category-children{
+    padding-left:24px;
+    flex-wrap:wrap;
+  }
+}

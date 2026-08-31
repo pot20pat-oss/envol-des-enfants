@@ -316,10 +316,55 @@ export default function Home() {
       <section className="univers section wrap" id="catalogue" style={sectionStyle("catalogue")}>
         <div className="section-heading"><div><p className="eyebrow">{say("Nos trouvailles en boutique", "Discover our favourite finds")}</p><h2>{editable("catalogue_title", "Le catalogue", "A little shop")}<br /><span>{editable("catalogue_accent", "des petits bonheurs.", "full of joy.")}</span></h2></div><p>{editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")}</p></div>
         <div className="catalog-search"><label className="search-box"><span aria-hidden="true">⌕</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={say("Rechercher un jouet, un cartable, une poupée…", "Search for a toy, a backpack, a doll…")} /></label><select value={status} onChange={(event) => setStatus(event.target.value)} aria-label={say("Filtrer par disponibilité", "Filter by availability")}><option value="all">{say("Tous les statuts", "All availability")}</option><option value="available">{say("Disponible", "Available")}</option><option value="reserved">{say("Réservé", "Reserved")}</option><option value="sold">{say("Vendu", "Sold out")}</option></select></div>
-        <div className="category-tabs" role="group" aria-label={say("Filtrer les univers", "Filter collections")}>
-          {availableCategories.map((category) => <button key={category.value} className={active === category.value ? "active" : ""} onClick={() => chooseCategory(category.value)}>{category.label[language]}</button>)}
-        </div>
-        <div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
+        <div className="category-tabs category-tree" role="group" aria-label={say("Filtrer les univers", "Filter collections")}>
+  {availableCategories
+    .filter((category) => !["disney", "barbie"].includes(category.value))
+    .map((category) => {
+      if (category.value === "poupees") {
+        const children = availableCategories.filter((child) =>
+          ["disney", "barbie"].includes(child.value)
+        );
+
+        return (
+          <div className="category-branch" key={category.value}>
+            <button
+              type="button"
+              className={["poupees", "disney", "barbie"].includes(active) ? "active parent-active" : ""}
+              onClick={() => chooseCategory("poupees")}
+            >
+              {category.label[language]}
+            </button>
+
+            {children.length > 0 && (
+              <div className="category-children">
+                {children.map((child) => (
+                  <button
+                    type="button"
+                    key={child.value}
+                    className={`category-child${active === child.value ? " active" : ""}`}
+                    onClick={() => chooseCategory(child.value)}
+                  >
+                    {child.label[language].replace("↳ ", "")}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <button
+          type="button"
+          key={category.value}
+          className={active === category.value ? "active" : ""}
+          onClick={() => chooseCategory(category.value)}
+        >
+          {category.label[language]}
+        </button>
+      );
+    })}
+</div><div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
         <div className="product-grid" id="coups-de-coeur" key={`${active}-${status}-${query}`}>
           {visibleProducts.map((item) => <article className={`product-card ${item.status === "sold" ? "product-sold" : ""}`} key={item.id || `${item.sheet}-${item.position}`}><div className="product-visual" style={{backgroundImage:`url(${item.imageUrl || `/catalog-${item.sheet}.png`})`,backgroundPosition:item.imageUrl ? "center top" : `${[0,34,67,100][item.position]}% ${item.sheet === "17" ? "49%" : "15%"}`,backgroundSize:item.imageUrl ? "contain" : undefined}} role="img" aria-label={item.name[language]}><span className={`availability availability-${item.status}`}>{item.status === "available" ? say("Disponible","Available") : item.status === "reserved" ? say("Réservé","Reserved") : say("Vendu","Sold")}</span></div><div className="product-details">{item.badge && <span className={`product-badge ${item.badge}`}>{item.badge === "new" ? say("Nouveauté","New arrival") : say("Rentrée","School days")}</span>}<h3>{item.name[language]}</h3><p className="product-price">{marketPrice(item.price, market, language)}</p><p className="product-description">{item.detail[language]}</p><span className="age-pill">{item.ages.includes("mois") ? item.ages.replace("mois", say("mois", "months")) : `${item.ages} ${say("ans", "yrs")}`}</span>{item.status === "sold" ? <span className="product-unavailable">{say("Indisponible", "Unavailable")}</span> : whatsappNumber ? <a className={`product-order${item.status === "reserved" ? " product-order-reserved" : ""}`} href={`${whatsappUrl}?text=${encodeURIComponent(isEnglish ? `Hello, I would like ${item.status === "reserved" ? "to know when this product is back" : "to order"}: ${item.name.en} (${marketPrice(item.price, market, language)}).` : `Bonjour, je souhaite ${item.status === "reserved" ? "être averti du retour de" : "commander"} : ${item.name.fr} (${marketPrice(item.price, market, language)}).`)}`} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>{item.status === "reserved" ? say("Me prévenir", "Notify me") : "WhatsApp"}</span></a> : <span className="product-unavailable">{say("Nous contacter", "Contact us")}</span>}</div></article>)}
         </div>
@@ -373,5 +418,6 @@ export default function Home() {
     </main>
   );
 }
+
 
 
