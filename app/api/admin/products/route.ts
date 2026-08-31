@@ -4,13 +4,13 @@ import { createArticleNumberGenerator } from "@/lib/article-number";
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   const database = cmsEnv().DB;
-  const missing = await database.prepare("SELECT id FROM products WHERE article_number IS NULL OR TRIM(article_number) = '' ORDER BY created_at,id").all<{ id: string }>();
+  const missing = await database.prepare("SELECT id,category FROM products WHERE article_number IS NULL OR TRIM(article_number) = '' ORDER BY created_at,id").all<{ id: string; category: string }>();
   if (missing.results.length) {
     const nextArticleNumber = await createArticleNumberGenerator(database);
     await database.batch(
       missing.results.map((product) =>
         database.prepare("UPDATE products SET article_number=? WHERE id=? AND (article_number IS NULL OR TRIM(article_number) = '')")
-          .bind(nextArticleNumber(), product.id),
+          .bind(nextArticleNumber(product.category), product.id),
       ),
     );
   }
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const database = cmsEnv().DB;
   const nextArticleNumber = await createArticleNumberGenerator(database);
   const id = crypto.randomUUID();
-  const articleNumber = nextArticleNumber();
+  const articleNumber = nextArticleNumber(category);
   const now = new Date().toISOString();
   const conakryPrice = numberValue(data.price_conakry ?? data.price);
   const conakryStock = numberValue(data.stock_conakry ?? data.stock, 1);
