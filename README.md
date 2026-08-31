@@ -1,38 +1,37 @@
-# Envol des Enfants — boutique et CMS
+# L’Envol des Enfants — Site + CMS Cloudflare
 
-Site bilingue français-anglais avec administration sécurisée indépendante de ChatGPT, conçu pour Cloudflare Workers, D1 et R2.
+Boutique bilingue (FR/EN) avec CMS administrateur, déployée sur Cloudflare Workers avec D1 et R2.
 
-## Fonctionnalités
+## Démarrage local
 
-- Catalogue administrable : produits, prix en GNF, stock, catégories, disponibilité, descriptions françaises et anglaises.
-- Fiches produit : photos, marque, matière, dimensions, âge conseillé et conditions d’échange.
-- Commandes, promotions et abonnés à l’offre de bienvenue avec consentement.
-- Tableau de bord, réglages de la boutique et changement individuel de mot de passe.
-- Téléversement des photos sur Cloudflare R2.
-- Connexion administrateur avec mot de passe haché PBKDF2, cookie sécurisé HttpOnly et contrôle strict des adresses autorisées.
+1. `npm install`
+2. Copier `.dev.vars.example` vers `.dev.vars`
+3. Configurer les variables/secrets administrateur
+4. Appliquer les migrations D1
+5. `npm run dev`
 
-## Configuration Cloudflare
+## Scripts
 
-1. Installer les dépendances : `npm ci`.
-2. Créer la base : `npx wrangler d1 create envol-des-enfants-db`.
-3. Remplacer le `database_id` de démonstration dans `wrangler.jsonc` par l’identifiant obtenu.
-4. Créer le stockage des images : `npx wrangler r2 bucket create envol-des-enfants-images`.
-5. Appliquer les migrations : `npm run db:migrate`.
-6. Configurer les secrets Cloudflare, sans jamais écrire leurs valeurs dans GitHub :
+- `npm run dev` — serveur local
+- `npm run build` — build de production
+- `npm run test` — build + tests
+- `npm run db:migrate` — migrations D1 distantes
+- `npm run deploy` — déploiement Cloudflare
 
-```sh
-npx wrangler secret put ADMIN_EMAILS
-npx wrangler secret put ADMIN_BOOTSTRAP_PASSWORD
-npx wrangler secret put SESSION_SECRET
-```
+## Architecture
 
-`ADMIN_EMAILS` contient les adresses administratrices séparées par une virgule. Le mot de passe initial doit comporter au moins 12 caractères. Chaque administrateur pourra ensuite définir son propre mot de passe depuis l’espace de gestion.
+- `app/` — vitrine, CMS et routes API
+- `lib/` — logique CMS/catalogue/marchés
+- `worker/` — Worker Cloudflare
+- `drizzle/` — migrations D1
+- `public/` — images statiques
 
-7. Générer puis déployer : `npm run build && npm run deploy`.
-8. Ouvrir `/admin` sur le domaine de la boutique.
+## Données
 
-Pour connecter GitHub à Cloudflare, choisir **Workers & Pages → Créer → Importer un dépôt Git**, puis sélectionner ce dépôt et conserver `npm run build` comme commande de compilation.
+- Produits, commandes, promotions, abonnés et réglages : D1
+- Images téléversées dans le CMS : R2
+- Images statiques du catalogue : `public/`
 
-## Développement local
+## Sécurité
 
-Copier `.dev.vars.example` vers `.dev.vars`, renseigner des valeurs de développement, puis lancer `npm run dev`. Les fichiers `.dev.vars` et `.env` sont exclus du dépôt.
+Les fichiers `.env*` et `.dev.vars` ne doivent jamais être commités. Utiliser les secrets Cloudflare pour les valeurs sensibles.
