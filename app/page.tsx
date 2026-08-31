@@ -35,7 +35,7 @@ function WhatsAppIcon() {
 
 export default function Home() {
   const [active, setActive] = useState("all");
-  const [promoOpen, setPromoOpen] = useState(false);
+  const [promoOpen, setPromoOpen] = useState(false);`r`n  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [email, setEmail] = useState("");
   const [requested, setRequested] = useState(false);
   const [language, setLanguage] = useState<Language>("fr");
@@ -92,7 +92,7 @@ export default function Home() {
       setStoreSettings(savedSettings);
       if (!payload.products?.length && savedSettings.catalog_initialized !== "true" && selected === "conakry") return;
       setManagedProducts((payload.products || []).map((item) => ({
-        id: String(item.id), name: { fr: String(item.name_fr || ""), en: String(item.name_en || item.name_fr || "") },
+        id: String(item.id), articleNumber: item.article_number ? String(item.article_number) : undefined, name: { fr: String(item.name_fr || ""), en: String(item.name_en || item.name_fr || "") },
         category: String(item.category), price: Number(item.price || 0), ages: String(item.ages || "3+"),
         sheet: String(item.image_sheet || "17"), position: Number(item.image_position || 0), imageUrl: item.image_url ? String(item.image_url) : undefined,
         stock: Number(item.stock || 0), status: String(item.status || "available") as Product["status"], badge: item.badge ? String(item.badge) as Product["badge"] : undefined,
@@ -397,7 +397,7 @@ export default function Home() {
   })}
 </div><div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
         <div className="product-grid" id="coups-de-coeur" key={`${active}-${status}-${query}`}>
-          {visibleProducts.map((item) => <article className={`product-card ${item.status === "sold" ? "product-sold" : ""}`} key={item.id || `${item.sheet}-${item.position}`}><div className="product-visual" style={{backgroundImage:`url(${item.imageUrl || `/catalog-${item.sheet}.png`})`,backgroundPosition:item.imageUrl ? "center top" : `${[0,34,67,100][item.position]}% ${item.sheet === "17" ? "49%" : "15%"}`,backgroundSize:item.imageUrl ? "contain" : undefined}} role="img" aria-label={item.name[language]}><span className={`availability availability-${item.status}`}>{item.status === "available" ? say("Disponible","Available") : item.status === "reserved" ? say("Réservé","Reserved") : say("Vendu","Sold")}</span></div><div className="product-details">{item.badge && <span className={`product-badge ${item.badge}`}>{item.badge === "new" ? say("Nouveauté","New arrival") : say("Rentrée","School days")}</span>}<h3>{item.name[language]}</h3><p className="product-price">{marketPrice(item.price, market, language)}</p><p className="product-description">{item.detail[language]}</p><span className="age-pill">{item.ages.includes("mois") ? item.ages.replace("mois", say("mois", "months")) : `${item.ages} ${say("ans", "yrs")}`}</span>{item.status === "sold" ? <span className="product-unavailable">{say("Indisponible", "Unavailable")}</span> : whatsappNumber ? <a className={`product-order${item.status === "reserved" ? " product-order-reserved" : ""}`} href={`${whatsappUrl}?text=${encodeURIComponent(isEnglish ? `Hello, I would like ${item.status === "reserved" ? "to know when this product is back" : "to order"}: ${item.name.en} (${marketPrice(item.price, market, language)}).` : `Bonjour, je souhaite ${item.status === "reserved" ? "être averti du retour de" : "commander"} : ${item.name.fr} (${marketPrice(item.price, market, language)}).`)}`} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>{item.status === "reserved" ? say("Me prévenir", "Notify me") : "WhatsApp"}</span></a> : <span className="product-unavailable">{say("Nous contacter", "Contact us")}</span>}</div></article>)}
+          {visibleProducts.map((item) => <article className={`product-card ${item.status === "sold" ? "product-sold" : ""}`} key={item.id || `${item.sheet}-${item.position}`} onClick={(event) => { if ((event.target as Element).closest("a,button")) return; setSelectedProduct(item); }}><div className="product-visual" style={{backgroundImage:`url(${item.imageUrl || `/catalog-${item.sheet}.png`})`,backgroundPosition:item.imageUrl ? "center top" : `${[0,34,67,100][item.position]}% ${item.sheet === "17" ? "49%" : "15%"}`,backgroundSize:item.imageUrl ? "contain" : undefined}} role="img" aria-label={item.name[language]}><span className={`availability availability-${item.status}`}>{item.status === "available" ? say("Disponible","Available") : item.status === "reserved" ? say("Réservé","Reserved") : say("Vendu","Sold")}</span></div><div className="product-details">{item.badge && <span className={`product-badge ${item.badge}`}>{item.badge === "new" ? say("Nouveauté","New arrival") : say("Rentrée","School days")}</span>}<h3>{item.name[language]}</h3><p className="product-price">{marketPrice(item.price, market, language)}</p><p className="product-description">{item.detail[language]}</p><span className="age-pill">{item.ages.includes("mois") ? item.ages.replace("mois", say("mois", "months")) : `${item.ages} ${say("ans", "yrs")}`}</span>{item.status === "sold" ? <span className="product-unavailable">{say("Indisponible", "Unavailable")}</span> : whatsappNumber ? <a className={`product-order${item.status === "reserved" ? " product-order-reserved" : ""}`} href={`${whatsappUrl}?text=${encodeURIComponent(isEnglish ? `Hello, I would like ${item.status === "reserved" ? "to know when this product is back" : "to order"}: ${item.name.en} (${marketPrice(item.price, market, language)}).` : `Bonjour, je souhaite ${item.status === "reserved" ? "être averti du retour de" : "commander"} : ${item.name.fr} (${marketPrice(item.price, market, language)}).`)}`} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>{item.status === "reserved" ? say("Me prévenir", "Notify me") : "WhatsApp"}</span></a> : <span className="product-unavailable">{say("Nous contacter", "Contact us")}</span>}</div></article>)}
         </div>
         {matchingProducts.length === 0 && <p className="catalog-empty">{say("Aucune trouvaille ne correspond à votre recherche.", "No products matched your search.")}</p>}
         {!showAll && active === "all" && status === "all" && !query.trim() && matchingProducts.length > visibleProducts.length && <button className="show-more" onClick={() => setShowAll(true)}>{say("Découvrir tout le catalogue", "Discover the whole collection")} <span>({matchingProducts.length}) →</span></button>}
@@ -446,9 +446,87 @@ export default function Home() {
       {promoOpen && <div className="promo-backdrop" onClick={(event) => {if (event.target === event.currentTarget) closePromo();}}>
         <section className="promo-modal" role="dialog" aria-modal="true" aria-labelledby="promo-title"><button className="promo-close" aria-label={say("Fermer la fenêtre promotionnelle", "Close promotional offer")} onClick={closePromo}>×</button><div className="promo-photo"><img src="/boutique-hero.png" alt={say("L’intérieur coloré de la boutique Envol des Enfants", "Inside the colourful Envol des Enfants store")} /><span>{say("Du bonheur à découvrir.", "Happiness around every corner.")}</span></div><div className="promo-content"><span className="promo-logo brand-picture"><img src="/envol-reference.png" alt="Envol des Enfants" /></span><p className="eyebrow">{say("Un cadeau de bienvenue", "A little welcome gift")}</p><h2 id="promo-title"><span>10 %</span><br />{say("de rabais", "off")}</h2><p className="promo-intro">{say("Abonnez-vous et profitez de", "Subscribe and enjoy")} <strong>{say("10 % de rabais sur votre première commande.", "10% off your first order.")}</strong></p>{requested ? <div className="promo-success"><strong>{say("Votre demande est prête!", "Your request is ready!")}</strong><p>{say("Finalisez votre inscription dans la conversation WhatsApp qui vient de s’ouvrir.", "Complete your subscription in the WhatsApp conversation that just opened.")}</p><button onClick={closePromo}>{say("Continuer ma visite", "Continue browsing")} →</button></div> : <form onSubmit={requestDiscount}><label htmlFor="promo-email">{say("Votre adresse courriel", "Your email address")}</label><input id="promo-email" type="email" autoComplete="email" placeholder={say("vous@exemple.com", "you@example.com")} value={email} onChange={(event) => setEmail(event.target.value)} required /><label style={{display:"flex",alignItems:"flex-start",gap:"8px",fontSize:"11px",lineHeight:"1.5",margin:"10px 0"}}><input type="checkbox" style={{width:"auto",marginTop:"3px"}} checked={consent} onChange={(event) => setConsent(event.target.checked)} required />{say("J’accepte de recevoir des nouvelles et des offres d’Envol des Enfants.", "I agree to receive news and offers from Envol des Enfants.")}</label><button className="promo-submit" type="submit">{say("Recevoir mon 10 %", "Get my 10% discount")} →</button><small>{say("Offre réservée aux nouveaux abonnés. Demande confirmée sur WhatsApp.", "Offer available to new subscribers. Request confirmed through WhatsApp.")}</small></form>}</div></section>
       </div>}
-    </main>
+    
+      {selectedProduct && (
+        <div
+          className="product-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedProduct.name[language]}
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div className="product-lightbox-card" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="product-lightbox-close"
+              aria-label={say("Fermer", "Close")}
+              onClick={() => setSelectedProduct(null)}
+            >
+              ×
+            </button>
+
+            <div className="product-lightbox-image">
+              <img
+                src={selectedProduct.imageUrl || `/catalog-${selectedProduct.sheet}.png`}
+                alt={selectedProduct.name[language]}
+              />
+            </div>
+
+            <div className="product-lightbox-info">
+              <p className="eyebrow">{say("Fiche article", "Product details")}</p>
+              <h2>{selectedProduct.name[language]}</h2>
+
+              <div className="product-lightbox-meta">
+                <div>
+                  <span>{say("No de commande", "Order number")}</span>
+                  <strong>{selectedProduct.articleNumber || "—"}</strong>
+                </div>
+                <div>
+                  <span>{say("Catégorie", "Category")}</span>
+                  <strong>{selectedProduct.category}</strong>
+                </div>
+                <div>
+                  <span>{say("Âge", "Age")}</span>
+                  <strong>{selectedProduct.ages}</strong>
+                </div>
+                <div>
+                  <span>{say("Disponibilité", "Availability")}</span>
+                  <strong>
+                    {selectedProduct.status === "available"
+                      ? say("Disponible", "Available")
+                      : selectedProduct.status === "reserved"
+                        ? say("Réservé", "Reserved")
+                        : say("Vendu", "Sold")}
+                  </strong>
+                </div>
+              </div>
+
+              <p className="product-lightbox-price">{marketPrice(selectedProduct.price, market, language)}</p>
+              <p className="product-lightbox-description">{selectedProduct.detail[language]}</p>
+
+              {whatsappNumber && selectedProduct.status !== "sold" && (
+                <a
+                  className="button button-dark product-lightbox-order"
+                  href={`${whatsappUrl}?text=${encodeURIComponent(
+                    isEnglish
+                      ? `Hello, I would like to order ${selectedProduct.name.en}. Order no.: ${selectedProduct.articleNumber || "N/A"}.`
+                      : `Bonjour, je souhaite commander ${selectedProduct.name.fr}. No de commande : ${selectedProduct.articleNumber || "N/D"}.`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <WhatsAppIcon />
+                  {say("Commander cet article", "Order this item")}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+</main>
   );
 }
+
 
 
 

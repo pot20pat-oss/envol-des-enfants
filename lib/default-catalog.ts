@@ -1,5 +1,5 @@
-export type Translation = { fr: string; en: string };
-export type Product = { id?: string; name: Translation; category: string; price: number; ages: string; sheet: string; position: number; imageUrl?: string; stock?: number; status: "available" | "reserved" | "sold"; badge?: "new" | "school"; detail: Translation; priceConakry?: number; priceQc?: number; stockConakry?: number; stockQc?: number; visibleConakry?: boolean; visibleQc?: boolean; brand?: string };
+﻿export type Translation = { fr: string; en: string };
+export type Product = { id?: string; articleNumber?: string; name: Translation; category: string; price: number; ages: string; sheet: string; position: number; imageUrl?: string; stock?: number; status: "available" | "reserved" | "sold"; badge?: "new" | "school"; detail: Translation; priceConakry?: number; priceQc?: number; stockConakry?: number; stockQc?: number; visibleConakry?: boolean; visibleQc?: boolean; brand?: string };
 
 export const removedProductNames = [
   "Poupée princesse Ariel · édition deluxe", "Poupée princesse Moana · coiffure",
@@ -109,3 +109,4 @@ export const defaultProducts: Product[] = [
   { name:{fr:"Ensemble de piscine Spider-Man",en:"Spider-Man pool set"}, category:"piscine", price:0, priceConakry:0, priceQc:0, stockConakry:1, stockQc:1, visibleConakry:true, visibleQc:true, brand:"Bestway", ages:"3–6", sheet:"", position:0, imageUrl:"/products/nouveautes/spiderman-piscine.webp", status:"available", badge:"new", detail:{fr:"Bouée ronde et brassards Spider-Man.",en:"Spider-Man swim tube and armbands."} },
   { name:{fr:"Ensemble de piscine Minnie",en:"Minnie pool set"}, category:"piscine", price:0, priceConakry:0, priceQc:0, stockConakry:1, stockQc:1, visibleConakry:true, visibleQc:true, brand:"Bestway", ages:"3–6", sheet:"", position:0, imageUrl:"/products/nouveautes/minnie-piscine.webp", status:"available", badge:"new", detail:{fr:"Bouée ronde et brassards Minnie.",en:"Minnie swim tube and armbands."} },
 ].filter((product) => Boolean(product.imageUrl));
+
