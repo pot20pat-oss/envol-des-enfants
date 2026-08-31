@@ -15,7 +15,17 @@ export async function GET(request: Request) {
     const promotions = await cmsEnv().DB.prepare("SELECT * FROM promotions WHERE active=1 AND (region=? OR region='both') AND (starts_at IS NULL OR starts_at<=?) AND (ends_at IS NULL OR ends_at>=?) ORDER BY created_at DESC")
       .bind(region, new Date().toISOString().slice(0, 10), new Date().toISOString().slice(0, 10)).all();
     const allSettings = Object.fromEntries(settings.results.map((entry) => [entry.key, entry.value]));
-    const products = results.map((product) => {
+
+    const seenNames = new Set<string>();
+    const deduplicatedResults = results.filter((product) => {
+      const normalizedName = String(product.name_fr || "").trim().toLocaleLowerCase("fr");
+      if (!normalizedName) return true;
+      if (seenNames.has(normalizedName)) return false;
+      seenNames.add(normalizedName);
+      return true;
+    });
+
+    const products = deduplicatedResults.map((product) => {
       const stock = Number(product[`stock_${region}`] || 0);
       const regularPrice = Number(product[`price_${region}`] ?? (region === "conakry" ? product.price : 0));
       const promotionalPrice = Number(product[`promo_price_${region}`] || 0);
