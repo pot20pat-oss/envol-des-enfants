@@ -8,6 +8,9 @@
     "binding": "ASSETS",
     "not_found_handling": "none"
   },
+  "images": {
+    "binding": "IMAGES"
+  },
   "d1_databases": [
     {
       "binding": "DB",

@@ -21,6 +21,7 @@ export const sessions = sqliteTable("sessions", {
 
 export const products = sqliteTable("products", {
   id: text("id").primaryKey(),
+  articleNumber: text("article_number").unique(),
   nameFr: text("name_fr").notNull(),
   nameEn: text("name_en").notNull().default(""),
   descriptionFr: text("description_fr").notNull().default(""),
