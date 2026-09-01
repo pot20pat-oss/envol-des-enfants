@@ -29,7 +29,9 @@ export async function createArticleNumberGenerator(database: D1Database) {
 
   for (const product of results) {
     const prefix = articlePrefix(product.category);
-    const match = product.article_number.trim().toUpperCase().match(/^([A-Z]{3})(\d{4,})$/);
+    // Read both the current BAR0001 format and legacy BAR-00001 values.
+    // New numbers keep the compact format while continuing after either one.
+    const match = product.article_number.trim().toUpperCase().match(/^([A-Z]{3})-?(\d{4,})$/);
     if (!match || match[1] !== prefix) continue;
     const number = Number(match[2]);
     if (!Number.isFinite(number)) continue;
