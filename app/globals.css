@@ -182,6 +182,47 @@
   background:var(--navy);
   color:#fff;
 }
+.category-menu-poupees>summary{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:-.2px;
+  color:#a94460;
+  border-color:#e3c5cd;
+  background:#fff9fb;
+}
+.category-menu-poupees .doll-world-choice{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:14px;
+  font-weight:600;
+  color:#a94460;
+  border-bottom:1px solid #f0dfe4;
+  border-radius:6px;
+  margin-bottom:3px;
+}
+.category-menu-poupees .doll-brand-choice{
+  padding-left:22px;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.25px;
+  text-transform:uppercase;
+  color:#60727b;
+}
+.nav-dolls-tab,.nav-dropdown-panel .nav-dolls-link{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:-.15px;
+}
+.nav-dropdown-panel .nav-princesses-link{
+  padding-left:28px;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+  color:#60727b;
+}
 @media(max-width:800px){
   .category-dropdowns{
     gap:7px;
@@ -249,6 +290,7 @@
   max-height:86vh;
   object-fit:contain;
 }
+.product-lightbox-thumbnails{position:absolute;left:20px;right:20px;bottom:18px;display:flex;justify-content:center;gap:9px}.product-lightbox-thumbnails button{width:72px;height:72px;padding:3px;border:2px solid transparent;border-radius:9px;background:#fff;box-shadow:0 4px 16px #16354a24;cursor:pointer}.product-lightbox-thumbnails button.active{border-color:var(--orange)}.product-lightbox-thumbnails img{width:100%;height:100%;object-fit:contain;background:#f5f5f2}
 .product-lightbox-info{
   overflow:auto;
   padding:54px 42px 38px;
@@ -379,4 +421,3 @@
     padding:9px 13px;
   }
 }
-
