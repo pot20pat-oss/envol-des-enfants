@@ -25,9 +25,9 @@ type Section =
 
 const categories: Record<string, string> = {
   eveil: "Jouets éducatifs",
-  poupees: "Mon monde de poupées",
-  disney: "Disney · Mon monde de poupées",
-  barbie: "Barbie · Mon monde de poupées",
+  poupees: "Mon monde de poupées et princesses",
+  disney: "Disney · Poupées et princesses",
+  barbie: "Barbie · Poupées et princesses",
   piscine: "Piscine & jeux d’eau",
   imitation: "Métiers & imitation",
   dinosaures: "Dinosaures & aventures",
