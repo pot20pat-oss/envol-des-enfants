@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { defaultProducts, removedProductNames } from "@/lib/default-catalog";
 import {
   defaultSiteSections,
@@ -13,7 +13,9 @@ import { DashboardSection, SettingsSection, SubscribersSection } from "./admin-s
 import { OrdersSection, ProductsSection, PromotionsSection, StockSection } from "./admin-commerce-sections";
 import { SiteEditor } from "./admin-site-editor";
 import { AdminEditModal } from "./admin-edit-modal";
-import { blankProduct, labels, orderLabels, request, type Row, type Section } from "./admin-shared";
+import { AdminLayout, AdminLogin } from "./admin-layout";
+import { deriveAdminLists } from "./admin-derived";
+import { blankProduct, orderLabels, request, type Row, type Section } from "./admin-shared";
 import "./admin.css";
 
 export default function Administration() {
@@ -54,7 +56,6 @@ export default function Administration() {
     current_password: "",
     new_password: "",
   });
-  const quickScrollFrame = useRef<number | null>(null);
 
   useEffect(() => {
     request("/api/admin/session")
@@ -432,208 +433,13 @@ export default function Administration() {
     }
   }
 
-  function stopQuickScroll() {
-    if (quickScrollFrame.current !== null) window.clearInterval(quickScrollFrame.current);
-    quickScrollFrame.current = null;
-  }
+  if (checking) return <main className="cms-loading">Chargement de l’administration…</main>;
+  if (!admin) return <AdminLogin email={email} password={password} error={error} busy={busy} setEmail={setEmail} setPassword={setPassword} signIn={signIn} />;
 
-  function startQuickScroll(direction: -1 | 1) {
-    stopQuickScroll();
-    const startedAt = Date.now();
-    const scroll = () => {
-      const speed = Math.min(28, 8 + (Date.now() - startedAt) / 180);
-      window.scrollBy({ top: direction * speed, behavior: "auto" });
-    };
-    scroll();
-    quickScrollFrame.current = window.setInterval(scroll, 16);
-  }
-
-  useEffect(() => {
-    const stop = () => stopQuickScroll();
-    window.addEventListener("mouseup", stop);
-    window.addEventListener("pointerup", stop);
-    window.addEventListener("pointercancel", stop);
-    window.addEventListener("touchend", stop);
-    window.addEventListener("touchcancel", stop);
-    window.addEventListener("blur", stop);
-    return () => {
-      stop();
-      window.removeEventListener("mouseup", stop);
-      window.removeEventListener("pointerup", stop);
-      window.removeEventListener("pointercancel", stop);
-      window.removeEventListener("touchend", stop);
-      window.removeEventListener("touchcancel", stop);
-      window.removeEventListener("blur", stop);
-    };
-  }, []);
-
-  if (checking)
-    return <main className="cms-loading">Chargement de l’administration…</main>;
-  if (!admin)
-    return (
-      <main className="cms-login">
-        <form className="cms-login-card" onSubmit={signIn}>
-          <img src="/envol-reference.png" alt="Envol des Enfants" />
-          <span className="cms-eyebrow">Espace de gestion sécurisé</span>
-          <h1>
-            Votre boutique,
-            <br />
-            <em>au bout des doigts.</em>
-          </h1>
-          <p>
-            Connectez-vous pour gérer vos produits, vos commandes et vos
-            promotions.
-          </p>
-          {error && <div className="cms-error">{error}</div>}
-          <label>
-            Adresse courriel
-            <input
-              type="email"
-              autoComplete="username"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </label>
-          <label>
-            Mot de passe
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </label>
-          <button disabled={busy}>
-            {busy ? "Connexion…" : "Accéder à mon administration →"}
-          </button>
-          <a href="/">← Retour à la boutique</a>
-        </form>
-      </main>
-    );
-
-  const regionalProducts = products.filter((item) =>
-    Boolean(item[`visible_${market}`]),
-  );
-  const filtered = products.filter((item) => {
-    const matchesSearch = `${item.article_number || ""} ${item.name_fr} ${item.name_en} ${item.category} ${item.brand || ""}`.toLowerCase().includes(search.trim().toLowerCase());
-    const matchesCategory = productCategory === "all" || item.category === productCategory;
-    const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : !Boolean(item[`visible_${market}`]));
-    const stock = Number(item[`stock_${market}`] || 0);
-    const matchesStock = productStock === "all" || (productStock === "available" ? stock > 0 : productStock === "low" ? stock > 0 && stock <= Number(item.alert_threshold || 2) : stock <= 0);
-    return matchesSearch && matchesCategory && matchesVisibility && matchesStock;
-  });
-  const filteredOrders = orders.filter(
-    (item) =>
-      (orderStatus === "all" || item.status === orderStatus) &&
-      (!orderDate || String(item.created_at || "").startsWith(orderDate)) &&
-      (!search.trim() ||
-        `${item.customer_name} ${item.customer_phone} ${item.product_name}`
-          .toLowerCase()
-          .includes(search.toLowerCase())),
-  );
-  const lowStock = regionalProducts.filter(
-    (item) =>
-      Number(item[`stock_${market}`] || 0) <= Number(item.alert_threshold || 2),
-  );
-  const stats = [
-    {
-      title: `Produits · ${markets[market].label}`,
-      value: regionalProducts.length,
-      tone: "blue",
-    },
-    {
-      title: "Commandes à traiter",
-      value: orders.filter((item) =>
-        ["new", "confirmed", "preparing"].includes(String(item.status)),
-      ).length,
-      tone: "orange",
-    },
-    { title: "Abonnés", value: subscribers.length, tone: "green" },
-    { title: "Alertes de stock", value: lowStock.length, tone: "red" },
-  ];
+  const { regionalProducts, filteredProducts: filtered, filteredOrders, lowStock, stats } = deriveAdminLists({ products, orders, subscribers, market, search, productCategory, productVisibility, productStock, orderStatus, orderDate });
 
   return (
-    <main className="cms-app">
-      <aside className="cms-sidebar">
-        <a className="cms-logo" href="/">
-          <img src="/envol-reference.png" alt="Envol des Enfants" />
-        </a>
-        <span className="cms-eyebrow">Administration</span>
-        <nav>
-          {(Object.keys(labels) as Section[]).map((key) => (
-            <button
-              key={key}
-              className={section === key ? "active" : ""}
-              onClick={() => {
-                setSection(key);
-                setEditing(null);
-                setSearch("");
-                setError("");
-              }}
-            >
-              <span>
-                {
-                  (
-                    {
-                      dashboard: "◉",
-                      products: "▣",
-                      stock: "▤",
-                      orders: "☷",
-                      promotions: "✦",
-                      subscribers: "♡",
-                      editor: "✎",
-                      settings: "⚙",
-                    } as Record<Section, string>
-                  )[key]
-                }
-              </span>
-              {labels[key]}
-            </button>
-          ))}
-        </nav>
-        <div className="cms-account">
-          <strong>{admin.name}</strong>
-          <small>{admin.email}</small>
-          <button onClick={() => void signOut()}>Déconnexion</button>
-        </div>
-      </aside>
-      <div className="cms-main">
-        <header className="cms-topbar">
-          <div>
-            <span className="cms-eyebrow">
-              Envol des Enfants · {markets[market].label}
-            </span>
-            <h1>{labels[section]}</h1>
-          </div>
-          <div className="cms-top-actions">
-            <div
-              className="cms-market-switch"
-              role="group"
-              aria-label="Choisir la boutique"
-            >
-              <button
-                className={market === "conakry" ? "active" : ""}
-                onClick={() => setMarket("conakry")}
-              >
-                Conakry · GNF
-              </button>
-              <button
-                className={market === "qc" ? "active" : ""}
-                onClick={() => setMarket("qc")}
-              >
-                Québec · CAD
-              </button>
-            </div>
-            <a href={`/?region=${market}`} target="_blank">
-              Voir la boutique ↗
-            </a>
-          </div>
-        </header>
-        {notice && <div className="cms-notice">✓ {notice}</div>}
-        {error && <div className="cms-error">{error}</div>}
-
+    <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} onSection={(next) => { setSection(next); setEditing(null); setSearch(""); setError(""); }} onMarket={setMarket} signOut={() => void signOut()}>
         {section === "editor" && (<SiteEditor market={market} busy={busy} sections={siteSections} setSections={setSiteSections} texts={siteTexts} setTexts={setSiteTexts} draggedSection={draggedSection} setDraggedSection={setDraggedSection} moveSection={moveSection} versions={versions} restoreVersion={restoreVersion} save={saveSiteEditor} />)}
 
         {section === "dashboard" && (
@@ -656,13 +462,7 @@ export default function Administration() {
           <SettingsSection market={market} settings={settings} setSettings={setSettings} passwords={passwords} setPasswords={setPasswords} busy={busy} saveSettings={saveSettings} changePassword={changePassword} />
         )}
 
-        <div className="cms-quick-scroll" aria-label="Défilement rapide">
-          <button type="button" aria-label="Revenir complètement en haut" title="Retour en haut" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button>
-          <button type="button" aria-label="Aller complètement en bas" title="Aller en bas" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button>
-        </div>
-
         {editing && <AdminEditModal editing={editing} editingType={editingType} setEditing={setEditing} save={save} update={update} upload={upload} busy={busy} market={market} products={products} />}
-      </div>
-    </main>
+    </AdminLayout>
   );
 }
