@@ -11,15 +11,18 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Tout voir", en: "View all" }, value: "all" },
   { label: { fr: "Jouets éducatifs", en: "Educational toys" }, value: "eveil" },
   { label: { fr: "Mon monde de poupées et princesses", en: "My world of dolls and princesses" }, value: "poupees" },
-  { label: { fr: "↳ Disney", en: "↳ Disney" }, value: "disney" },
-  { label: { fr: "↳ Barbie", en: "↳ Barbie" }, value: "barbie" },
-  { label: { fr: "↳ My Life", en: "↳ My Life" }, value: "mylife" },
-  { label: { fr: "↳ Miraculous", en: "↳ Miraculous" }, value: "miraculous" },
-  { label: { fr: "↳ LOL Surprise & OMG", en: "↳ LOL Surprise & OMG" }, value: "lol" },
-  { label: { fr: "↳ Rainbow High", en: "↳ Rainbow High" }, value: "rainbowhigh" },
-  { label: { fr: "↳ Baby Alive", en: "↳ Baby Alive" }, value: "babyalive" },
-  { label: { fr: "↳ Accessoires", en: "↳ Accessories" }, value: "accessoires_poupees" },
-  { label: { fr: "↳ Autres poupées", en: "↳ Other dolls" }, value: "autres_poupees" },
+  { label: { fr: "↳ Disney · Poupées et accessoires", en: "↳ Disney · Dolls & accessories" }, value: "disney" },
+  { label: { fr: "↳ Barbie · Poupées et accessoires", en: "↳ Barbie · Dolls & accessories" }, value: "barbie" },
+  { label: { fr: "↳ My Life · Poupées et accessoires", en: "↳ My Life · Dolls & accessories" }, value: "mylife" },
+  { label: { fr: "↳ Miraculous · Poupées et accessoires", en: "↳ Miraculous · Dolls & accessories" }, value: "miraculous" },
+  { label: { fr: "↳ LOL Surprise & OMG · Poupées et accessoires", en: "↳ LOL Surprise & OMG · Dolls & accessories" }, value: "lol" },
+  { label: { fr: "↳ Rainbow High · Poupées et accessoires", en: "↳ Rainbow High · Dolls & accessories" }, value: "rainbowhigh" },
+  { label: { fr: "↳ Baby Alive · Poupées et accessoires", en: "↳ Baby Alive · Dolls & accessories" }, value: "babyalive" },
+  { label: { fr: "↳ Hairmazing · Poupées et accessoires", en: "↳ Hairmazing · Dolls & accessories" }, value: "hairmazing" },
+  { label: { fr: "↳ Karma’s World · Poupées et accessoires", en: "↳ Karma’s World · Dolls & accessories" }, value: "karma" },
+  { label: { fr: "↳ My Sweet Baby · Poupées et accessoires", en: "↳ My Sweet Baby · Dolls & accessories" }, value: "mysweetbaby" },
+  { label: { fr: "↳ Glamour Girl · Poupées et accessoires", en: "↳ Glamour Girl · Dolls & accessories" }, value: "glamourgirl" },
+  { label: { fr: "↳ Autres poupées et accessoires", en: "↳ Other dolls & accessories" }, value: "autres_poupees" },
   { label: { fr: "Bébé", en: "Baby" }, value: "bebe" },
   { label: { fr: "Vêtements", en: "Clothing" }, value: "vetements" },
   { label: { fr: "Chaussures", en: "Shoes" }, value: "chaussures" },
@@ -58,7 +61,7 @@ export default function Home() {
   const [consent, setConsent] = useState(false);
   const quickScrollFrame = useRef<number | null>(null);
   const storeProducts = managedProducts === null ? market === "conakry" ? defaultProducts : [] : managedProducts;
-  const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "accessoires_poupees", "autres_poupees"];
+  const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"];
   const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => dollCategories.includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const siteSections = readSiteSections(storeSettings.site_sections);
   const siteTexts = readSiteTexts(storeSettings.site_texts);
@@ -538,7 +541,6 @@ export default function Home() {
 </main>
   );
 }
-
 
 
 
