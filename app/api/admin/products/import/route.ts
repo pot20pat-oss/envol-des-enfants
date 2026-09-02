@@ -60,10 +60,7 @@ export async function POST(request: Request) {
 
     const current = productsByName.get(normalizedName);
     if (current) {
-      const sameCategory = current.category === category;
-      const articleNumber = sameCategory && current.article_number?.trim()
-        ? current.article_number.trim()
-        : nextArticleNumber(category);
+      const articleNumber = current.article_number?.trim() ? current.article_number.trim() : nextArticleNumber(category);
       statements.push(database.prepare("UPDATE products SET category=?,image_url=?,brand=?,article_number=?,updated_at=? WHERE id=?")
         .bind(category, stringValue(product.imageUrl) || null, stringValue(product.brand) || null, articleNumber, now, current.id));
       updated += 1;
@@ -80,3 +77,4 @@ export async function POST(request: Request) {
   await database.batch(statements);
   return Response.json({ imported, updated, removed, skipped: Math.min(products.length, 250) - imported - updated });
 }
+
