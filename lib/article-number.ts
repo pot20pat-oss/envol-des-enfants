@@ -1,4 +1,4 @@
-﻿export async function createArticleNumberGenerator(database: D1Database) {
+export async function createArticleNumberGenerator(database: D1Database) {
   const result = await database.prepare(
     "SELECT COALESCE(MAX(CAST(article_number AS INTEGER)), 0) AS max_number FROM products WHERE article_number IS NOT NULL AND TRIM(article_number) <> ''",
   ).first<{ max_number: number }>();
