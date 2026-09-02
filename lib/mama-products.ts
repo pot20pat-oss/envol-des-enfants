@@ -68,10 +68,21 @@ const items: MamaItem[] = [
   ["Ensemble épicerie pour poupée", "Doll grocery set", "poupees", "Poupée mode"],
 ];
 
+function dollCategory(name: string, currentCategory: string, brand: string) {
+  if (currentCategory === "disney") return "disney";
+  if (brand === "My Life As") return "mylife";
+  if (brand === "Miraculous") return "miraculous";
+  if (brand === "LOL Surprise" || brand === "LOL OMG") return "lol";
+  if (brand === "Rainbow High" || brand === "Shadow High") return "rainbowhigh";
+  if (brand === "Baby Alive") return "babyalive";
+  if (/accessoires|ensemble de bain|ensemble coiffure|ensemble épicerie/i.test(name)) return "accessoires_poupees";
+  return "autres_poupees";
+}
+
 export const mamaProducts: Product[] = items.map(([fr, en, category, brand], index) => ({
   id: `mama-${String(index + 1).padStart(2, "0")}`,
   name: { fr, en },
-  category,
+  category: dollCategory(fr, category, brand),
   brand,
   price: 0,
   priceConakry: 0,
