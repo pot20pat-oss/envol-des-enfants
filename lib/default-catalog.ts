@@ -1,4 +1,6 @@
-﻿export type Translation = { fr: string; en: string };
+﻿import { mamaProducts } from "./mama-products";
+
+export type Translation = { fr: string; en: string };
 export type Product = { id?: string; articleNumber?: string; name: Translation; category: string; price: number; ages: string; sheet: string; position: number; imageUrl?: string; extraImages?: string[]; stock?: number; status: "available" | "reserved" | "sold"; badge?: "new" | "school"; detail: Translation; priceConakry?: number; priceQc?: number; stockConakry?: number; stockQc?: number; visibleConakry?: boolean; visibleQc?: boolean; brand?: string };
 
 export const removedProductNames = [
@@ -31,6 +33,7 @@ export const removedProductNames = [
 ];
 
 export const defaultProducts: Product[] = [
+  ...mamaProducts,
   { name: {fr:"Puzzle animaux 48 pièces",en:"48-piece animal puzzle"}, category:"eveil", price:25000, ages:"3–6", sheet:"17", position:0, status:"available", badge:"new", detail:{fr:"Développe motricité fine et logique.",en:"Builds fine motor skills and reasoning."} },
   { name: {fr:"Blocs de construction 100 pièces",en:"100-piece building blocks"}, category:"eveil", price:35000, ages:"4+", sheet:"17", position:1, status:"available", detail:{fr:"Construis, imagine, apprends.",en:"Build, imagine and learn."} },
   { name: {fr:"Kit peinture Crayola",en:"Crayola painting set"}, category:"scolaire", price:18000, ages:"3+", sheet:"17", position:2, status:"available", badge:"school", detail:{fr:"Coloriage et arts créatifs.",en:"Colouring and creative arts."} },
