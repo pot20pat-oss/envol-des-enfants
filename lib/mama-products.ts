@@ -83,7 +83,7 @@ export const mamaProducts: Product[] = items.map(([fr, en, category, brand], ind
   ages: "3+",
   sheet: "",
   position: 0,
-  imageUrl: `/products/poupees-mama/mama-${String(index + 1).padStart(2, "0")}.webp`,
+  imageUrl: index === 15 ? "/products/poupees-mama/mama-16.jpg" : `/products/poupees-mama/mama-${String(index + 1).padStart(2, "0")}.webp`,
   status: "available",
   badge: "new",
   detail: {
