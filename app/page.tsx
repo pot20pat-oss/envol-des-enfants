@@ -13,6 +13,13 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Mon monde de poupées et princesses", en: "My world of dolls and princesses" }, value: "poupees" },
   { label: { fr: "↳ Disney", en: "↳ Disney" }, value: "disney" },
   { label: { fr: "↳ Barbie", en: "↳ Barbie" }, value: "barbie" },
+  { label: { fr: "↳ My Life", en: "↳ My Life" }, value: "mylife" },
+  { label: { fr: "↳ Miraculous", en: "↳ Miraculous" }, value: "miraculous" },
+  { label: { fr: "↳ LOL Surprise & OMG", en: "↳ LOL Surprise & OMG" }, value: "lol" },
+  { label: { fr: "↳ Rainbow High", en: "↳ Rainbow High" }, value: "rainbowhigh" },
+  { label: { fr: "↳ Baby Alive", en: "↳ Baby Alive" }, value: "babyalive" },
+  { label: { fr: "↳ Accessoires", en: "↳ Accessories" }, value: "accessoires_poupees" },
+  { label: { fr: "↳ Autres poupées", en: "↳ Other dolls" }, value: "autres_poupees" },
   { label: { fr: "Bébé", en: "Baby" }, value: "bebe" },
   { label: { fr: "Vêtements", en: "Clothing" }, value: "vetements" },
   { label: { fr: "Chaussures", en: "Shoes" }, value: "chaussures" },
@@ -51,7 +58,8 @@ export default function Home() {
   const [consent, setConsent] = useState(false);
   const quickScrollFrame = useRef<number | null>(null);
   const storeProducts = managedProducts === null ? market === "conakry" ? defaultProducts : [] : managedProducts;
-  const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => ["poupees", "princesses", "disney", "barbie"].includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
+  const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "accessoires_poupees", "autres_poupees"];
+  const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => dollCategories.includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const siteSections = readSiteSections(storeSettings.site_sections);
   const siteTexts = readSiteTexts(storeSettings.site_texts);
   const storePhone = storeSettings.phone || (market === "conakry" ? "+224 666 54 79 76" : "");
@@ -70,7 +78,7 @@ export default function Home() {
     return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible ? { display: "none" } : {}) };
   };
   const sectionVisible = (id: string) => siteSections.find((section) => section.id === id)?.visible !== false;
-  const matchingProducts = storeProducts.filter((item) => (active === "all" || item.category === active || (active === "disney" && item.category === "princesses") || (active === "poupees" && ["poupees", "princesses", "disney", "barbie"].includes(item.category))) && (status === "all" || item.status === status) && (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase())));
+  const matchingProducts = storeProducts.filter((item) => (active === "all" || item.category === active || (active === "disney" && item.category === "princesses") || (active === "poupees" && dollCategories.includes(item.category))) && (status === "all" || item.status === status) && (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase())));
   const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
   const featuredCollections = [
     { id: "nouveautes", eyebrow: say("Tout juste arrivés en boutique", "Freshly arrived in store"), title: say("Les nouveautés", "Our newest arrivals"), detail: say("Des découvertes à ne pas laisser filer.", "Little discoveries worth catching."), items: storeProducts.filter((item) => item.badge === "new").slice(0, 4) },
@@ -337,7 +345,7 @@ export default function Home() {
     {
       key: "poupees",
       label: say("Mon monde de poupées et princesses", "My world of dolls and princesses"),
-      values: ["poupees", "disney", "barbie"],
+      values: dollCategories,
     },
     {
       key: "ecole",
@@ -355,7 +363,7 @@ export default function Home() {
 
     const groupActive =
       group.key === "poupees"
-        ? ["poupees", "disney", "barbie"].includes(active)
+        ? dollCategories.includes(active)
         : group.values.includes(active);
 
     return (
@@ -530,7 +538,6 @@ export default function Home() {
 </main>
   );
 }
-
 
 
 
