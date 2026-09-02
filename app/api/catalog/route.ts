@@ -1,5 +1,6 @@
 import { cmsEnv } from "@/lib/cms";
 import { marketSettings, normalizeMarket, type Market } from "@/lib/markets";
+import { categorizedMamaProduct } from "@/lib/doll-category";
 
 export async function GET(request: Request) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
       return true;
     });
 
-    const products = deduplicatedResults.map((product) => {
+    const products = deduplicatedResults.map(categorizedMamaProduct).map((product) => {
       const stock = Number(product[`stock_${region}`] || 0);
       const regularPrice = Number(product[`price_${region}`] ?? (region === "conakry" ? product.price : 0));
       const promotionalPrice = Number(product[`promo_price_${region}`] || 0);
