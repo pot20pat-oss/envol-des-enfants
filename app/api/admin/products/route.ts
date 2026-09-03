@@ -1,6 +1,7 @@
 import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
 import { createArticleNumberGenerator } from "@/lib/article-number";
 import { categorizedMamaProduct } from "@/lib/doll-category";
+import { withVerifiedConakryPrice } from "@/lib/reference-prices";
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
     );
   }
   const { results } = await database.prepare("SELECT * FROM products ORDER BY updated_at DESC").all();
-  return Response.json({ products: results.map(categorizedMamaProduct) });
+  return Response.json({ products: results.map(categorizedMamaProduct).map(withVerifiedConakryPrice) });
 }
 
 export async function POST(request: Request) {
