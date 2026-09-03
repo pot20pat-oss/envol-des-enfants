@@ -32,6 +32,22 @@ export const removedProductNames = [
   { name:{fr:"Disney Mulan · classique",en:"Disney Mulan · classic"}, category:"disney", price:0, priceConakry:0, priceQc:0, stockConakry:1, stockQc:1, visibleConakry:true, visibleQc:true, brand:"Disney Princess", ages:"3+", sheet:"", position:0, imageUrl:"/products/disney/disney-18.webp", status:"available", badge:"new", detail:{fr:"Poupée Mulan classique.",en:"Classic Mulan doll."} },
 ];
 
+const referencePriceById: Record<string, number> = {
+  "mama-05": 485000, "mama-06": 321000, "mama-13": 600000, "mama-14": 485000,
+  "mama-16": 460000, "mama-22": 485000, "mama-23": 1199800, "mama-28": 485000,
+  "mama-33": 725000, "mama-36": 485000, "mama-39": 485000, "mama-40": 1199800,
+  "mama-41": 600000, "mama-43": 600000, "mama-44": 1199800, "mama-50": 485000,
+  "mama-51": 460000, "mama-62": 400000,
+};
+
+function verifiedReferencePrice(product: Product): number | undefined {
+  if (product.id && referencePriceById[product.id]) return referencePriceById[product.id];
+  if (/\/products\/barbie\/barbie-(?:0[2-9]|1[0-9]|20)\.webp$/.test(product.imageUrl || "")) return 150000;
+  if (/\/products\/disney\/disney-(?:01|02)\.webp$/.test(product.imageUrl || "")) return 460000;
+  if (/\/products\/disney\/disney-1[2-8]\.webp$/.test(product.imageUrl || "")) return 285000;
+  return undefined;
+}
+
 export const defaultProducts: Product[] = [
   ...mamaProducts,
   { name: {fr:"Puzzle animaux 48 pièces",en:"48-piece animal puzzle"}, category:"eveil", price:25000, ages:"3–6", sheet:"17", position:0, status:"available", badge:"new", detail:{fr:"Développe motricité fine et logique.",en:"Builds fine motor skills and reasoning."} },
@@ -111,4 +127,7 @@ export const defaultProducts: Product[] = [
   { name:{fr:"Brassards Intex Wet Set",en:"Intex Wet Set armbands"}, category:"piscine", price:0, priceConakry:0, priceQc:0, stockConakry:1, stockQc:1, visibleConakry:true, visibleQc:true, brand:"Intex", ages:"3–6", sheet:"", position:0, imageUrl:"/products/nouveautes/brassards-intex.webp", status:"available", badge:"new", detail:{fr:"Brassards gonflables Wet Set pour l’apprentissage.",en:"Wet Set inflatable learner armbands."} },
   { name:{fr:"Ensemble de piscine Spider-Man",en:"Spider-Man pool set"}, category:"piscine", price:0, priceConakry:0, priceQc:0, stockConakry:1, stockQc:1, visibleConakry:true, visibleQc:true, brand:"Bestway", ages:"3–6", sheet:"", position:0, imageUrl:"/products/nouveautes/spiderman-piscine.webp", status:"available", badge:"new", detail:{fr:"Bouée ronde et brassards Spider-Man.",en:"Spider-Man swim tube and armbands."} },
   { name:{fr:"Ensemble de piscine Minnie",en:"Minnie pool set"}, category:"piscine", price:0, priceConakry:0, priceQc:0, stockConakry:1, stockQc:1, visibleConakry:true, visibleQc:true, brand:"Bestway", ages:"3–6", sheet:"", position:0, imageUrl:"/products/nouveautes/minnie-piscine.webp", status:"available", badge:"new", detail:{fr:"Bouée ronde et brassards Minnie.",en:"Minnie swim tube and armbands."} },
-].filter((product) => Boolean(product.imageUrl));
+].filter((product) => Boolean(product.imageUrl)).map((product) => {
+  const referencePrice = verifiedReferencePrice(product);
+  return referencePrice === undefined ? product : { ...product, price: referencePrice, priceConakry: referencePrice };
+});
