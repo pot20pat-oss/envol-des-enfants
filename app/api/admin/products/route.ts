@@ -1,5 +1,6 @@
 import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
 import { createArticleNumberGenerator } from "@/lib/article-number";
+import { categorizedMamaProduct } from "@/lib/doll-category";
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
     );
   }
   const { results } = await database.prepare("SELECT * FROM products ORDER BY updated_at DESC").all();
-  return Response.json({ products: results });
+  return Response.json({ products: results.map(categorizedMamaProduct) });
 }
 
 export async function POST(request: Request) {
