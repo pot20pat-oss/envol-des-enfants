@@ -46,3 +46,31 @@ WHERE image_url GLOB '/products/barbie/barbie-0[2-9].webp'
      'mama-28','mama-33','mama-36','mama-39','mama-40','mama-41','mama-43',
      'mama-44','mama-50','mama-51','mama-62'
    );
+
+-- Deuxième série : correspondances exactes supplémentaires.
+UPDATE products
+SET price_conakry = CASE
+      WHEN id = 'mama-19' THEN 460000
+      WHEN id = 'tempo-barbie-05' THEN 600000
+      WHEN id = 'tempo-barbie-10' THEN 285500
+      WHEN id = 'tempo-barbie-13' THEN 680000
+      WHEN id = 'tempo-barbie-15' THEN 580000
+      WHEN id IN ('tempo-barbie-21','tempo-barbie-24') THEN 850000
+      WHEN id = 'tempo-barbie-29' THEN 285500
+      WHEN image_url IN ('/products/nouveautes/chien-marcheur.webp','/products/nouveautes/licorne-marcheuse.webp') THEN 320000
+      ELSE price_conakry
+    END,
+    price = CASE
+      WHEN id = 'mama-19' THEN 460000
+      WHEN id = 'tempo-barbie-05' THEN 600000
+      WHEN id = 'tempo-barbie-10' THEN 285500
+      WHEN id = 'tempo-barbie-13' THEN 680000
+      WHEN id = 'tempo-barbie-15' THEN 580000
+      WHEN id IN ('tempo-barbie-21','tempo-barbie-24') THEN 850000
+      WHEN id = 'tempo-barbie-29' THEN 285500
+      WHEN image_url IN ('/products/nouveautes/chien-marcheur.webp','/products/nouveautes/licorne-marcheuse.webp') THEN 320000
+      ELSE price
+    END,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id IN ('mama-19','tempo-barbie-05','tempo-barbie-10','tempo-barbie-13','tempo-barbie-15','tempo-barbie-21','tempo-barbie-24','tempo-barbie-29')
+   OR image_url IN ('/products/nouveautes/chien-marcheur.webp','/products/nouveautes/licorne-marcheuse.webp');
