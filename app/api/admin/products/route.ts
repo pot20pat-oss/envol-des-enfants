@@ -2,10 +2,12 @@ import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from 
 import { createArticleNumberGenerator } from "@/lib/article-number";
 import { categorizedMamaProduct } from "@/lib/doll-category";
 import { withVerifiedConakryPrice } from "@/lib/reference-prices";
+import { ensureArchiveProducts } from "@/lib/archive-products";
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   const database = cmsEnv().DB;
+  await ensureArchiveProducts(database);
   const missing = await database.prepare("SELECT id,category FROM products WHERE article_number IS NULL OR TRIM(article_number) = '' ORDER BY created_at,id").all<{ id: string; category: string }>();
   if (missing.results.length) {
     const nextArticleNumber = await createArticleNumberGenerator(database);

@@ -2,6 +2,7 @@ import { cmsEnv } from "@/lib/cms";
 import { marketSettings, normalizeMarket, type Market } from "@/lib/markets";
 import { categorizedMamaProduct } from "@/lib/doll-category";
 import { withVerifiedConakryPrice } from "@/lib/reference-prices";
+import { ensureArchiveProducts } from "@/lib/archive-products";
 
 export async function GET(request: Request) {
   try {
@@ -12,6 +13,7 @@ export async function GET(request: Request) {
     const detectedRegion: Market = country === "CA" || (!country && timezone.startsWith("America/")) ? "qc" : "conakry";
     const region = url.searchParams.has("region") ? normalizeMarket(url.searchParams.get("region")) : detectedRegion;
     const visibility = region === "qc" ? "visible_qc" : "visible_conakry";
+    await ensureArchiveProducts(cmsEnv().DB);
     const { results } = await cmsEnv().DB.prepare(`SELECT * FROM products WHERE ${visibility}=1 ORDER BY featured DESC,updated_at DESC`).all<Record<string, unknown>>();
     const settings = await cmsEnv().DB.prepare("SELECT key,value FROM settings").all<{ key: string; value: string }>();
     const promotions = await cmsEnv().DB.prepare("SELECT * FROM promotions WHERE active=1 AND (region=? OR region='both') AND (starts_at IS NULL OR starts_at<=?) AND (ends_at IS NULL OR ends_at>=?) ORDER BY created_at DESC")
