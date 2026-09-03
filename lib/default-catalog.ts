@@ -34,7 +34,7 @@ export const removedProductNames = [
 
 const referencePriceById: Record<string, number> = {
   "mama-05": 485000, "mama-06": 321000, "mama-13": 600000, "mama-14": 485000,
-  "mama-16": 460000, "mama-22": 485000, "mama-23": 1199800, "mama-28": 485000,
+  "mama-16": 460000, "mama-19": 460000, "mama-22": 485000, "mama-23": 1199800, "mama-28": 485000,
   "mama-33": 725000, "mama-36": 485000, "mama-39": 485000, "mama-40": 1199800,
   "mama-41": 600000, "mama-43": 600000, "mama-44": 1199800, "mama-50": 485000,
   "mama-51": 460000, "mama-62": 400000,
@@ -45,6 +45,7 @@ function verifiedReferencePrice(product: Product): number | undefined {
   if (/\/products\/barbie\/barbie-(?:0[2-9]|1[0-9]|20)\.webp$/.test(product.imageUrl || "")) return 150000;
   if (/\/products\/disney\/disney-(?:01|02)\.webp$/.test(product.imageUrl || "")) return 460000;
   if (/\/products\/disney\/disney-1[2-8]\.webp$/.test(product.imageUrl || "")) return 285000;
+  if (/\/products\/nouveautes\/(?:chien-marcheur|licorne-marcheuse)\.webp$/.test(product.imageUrl || "")) return 320000;
   return undefined;
 }
 
