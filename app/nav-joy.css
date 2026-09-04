@@ -1,19 +1,19 @@
-/* Navigation 3D illustrée : même barre, réduite exactement de moitié. */
+/* Navigation 3D illustrée : hauteur réduite, mais barre élargie et aérée. */
 .shop-nav{
   display:block!important;
   position:relative!important;
   height:84px!important;
   padding:0!important;
   border:0!important;
-  background:#fff url('/nav-kids-3d.svg') center/50% 100% no-repeat!important;
+  background:#fff url('/nav-kids-3d.svg') center/72% 100% no-repeat!important;
   overflow:visible!important;
 }
 
 .shop-nav>.wrap{
   position:absolute!important;
   top:0!important;
-  left:25%!important;
-  width:50%!important;
+  left:14%!important;
+  width:72%!important;
   max-width:none!important;
   height:100%!important;
   min-height:0!important;
@@ -69,7 +69,7 @@
 .shop-nav>.wrap>.nav-dropdown>button:focus-visible{outline:2px solid #164a72!important;outline-offset:-3px!important;border-radius:14px!important}
 
 .shop-nav .nav-dropdown-panel{
-  position:absolute!important;left:0!important;right:auto!important;top:calc(100% + 2px)!important;margin-top:0!important;
+  position:absolute!important;left:0!important;right:auto!important;top:calc(100% + 8px)!important;margin-top:0!important;
   z-index:1000!important;min-width:230px!important;border-radius:18px!important;overflow:hidden!important;background:#fff!important;
   box-shadow:0 14px 34px rgba(25,54,72,.20)!important;
 }
@@ -77,10 +77,10 @@
 .shop-nav .nav-dropdown-panel>a:hover{background:#f5f8fa!important;color:#0b4d7c!important}
 
 @media(max-width:1100px){
-  .shop-nav{height:71px!important;min-width:0!important;background-size:490px 71px!important;background-position:center!important}
-  .shop-nav>.wrap{left:calc(50% - 245px)!important;width:490px!important;min-width:490px!important}
+  .shop-nav{height:71px!important;min-width:0!important;background-size:700px 71px!important;background-position:center!important}
+  .shop-nav>.wrap{left:calc(50% - 350px)!important;width:700px!important;min-width:700px!important}
 }
 @media(max-width:800px){
-  .shop-nav{height:62px!important;min-width:430px!important;background-size:430px 62px!important;overflow-x:auto!important;background-position:left center!important}
-  .shop-nav>.wrap{left:0!important;width:430px!important;min-width:430px!important}
+  .shop-nav{height:62px!important;min-width:600px!important;background-size:600px 62px!important;overflow-x:auto!important;background-position:left center!important}
+  .shop-nav>.wrap{left:0!important;width:600px!important;min-width:600px!important}
 }
