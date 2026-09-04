@@ -1,17 +1,18 @@
-/* Navigation 3D illustrée : zones cliquables explicitement associées à chaque bouton. */
+/* Navigation 3D illustrée : zones cliquables calées précisément sur les cartes du SVG. */
 .shop-nav{display:block!important;position:relative!important;height:96px!important;padding:0!important;border:0!important;background:#fff url('/nav-kids-3d.svg') center/92% 100% no-repeat!important;overflow:visible!important}
 .shop-nav>.wrap{position:absolute!important;top:0!important;left:4%!important;width:92%!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:10%!important;height:85.2%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
 
-/* Positionnement par rôle réel, et non plus par nth-child global. */
-.shop-nav>.wrap>a[href="#nouveautes"]{left:.49%!important;width:11.47%!important}
-.shop-nav>.wrap>.nav-dropdown:nth-of-type(1){left:12.36%!important;width:10.39%!important}
-.shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.15%!important;width:9.32%!important}
-.shop-nav>.wrap>a.nav-dolls-tab{left:32.86%!important;width:18.02%!important}
-.shop-nav>.wrap>.nav-dropdown:nth-of-type(3){left:51.27%!important;width:12.69%!important}
-.shop-nav>.wrap>.nav-dropdown:nth-of-type(4){left:64.36%!important;width:11.57%!important}
-.shop-nav>.wrap>a[href="#promotions"]{left:76.32%!important;width:12.30%!important}
-.shop-nav>.wrap>a[href="#contact"]{left:89.02%!important;width:10.49%!important;z-index:50!important}
+/* Coordonnées dérivées directement des limites des 8 cartes dans nav-kids-3d.svg.
+   Un très léger retrait horizontal garde chaque zone bien à l'intérieur de sa carte. */
+.shop-nav>.wrap>a[href="#nouveautes"]{left:.540625%!important;width:11.369922%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(1){left:12.405859%!important;width:10.295703%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.196875%!important;width:9.221484%!important}
+.shop-nav>.wrap>a.nav-dolls-tab{left:32.913672%!important;width:17.912891%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(3){left:51.321875%!important;width:12.590625%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(4){left:64.407813%!important;width:11.467578%!important}
+.shop-nav>.wrap>a[href="#promotions"]{left:76.370703%!important;width:12.2%!important}
+.shop-nav>.wrap>a[href="#contact"]{left:89.066016%!important;width:10.393359%!important;z-index:50!important}
 
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important;pointer-events:none!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
