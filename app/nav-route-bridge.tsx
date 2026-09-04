@@ -3,17 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const routes = [
-  "/",
-  "/catalogue",
-  "/jouets",
-  "/poupees",
-  "/bebe-enfants",
-  "/articles-scolaires",
-  "/promotions",
-  "/nous-trouver",
-] as const;
-
 export default function NavRouteBridge() {
   const router = useRouter();
 
@@ -21,20 +10,22 @@ export default function NavRouteBridge() {
     const nav = document.querySelector<HTMLElement>(".shop-nav > .wrap");
     if (!nav) return;
 
-    const items = Array.from(nav.children).filter((item) => item instanceof HTMLElement) as HTMLElement[];
-    items.forEach((item, index) => {
-      const route = routes[index];
-      if (!route) return;
+    const routes: Array<[string,string]> = [
+      ['a[href="#nouveautes"]', "/"],
+      [".nav-dropdown:nth-of-type(1)", "/catalogue"],
+      [".nav-dropdown:nth-of-type(2)", "/jouets"],
+      ["a.nav-dolls-tab", "/poupees"],
+      [".nav-dropdown:nth-of-type(3)", "/bebe-enfants"],
+      [".nav-dropdown:nth-of-type(4)", "/articles-scolaires"],
+      ['a[href="#promotions"]', "/promotions"],
+      ['a[href="#contact"]', "/nous-trouver"],
+    ];
+
+    routes.forEach(([selector, route]) => {
+      const item = nav.querySelector<HTMLElement>(`:scope > ${selector}`);
+      if (!item) return;
       item.dataset.route = route;
       if (item instanceof HTMLAnchorElement) item.href = route;
-      const button = item.querySelector<HTMLButtonElement>(":scope > button");
-      if (button) {
-        button.addEventListener("click", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          router.push(route);
-        });
-      }
     });
 
     const click = (event: MouseEvent) => {
@@ -42,6 +33,7 @@ export default function NavRouteBridge() {
       const item = target?.closest<HTMLElement>(".shop-nav > .wrap > a, .shop-nav > .wrap > .nav-dropdown");
       if (!item?.dataset.route || target?.closest(".nav-dropdown-panel")) return;
       event.preventDefault();
+      event.stopPropagation();
       router.push(item.dataset.route);
     };
 
