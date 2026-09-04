@@ -97,6 +97,15 @@
   }
 }
 
+/* Les titres sont composés de plusieurs noeuds JSX. Avec les grands corps et
+   l'italique, l'espace HTML peut sembler disparaître : on impose un vrai
+   espacement visuel avant la partie accentuée. */
+#services .center-heading h2 > em,
+.testimonials-section .center-heading h2 > em,
+#faq .center-heading h2 > em {
+  margin-left: .18em;
+}
+
 @media (max-width: 800px) {
   .editable-storefront {
     font-size: 16px;
