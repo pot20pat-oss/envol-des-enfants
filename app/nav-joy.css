@@ -9,9 +9,7 @@
   overflow:visible!important;
 }
 
-/* Les zones cliquables sont maintenant positionnées exactement au-dessus
-   de chaque bouton du SVG. On ne dépend plus du flex, qui pouvait décaler
-   le clic et ouvrir le menu du bouton voisin. */
+/* Les zones cliquables sont calées sur les séparations réelles du SVG 2048px. */
 .shop-nav>.wrap{
   position:absolute!important;
   inset:0!important;
@@ -41,15 +39,16 @@
   box-sizing:border-box!important;
 }
 
-/* Coordonnées tirées directement du SVG 2048px. */
-.shop-nav>.wrap>:nth-child(1){left:.39%!important;width:11.87%!important}
-.shop-nav>.wrap>:nth-child(2){left:12.26%!important;width:10.79%!important}
-.shop-nav>.wrap>:nth-child(3){left:23.05%!important;width:9.71%!important}
-.shop-nav>.wrap>:nth-child(4){left:32.76%!important;width:18.41%!important}
-.shop-nav>.wrap>:nth-child(5){left:51.17%!important;width:13.09%!important}
-.shop-nav>.wrap>:nth-child(6){left:64.26%!important;width:11.96%!important}
-.shop-nav>.wrap>:nth-child(7){left:76.22%!important;width:12.70%!important}
-.shop-nav>.wrap>:nth-child(8){left:88.92%!important;width:11.08%!important;z-index:50!important;overflow:hidden!important}
+/* Séparations exactes entre les 8 boutons :
+   0 | 249 | 470 | 669 | 1046 | 1314 | 1559 | 1819 | 2048 */
+.shop-nav>.wrap>:nth-child(1){left:0!important;width:12.1582%!important}
+.shop-nav>.wrap>:nth-child(2){left:12.1582%!important;width:10.7910%!important}
+.shop-nav>.wrap>:nth-child(3){left:22.9492%!important;width:9.7168%!important}
+.shop-nav>.wrap>:nth-child(4){left:32.6660%!important;width:18.4082%!important}
+.shop-nav>.wrap>:nth-child(5){left:51.0742%!important;width:13.0859%!important}
+.shop-nav>.wrap>:nth-child(6){left:64.1602%!important;width:11.9629%!important}
+.shop-nav>.wrap>:nth-child(7){left:76.1230%!important;width:12.6953%!important}
+.shop-nav>.wrap>:nth-child(8){left:88.8184%!important;width:11.1816%!important;z-index:50!important;overflow:hidden!important}
 
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
