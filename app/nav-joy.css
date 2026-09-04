@@ -67,32 +67,35 @@
   border-radius:28px!important;
   background:transparent!important;
   box-shadow:none!important;
+  outline:0!important;
   color:transparent!important;
   font-size:0!important;
   text-shadow:none!important;
   cursor:pointer!important;
   transform:none!important;
   box-sizing:border-box!important;
+  -webkit-tap-highlight-color:transparent!important;
 }
 
 .shop-nav>.wrap>a::before,
 .shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
 .shop-nav>.wrap>.nav-dropdown>button>span{display:none!important}
 
-/* Aucun rectangle/case ne doit apparaître au survol : le visuel 3D reste intact. */
+/* Aucune case, bordure ou surbrillance visible, peu importe l'état du bouton. */
 .shop-nav>.wrap>a:hover,
-.shop-nav>.wrap>.nav-dropdown:hover>button{
+.shop-nav>.wrap>a:focus,
+.shop-nav>.wrap>a:focus-visible,
+.shop-nav>.wrap>a:active,
+.shop-nav>.wrap>.nav-dropdown:hover>button,
+.shop-nav>.wrap>.nav-dropdown>button:focus,
+.shop-nav>.wrap>.nav-dropdown>button:focus-visible,
+.shop-nav>.wrap>.nav-dropdown>button:active{
   background:transparent!important;
   box-shadow:none!important;
-  outline:none!important;
+  outline:0!important;
+  border-color:transparent!important;
   filter:none!important;
   transform:none!important;
-}
-.shop-nav>.wrap>a:focus-visible,
-.shop-nav>.wrap>.nav-dropdown>button:focus-visible{
-  outline:3px solid rgba(22,74,114,.75)!important;
-  outline-offset:-6px!important;
-  border-radius:28px!important;
 }
 
 .shop-nav .nav-dropdown-panel{
