@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NavRouteBridge from "./nav-route-bridge";
 import "./globals.css";
 import "./navigation-large.css";
 import "./nav-icons.css";
@@ -9,6 +10,8 @@ import "./product-previews-large.css";
 import "./catalog-search-highlight.css";
 import "./logo-large.css";
 import "./nav-icons-final.css";
+import "./homepage-only.css";
+import "./category-pages.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
@@ -37,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr-GN">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased"><NavRouteBridge />{children}</body>
     </html>
   );
 }
