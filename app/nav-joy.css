@@ -9,6 +9,8 @@
   overflow:visible!important;
 }
 
+/* Les zones cliquables suivent maintenant les contours réels des cartes du SVG,
+   pas les anciennes séparations pleine hauteur. */
 .shop-nav>.wrap{
   position:absolute!important;
   inset:0!important;
@@ -37,20 +39,22 @@
   box-sizing:border-box!important;
 }
 
-/* Zones cliquables alignées sur les 8 cartes visibles. */
+/* Bornes exactes des 8 formes visibles dans nav-kids-3d.svg (viewBox 2048 × 250).
+   On laisse volontairement les petits espaces entre les cartes non cliquables. */
 .shop-nav>.wrap>:nth-child(1){left:.390625%!important;width:11.669922%!important}
-.shop-nav>.wrap>:nth-child(2){left:12.42%!important;width:10.28%!important}
+.shop-nav>.wrap>:nth-child(2){left:12.255859%!important;width:10.595703%!important}
 .shop-nav>.wrap>:nth-child(3){left:23.046875%!important;width:9.521484%!important}
-.shop-nav>.wrap>:nth-child(4){left:32.95%!important;width:17.84%!important}
+.shop-nav>.wrap>:nth-child(4){left:32.763672%!important;width:18.212891%!important}
 .shop-nav>.wrap>:nth-child(5){left:51.171875%!important;width:12.890625%!important}
 .shop-nav>.wrap>:nth-child(6){left:64.257813%!important;width:11.767578%!important}
-.shop-nav>.wrap>:nth-child(7){left:76.35%!important;width:12.20%!important}
+.shop-nav>.wrap>:nth-child(7){left:76.220703%!important;width:12.500000%!important}
 .shop-nav>.wrap>:nth-child(8){left:88.916016%!important;width:10.693359%!important;z-index:50!important}
 
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
 .shop-nav>.wrap>:nth-child(8){z-index:50!important}
 
+/* Seuls les vrais boutons et liens reçoivent les clics. */
 .shop-nav>.wrap>.nav-dropdown{pointer-events:none!important}
 .shop-nav>.wrap>.nav-dropdown>button,
 .shop-nav>.wrap>.nav-dropdown>.nav-dropdown-panel,
@@ -67,37 +71,35 @@
   border-radius:28px!important;
   background:transparent!important;
   box-shadow:none!important;
-  outline:0!important;
   color:transparent!important;
   font-size:0!important;
   text-shadow:none!important;
   cursor:pointer!important;
   transform:none!important;
   box-sizing:border-box!important;
-  -webkit-tap-highlight-color:transparent!important;
 }
 
 .shop-nav>.wrap>a::before,
 .shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
 .shop-nav>.wrap>.nav-dropdown>button>span{display:none!important}
 
-/* Aucune case, bordure ou surbrillance visible, peu importe l'état du bouton. */
+/* Survol discret, arrondi et limité au bouton réel : plus de rectangle qui déborde
+   sur le bouton voisin et révèle une mauvaise zone cliquable. */
 .shop-nav>.wrap>a:hover,
-.shop-nav>.wrap>a:focus,
-.shop-nav>.wrap>a:focus-visible,
-.shop-nav>.wrap>a:active,
-.shop-nav>.wrap>.nav-dropdown:hover>button,
-.shop-nav>.wrap>.nav-dropdown>button:focus,
-.shop-nav>.wrap>.nav-dropdown>button:focus-visible,
-.shop-nav>.wrap>.nav-dropdown>button:active{
-  background:transparent!important;
-  box-shadow:none!important;
-  outline:0!important;
-  border-color:transparent!important;
+.shop-nav>.wrap>.nav-dropdown:hover>button{
+  background:rgba(255,255,255,.08)!important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.20)!important;
   filter:none!important;
   transform:none!important;
 }
+.shop-nav>.wrap>a:focus-visible,
+.shop-nav>.wrap>.nav-dropdown>button:focus-visible{
+  outline:4px solid #164a72!important;
+  outline-offset:-6px!important;
+  border-radius:28px!important;
+}
 
+/* Les menus restent rattachés uniquement à leur propre bouton. */
 .shop-nav .nav-dropdown-panel{
   position:absolute!important;
   left:0!important;
