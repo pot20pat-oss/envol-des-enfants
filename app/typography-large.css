@@ -1,21 +1,15 @@
-/* Typographie générale plus lisible sur ordinateur et tablette. */
+/* Typographie générale : aucun petit texte ne doit paraître minuscule. */
 @media (min-width: 801px) {
   .editable-storefront {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .announcement,
-  .announcement button {
-    font-size: 14px;
-  }
-
+  .announcement button,
   .header-location,
   .contact-action,
   .contact-button,
-  .language-switch button {
-    font-size: 14px;
-  }
-
+  .language-switch button,
   .eyebrow,
   .card-tag,
   .promo-content form label,
@@ -23,8 +17,25 @@
   .service-ribbon span,
   .service-ribbon a,
   .visual-caption,
-  .tiny-note {
-    font-size: 13px;
+  .tiny-note,
+  .product-badge,
+  .availability,
+  .age-pill,
+  .product-order,
+  .product-unavailable,
+  .product-zoom-button,
+  .category-tabs button,
+  .category-menu-group summary,
+  .category-menu-panel button,
+  .catalog-search input,
+  .catalog-search select,
+  .catalog-summary,
+  .offer-label,
+  .footer small,
+  .footer a,
+  .brands-section .eyebrow {
+    font-size: 16px !important;
+    line-height: 1.45;
   }
 
   .hero-text,
@@ -40,68 +51,68 @@
   .faq-item p,
   .contact-copy p,
   .footer p,
-  .footer a,
-  .footer small {
-    font-size: 15px;
-    line-height: 1.75;
+  .promise-inner p,
+  .promo-success p {
+    font-size: 17px !important;
+    line-height: 1.7;
   }
 
   .product-card h3,
   .featured-card h3 {
-    font-size: 20px;
+    font-size: 22px !important;
   }
 
   .product-price,
   .featured-copy strong {
-    font-size: 18px;
-  }
-
-  .product-badge,
-  .availability,
-  .age-pill,
-  .product-order,
-  .product-unavailable,
-  .product-zoom-button {
-    font-size: 13px;
-  }
-
-  .category-tabs button,
-  .category-menu-group summary,
-  .category-menu-panel button,
-  .catalog-search input,
-  .catalog-search select,
-  .catalog-summary {
-    font-size: 14px;
+    font-size: 20px !important;
   }
 
   .offer-grid h3,
   .services-grid h3,
   .delivery-grid h3,
   .promise-inner h3 {
-    font-size: 22px;
-  }
-
-  .brands-section .eyebrow {
-    font-size: 14px;
+    font-size: 24px !important;
   }
 
   .promo-content h2 {
-    font-size: 58px;
+    font-size: 60px;
   }
 
   .promo-content h2 > span {
-    font-size: 72px;
+    font-size: 74px;
   }
 
   .promo-submit {
-    font-size: 14px;
+    font-size: 16px !important;
   }
 }
 
 @media (max-width: 800px) {
+  .editable-storefront {
+    font-size: 16px;
+  }
+
   .announcement,
-  .announcement button {
-    font-size: 11px;
+  .announcement button,
+  .eyebrow,
+  .card-tag,
+  .product-badge,
+  .availability,
+  .age-pill,
+  .product-order,
+  .product-unavailable,
+  .product-zoom-button,
+  .category-tabs button,
+  .category-menu-group summary,
+  .category-menu-panel button,
+  .catalog-search input,
+  .catalog-search select,
+  .catalog-summary,
+  .service-ribbon span,
+  .service-ribbon a,
+  .footer small,
+  .footer a {
+    font-size: 14px !important;
   }
 
   .hero-text,
@@ -109,20 +120,18 @@
   .product-description,
   .services-grid p,
   .offer-grid p,
-  .story-copy > p:not(.eyebrow) {
-    font-size: 13px;
-  }
-
-  .category-tabs button,
-  .category-menu-group summary,
-  .category-menu-panel button,
-  .catalog-search input,
-  .catalog-search select {
-    font-size: 12px;
+  .story-copy > p:not(.eyebrow),
+  .delivery-grid span,
+  .testimonial-grid p,
+  .faq-item p,
+  .contact-copy p,
+  .footer p {
+    font-size: 15px !important;
+    line-height: 1.65;
   }
 
   .product-card h3,
   .featured-card h3 {
-    font-size: 18px;
+    font-size: 20px !important;
   }
 }
