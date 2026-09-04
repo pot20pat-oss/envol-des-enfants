@@ -4,6 +4,7 @@ import "./navigation-large.css";
 import "./nav-joy.css";
 import "./brand-logos.css";
 import "./typography-large.css";
+import "./product-previews-large.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
