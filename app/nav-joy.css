@@ -8,6 +8,10 @@
   background:#fff url('/nav-kids-3d.svg') center/100% 100% no-repeat!important;
   overflow:visible!important;
 }
+
+/* Les zones cliquables sont maintenant positionnées exactement au-dessus
+   de chaque bouton du SVG. On ne dépend plus du flex, qui pouvait décaler
+   le clic et ouvrir le menu du bouton voisin. */
 .shop-nav>.wrap{
   position:absolute!important;
   inset:0!important;
@@ -17,13 +21,15 @@
   min-height:0!important;
   margin:0!important;
   padding:0!important;
-  display:flex!important;
-  align-items:stretch!important;
-  gap:0!important;
+  display:block!important;
   overflow:visible!important;
 }
-/* Zones cliquables calées sur les huit boutons du visuel. */
-.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{
+
+.shop-nav>.wrap>a,
+.shop-nav>.wrap>.nav-dropdown{
+  position:absolute!important;
+  top:0!important;
+  bottom:0!important;
   height:100%!important;
   min-height:0!important;
   margin:0!important;
@@ -32,20 +38,31 @@
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
-  position:relative!important;
+  box-sizing:border-box!important;
 }
-.shop-nav>.wrap>:nth-child(1){flex:0 0 12.2%!important}
-.shop-nav>.wrap>:nth-child(2){flex:0 0 10.8%!important}
-.shop-nav>.wrap>:nth-child(3){flex:0 0 9.7%!important}
-.shop-nav>.wrap>:nth-child(4){flex:0 0 18.4%!important}
-.shop-nav>.wrap>:nth-child(5){flex:0 0 13.1%!important}
-.shop-nav>.wrap>:nth-child(6){flex:0 0 12.0%!important}
-.shop-nav>.wrap>:nth-child(7){flex:0 0 12.7%!important;overflow:hidden!important;isolation:isolate!important;z-index:1!important}
-.shop-nav>.wrap>:nth-child(8){flex:0 0 11.1%!important;overflow:hidden!important;isolation:isolate!important;z-index:2!important}
-/* Les menus doivent pouvoir sortir sous leurs boutons; les liens simples, eux, restent clipsés. */
-.shop-nav>.wrap>.nav-dropdown{overflow:visible!important}
-.shop-nav>.wrap>a{overflow:hidden!important}
-.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{
+
+/* Coordonnées tirées directement du SVG 2048px. */
+.shop-nav>.wrap>:nth-child(1){left:.39%!important;width:11.87%!important}
+.shop-nav>.wrap>:nth-child(2){left:12.26%!important;width:10.79%!important}
+.shop-nav>.wrap>:nth-child(3){left:23.05%!important;width:9.71%!important}
+.shop-nav>.wrap>:nth-child(4){left:32.76%!important;width:18.41%!important}
+.shop-nav>.wrap>:nth-child(5){left:51.17%!important;width:13.09%!important}
+.shop-nav>.wrap>:nth-child(6){left:64.26%!important;width:11.96%!important}
+.shop-nav>.wrap>:nth-child(7){left:76.22%!important;width:12.70%!important}
+.shop-nav>.wrap>:nth-child(8){left:88.92%!important;width:11.08%!important;z-index:50!important;overflow:hidden!important}
+
+.shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important}
+.shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
+.shop-nav>.wrap>:nth-child(8){z-index:50!important}
+
+/* Seuls les vrais boutons et liens reçoivent les clics. */
+.shop-nav>.wrap>.nav-dropdown{pointer-events:none!important}
+.shop-nav>.wrap>.nav-dropdown>button,
+.shop-nav>.wrap>.nav-dropdown>.nav-dropdown-panel,
+.shop-nav>.wrap>a{pointer-events:auto!important}
+
+.shop-nav>.wrap>a,
+.shop-nav>.wrap>.nav-dropdown>button{
   width:100%!important;
   height:100%!important;
   min-height:0!important;
@@ -60,17 +77,22 @@
   text-shadow:none!important;
   cursor:pointer!important;
   transform:none!important;
+  box-sizing:border-box!important;
 }
-/* Supprime toutes les anciennes icônes CSS/emoji : elles sont désormais dessinées dans le visuel. */
-.shop-nav>.wrap>a::before,.shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
+
+.shop-nav>.wrap>a::before,
+.shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
 .shop-nav>.wrap>.nav-dropdown>button>span{display:none!important}
-.shop-nav>.wrap>a:hover,.shop-nav>.wrap>.nav-dropdown:hover>button{background:rgba(255,255,255,.09)!important;filter:brightness(1.03)!important;transform:none!important}
-/* Le survol de Promotions ne peut plus recouvrir Nous trouver. */
-.shop-nav>.wrap>:nth-child(7):hover{z-index:1!important}
-.shop-nav>.wrap>:nth-child(8){z-index:2!important}
-.shop-nav>.wrap>a:focus-visible,.shop-nav>.wrap>.nav-dropdown>button:focus-visible{outline:4px solid #164a72!important;outline-offset:-8px!important;border-radius:22px!important}
-/* Les menus déroulants restent de vrais composants du site. */
+.shop-nav>.wrap>a:hover,
+.shop-nav>.wrap>.nav-dropdown:hover>button{background:rgba(255,255,255,.09)!important;filter:brightness(1.03)!important;transform:none!important}
+.shop-nav>.wrap>a:focus-visible,
+.shop-nav>.wrap>.nav-dropdown>button:focus-visible{outline:4px solid #164a72!important;outline-offset:-8px!important;border-radius:22px!important}
+
+/* Les menus restent rattachés uniquement à leur propre bouton. */
 .shop-nav .nav-dropdown-panel{
+  position:absolute!important;
+  left:0!important;
+  right:auto!important;
   top:calc(100% - 12px)!important;
   margin-top:0!important;
   z-index:1000!important;
@@ -93,6 +115,7 @@
   text-shadow:none!important;
 }
 .shop-nav .nav-dropdown-panel>a:hover{background:#f5f8fa!important;color:#0b4d7c!important}
+
 @media(max-width:1100px){
   .shop-nav{height:142px!important;min-width:980px!important;background-size:980px 142px!important;background-position:left center!important}
   .shop-nav>.wrap{min-width:980px!important}
