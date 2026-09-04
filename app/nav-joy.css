@@ -1,10 +1,10 @@
 /* Navigation 3D illustrée : le visuel et les zones cliquables partagent exactement le même repère 2048x250. */
 .shop-nav{display:block!important;position:relative!important;height:96px!important;padding:0!important;border:0!important;background:#fff!important;overflow:visible!important}
-.shop-nav::before{content:""!important;position:absolute!important;inset:0 4%!important;background:transparent url('/nav-kids-3d.svg') 0 0/100% 100% no-repeat!important;pointer-events:none!important}
-.shop-nav>.wrap{position:absolute!important;top:0!important;left:4%!important;width:92%!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important}
+.shop-nav::before{content:""!important;position:absolute!important;top:0!important;bottom:0!important;left:8%!important;width:84%!important;background:transparent url('/nav-kids-3d.svg') 0 0/100% 100% no-repeat!important;pointer-events:none!important}
+.shop-nav>.wrap{position:absolute!important;top:0!important;left:8%!important;width:84%!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:10%!important;height:85.2%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
 
-/* Limites EXACTES des 8 cartes du SVG (viewBox 2048x250). Aucun nth-child : chaque cible garde sa carte. */
+/* Limites EXACTES des 8 cartes du SVG (viewBox 2048x250). Aucun nth-child global : chaque cible garde sa carte. */
 .shop-nav>.wrap>a[href="#nouveautes"]{left:.390625%!important;width:11.669922%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(1){left:12.255859%!important;width:10.595703%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.046875%!important;width:9.521484%!important}
@@ -24,5 +24,5 @@
 .shop-nav .nav-dropdown-panel{position:absolute!important;left:0!important;right:auto!important;top:calc(100% + 8px)!important;margin-top:0!important;z-index:1000!important;min-width:230px!important;border-radius:18px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 14px 34px rgba(25,54,72,.20)!important}
 .shop-nav .nav-dropdown-panel>a{display:block!important;height:auto!important;min-height:0!important;padding:13px 16px!important;background:#fff!important;color:#173e5c!important;font-size:15px!important;font-weight:800!important;text-align:left!important;text-shadow:none!important}
 .shop-nav .nav-dropdown-panel>a:hover{background:#f5f8fa!important;color:#0b4d7c!important}
-@media(max-width:1100px){.shop-nav{height:82px!important;min-width:0!important}.shop-nav::before{left:calc(50% - 450px)!important;right:auto!important;width:900px!important}.shop-nav>.wrap{left:calc(50% - 450px)!important;width:900px!important;min-width:900px!important}}
-@media(max-width:800px){.shop-nav{height:70px!important;min-width:760px!important;overflow-x:auto!important}.shop-nav::before{left:0!important;right:auto!important;width:760px!important}.shop-nav>.wrap{left:0!important;width:760px!important;min-width:760px!important}}
+@media(max-width:1100px){.shop-nav{height:82px!important;min-width:0!important}.shop-nav::before{left:calc(50% - 410px)!important;right:auto!important;width:820px!important}.shop-nav>.wrap{left:calc(50% - 410px)!important;width:820px!important;min-width:820px!important}}
+@media(max-width:800px){.shop-nav{height:70px!important;min-width:720px!important;overflow-x:auto!important}.shop-nav::before{left:0!important;right:auto!important;width:720px!important}.shop-nav>.wrap{left:0!important;width:720px!important;min-width:720px!important}}
