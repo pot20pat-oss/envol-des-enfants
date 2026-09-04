@@ -1,140 +1,194 @@
-/* Navigation principale colorée — univers enfant, lisible et joyeux */
+/* Navigation principale — version pastel arrondie fournie par la cliente */
 .shop-nav{
   background:#fff;
-  border-top:1px solid #eef1f2;
-  border-bottom:1px solid #e7ebed;
-  padding:8px 0;
+  border-top:0;
+  border-bottom:0;
+  padding:0;
 }
 
 .shop-nav>.wrap{
+  width:min(1600px,calc(100% - 44px))!important;
   height:auto!important;
-  min-height:72px;
-  gap:8px!important;
-  align-items:stretch!important;
+  min-height:90px;
+  gap:10px!important;
+  align-items:center!important;
+  justify-content:space-between!important;
 }
 
 .shop-nav>.wrap>a,
 .shop-nav>.wrap>.nav-dropdown{
-  min-height:58px;
-  border-radius:14px;
+  min-height:82px;
+  border-radius:17px;
   overflow:visible;
   display:flex;
   align-items:center;
   justify-content:center;
-  flex:1 1 auto;
+  flex:1 1 0;
+  background:transparent;
 }
 
 .shop-nav>.wrap>a,
 .shop-nav>.wrap>.nav-dropdown>button{
-  min-height:58px;
-  padding:10px 14px!important;
-  border-radius:14px;
+  width:100%;
+  min-height:82px;
+  padding:12px 16px!important;
+  border-radius:17px;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  line-height:1.12;
+  line-height:1.04;
   font-weight:800!important;
-  letter-spacing:.2px!important;
-  text-shadow:none;
-  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+  letter-spacing:.1px!important;
+  text-shadow:none!important;
+  box-shadow:none;
+  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease;
 }
 
-/* 1 — Nouveautés */
-.shop-nav>.wrap>:nth-child(1){background:linear-gradient(135deg,#ff5f91,#ff8aad)}
+/* Nouveautés — rose pastel */
 .shop-nav>.wrap>:nth-child(1),
-.shop-nav>.wrap>:nth-child(1)>button{color:#fff!important}
+.shop-nav>.wrap>:nth-child(1)>button{
+  background:#efa0ed!important;
+  color:#fff!important;
+}
 
-/* 2 — Catalogue */
-.shop-nav>.wrap>:nth-child(2){background:linear-gradient(135deg,#33b9eb,#63cdf1)}
+/* Catalogue — turquoise pastel */
 .shop-nav>.wrap>:nth-child(2),
-.shop-nav>.wrap>:nth-child(2)>button{color:#fff!important}
+.shop-nav>.wrap>:nth-child(2)>button{
+  background:#65e0e6!important;
+  color:#fff!important;
+}
 
-/* 3 — Jouets */
-.shop-nav>.wrap>:nth-child(3){background:linear-gradient(135deg,#79ca49,#a2df68)}
+/* Jouets — vert lime pastel */
 .shop-nav>.wrap>:nth-child(3),
-.shop-nav>.wrap>:nth-child(3)>button{color:#fff!important}
+.shop-nav>.wrap>:nth-child(3)>button{
+  background:linear-gradient(135deg,#bdf468,#f0f77c)!important;
+  color:#fff!important;
+}
 
-/* 4 — Monde de poupées */
-.shop-nav>.wrap>:nth-child(4){background:linear-gradient(135deg,#ffd7e9,#ffc3df)}
-.shop-nav>.wrap>:nth-child(4){color:#c92f72!important}
+/* Mon monde de poupées — texte rose sur blanc, sans pavé */
+.shop-nav>.wrap>:nth-child(4),
+.shop-nav>.wrap>:nth-child(4)>button{
+  background:#fff!important;
+  color:#ff49a4!important;
+  border-radius:0!important;
+}
+.shop-nav>.wrap>:nth-child(4){
+  flex:1.9 1 0;
+}
+.shop-nav>.wrap>:nth-child(4).nav-dolls-tab{
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:500!important;
+  letter-spacing:-.2px!important;
+}
 
-/* 5 — Bébé & enfants */
-.shop-nav>.wrap>:nth-child(5){background:linear-gradient(135deg,#ffe16b,#ffec95)}
+/* Bébé & enfants — jaune crème */
 .shop-nav>.wrap>:nth-child(5),
-.shop-nav>.wrap>:nth-child(5)>button{color:#164b78!important}
+.shop-nav>.wrap>:nth-child(5)>button{
+  background:#fff9c9!important;
+  color:#176ab2!important;
+}
 
-/* 6 — Articles scolaires */
-.shop-nav>.wrap>:nth-child(6){background:linear-gradient(135deg,#cbc0ff,#ded7ff)}
+/* Articles scolaires — blanc, texte bleu */
 .shop-nav>.wrap>:nth-child(6),
-.shop-nav>.wrap>:nth-child(6)>button{color:#214d78!important}
+.shop-nav>.wrap>:nth-child(6)>button{
+  background:#fff!important;
+  color:#3879ba!important;
+}
 
-/* 7 — Promotions */
-.shop-nav>.wrap>:nth-child(7){background:linear-gradient(135deg,#ff9660,#ffb27e)}
-.shop-nav>.wrap>:nth-child(7){color:#fff!important}
+/* Promotions — jaune pastel */
+.shop-nav>.wrap>:nth-child(7),
+.shop-nav>.wrap>:nth-child(7)>button{
+  background:#fff5a9!important;
+  color:#fff!important;
+}
 
-/* 8 — Nous trouver */
-.shop-nav>.wrap>:nth-child(8){background:linear-gradient(135deg,#35c9c5,#6edbd6)}
-.shop-nav>.wrap>:nth-child(8){color:#fff!important}
+/* Nous trouver — turquoise clair */
+.shop-nav>.wrap>:nth-child(8),
+.shop-nav>.wrap>:nth-child(8)>button{
+  background:#74e5ea!important;
+  color:#fff!important;
+}
 
 .shop-nav>.wrap>a:hover,
 .shop-nav>.wrap>.nav-dropdown:hover>button{
   transform:translateY(-2px);
-  filter:saturate(1.08) brightness(1.02);
-  box-shadow:0 7px 16px rgba(21,54,74,.14);
+  filter:saturate(1.04) brightness(1.015);
+  box-shadow:0 6px 15px rgba(30,70,100,.10);
 }
 
 .shop-nav .nav-dropdown-panel{
   margin-top:7px;
-  border-radius:12px;
+  border-radius:14px;
   overflow:hidden;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(24,54,74,.15);
 }
 
 .shop-nav .nav-dropdown-panel>a{
   color:var(--ink)!important;
-  background:#fff;
-  text-shadow:none;
+  background:#fff!important;
+  text-shadow:none!important;
 }
 
 .shop-nav .nav-dropdown-panel>a:hover{
-  background:#f5f8fa;
+  background:#f6f8fa!important;
 }
 
 .shop-nav .nav-dropdown>button>span{
   color:currentColor!important;
-  opacity:.82;
+  opacity:.78;
+}
+
+@media(min-width:1101px){
+  .shop-nav a,
+  .shop-nav button{
+    font-size:17px!important;
+  }
+  .shop-nav .nav-dolls-tab{
+    font-size:21px!important;
+  }
 }
 
 @media(max-width:1100px){
-  .shop-nav>.wrap{gap:6px!important;min-height:64px}
+  .shop-nav>.wrap{
+    width:min(100% - 26px,1400px)!important;
+    min-height:76px;
+    gap:7px!important;
+  }
   .shop-nav>.wrap>a,
   .shop-nav>.wrap>.nav-dropdown,
   .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown>button{min-height:52px}
+  .shop-nav>.wrap>.nav-dropdown>button{
+    min-height:68px;
+  }
   .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown>button{padding:8px 10px!important}
+  .shop-nav>.wrap>.nav-dropdown>button{
+    padding:10px 11px!important;
+  }
 }
 
 @media(max-width:800px){
-  .shop-nav{padding:6px 0}
+  .shop-nav{padding:5px 0}
   .shop-nav>.wrap{
-    min-height:54px;
+    min-height:58px;
     gap:7px!important;
     overflow-x:auto!important;
     align-items:center!important;
+    justify-content:flex-start!important;
     padding-block:1px;
   }
   .shop-nav>.wrap>a,
   .shop-nav>.wrap>.nav-dropdown{
-    flex:0 0 auto;
-    min-height:44px;
-    border-radius:12px;
+    flex:0 0 auto!important;
+    min-height:50px;
+    border-radius:13px;
   }
   .shop-nav>.wrap>a,
   .shop-nav>.wrap>.nav-dropdown>button{
-    min-height:44px;
-    padding:8px 12px!important;
-    border-radius:12px;
+    min-height:50px;
+    padding:9px 13px!important;
+    border-radius:13px;
   }
-  .shop-nav>.wrap>:nth-child(4){min-width:190px}
+  .shop-nav>.wrap>:nth-child(4){min-width:220px}
 }
