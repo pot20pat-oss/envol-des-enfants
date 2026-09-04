@@ -1,4 +1,135 @@
-/* Barre de navigation principale retirée à la demande du client. */
+/* Nouvelle navigation inspirée du visuel généré : vrais boutons, ronds, joyeux et colorés. */
 .shop-nav{
-  display:none!important;
+  display:block!important;
+  background:#fff!important;
+  border:0!important;
+  padding:14px 10px 18px!important;
+}
+
+.shop-nav>.wrap{
+  width:min(1880px,calc(100% - 20px))!important;
+  max-width:none!important;
+  margin:0 auto!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:10px!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+
+.shop-nav>.wrap>a,
+.shop-nav>.wrap>.nav-dropdown{
+  flex:1 1 0!important;
+  min-width:0!important;
+  min-height:128px!important;
+  height:128px!important;
+  border-radius:28px!important;
+  overflow:visible!important;
+  position:relative!important;
+  margin:0!important;
+}
+.shop-nav>.wrap>:nth-child(4){flex:1.65 1 0!important}
+
+.shop-nav>.wrap>a,
+.shop-nav>.wrap>.nav-dropdown>button{
+  width:100%!important;
+  height:128px!important;
+  min-height:128px!important;
+  border:0!important;
+  border-radius:28px!important;
+  padding:13px 10px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  text-align:center!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:18px!important;
+  line-height:1.02!important;
+  font-weight:900!important;
+  letter-spacing:-.15px!important;
+  text-transform:uppercase!important;
+  text-shadow:0 2px 0 rgba(0,0,0,.08)!important;
+  box-shadow:0 7px 0 rgba(35,72,93,.12),0 13px 22px rgba(28,62,84,.12)!important;
+  transition:transform .14s ease,filter .14s ease,box-shadow .14s ease!important;
+  cursor:pointer!important;
+}
+
+/* Remplace complètement les anciennes silhouettes par de gros pictos joyeux. */
+.shop-nav>.wrap>a::before,
+.shop-nav>.wrap>.nav-dropdown>button::before{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  flex:0 0 auto!important;
+  background:none!important;
+  -webkit-mask:none!important;
+  mask:none!important;
+  font-size:40px!important;
+  line-height:1!important;
+  filter:drop-shadow(0 3px 1px rgba(0,0,0,.10));
+}
+.shop-nav>.wrap>:nth-child(1)::before{content:"🏠"!important}
+.shop-nav>.wrap>:nth-child(2)>button::before{content:"▦"!important;font-size:44px!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(3)>button::before{content:"🚙"!important}
+.shop-nav>.wrap>:nth-child(4)::before{content:"👑"!important}
+.shop-nav>.wrap>:nth-child(5)>button::before{content:"🧸"!important}
+.shop-nav>.wrap>:nth-child(6)>button::before{content:"🎒"!important}
+.shop-nav>.wrap>:nth-child(7)::before{content:"🏷️"!important}
+.shop-nav>.wrap>:nth-child(8)::before{content:"📍"!important}
+
+.shop-nav>.wrap>:nth-child(1),.shop-nav>.wrap>:nth-child(1)>button{background:linear-gradient(180deg,#ff78a8 0%,#ff4d8b 62%,#f63d7c 100%)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(2),.shop-nav>.wrap>:nth-child(2)>button{background:linear-gradient(180deg,#39c8ff 0%,#13a9ef 64%,#0796dd 100%)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(3),.shop-nav>.wrap>:nth-child(3)>button{background:linear-gradient(180deg,#95eb50 0%,#5fd034 65%,#46b927 100%)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(4),.shop-nav>.wrap>:nth-child(4)>button{background:linear-gradient(180deg,#ffd7ed 0%,#ffacd6 66%,#f896c7 100%)!important;color:#b5005c!important}
+.shop-nav>.wrap>:nth-child(5),.shop-nav>.wrap>:nth-child(5)>button{background:linear-gradient(180deg,#ffe95f 0%,#ffca28 67%,#f4b914 100%)!important;color:#174a74!important}
+.shop-nav>.wrap>:nth-child(6),.shop-nav>.wrap>:nth-child(6)>button{background:linear-gradient(180deg,#d5c2ff 0%,#ad8ff3 67%,#9474e5 100%)!important;color:#173e70!important}
+.shop-nav>.wrap>:nth-child(7),.shop-nav>.wrap>:nth-child(7)>button{background:linear-gradient(180deg,#ff9a42 0%,#ff721d 68%,#f45d0a 100%)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(8),.shop-nav>.wrap>:nth-child(8)>button{background:linear-gradient(180deg,#37d7dc 0%,#18bfc7 66%,#0da9b4 100%)!important;color:#fff!important}
+
+/* Petites décorations façon jouets/confettis, sans gêner le clic. */
+.shop-nav>.wrap>:nth-child(1){background-image:radial-gradient(circle at 12% 18%,rgba(255,255,255,.5) 0 4px,transparent 5px)!important}
+.shop-nav>.wrap>:nth-child(3){background-image:radial-gradient(circle at 87% 18%,rgba(255,255,255,.28) 0 6px,transparent 7px)!important}
+.shop-nav>.wrap>:nth-child(4){background-image:radial-gradient(circle at 10% 20%,rgba(255,84,154,.16) 0 10px,transparent 11px),radial-gradient(circle at 90% 18%,rgba(255,84,154,.16) 0 10px,transparent 11px)!important}
+.shop-nav>.wrap>:nth-child(8){background-image:radial-gradient(circle at 88% 22%,rgba(255,255,255,.23) 0 7px,transparent 8px)!important}
+
+.shop-nav>.wrap>a:hover,
+.shop-nav>.wrap>.nav-dropdown:hover>button{
+  transform:translateY(-5px)!important;
+  filter:brightness(1.035) saturate(1.05)!important;
+  box-shadow:0 9px 0 rgba(35,72,93,.11),0 17px 27px rgba(28,62,84,.16)!important;
+}
+.shop-nav>.wrap>a:active,
+.shop-nav>.wrap>.nav-dropdown>button:active{transform:translateY(1px) scale(.99)!important}
+
+.shop-nav .nav-dolls-tab{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  letter-spacing:-.25px!important;
+  line-height:1.02!important;
+}
+.shop-nav .nav-dropdown>button>span{font-size:18px!important;line-height:.7!important;margin:0!important;opacity:.92!important;color:currentColor!important}
+.shop-nav .nav-dropdown-panel{margin-top:12px!important;border-radius:18px!important;overflow:hidden!important;box-shadow:0 14px 34px rgba(25,54,72,.18)!important;z-index:100!important}
+.shop-nav .nav-dropdown-panel>a{background:#fff!important;color:var(--ink)!important;text-shadow:none!important}
+.shop-nav .nav-dropdown-panel>a:hover{background:#f5f8fa!important}
+
+@media(max-width:1200px){
+  .shop-nav>.wrap{overflow-x:auto!important;justify-content:flex-start!important;padding:2px 2px 16px!important}
+  .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{flex:0 0 180px!important}
+  .shop-nav>.wrap>:nth-child(4){flex-basis:285px!important}
+}
+
+@media(max-width:800px){
+  .shop-nav{padding:10px 6px 12px!important}
+  .shop-nav>.wrap{width:100%!important;gap:8px!important}
+  .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{height:104px!important;min-height:104px!important;flex-basis:148px!important;border-radius:22px!important}
+  .shop-nav>.wrap>:nth-child(4){flex-basis:235px!important}
+  .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{height:104px!important;min-height:104px!important;border-radius:22px!important;font-size:14px!important;padding:10px 8px!important}
+  .shop-nav>.wrap>a::before,.shop-nav>.wrap>.nav-dropdown>button::before{font-size:32px!important}
+  .shop-nav .nav-dolls-tab{font-size:14px!important}
 }
