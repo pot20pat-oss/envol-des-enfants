@@ -9,8 +9,6 @@
   overflow:visible!important;
 }
 
-/* Les zones cliquables suivent maintenant les contours réels des cartes du SVG,
-   pas les anciennes séparations pleine hauteur. */
 .shop-nav>.wrap{
   position:absolute!important;
   inset:0!important;
@@ -39,14 +37,16 @@
   box-sizing:border-box!important;
 }
 
-/* Bornes exactes des 8 formes visibles dans nav-kids-3d.svg (viewBox 2048 × 250). */
+/* Zones cliquables volontairement légèrement à l'intérieur des cartes visibles. */
 .shop-nav>.wrap>:nth-child(1){left:.390625%!important;width:11.669922%!important}
-.shop-nav>.wrap>:nth-child(2){left:12.255859%!important;width:10.595703%!important}
+/* Catalogue : retrait des bords afin que le hover ne touche plus les cartes voisines. */
+.shop-nav>.wrap>:nth-child(2){left:12.42%!important;width:10.28%!important}
 .shop-nav>.wrap>:nth-child(3){left:23.046875%!important;width:9.521484%!important}
-.shop-nav>.wrap>:nth-child(4){left:32.763672%!important;width:18.212891%!important}
+/* Monde de poupées/princesses : zone resserrée à l'intérieur de la grande carte rose. */
+.shop-nav>.wrap>:nth-child(4){left:32.95%!important;width:17.84%!important}
 .shop-nav>.wrap>:nth-child(5){left:51.171875%!important;width:12.890625%!important}
 .shop-nav>.wrap>:nth-child(6){left:64.257813%!important;width:11.767578%!important}
-/* Promotions : zone resserrée à l'intérieur de la carte orange pour ne plus déborder. */
+/* Promotions : zone resserrée à l'intérieur de la carte orange. */
 .shop-nav>.wrap>:nth-child(7){left:76.35%!important;width:12.20%!important}
 .shop-nav>.wrap>:nth-child(8){left:88.916016%!important;width:10.693359%!important;z-index:50!important}
 
@@ -54,7 +54,6 @@
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
 .shop-nav>.wrap>:nth-child(8){z-index:50!important}
 
-/* Seuls les vrais boutons et liens reçoivent les clics. */
 .shop-nav>.wrap>.nav-dropdown{pointer-events:none!important}
 .shop-nav>.wrap>.nav-dropdown>button,
 .shop-nav>.wrap>.nav-dropdown>.nav-dropdown-panel,
