@@ -29,7 +29,46 @@ export async function GET(request: Request) {
       return true;
     });
 
-    const products = deduplicatedResults.map(categorizedMamaProduct).map(withVerifiedConakryPrice).map((product) => {
+    // Les 4 cartes « Nouveautés » de l'accueil prennent les premiers produits badge=new.
+    // On mélange donc les grandes familles avant de retourner le catalogue afin d'éviter
+    // d'afficher quatre poupées simplement parce qu'elles ont été ajoutées en dernier.
+    const dollCategories = new Set(["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"]);
+    const schoolCategories = new Set(["scolaire", "sacs"]);
+    const kidsCategories = new Set(["bebe", "vetements", "chaussures"]);
+    const vehicleCategories = new Set(["vehicules"]);
+    const noveltyGroup = (product: Record<string, unknown>) => {
+      const category = String(product.category || "");
+      if (dollCategories.has(category)) return "poupees";
+      if (schoolCategories.has(category)) return "scolaire";
+      if (kidsCategories.has(category)) return "enfants";
+      if (vehicleCategories.has(category)) return "vehicules";
+      return "jouets";
+    };
+
+    const newProducts = deduplicatedResults.filter((product) => String(product.badge || "") === "new");
+    const otherProducts = deduplicatedResults.filter((product) => String(product.badge || "") !== "new");
+    const buckets = new Map<string, Record<string, unknown>[]>();
+    for (const product of newProducts) {
+      const group = noveltyGroup(product);
+      const bucket = buckets.get(group) || [];
+      bucket.push(product);
+      buckets.set(group, bucket);
+    }
+    const groupOrder = ["jouets", "vehicules", "poupees", "enfants", "scolaire"];
+    const diversifiedNewProducts: Record<string, unknown>[] = [];
+    let remaining = true;
+    while (remaining) {
+      remaining = false;
+      for (const group of groupOrder) {
+        const bucket = buckets.get(group);
+        if (!bucket?.length) continue;
+        diversifiedNewProducts.push(bucket.shift()!);
+        remaining = true;
+      }
+    }
+
+    const orderedResults = [...diversifiedNewProducts, ...otherProducts];
+    const products = orderedResults.map(categorizedMamaProduct).map(withVerifiedConakryPrice).map((product) => {
       const stock = Number(product[`stock_${region}`] || 0);
       const regularPrice = Number(product[`price_${region}`] ?? (region === "conakry" ? product.price : 0));
       const promotionalPrice = Number(product[`promo_price_${region}`] || 0);
