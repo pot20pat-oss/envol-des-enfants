@@ -85,6 +85,16 @@
   .promo-submit {
     font-size: 16px !important;
   }
+
+  /* Hiérarchie : les sections utilitaires restent fortes sans concurrencer
+     le hero, le catalogue, l'histoire et le CTA final. */
+  #livraison .section-heading h2,
+  #faq .center-heading h2,
+  #contact .contact-copy h2 {
+    font-size: 48px !important;
+    line-height: 1.08;
+    letter-spacing: -2.5px;
+  }
 }
 
 @media (max-width: 800px) {
@@ -133,5 +143,13 @@
   .product-card h3,
   .featured-card h3 {
     font-size: 20px !important;
+  }
+
+  #livraison .section-heading h2,
+  #faq .center-heading h2,
+  #contact .contact-copy h2 {
+    font-size: 39px !important;
+    line-height: 1.08;
+    letter-spacing: -1.8px;
   }
 }
