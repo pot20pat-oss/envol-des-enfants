@@ -3,6 +3,7 @@ import "./globals.css";
 import "./navigation-large.css";
 import "./nav-joy.css";
 import "./nav-icons.css";
+import "./nav-bar-reference.css";
 import "./brand-logos.css";
 import "./typography-large.css";
 import "./product-previews-large.css";
