@@ -1,8 +1,8 @@
 /* Logo officiel fourni par la cliente, légèrement réduit et sans recadrage. */
 .header{
-  min-height:210px!important;
-  padding-top:10px!important;
-  padding-bottom:10px!important;
+  min-height:190px!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
   align-items:center!important;
 }
 .header .brand{
@@ -12,26 +12,23 @@
   justify-content:center!important;
 }
 .header .brand-picture{
-  width:200px!important;
-  height:214px!important;
+  width:180px!important;
+  height:193px!important;
   display:block!important;
   overflow:visible!important;
   background:transparent url('/envol-logo-officiel.svg') center/contain no-repeat!important;
 }
 .header .brand-picture img{display:none!important}
-
-/* Le logo de la popup utilise lui aussi la bonne version. */
 .promo-logo.brand-picture{
   background:transparent url('/envol-logo-officiel.svg') center/contain no-repeat!important;
   overflow:visible!important;
 }
 .promo-logo.brand-picture img{display:none!important}
-
 @media(max-width:1100px){
-  .header{min-height:180px!important}
-  .header .brand-picture{width:170px!important;height:182px!important}
+  .header{min-height:165px!important}
+  .header .brand-picture{width:155px!important;height:166px!important}
 }
 @media(max-width:800px){
-  .header{min-height:132px!important}
-  .header .brand-picture{width:122px!important;height:130px!important}
+  .header{min-height:122px!important}
+  .header .brand-picture{width:112px!important;height:120px!important}
 }
