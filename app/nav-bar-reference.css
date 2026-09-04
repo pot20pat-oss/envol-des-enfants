@@ -1,0 +1,139 @@
+/* Barre principale compacte, continue et colorée selon le modèle fourni. */
+@media (min-width: 801px) {
+  .shop-nav {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .shop-nav > .wrap {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 88px !important;
+    height: 88px !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .shop-nav > .wrap > a,
+  .shop-nav > .wrap > .nav-dropdown {
+    min-height: 88px !important;
+    height: 88px !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    flex: 1 1 0 !important;
+  }
+
+  .shop-nav > .wrap > a,
+  .shop-nav > .wrap > .nav-dropdown > button {
+    min-height: 88px !important;
+    height: 88px !important;
+    border-radius: 0 !important;
+    padding: 8px 12px !important;
+    gap: 5px !important;
+    font-size: 16px !important;
+    line-height: 1.02 !important;
+    font-weight: 900 !important;
+  }
+
+  .shop-nav > .wrap > :first-child,
+  .shop-nav > .wrap > :first-child > button {
+    border-radius: 8px 0 0 8px !important;
+  }
+
+  .shop-nav > .wrap > :last-child,
+  .shop-nav > .wrap > :last-child > button {
+    border-radius: 0 8px 8px 0 !important;
+  }
+
+  .shop-nav > .wrap > a::before,
+  .shop-nav > .wrap > .nav-dropdown > button::before {
+    width: 27px !important;
+    height: 27px !important;
+    flex-basis: 27px !important;
+  }
+
+  /* proportions du modèle */
+  .shop-nav > .wrap > :nth-child(1) { flex: 1.08 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(2) { flex: 1.05 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(3) { flex: .92 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(4) { flex: 1.72 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(5) { flex: 1.18 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(6) { flex: 1.18 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(7) { flex: 1.05 1 0 !important; }
+  .shop-nav > .wrap > :nth-child(8) { flex: 1.28 1 0 !important; }
+
+  /* couleurs plus franches comme la barre de référence */
+  .shop-nav > .wrap > :nth-child(1),
+  .shop-nav > .wrap > :nth-child(1) > button {
+    background: linear-gradient(135deg,#ff4f90,#ff78a8) !important;
+    color: #fff !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(2),
+  .shop-nav > .wrap > :nth-child(2) > button {
+    background: linear-gradient(135deg,#25ace7,#43c5ee) !important;
+    color: #fff !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(3),
+  .shop-nav > .wrap > :nth-child(3) > button {
+    background: linear-gradient(135deg,#72c943,#93d95c) !important;
+    color: #fff !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(4),
+  .shop-nav > .wrap > :nth-child(4) > button {
+    background: linear-gradient(135deg,#ffd0e7,#ffb9dc) !important;
+    color: #c82470 !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(5),
+  .shop-nav > .wrap > :nth-child(5) > button {
+    background: linear-gradient(135deg,#ffe46a,#ffef98) !important;
+    color: #164b78 !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(6),
+  .shop-nav > .wrap > :nth-child(6) > button {
+    background: linear-gradient(135deg,#beb4fa,#d4ccff) !important;
+    color: #214d78 !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(7),
+  .shop-nav > .wrap > :nth-child(7) > button {
+    background: linear-gradient(135deg,#ff8a4d,#ffad70) !important;
+    color: #fff !important;
+  }
+
+  .shop-nav > .wrap > :nth-child(8),
+  .shop-nav > .wrap > :nth-child(8) > button {
+    background: linear-gradient(135deg,#26bbb8,#54d0cc) !important;
+    color: #fff !important;
+  }
+
+  .shop-nav .nav-dolls-tab {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0 !important;
+  }
+}
+
+@media (max-width: 800px) {
+  .shop-nav > .wrap > a,
+  .shop-nav > .wrap > .nav-dropdown,
+  .shop-nav > .wrap > .nav-dropdown > button {
+    min-height: 64px !important;
+    height: 64px !important;
+  }
+
+  .shop-nav > .wrap > a::before,
+  .shop-nav > .wrap > .nav-dropdown > button::before {
+    width: 22px !important;
+    height: 22px !important;
+    flex-basis: 22px !important;
+  }
+}
