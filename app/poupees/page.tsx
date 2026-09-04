@@ -1,0 +1,2 @@
+import CategoryStorefront from "../category-storefront";
+export default function Page(){return <CategoryStorefront title="Mon monde de poupées et princesses" subtitle="Poupées, princesses et accessoires classés par univers et par marque." categories={["poupees","princesses","disney","barbie","mylife","miraculous","lol","rainbowhigh","babyalive","hairmazing","karma","mysweetbaby","glamourgirl","autres_poupees"]}/>}
