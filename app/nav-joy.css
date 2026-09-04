@@ -1,21 +1,22 @@
-/* Navigation 3D illustrée : zones cliquables invisibles, séparées et sans chevauchement. */
+/* Navigation 3D illustrée : zones cliquables explicitement associées à chaque bouton. */
 .shop-nav{display:block!important;position:relative!important;height:96px!important;padding:0!important;border:0!important;background:#fff url('/nav-kids-3d.svg') center/92% 100% no-repeat!important;overflow:visible!important}
 .shop-nav>.wrap{position:absolute!important;top:0!important;left:4%!important;width:92%!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important}
-.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:14%!important;height:74%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
-/* Chaque zone est volontairement plus petite que sa carte et laisse un vrai espace entre les boutons. */
-.shop-nav>.wrap>:nth-child(1){left:1.10%!important;width:10.25%!important}
-.shop-nav>.wrap>:nth-child(2){left:12.95%!important;width:9.20%!important}
-.shop-nav>.wrap>:nth-child(3){left:23.65%!important;width:8.35%!important}
-.shop-nav>.wrap>:nth-child(4){left:33.65%!important;width:16.40%!important}
-.shop-nav>.wrap>:nth-child(5){left:51.85%!important;width:11.50%!important}
-.shop-nav>.wrap>:nth-child(6){left:64.85%!important;width:10.55%!important}
-.shop-nav>.wrap>:nth-child(7){left:76.85%!important;width:11.25%!important}
-.shop-nav>.wrap>:nth-child(8){left:89.45%!important;width:9.55%!important;z-index:50!important}
+.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:10%!important;height:85.2%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
+
+/* Positionnement par rôle réel, et non plus par nth-child global. */
+.shop-nav>.wrap>a[href="#nouveautes"]{left:.49%!important;width:11.47%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(1){left:12.36%!important;width:10.39%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.15%!important;width:9.32%!important}
+.shop-nav>.wrap>a.nav-dolls-tab{left:32.86%!important;width:18.02%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(3){left:51.27%!important;width:12.69%!important}
+.shop-nav>.wrap>.nav-dropdown:nth-of-type(4){left:64.36%!important;width:11.57%!important}
+.shop-nav>.wrap>a[href="#promotions"]{left:76.32%!important;width:12.30%!important}
+.shop-nav>.wrap>a[href="#contact"]{left:89.02%!important;width:10.49%!important;z-index:50!important}
+
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important;pointer-events:none!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
-.shop-nav>.wrap>:nth-child(8){z-index:50!important}
 .shop-nav>.wrap>.nav-dropdown>button,.shop-nav>.wrap>.nav-dropdown>.nav-dropdown-panel,.shop-nav>.wrap>a{pointer-events:auto!important}
-.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;color:transparent!important;font-size:0!important;text-shadow:none!important;cursor:pointer!important;transform:none!important;filter:none!important;box-sizing:border-box!important;-webkit-tap-highlight-color:transparent!important}
+.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:14px!important;background:transparent!important;box-shadow:none!important;outline:0!important;color:transparent!important;font-size:0!important;text-shadow:none!important;cursor:pointer!important;transform:none!important;filter:none!important;box-sizing:border-box!important;-webkit-tap-highlight-color:transparent!important}
 .shop-nav>.wrap>a::before,.shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
 .shop-nav>.wrap>.nav-dropdown>button>span{display:none!important}
 .shop-nav>.wrap>a:hover,.shop-nav>.wrap>a:focus,.shop-nav>.wrap>a:focus-visible,.shop-nav>.wrap>a:active,.shop-nav>.wrap>.nav-dropdown:hover>button,.shop-nav>.wrap>.nav-dropdown>button:focus,.shop-nav>.wrap>.nav-dropdown>button:focus-visible,.shop-nav>.wrap>.nav-dropdown>button:active{background:transparent!important;box-shadow:none!important;outline:0!important;border:0!important;filter:none!important;transform:none!important}
