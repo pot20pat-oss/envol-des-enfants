@@ -1,194 +1,22 @@
-/* Navigation principale — version pastel arrondie fournie par la cliente */
-.shop-nav{
-  background:#fff;
-  border-top:0;
-  border-bottom:0;
-  padding:0;
-}
-
-.shop-nav>.wrap{
-  width:min(1600px,calc(100% - 44px))!important;
-  height:auto!important;
-  min-height:90px;
-  gap:10px!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-}
-
-.shop-nav>.wrap>a,
-.shop-nav>.wrap>.nav-dropdown{
-  min-height:82px;
-  border-radius:17px;
-  overflow:visible;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex:1 1 0;
-  background:transparent;
-}
-
-.shop-nav>.wrap>a,
-.shop-nav>.wrap>.nav-dropdown>button{
-  width:100%;
-  min-height:82px;
-  padding:12px 16px!important;
-  border-radius:17px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  line-height:1.04;
-  font-weight:800!important;
-  letter-spacing:.1px!important;
-  text-shadow:none!important;
-  box-shadow:none;
-  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease;
-}
-
-/* Nouveautés — rose pastel */
-.shop-nav>.wrap>:nth-child(1),
-.shop-nav>.wrap>:nth-child(1)>button{
-  background:#efa0ed!important;
-  color:#fff!important;
-}
-
-/* Catalogue — turquoise pastel */
-.shop-nav>.wrap>:nth-child(2),
-.shop-nav>.wrap>:nth-child(2)>button{
-  background:#65e0e6!important;
-  color:#fff!important;
-}
-
-/* Jouets — vert lime pastel */
-.shop-nav>.wrap>:nth-child(3),
-.shop-nav>.wrap>:nth-child(3)>button{
-  background:linear-gradient(135deg,#bdf468,#f0f77c)!important;
-  color:#fff!important;
-}
-
-/* Mon monde de poupées — texte rose sur blanc, sans pavé */
-.shop-nav>.wrap>:nth-child(4),
-.shop-nav>.wrap>:nth-child(4)>button{
-  background:#fff!important;
-  color:#ff49a4!important;
-  border-radius:0!important;
-}
-.shop-nav>.wrap>:nth-child(4){
-  flex:1.9 1 0;
-}
-.shop-nav>.wrap>:nth-child(4).nav-dolls-tab{
-  font-family:Georgia,"Times New Roman",serif!important;
-  font-weight:500!important;
-  letter-spacing:-.2px!important;
-}
-
-/* Bébé & enfants — jaune crème */
-.shop-nav>.wrap>:nth-child(5),
-.shop-nav>.wrap>:nth-child(5)>button{
-  background:#fff9c9!important;
-  color:#176ab2!important;
-}
-
-/* Articles scolaires — blanc, texte bleu */
-.shop-nav>.wrap>:nth-child(6),
-.shop-nav>.wrap>:nth-child(6)>button{
-  background:#fff!important;
-  color:#3879ba!important;
-}
-
-/* Promotions — jaune pastel */
-.shop-nav>.wrap>:nth-child(7),
-.shop-nav>.wrap>:nth-child(7)>button{
-  background:#fff5a9!important;
-  color:#fff!important;
-}
-
-/* Nous trouver — turquoise clair */
-.shop-nav>.wrap>:nth-child(8),
-.shop-nav>.wrap>:nth-child(8)>button{
-  background:#74e5ea!important;
-  color:#fff!important;
-}
-
-.shop-nav>.wrap>a:hover,
-.shop-nav>.wrap>.nav-dropdown:hover>button{
-  transform:translateY(-2px);
-  filter:saturate(1.04) brightness(1.015);
-  box-shadow:0 6px 15px rgba(30,70,100,.10);
-}
-
-.shop-nav .nav-dropdown-panel{
-  margin-top:7px;
-  border-radius:14px;
-  overflow:hidden;
-  background:#fff;
-  box-shadow:0 12px 30px rgba(24,54,74,.15);
-}
-
-.shop-nav .nav-dropdown-panel>a{
-  color:var(--ink)!important;
-  background:#fff!important;
-  text-shadow:none!important;
-}
-
-.shop-nav .nav-dropdown-panel>a:hover{
-  background:#f6f8fa!important;
-}
-
-.shop-nav .nav-dropdown>button>span{
-  color:currentColor!important;
-  opacity:.78;
-}
-
-@media(min-width:1101px){
-  .shop-nav a,
-  .shop-nav button{
-    font-size:17px!important;
-  }
-  .shop-nav .nav-dolls-tab{
-    font-size:21px!important;
-  }
-}
-
-@media(max-width:1100px){
-  .shop-nav>.wrap{
-    width:min(100% - 26px,1400px)!important;
-    min-height:76px;
-    gap:7px!important;
-  }
-  .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown,
-  .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown>button{
-    min-height:68px;
-  }
-  .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown>button{
-    padding:10px 11px!important;
-  }
-}
-
-@media(max-width:800px){
-  .shop-nav{padding:5px 0}
-  .shop-nav>.wrap{
-    min-height:58px;
-    gap:7px!important;
-    overflow-x:auto!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    padding-block:1px;
-  }
-  .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown{
-    flex:0 0 auto!important;
-    min-height:50px;
-    border-radius:13px;
-  }
-  .shop-nav>.wrap>a,
-  .shop-nav>.wrap>.nav-dropdown>button{
-    min-height:50px;
-    padding:9px 13px!important;
-    border-radius:13px;
-  }
-  .shop-nav>.wrap>:nth-child(4){min-width:220px}
-}
+/* Navigation principale — reproduction de la barre de référence fournie. */
+.shop-nav{background:#fff;border:0;padding:0!important}
+.shop-nav>.wrap{width:100%!important;max-width:none!important;height:96px!important;min-height:96px!important;gap:0!important;padding:0!important;display:flex!important;align-items:stretch!important;justify-content:stretch!important;overflow:visible!important}
+.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{height:96px!important;min-height:96px!important;border-radius:0!important;margin:0!important;display:flex!important;align-items:stretch!important;justify-content:center!important;flex:1 1 0!important;overflow:visible!important}
+.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{height:96px!important;min-height:96px!important;width:100%!important;border:0!important;border-radius:0!important;padding:12px 10px 9px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;text-align:center!important;font-family:Arial,sans-serif!important;font-size:16px!important;line-height:1.02!important;font-weight:800!important;letter-spacing:0!important;text-transform:uppercase!important;box-shadow:none!important;text-shadow:none!important;transform:none!important}
+.shop-nav>.wrap>:nth-child(1),.shop-nav>.wrap>:nth-child(1)>button{background:linear-gradient(135deg,#ff4f91,#ff5b9d)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(2),.shop-nav>.wrap>:nth-child(2)>button{background:linear-gradient(135deg,#29b9eb,#24aee4)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(3),.shop-nav>.wrap>:nth-child(3)>button{background:linear-gradient(135deg,#78d23f,#69c83d)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(4),.shop-nav>.wrap>:nth-child(4)>button{background:linear-gradient(135deg,#ffc8e3,#f7c1dc)!important;color:#cf0062!important}
+.shop-nav>.wrap>:nth-child(4){flex:1.62 1 0!important}
+.shop-nav>.wrap>:nth-child(4).nav-dolls-tab{font-family:Arial,sans-serif!important;font-size:16px!important;font-weight:800!important;letter-spacing:0!important}
+.shop-nav>.wrap>:nth-child(5),.shop-nav>.wrap>:nth-child(5)>button{background:linear-gradient(135deg,#ffe56d,#ffdf55)!important;color:#06457b!important}
+.shop-nav>.wrap>:nth-child(6),.shop-nav>.wrap>:nth-child(6)>button{background:linear-gradient(135deg,#c8bdf7,#b8acf0)!important;color:#0b4d7c!important}
+.shop-nav>.wrap>:nth-child(7),.shop-nav>.wrap>:nth-child(7)>button{background:linear-gradient(135deg,#ff8a49,#ff7f42)!important;color:#fff!important}
+.shop-nav>.wrap>:nth-child(8),.shop-nav>.wrap>:nth-child(8)>button{background:linear-gradient(135deg,#28c4c0,#20b7b5)!important;color:#fff!important}
+.shop-nav>.wrap>a:hover,.shop-nav>.wrap>.nav-dropdown:hover>button{filter:brightness(1.035)!important;transform:none!important;box-shadow:none!important}
+.shop-nav .nav-dropdown-panel{margin-top:0;border-radius:0 0 12px 12px;background:#fff;box-shadow:0 12px 30px rgba(24,54,74,.15)}
+.shop-nav .nav-dropdown-panel>a{color:var(--ink)!important;background:#fff!important;text-shadow:none!important}
+.shop-nav .nav-dropdown-panel>a:hover{background:#f6f8fa!important}
+.shop-nav .nav-dropdown>button>span{color:currentColor!important;opacity:.9}
+@media(max-width:1100px){.shop-nav>.wrap{overflow-x:auto!important;justify-content:flex-start!important}.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{flex:0 0 170px!important}.shop-nav>.wrap>:nth-child(4){flex-basis:270px!important}}
+@media(max-width:800px){.shop-nav{padding:0!important}.shop-nav>.wrap,.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown,.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{height:82px!important;min-height:82px!important}.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{flex-basis:150px!important}.shop-nav>.wrap>:nth-child(4){flex-basis:245px!important}.shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{font-size:14px!important;padding:9px 8px 7px!important}}
