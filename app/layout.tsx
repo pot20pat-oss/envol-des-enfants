@@ -3,6 +3,7 @@ import "./globals.css";
 import "./navigation-large.css";
 import "./nav-joy.css";
 import "./brand-logos.css";
+import "./typography-large.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
