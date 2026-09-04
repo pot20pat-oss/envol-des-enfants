@@ -1,44 +1,49 @@
-/* Logo principal plus visible dans l’en-tête. */
+/* Logo principal agrandi, mais contenu proprement dans l'en-tête. */
+.header .brand {
+  flex: 0 0 auto;
+  display: flex !important;
+  align-items: center !important;
+}
+
 .header .brand-picture {
-  width: 230px !important;
-  height: 112px !important;
-  overflow: visible !important;
+  width: 210px !important;
+  height: 92px !important;
+  overflow: hidden !important;
+  display: block !important;
 }
 
 .header .brand-picture img {
-  width: 285px !important;
-  max-width: none !important;
-  height: auto !important;
-  left: -29px !important;
-  top: -66px !important;
-}
-
-.header .brand {
-  flex: 0 0 auto;
+  width: 210px !important;
+  max-width: 100% !important;
+  height: 92px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
 }
 
 @media (max-width: 1100px) {
   .header .brand-picture {
-    width: 205px !important;
-    height: 100px !important;
+    width: 185px !important;
+    height: 82px !important;
   }
 
   .header .brand-picture img {
-    width: 255px !important;
-    left: -26px !important;
-    top: -58px !important;
+    width: 185px !important;
+    height: 82px !important;
   }
 }
 
 @media (max-width: 800px) {
   .header .brand-picture {
-    width: 170px !important;
-    height: 82px !important;
+    width: 150px !important;
+    height: 68px !important;
   }
 
   .header .brand-picture img {
-    width: 215px !important;
-    left: -23px !important;
-    top: -49px !important;
+    width: 150px !important;
+    height: 68px !important;
   }
 }
