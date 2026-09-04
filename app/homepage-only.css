@@ -1,0 +1,32 @@
+/* Accueil : Hero + avantages + nouveautés seulement. Les pages de catégories portent le reste. */
+.editable-storefront > #catalogue,
+.editable-storefront > #rentree-scolaire,
+.editable-storefront > .promise,
+.editable-storefront > #promotions,
+.editable-storefront > #services,
+.editable-storefront > #notre-histoire,
+.editable-storefront > .brands-section,
+.editable-storefront > #livraison,
+.editable-storefront > .testimonials-section,
+.editable-storefront > #faq,
+.editable-storefront > #contact,
+.editable-storefront > .cta { display:none!important; }
+
+/* Si Promotions est désactivé dans le CMS, masquer aussi sa carte orange dans le SVG. */
+.shop-nav:not(:has(> .wrap > a[href="#promotions"]))::after{
+  content:"";
+  position:absolute;
+  z-index:2;
+  top:0;
+  left:50%;
+  width:min(1240px,calc(100% - 104px));
+  height:100%;
+  transform:translateX(-50%);
+  pointer-events:none;
+  background:linear-gradient(to right,transparent 0 76.220703%,#fff 76.220703% 88.720703%,transparent 88.720703% 100%);
+}
+@media(max-width:800px){
+  .shop-nav:not(:has(> .wrap > a[href="#promotions"]))::after{
+    width:min(600px,calc(100% - 34px));
+  }
+}
