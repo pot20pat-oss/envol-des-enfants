@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./navigation-large.css";
 import "./nav-joy.css";
+import "./brand-logos.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
