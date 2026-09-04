@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./navigation-large.css";
+import "./nav-icons.css";
 import "./nav-joy.css";
 import "./brand-logos.css";
 import "./typography-large.css";
