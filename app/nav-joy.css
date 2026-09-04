@@ -32,7 +32,6 @@
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
-  overflow:visible!important;
   position:relative!important;
 }
 .shop-nav>.wrap>:nth-child(1){flex:0 0 12.2%!important}
@@ -41,8 +40,11 @@
 .shop-nav>.wrap>:nth-child(4){flex:0 0 18.4%!important}
 .shop-nav>.wrap>:nth-child(5){flex:0 0 13.1%!important}
 .shop-nav>.wrap>:nth-child(6){flex:0 0 12.0%!important}
-.shop-nav>.wrap>:nth-child(7){flex:0 0 12.7%!important}
-.shop-nav>.wrap>:nth-child(8){flex:1 1 auto!important}
+.shop-nav>.wrap>:nth-child(7){flex:0 0 12.7%!important;overflow:hidden!important;isolation:isolate!important;z-index:1!important}
+.shop-nav>.wrap>:nth-child(8){flex:0 0 11.1%!important;overflow:hidden!important;isolation:isolate!important;z-index:2!important}
+/* Les menus doivent pouvoir sortir sous leurs boutons; les liens simples, eux, restent clipsés. */
+.shop-nav>.wrap>.nav-dropdown{overflow:visible!important}
+.shop-nav>.wrap>a{overflow:hidden!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{
   width:100%!important;
   height:100%!important;
@@ -63,6 +65,9 @@
 .shop-nav>.wrap>a::before,.shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
 .shop-nav>.wrap>.nav-dropdown>button>span{display:none!important}
 .shop-nav>.wrap>a:hover,.shop-nav>.wrap>.nav-dropdown:hover>button{background:rgba(255,255,255,.09)!important;filter:brightness(1.03)!important;transform:none!important}
+/* Le survol de Promotions ne peut plus recouvrir Nous trouver. */
+.shop-nav>.wrap>:nth-child(7):hover{z-index:1!important}
+.shop-nav>.wrap>:nth-child(8){z-index:2!important}
 .shop-nav>.wrap>a:focus-visible,.shop-nav>.wrap>.nav-dropdown>button:focus-visible{outline:4px solid #164a72!important;outline-offset:-8px!important;border-radius:22px!important}
 /* Les menus déroulants restent de vrais composants du site. */
 .shop-nav .nav-dropdown-panel{
