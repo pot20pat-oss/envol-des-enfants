@@ -1,0 +1,128 @@
+/* Typographie générale plus lisible sur ordinateur et tablette. */
+@media (min-width: 801px) {
+  .editable-storefront {
+    font-size: 16px;
+  }
+
+  .announcement,
+  .announcement button {
+    font-size: 14px;
+  }
+
+  .header-location,
+  .contact-action,
+  .contact-button,
+  .language-switch button {
+    font-size: 14px;
+  }
+
+  .eyebrow,
+  .card-tag,
+  .promo-content form label,
+  .promo-content form small,
+  .service-ribbon span,
+  .service-ribbon a,
+  .visual-caption,
+  .tiny-note {
+    font-size: 13px;
+  }
+
+  .hero-text,
+  .section-heading > p,
+  .story-copy > p:not(.eyebrow),
+  .promo-intro,
+  .product-description,
+  .card-detail,
+  .services-grid p,
+  .offer-grid p,
+  .delivery-grid span,
+  .testimonial-grid p,
+  .faq-item p,
+  .contact-copy p,
+  .footer p,
+  .footer a,
+  .footer small {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .product-card h3,
+  .featured-card h3 {
+    font-size: 20px;
+  }
+
+  .product-price,
+  .featured-copy strong {
+    font-size: 18px;
+  }
+
+  .product-badge,
+  .availability,
+  .age-pill,
+  .product-order,
+  .product-unavailable,
+  .product-zoom-button {
+    font-size: 13px;
+  }
+
+  .category-tabs button,
+  .category-menu-group summary,
+  .category-menu-panel button,
+  .catalog-search input,
+  .catalog-search select,
+  .catalog-summary {
+    font-size: 14px;
+  }
+
+  .offer-grid h3,
+  .services-grid h3,
+  .delivery-grid h3,
+  .promise-inner h3 {
+    font-size: 22px;
+  }
+
+  .brands-section .eyebrow {
+    font-size: 14px;
+  }
+
+  .promo-content h2 {
+    font-size: 58px;
+  }
+
+  .promo-content h2 > span {
+    font-size: 72px;
+  }
+
+  .promo-submit {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 800px) {
+  .announcement,
+  .announcement button {
+    font-size: 11px;
+  }
+
+  .hero-text,
+  .section-heading > p,
+  .product-description,
+  .services-grid p,
+  .offer-grid p,
+  .story-copy > p:not(.eyebrow) {
+    font-size: 13px;
+  }
+
+  .category-tabs button,
+  .category-menu-group summary,
+  .category-menu-panel button,
+  .catalog-search input,
+  .catalog-search select {
+    font-size: 12px;
+  }
+
+  .product-card h3,
+  .featured-card h3 {
+    font-size: 18px;
+  }
+}
