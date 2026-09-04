@@ -1,0 +1,107 @@
+/* Zone de recherche du catalogue : très visible et facile à repérer. */
+.catalog-search{
+  position:relative;
+  z-index:3;
+  margin:12px 0 0!important;
+  padding:20px!important;
+  border:2px solid #a9e5ef!important;
+  border-bottom:0!important;
+  border-radius:24px 24px 0 0!important;
+  background:linear-gradient(135deg,#eefbff 0%,#fff8fd 50%,#fffce9 100%)!important;
+  box-shadow:0 14px 35px rgba(22,74,112,.12)!important;
+  gap:14px!important;
+}
+
+.catalog-search::before{
+  content:"Recherche rapide";
+  position:absolute;
+  left:22px;
+  top:-15px;
+  padding:6px 14px;
+  border-radius:999px;
+  background:#123c63;
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:.2px;
+  box-shadow:0 5px 14px rgba(18,60,99,.18);
+}
+
+.catalog-search .search-box,
+.catalog-search select{
+  background:#fff!important;
+  border:2px solid #d5e4ea!important;
+  box-shadow:0 4px 12px rgba(22,74,112,.06)!important;
+}
+
+.catalog-search .search-box:focus-within,
+.catalog-search select:focus{
+  border-color:#48bfe3!important;
+  box-shadow:0 0 0 4px rgba(72,191,227,.16)!important;
+}
+
+.catalog-search input{
+  min-height:56px!important;
+  font-size:17px!important;
+  font-weight:600;
+}
+
+.catalog-search select{
+  min-height:56px!important;
+  font-size:16px!important;
+  font-weight:700;
+  padding-inline:18px!important;
+}
+
+.category-tabs.category-dropdowns{
+  margin:0 0 34px!important;
+  padding:16px 20px 20px!important;
+  border:2px solid #a9e5ef!important;
+  border-top:0!important;
+  border-radius:0 0 24px 24px!important;
+  background:linear-gradient(135deg,#eefbff 0%,#fff8fd 50%,#fffce9 100%)!important;
+  box-shadow:0 14px 35px rgba(22,74,112,.12)!important;
+  gap:10px!important;
+}
+
+.category-tabs.category-dropdowns>button,
+.category-tabs.category-dropdowns summary{
+  min-height:50px!important;
+  padding:12px 20px!important;
+  border-width:2px!important;
+  font-size:15px!important;
+  font-weight:800!important;
+  box-shadow:0 4px 10px rgba(22,74,112,.06);
+}
+
+.category-tabs.category-dropdowns>button:hover,
+.category-tabs.category-dropdowns summary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 7px 16px rgba(22,74,112,.11);
+}
+
+@media(max-width:800px){
+  .catalog-search{
+    padding:18px 12px 12px!important;
+    border-radius:18px 18px 0 0!important;
+  }
+  .catalog-search::before{
+    left:14px;
+    top:-13px;
+    font-size:12px;
+  }
+  .catalog-search input,
+  .catalog-search select{
+    min-height:50px!important;
+    font-size:14px!important;
+  }
+  .category-tabs.category-dropdowns{
+    padding:12px!important;
+    border-radius:0 0 18px 18px!important;
+  }
+  .category-tabs.category-dropdowns>button,
+  .category-tabs.category-dropdowns summary{
+    min-height:46px!important;
+    font-size:13px!important;
+  }
+}
