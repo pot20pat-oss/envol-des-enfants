@@ -1,8 +1,11 @@
-/* Aperçus produits plus grands et plus faciles à voir. */
+/* Aperçus produits plus grands, sans bandes blanches latérales. */
 .product-visual,
 .featured-visual {
-  border-radius: 22px !important;
+  border-radius: 24px !important;
   overflow: hidden !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 @media (min-width: 1101px) {
@@ -14,14 +17,13 @@
   .product-visual {
     min-height: 390px !important;
     height: 390px !important;
-    background-size: contain !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
+    background-size: cover !important;
   }
 
   .featured-visual,
   .featured-card .product-visual {
     min-height: 430px !important;
+    background-size: cover !important;
   }
 }
 
@@ -33,23 +35,19 @@
   .product-visual {
     min-height: 360px !important;
     height: 360px !important;
-    background-size: contain !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
+    background-size: cover !important;
   }
 }
 
 @media (max-width: 800px) {
   .product-visual,
   .featured-visual {
-    border-radius: 18px !important;
+    border-radius: 20px !important;
   }
 
   .product-visual {
     min-height: 285px !important;
     height: 285px !important;
-    background-size: contain !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
+    background-size: cover !important;
   }
 }
