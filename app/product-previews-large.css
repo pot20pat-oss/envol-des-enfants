@@ -1,4 +1,10 @@
 /* Aperçus produits plus grands et plus faciles à voir. */
+.product-visual,
+.featured-visual {
+  border-radius: 22px !important;
+  overflow: hidden !important;
+}
+
 @media (min-width: 1101px) {
   .product-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -34,6 +40,11 @@
 }
 
 @media (max-width: 800px) {
+  .product-visual,
+  .featured-visual {
+    border-radius: 18px !important;
+  }
+
   .product-visual {
     min-height: 285px !important;
     height: 285px !important;
