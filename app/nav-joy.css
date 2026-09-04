@@ -1,0 +1,140 @@
+/* Navigation principale colorée — univers enfant, lisible et joyeux */
+.shop-nav{
+  background:#fff;
+  border-top:1px solid #eef1f2;
+  border-bottom:1px solid #e7ebed;
+  padding:8px 0;
+}
+
+.shop-nav>.wrap{
+  height:auto!important;
+  min-height:72px;
+  gap:8px!important;
+  align-items:stretch!important;
+}
+
+.shop-nav>.wrap>a,
+.shop-nav>.wrap>.nav-dropdown{
+  min-height:58px;
+  border-radius:14px;
+  overflow:visible;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:1 1 auto;
+}
+
+.shop-nav>.wrap>a,
+.shop-nav>.wrap>.nav-dropdown>button{
+  min-height:58px;
+  padding:10px 14px!important;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.12;
+  font-weight:800!important;
+  letter-spacing:.2px!important;
+  text-shadow:none;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+}
+
+/* 1 — Nouveautés */
+.shop-nav>.wrap>:nth-child(1){background:linear-gradient(135deg,#ff5f91,#ff8aad)}
+.shop-nav>.wrap>:nth-child(1),
+.shop-nav>.wrap>:nth-child(1)>button{color:#fff!important}
+
+/* 2 — Catalogue */
+.shop-nav>.wrap>:nth-child(2){background:linear-gradient(135deg,#33b9eb,#63cdf1)}
+.shop-nav>.wrap>:nth-child(2),
+.shop-nav>.wrap>:nth-child(2)>button{color:#fff!important}
+
+/* 3 — Jouets */
+.shop-nav>.wrap>:nth-child(3){background:linear-gradient(135deg,#79ca49,#a2df68)}
+.shop-nav>.wrap>:nth-child(3),
+.shop-nav>.wrap>:nth-child(3)>button{color:#fff!important}
+
+/* 4 — Monde de poupées */
+.shop-nav>.wrap>:nth-child(4){background:linear-gradient(135deg,#ffd7e9,#ffc3df)}
+.shop-nav>.wrap>:nth-child(4){color:#c92f72!important}
+
+/* 5 — Bébé & enfants */
+.shop-nav>.wrap>:nth-child(5){background:linear-gradient(135deg,#ffe16b,#ffec95)}
+.shop-nav>.wrap>:nth-child(5),
+.shop-nav>.wrap>:nth-child(5)>button{color:#164b78!important}
+
+/* 6 — Articles scolaires */
+.shop-nav>.wrap>:nth-child(6){background:linear-gradient(135deg,#cbc0ff,#ded7ff)}
+.shop-nav>.wrap>:nth-child(6),
+.shop-nav>.wrap>:nth-child(6)>button{color:#214d78!important}
+
+/* 7 — Promotions */
+.shop-nav>.wrap>:nth-child(7){background:linear-gradient(135deg,#ff9660,#ffb27e)}
+.shop-nav>.wrap>:nth-child(7){color:#fff!important}
+
+/* 8 — Nous trouver */
+.shop-nav>.wrap>:nth-child(8){background:linear-gradient(135deg,#35c9c5,#6edbd6)}
+.shop-nav>.wrap>:nth-child(8){color:#fff!important}
+
+.shop-nav>.wrap>a:hover,
+.shop-nav>.wrap>.nav-dropdown:hover>button{
+  transform:translateY(-2px);
+  filter:saturate(1.08) brightness(1.02);
+  box-shadow:0 7px 16px rgba(21,54,74,.14);
+}
+
+.shop-nav .nav-dropdown-panel{
+  margin-top:7px;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.shop-nav .nav-dropdown-panel>a{
+  color:var(--ink)!important;
+  background:#fff;
+  text-shadow:none;
+}
+
+.shop-nav .nav-dropdown-panel>a:hover{
+  background:#f5f8fa;
+}
+
+.shop-nav .nav-dropdown>button>span{
+  color:currentColor!important;
+  opacity:.82;
+}
+
+@media(max-width:1100px){
+  .shop-nav>.wrap{gap:6px!important;min-height:64px}
+  .shop-nav>.wrap>a,
+  .shop-nav>.wrap>.nav-dropdown,
+  .shop-nav>.wrap>a,
+  .shop-nav>.wrap>.nav-dropdown>button{min-height:52px}
+  .shop-nav>.wrap>a,
+  .shop-nav>.wrap>.nav-dropdown>button{padding:8px 10px!important}
+}
+
+@media(max-width:800px){
+  .shop-nav{padding:6px 0}
+  .shop-nav>.wrap{
+    min-height:54px;
+    gap:7px!important;
+    overflow-x:auto!important;
+    align-items:center!important;
+    padding-block:1px;
+  }
+  .shop-nav>.wrap>a,
+  .shop-nav>.wrap>.nav-dropdown{
+    flex:0 0 auto;
+    min-height:44px;
+    border-radius:12px;
+  }
+  .shop-nav>.wrap>a,
+  .shop-nav>.wrap>.nav-dropdown>button{
+    min-height:44px;
+    padding:8px 12px!important;
+    border-radius:12px;
+  }
+  .shop-nav>.wrap>:nth-child(4){min-width:190px}
+}
