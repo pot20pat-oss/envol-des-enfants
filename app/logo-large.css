@@ -1,8 +1,8 @@
-/* Logo officiel fourni par la cliente, affiché grand et sans recadrage. */
+/* Logo officiel fourni par la cliente, légèrement réduit et sans recadrage. */
 .header{
-  min-height:245px!important;
-  padding-top:14px!important;
-  padding-bottom:14px!important;
+  min-height:210px!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
   align-items:center!important;
 }
 .header .brand{
@@ -12,8 +12,8 @@
   justify-content:center!important;
 }
 .header .brand-picture{
-  width:235px!important;
-  height:252px!important;
+  width:200px!important;
+  height:214px!important;
   display:block!important;
   overflow:visible!important;
   background:transparent url('/envol-logo-officiel.svg') center/contain no-repeat!important;
@@ -28,10 +28,10 @@
 .promo-logo.brand-picture img{display:none!important}
 
 @media(max-width:1100px){
-  .header{min-height:205px!important}
-  .header .brand-picture{width:195px!important;height:210px!important}
+  .header{min-height:180px!important}
+  .header .brand-picture{width:170px!important;height:182px!important}
 }
 @media(max-width:800px){
-  .header{min-height:145px!important}
-  .header .brand-picture{width:135px!important;height:145px!important}
+  .header{min-height:132px!important}
+  .header .brand-picture{width:122px!important;height:130px!important}
 }
