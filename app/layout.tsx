@@ -12,6 +12,7 @@ import "./logo-large.css";
 import "./nav-icons-final.css";
 import "./homepage-only.css";
 import "./category-pages.css";
+import "./hero-mobile.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
