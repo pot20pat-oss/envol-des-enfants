@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1785 250" preserveAspectRatio="none">
+  <defs>
+    <clipPath id="first-six"><rect x="0" y="0" width="1560" height="250"/></clipPath>
+    <clipPath id="contact"><rect x="1560" y="0" width="225" height="250"/></clipPath>
+  </defs>
+  <g clip-path="url(#first-six)">
+    <image href="/nav-kids-3d.svg" x="0" y="0" width="2048" height="250" preserveAspectRatio="none"/>
+  </g>
+  <g clip-path="url(#contact)">
+    <image href="/nav-kids-3d.svg" x="-260" y="0" width="2048" height="250" preserveAspectRatio="none"/>
+  </g>
+</svg>
