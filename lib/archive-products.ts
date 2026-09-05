@@ -1,8 +1,24 @@
 import { archiveSupplementProducts } from "./default-catalog";
+import { mama4Products1 } from "./mama4-products-1";
+import { mama4Products2 } from "./mama4-products-2";
+import { mama4Products3 } from "./mama4-products-3";
+import { mama4Products4 } from "./mama4-products-4";
+import { mama4Products5 } from "./mama4-products-5";
+import { mama4Products6 } from "./mama4-products-6";
+
+const allArchiveProducts = [
+  ...archiveSupplementProducts,
+  ...mama4Products1,
+  ...mama4Products2,
+  ...mama4Products3,
+  ...mama4Products4,
+  ...mama4Products5,
+  ...mama4Products6,
+];
 
 export async function ensureArchiveProducts(database: D1Database) {
   const now = new Date().toISOString();
-  const statements = archiveSupplementProducts.map((product) => database.prepare(
+  const statements = allArchiveProducts.map((product) => database.prepare(
     "INSERT OR IGNORE INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,images_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
   ).bind(
     product.id, product.articleNumber, product.name.fr, product.name.en,
