@@ -1,0 +1,40 @@
+/* Mobile : afficher la photo Hero complète au lieu de la rogner avec object-fit: cover. */
+@media (max-width:800px){
+  .hero{
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:16/9!important;
+    margin-top:13px!important;
+    overflow:hidden!important;
+  }
+  .hero-visual{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+  }
+  .hero-visual>img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center center!important;
+    background:#f5f3ed!important;
+  }
+  .hero-copy{
+    left:12px!important;
+    bottom:12px!important;
+    width:min(86%,430px)!important;
+    padding:18px 20px 16px!important;
+  }
+  .hero h1{
+    font-size:clamp(31px,9vw,46px)!important;
+    margin:12px 0 8px!important;
+  }
+  .hero-text{font-size:11px!important;line-height:1.5!important}
+  .hero .button,.hero .tiny-note{display:none!important}
+}
+@media (max-width:460px){
+  .hero{aspect-ratio:9/12!important}
+  .hero-visual>img{object-fit:cover!important;object-position:center center!important}
+  .hero-copy{width:88%!important}
+}
