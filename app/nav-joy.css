@@ -4,7 +4,7 @@
 .shop-nav>.wrap{position:absolute!important;top:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important;z-index:3!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:10%!important;height:85.2%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
 
-/* Limites des 8 cartes lorsque Promotions est actif. */
+/* Limites exactes des 8 cartes du SVG. */
 .shop-nav>.wrap>a:is([href="#nouveautes"],[href="/"],[data-route="/"]){left:.390625%!important;width:11.669922%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(1){left:12.255859%!important;width:10.595703%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.046875%!important;width:9.521484%!important}
@@ -13,17 +13,6 @@
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(4){left:64.257813%!important;width:11.767578%!important}
 .shop-nav>.wrap>a:is([href="#promotions"],[href="/promotions"],[data-route="/promotions"]){left:76.220703%!important;width:12.5%!important}
 .shop-nav>.wrap>a:is([href="#contact"],[href="/nous-trouver"],[data-route="/nous-trouver"]){left:88.916016%!important;width:10.693359%!important;z-index:50!important}
-
-/* Quand Promotions est désactivé dans le CMS, on utilise un vrai SVG à 7 cartes.
-   Plus de masque blanc : aucune carte voisine n'est rognée. */
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))::before{background-image:url('/nav-kids-3d-no-promos.svg')!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>a:is([href="#nouveautes"],[href="/"],[data-route="/"]){left:.44818%!important;width:13.38936%!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>.nav-dropdown:nth-of-type(1){left:14.06162%!important;width:12.15686%!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>.nav-dropdown:nth-of-type(2){left:26.44258%!important;width:10.92437%!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>a.nav-dolls-tab{left:37.59104%!important;width:20.89636%!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>.nav-dropdown:nth-of-type(3){left:58.71148%!important;width:14.78992%!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>.nav-dropdown:nth-of-type(4){left:73.72549%!important;width:13.50140%!important}
-.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))>.wrap>a:is([href="#contact"],[href="/nous-trouver"],[data-route="/nous-trouver"]){left:87.45098%!important;width:12.26891%!important;z-index:50!important}
 
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important;pointer-events:none!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
