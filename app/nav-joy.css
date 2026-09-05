@@ -1,20 +1,20 @@
 /* Navigation 3D illustrée : largeur calée sur le même conteneur que le Hero. */
 .shop-nav{display:block!important;position:relative!important;height:96px!important;padding:0!important;border:0!important;background:#fff!important;overflow:visible!important}
 .shop-nav::before{content:""!important;position:absolute!important;top:0!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;background:transparent url('/nav-kids-3d.svg') 0 0/100% 100% no-repeat!important;pointer-events:none!important}
-/* Le SVG contient les 8 cartes. Si Promotions n'est pas rendu par le CMS, on masque aussi sa carte visuelle. */
-.shop-nav:not(:has(.wrap>a[href="#promotions"]))::after{content:""!important;position:absolute!important;top:0!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;background:#fff!important;clip-path:polygon(76.05% 6%,88.9% 6%,88.9% 100%,76.05% 100%)!important;pointer-events:none!important;z-index:2!important}
+/* Promotions : masquer uniquement sa carte lorsque le CMS ne rend réellement aucun lien Promotions. */
+.shop-nav:not(:has(.wrap>a[href="#promotions"],.wrap>a[href="/promotions"],.wrap>a[data-route="/promotions"]))::after{content:""!important;position:absolute!important;top:0!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;background:#fff!important;clip-path:polygon(76.05% 6%,88.9% 6%,88.9% 100%,76.05% 100%)!important;pointer-events:none!important;z-index:2!important}
 .shop-nav>.wrap{position:absolute!important;top:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important;z-index:3!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:10%!important;height:85.2%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
 
-/* Limites EXACTES des 8 cartes du SVG (viewBox 2048x250). */
-.shop-nav>.wrap>a[href="#nouveautes"]{left:.390625%!important;width:11.669922%!important}
+/* Limites EXACTES des 8 cartes du SVG. Les sélecteurs restent valides avant ET après NavRouteBridge. */
+.shop-nav>.wrap>a:is([href="#nouveautes"],[href="/"],[data-route="/"]){left:.390625%!important;width:11.669922%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(1){left:12.255859%!important;width:10.595703%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.046875%!important;width:9.521484%!important}
 .shop-nav>.wrap>a.nav-dolls-tab{left:32.763672%!important;width:18.212891%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(3){left:51.171875%!important;width:12.890625%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(4){left:64.257813%!important;width:11.767578%!important}
-.shop-nav>.wrap>a[href="#promotions"]{left:76.220703%!important;width:12.5%!important}
-.shop-nav>.wrap>a[href="#contact"]{left:88.916016%!important;width:10.693359%!important;z-index:50!important}
+.shop-nav>.wrap>a:is([href="#promotions"],[href="/promotions"],[data-route="/promotions"]){left:76.220703%!important;width:12.5%!important}
+.shop-nav>.wrap>a:is([href="#contact"],[href="/nous-trouver"],[data-route="/nous-trouver"]){left:88.916016%!important;width:10.693359%!important;z-index:50!important}
 
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important;pointer-events:none!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
