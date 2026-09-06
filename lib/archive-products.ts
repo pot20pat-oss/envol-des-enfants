@@ -16,6 +16,9 @@ const allArchiveProducts = [
   ...mama4Products6,
 ];
 
+const productImageUrl = (product: (typeof allArchiveProducts)[number]) =>
+  product.id.startsWith("mama4-") ? `/products/mama4/${product.id}.jpg` : (product.imageUrl || null);
+
 export async function ensureArchiveProducts(database: D1Database) {
   const now = new Date().toISOString();
   const statements = allArchiveProducts.map((product) => database.prepare(
@@ -24,13 +27,20 @@ export async function ensureArchiveProducts(database: D1Database) {
     product.id, product.articleNumber ?? null, product.name.fr, product.name.en,
     product.detail.fr, product.detail.en, product.category,
     product.priceConakry ?? product.price, product.stockConakry ?? 1,
-    product.status, product.badge || null, product.ages, product.imageUrl || null,
+    product.status, product.badge || null, product.ages, productImageUrl(product),
     product.sheet || null, product.position, product.brand || null, 1,
     product.priceQc ?? 0, product.priceConakry ?? product.price,
     product.stockQc ?? 1, product.stockConakry ?? 1,
     product.visibleQc ? 1 : 0, product.visibleConakry === false ? 0 : 1,
     JSON.stringify(product.extraImages || []), now, now,
   ));
+
+  for (const product of allArchiveProducts) {
+    if (!product.id.startsWith("mama4-")) continue;
+    statements.push(database.prepare(
+      "UPDATE products SET image_url=?,updated_at=? WHERE id=?",
+    ).bind(productImageUrl(product), now, product.id));
+  }
 
   statements.push(database.prepare(
     "UPDATE products SET images_json=?,updated_at=? WHERE image_url=? AND (images_json IS NULL OR images_json='[]')",
