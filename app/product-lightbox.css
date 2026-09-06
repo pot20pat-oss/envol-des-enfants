@@ -1,0 +1,212 @@
+/* Fiche produit agrandie */
+.product-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(12, 24, 43, 0.72);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+
+.product-lightbox-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
+  width: min(1180px, 96vw);
+  max-height: 92vh;
+  background: #fff;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+.product-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #17233b;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.product-lightbox-image {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 560px;
+  padding: 34px;
+  background: #f7f7f5;
+}
+
+.product-lightbox-image > img {
+  display: block;
+  width: 100%;
+  height: min(66vh, 650px);
+  min-height: 420px;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #fff;
+  border-radius: 22px;
+}
+
+.product-lightbox-thumbnails {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.product-lightbox-thumbnails button {
+  flex: 0 0 78px;
+  width: 78px;
+  height: 78px;
+  padding: 5px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.product-lightbox-thumbnails button.active {
+  border-color: #223d72;
+}
+
+.product-lightbox-thumbnails img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product-lightbox-info {
+  min-width: 0;
+  padding: 58px 42px 42px;
+  overflow-y: auto;
+}
+
+.product-lightbox-info h2 {
+  margin: 8px 0 18px;
+  font-size: clamp(30px, 3vw, 46px);
+  line-height: 1.04;
+  color: #16233d;
+}
+
+.product-lightbox-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.product-lightbox-meta > div {
+  padding: 14px 15px;
+  border-radius: 14px;
+  background: #f5f6f8;
+}
+
+.product-lightbox-meta span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6f7888;
+}
+
+.product-lightbox-meta strong {
+  display: block;
+  font-size: 15px;
+  color: #18243c;
+  overflow-wrap: anywhere;
+}
+
+.product-lightbox-price {
+  margin: 20px 0 12px;
+  font-size: 30px;
+  font-weight: 800;
+  color: #172a50;
+}
+
+.product-lightbox-description {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: #4d5769;
+}
+
+.product-lightbox-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+}
+
+.product-lightbox-order svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 860px) {
+  .product-lightbox {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .product-lightbox-card {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-height: none;
+    border-radius: 20px;
+  }
+
+  .product-lightbox-image {
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .product-lightbox-image > img {
+    height: 55vh;
+    min-height: 330px;
+    max-height: 520px;
+  }
+
+  .product-lightbox-info {
+    padding: 26px 20px 30px;
+    overflow: visible;
+  }
+
+  .product-lightbox-info h2 {
+    padding-right: 38px;
+    font-size: clamp(28px, 8vw, 38px);
+  }
+}
+
+@media (max-width: 520px) {
+  .product-lightbox-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .product-lightbox-image > img {
+    height: 48vh;
+    min-height: 290px;
+  }
+
+  .product-lightbox-thumbnails button {
+    flex-basis: 66px;
+    width: 66px;
+    height: 66px;
+  }
+}
