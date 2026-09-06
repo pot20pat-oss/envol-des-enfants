@@ -7,6 +7,7 @@ import "./nav-joy.css";
 import "./brand-logos.css";
 import "./typography-large.css";
 import "./product-previews-large.css";
+import "./product-lightbox.css";
 import "./catalog-search-highlight.css";
 import "./logo-large.css";
 import "./nav-icons-final.css";
