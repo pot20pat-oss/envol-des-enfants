@@ -21,7 +21,7 @@ export async function ensureArchiveProducts(database: D1Database) {
   const statements = allArchiveProducts.map((product) => database.prepare(
     "INSERT OR IGNORE INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,images_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
   ).bind(
-    product.id, product.articleNumber, product.name.fr, product.name.en,
+    product.id, product.articleNumber ?? null, product.name.fr, product.name.en,
     product.detail.fr, product.detail.en, product.category,
     product.priceConakry ?? product.price, product.stockConakry ?? 1,
     product.status, product.badge || null, product.ages, product.imageUrl || null,
