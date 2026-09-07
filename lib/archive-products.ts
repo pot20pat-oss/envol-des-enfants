@@ -5,6 +5,7 @@ import { mama4Products3 } from "./mama4-products-3";
 import { mama4Products4 } from "./mama4-products-4";
 import { mama4Products5 } from "./mama4-products-5";
 import { mama4Products6 } from "./mama4-products-6";
+import { swimProducts } from "./swim-products";
 
 const allArchiveProducts = [
   ...archiveSupplementProducts,
@@ -14,6 +15,7 @@ const allArchiveProducts = [
   ...mama4Products4,
   ...mama4Products5,
   ...mama4Products6,
+  ...swimProducts,
 ];
 
 const productImageUrl = (product: (typeof allArchiveProducts)[number]) =>
