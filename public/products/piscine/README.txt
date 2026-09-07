@@ -1,0 +1,1 @@
+Images des produits de la catégorie piscine.
