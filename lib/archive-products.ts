@@ -38,10 +38,31 @@ export async function ensureArchiveProducts(database: D1Database) {
   ));
 
   for (const product of allArchiveProducts) {
-    if (!product.id.startsWith("mama4-")) continue;
-    statements.push(database.prepare(
-      "UPDATE products SET image_url=?,updated_at=? WHERE id=?",
-    ).bind(productImageUrl(product), now, product.id));
+    if (product.id.startsWith("mama4-")) {
+      statements.push(database.prepare(
+        "UPDATE products SET image_url=?,updated_at=? WHERE id=?",
+      ).bind(productImageUrl(product), now, product.id));
+      continue;
+    }
+
+    if (product.id.startsWith("piscine-")) {
+      statements.push(database.prepare(
+        "UPDATE products SET article_number=?,category=?,brand=?,image_url=?,name_fr=?,name_en=?,description_fr=?,description_en=?,visible=1,visible_qc=?,visible_conakry=?,updated_at=? WHERE id=?",
+      ).bind(
+        product.articleNumber ?? null,
+        product.category,
+        product.brand || null,
+        productImageUrl(product),
+        product.name.fr,
+        product.name.en,
+        product.detail.fr,
+        product.detail.en,
+        product.visibleQc ? 1 : 0,
+        product.visibleConakry === false ? 0 : 1,
+        now,
+        product.id,
+      ));
+    }
   }
 
   statements.push(database.prepare(
