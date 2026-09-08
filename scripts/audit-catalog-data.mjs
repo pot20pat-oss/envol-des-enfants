@@ -13,6 +13,9 @@ const mamaProducts = mamaItems.map(([fr, en, category, brand], index) => ({
   name: { fr, en },
   category,
   brand,
+  price: 0,
+  priceConakry: 0,
+  priceQc: 0,
   articleNumber: undefined,
   imageUrl: index === 15 ? "/products/poupees-mama/mama-16.jpg" : `/products/poupees-mama/mama-${String(index + 1).padStart(2, "0")}.webp`,
   source: "mama-products.json",
@@ -52,7 +55,10 @@ for (const p of products) {
 const suspiciousCategories = [...categories.entries()].filter(([c]) => !c || c !== c.toLowerCase() || /\s{2,}/.test(c));
 const missingCore = products.filter((p) => !p.name?.fr || !p.name?.en || !p.category || !p.imageUrl);
 const badImagePaths = products.filter((p) => p.imageUrl && (!p.imageUrl.startsWith("/") || !/\.(webp|png|jpe?g|avif)$/i.test(p.imageUrl)));
+const missingImageFiles = products.filter((p) => p.imageUrl && !fs.existsSync(path.join(root, "public", p.imageUrl.replace(/^\//, ""))));
+const missingArticleNumbers = products.filter((p) => !String(p.articleNumber || "").trim());
 const zeroOrNegativePrices = products.filter((p) => Number(p.price ?? p.priceConakry ?? 0) <= 0);
+const filteredOutByRuntime = defaultProducts.filter((p) => !p.imageUrl);
 
 const summary = {
   totalProducts: products.length,
@@ -68,7 +74,10 @@ const summary = {
   suspiciousCategories: suspiciousCategories.length,
   missingCoreFields: missingCore.length,
   badImagePaths: badImagePaths.length,
+  missingImageFiles: missingImageFiles.length,
+  missingArticleNumbers: missingArticleNumbers.length,
   zeroOrNegativePrices: zeroOrNegativePrices.length,
+  runtimeFilteredDefaultProducts: filteredOutByRuntime.length,
   categoryCounts: Object.fromEntries([...categories.entries()].sort((a,b) => a[0].localeCompare(b[0]))),
 };
 
@@ -80,6 +89,11 @@ const printable = (groups, label) => {
   }
 };
 
+const printProducts = (arr, label, max = 80, extra = () => "") => {
+  console.log(`\n## ${label} (${arr.length})`);
+  for (const p of arr.slice(0, max)) console.log(`- ${p.id || "(no id)"} | ${p.name?.fr || "(no name)"} | ${p.source}${extra(p)}`);
+};
+
 console.log("CATALOG_AUDIT_SUMMARY=" + JSON.stringify(summary));
 printable(duplicateIds, "Duplicate IDs");
 printable(duplicateArticleNumbers, "Duplicate article numbers");
@@ -89,11 +103,9 @@ printable(duplicateImages, "Duplicate image paths");
 console.log(`\n## Suspicious categories (${suspiciousCategories.length})`);
 for (const [c, count] of suspiciousCategories) console.log(`- ${JSON.stringify(c)}: ${count}`);
 
-console.log(`\n## Missing core fields (${missingCore.length})`);
-for (const p of missingCore.slice(0, 40)) console.log(`- ${p.id || "(no id)"} | ${p.name?.fr || "(no name)"} | ${p.source}`);
-
-console.log(`\n## Bad image paths (${badImagePaths.length})`);
-for (const p of badImagePaths.slice(0, 40)) console.log(`- ${p.id || "(no id)"} | ${p.imageUrl} | ${p.source}`);
-
-console.log(`\n## Zero or negative prices (${zeroOrNegativePrices.length})`);
-for (const p of zeroOrNegativePrices.slice(0, 80)) console.log(`- ${p.id || "(no id)"} | ${p.name?.fr || "(no name)"} | price=${p.price ?? "n/a"} | conakry=${p.priceConakry ?? "n/a"} | qc=${p.priceQc ?? "n/a"} | ${p.source}`);
+printProducts(missingCore, "Missing core fields");
+printProducts(badImagePaths, "Bad image paths", 80, (p) => ` | image=${p.imageUrl}`);
+printProducts(missingImageFiles, "Image paths whose file is absent from public/", 120, (p) => ` | image=${p.imageUrl}`);
+printProducts(missingArticleNumbers, "Missing article numbers", 180);
+printProducts(filteredOutByRuntime.map((p) => ({ ...p, source: "default-products.json" })), "Default products filtered out at runtime", 80);
+printProducts(zeroOrNegativePrices, "Zero or negative raw prices", 180, (p) => ` | price=${p.price ?? "n/a"} | conakry=${p.priceConakry ?? "n/a"} | qc=${p.priceQc ?? "n/a"}`);
