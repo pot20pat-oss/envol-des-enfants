@@ -4,6 +4,9 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 
 import { defaultProducts, type Product, type Translation } from "@/lib/default-catalog";
 import { readSiteSections, readSiteTexts } from "@/lib/site-editor";
 import { marketPrice, markets, normalizeMarket, type Market } from "@/lib/markets";
+import ProductCard from "./product-card";
+import ProductLightbox from "./product-lightbox";
+import { PhoneIcon, WhatsAppIcon } from "./product-icons";
 
 type Language = "fr" | "en";
 
@@ -35,19 +38,10 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Animaux & compagnons", en: "Animals & companions" }, value: "animaux" },
 ];
 
-function PhoneIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.18 2 19.78 19.78 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.71 2.8a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.84.58 2.8.71A2 2 0 0 1 22 16.9Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-}
-
-function WhatsAppIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.4 11.7a8.4 8.4 0 0 1-12.2 7.5L3 20.6l1.5-5a8.4 8.4 0 1 1 15.9-3.9Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 8.1c-.3-.7-.6-.7-.9-.7H7.4c-.2 0-.6.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3.1 5 4.2 2.4.9 2.9.7 3.5.6.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.1-1.4-.1-.1-.3-.2-.7-.4l-2-1c-.3-.1-.5-.2-.7.2l-.9 1.1c-.2.2-.3.2-.7.1a6.7 6.7 0 0 1-1.9-1.2 7 7 0 0 1-1.3-1.6c-.1-.3 0-.4.2-.6l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6L9 8.1Z" fill="currentColor"/></svg>;
-}
-
 export default function Home() {
   const [active, setActive] = useState("all");
   const [promoOpen, setPromoOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [email, setEmail] = useState("");
   const [requested, setRequested] = useState(false);
   const [language, setLanguage] = useState<Language>("fr");
@@ -278,140 +272,32 @@ export default function Home() {
       <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={() => setPromoOpen(true)}>{say("J’en profite", "Get the offer")} →</button></div>
 
       <header className="header wrap">
-        <a className="brand" href="#accueil" aria-label="Envol des Enfants, accueil">
-          <span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span>
-        </a>
+        <a className="brand" href="#accueil" aria-label="Envol des Enfants, accueil"><span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span></a>
         <p className="header-location">{markets[market].label} <span>•</span> {say("Des jouets qui font grandir", "Toys that help little ones grow")}</p>
         <div className="header-actions"><div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}><button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button><button className={language === "en" ? "selected" : ""} onClick={() => changeLanguage("en")}>EN</button></div><a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler la boutique", "Call the store")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a><a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>WhatsApp</span></a></div>
       </header>
 
-      <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}>
-        <div className="wrap">
-          {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
-          {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
-            <button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "catalogue" && <div className="nav-dropdown-panel">{availableCategories.map((category) => <a href="#catalogue" key={category.value} onClick={() => chooseCategory(category.value)}>{category.label[language]}</a>)}</div>}
-          </div>}
-          {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
-            <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("disney")}>↳ Disney</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("barbie")}>↳ Barbie</a><a href="#catalogue" onClick={() => chooseCategory("piscine")}>{say("Piscine & jeux d’eau", "Pool & water play")}</a><a href="#catalogue" onClick={() => chooseCategory("imitation")}>{say("Métiers & imitation", "Pretend play")}</a><a href="#catalogue" onClick={() => chooseCategory("dinosaures")}>{say("Dinosaures & aventures", "Dinosaurs & adventures")}</a><a href="#catalogue" onClick={() => chooseCategory("animaux")}>{say("Animaux & compagnons", "Animals & companions")}</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}
-          </div>}
-          {sectionVisible("catalogue") && <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
-          {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
-            <button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "enfants" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("bebe")}>{say("Bébé", "Baby")}</a><a href="#catalogue" onClick={() => chooseCategory("vetements")}>{say("Vêtements", "Clothing")}</a><a href="#catalogue" onClick={() => chooseCategory("chaussures")}>{say("Chaussures", "Shoes")}</a></div>}
-          </div>}
-          {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}>
-            <button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>
-            {openMenu === "rentree" && <div className="nav-dropdown-panel"><a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a><a href="#catalogue" onClick={() => chooseCategory("scolaire")}>{say("Articles scolaires", "School supplies")}</a><a href="#catalogue" onClick={() => chooseCategory("sacs")}>{say("Sacs & gourdes", "Bags & bottles")}</a></div>}
-          </div>}
-          {sectionVisible("promotions") && <a href="#promotions">{say("Promotions", "Offers")}</a>}
-          {sectionVisible("contact") && <a href="#contact">{say("Nous trouver", "Find us")}</a>}
-        </div>
-      </nav>
+      <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
+        {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
+        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>{openMenu === "catalogue" && <div className="nav-dropdown-panel">{availableCategories.map((category) => <a href="#catalogue" key={category.value} onClick={() => chooseCategory(category.value)}>{category.label[language]}</a>)}</div>}</div>}
+        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>{openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("disney")}>↳ Disney</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("barbie")}>↳ Barbie</a><a href="#catalogue" onClick={() => chooseCategory("piscine")}>{say("Piscine & jeux d’eau", "Pool & water play")}</a><a href="#catalogue" onClick={() => chooseCategory("imitation")}>{say("Métiers & imitation", "Pretend play")}</a><a href="#catalogue" onClick={() => chooseCategory("dinosaures")}>{say("Dinosaures & aventures", "Dinosaurs & adventures")}</a><a href="#catalogue" onClick={() => chooseCategory("animaux")}>{say("Animaux & compagnons", "Animals & companions")}</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}</div>}
+        {sectionVisible("catalogue") && <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
+        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>{openMenu === "enfants" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("bebe")}>{say("Bébé", "Baby")}</a><a href="#catalogue" onClick={() => chooseCategory("vetements")}>{say("Vêtements", "Clothing")}</a><a href="#catalogue" onClick={() => chooseCategory("chaussures")}>{say("Chaussures", "Shoes")}</a></div>}</div>}
+        {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>{openMenu === "rentree" && <div className="nav-dropdown-panel"><a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a><a href="#catalogue" onClick={() => chooseCategory("scolaire")}>{say("Articles scolaires", "School supplies")}</a><a href="#catalogue" onClick={() => chooseCategory("sacs")}>{say("Sacs & gourdes", "Bags & bottles")}</a></div>}</div>}
+        {sectionVisible("promotions") && <a href="#promotions">{say("Promotions", "Offers")}</a>}{sectionVisible("contact") && <a href="#contact">{say("Nous trouver", "Find us")}</a>}
+      </div></nav>
 
-      <section className="hero wrap" id="accueil" style={sectionStyle("hero")}>
-        <div className="hero-copy">
-          <p className="eyebrow"><span></span> {editable("hero_eyebrow", `Boutique de jouets éducatifs · ${markets[market].label}`, `Educational toy shop · ${markets[market].label}`)}</p>
-          <h1>{editable("hero_title", "Le jeu qui fait", "Play that helps")}<br /><span>{editable("hero_accent", "grandir vos enfants.", "your children grow.")}</span></h1>
-          <p className="hero-text">{editable("hero_description", "Jouets, articles pour bébé, vélos et fournitures scolaires choisis pour éveiller leur curiosité.", "Toys, baby essentials, bicycles and school supplies chosen to spark their curiosity.")}</p>
-          <div className="hero-buttons">{storePhone && <a className="button hero-call" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Nous appeler", "Call us")}</a>}{whatsappNumber && <a className="button button-dark hero-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>{say("Commander sur WhatsApp", "Order on WhatsApp")}</a>}</div>
-          <p className="tiny-note">{say("Livraison et paiement à la réception.", "Delivery available. Pay upon arrival.")}</p>
-        </div>
-
-        <div className="hero-visual">
-          <img src={market === "qc" ? "/boutique-hero-quebec.png" : "/boutique-hero.png"} alt={market === "qc" ? say("Boutique québécoise en ligne et sélection de jouets éducatifs", "Quebec online shop and selection of educational toys") : say("Vue panoramique de la boutique Envol des Enfants avec ses vélos, véhicules et rayons de jouets", "Panoramic view of the Envol des Enfants store, bicycles, vehicles and toy displays")} />
-          <div className="floating-note"><span>★</span><div><strong>{market === "qc" ? say("Bienvenue au Québec", "Welcome to Québec") : say("Bienvenue à Dixinn", "Welcome to Dixinn")}</strong><small>{say("Un univers fait pour jouer.", "A world made for play.")}</small></div></div>
-        </div>
-      </section>
+      <section className="hero wrap" id="accueil" style={sectionStyle("hero")}><div className="hero-copy"><p className="eyebrow"><span></span> {editable("hero_eyebrow", `Boutique de jouets éducatifs · ${markets[market].label}`, `Educational toy shop · ${markets[market].label}`)}</p><h1>{editable("hero_title", "Le jeu qui fait", "Play that helps")}<br /><span>{editable("hero_accent", "grandir vos enfants.", "your children grow.")}</span></h1><p className="hero-text">{editable("hero_description", "Jouets, articles pour bébé, vélos et fournitures scolaires choisis pour éveiller leur curiosité.", "Toys, baby essentials, bicycles and school supplies chosen to spark their curiosity.")}</p><div className="hero-buttons">{storePhone && <a className="button hero-call" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Nous appeler", "Call us")}</a>}{whatsappNumber && <a className="button button-dark hero-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>{say("Commander sur WhatsApp", "Order on WhatsApp")}</a>}</div><p className="tiny-note">{say("Livraison et paiement à la réception.", "Delivery available. Pay upon arrival.")}</p></div><div className="hero-visual"><img src={market === "qc" ? "/boutique-hero-quebec.png" : "/boutique-hero.png"} alt={market === "qc" ? say("Boutique québécoise en ligne et sélection de jouets éducatifs", "Quebec online shop and selection of educational toys") : say("Vue panoramique de la boutique Envol des Enfants avec ses vélos, véhicules et rayons de jouets", "Panoramic view of the Envol des Enfants store, bicycles, vehicles and toy displays")} /><div className="floating-note"><span>★</span><div><strong>{market === "qc" ? say("Bienvenue au Québec", "Welcome to Québec") : say("Bienvenue à Dixinn", "Welcome to Dixinn")}</strong><small>{say("Un univers fait pour jouer.", "A world made for play.")}</small></div></div></div></section>
 
       <div className="service-ribbon wrap" style={sectionStyle("ribbon")}><span>{say("Jouets éducatifs", "Educational toys")}</span><span>{say("Livraison chez vous", "Delivered to you")}</span><span>{say("Paiement à la réception", "Pay on delivery")}</span><a href={facebookUrl} target="_blank" rel="noreferrer">{say("Suivez-nous sur Facebook", "Follow us on Facebook")} ↗</a></div>
 
       <section className="univers section wrap" id="catalogue" style={sectionStyle("catalogue")}>
         <div className="section-heading"><div><p className="eyebrow">{say("Nos trouvailles en boutique", "Discover our favourite finds")}</p><h2>{editable("catalogue_title", "Le catalogue", "A little shop")}<br /><span>{editable("catalogue_accent", "des petits bonheurs.", "full of joy.")}</span></h2></div><p>{editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")}</p></div>
         <div className="catalog-search"><label className="search-box"><span aria-hidden="true">⌕</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={say("Rechercher un jouet, un cartable, une poupée…", "Search for a toy, a backpack, a doll…")} /></label><select value={status} onChange={(event) => setStatus(event.target.value)} aria-label={say("Filtrer par disponibilité", "Filter by availability")}><option value="all">{say("Tous les statuts", "All availability")}</option><option value="available">{say("Disponible", "Available")}</option><option value="reserved">{say("Réservé", "Reserved")}</option><option value="sold">{say("Vendu", "Sold out")}</option></select></div>
-        <div className="category-tabs category-dropdowns" role="group" aria-label={say("Filtrer les univers", "Filter collections")}>
-  <button
-    type="button"
-    className={active === "all" ? "active" : ""}
-    onClick={() => chooseCategory("all")}
-  >
-    {say("Tout voir", "View all")}
-  </button>
-
-  {[
-    {
-      key: "jouets",
-      label: say("Jouets", "Toys"),
-      values: ["eveil", "vehicules", "piscine", "imitation", "dinosaures", "animaux"],
-    },
-    {
-      key: "poupees",
-      label: say("Mon monde de poupées et princesses", "My world of dolls and princesses"),
-      values: dollCategories,
-    },
-    {
-      key: "ecole",
-      label: say("École", "School"),
-      values: ["scolaire", "sacs"],
-    },
-    {
-      key: "enfants",
-      label: say("Bébé & enfants", "Baby & kids"),
-      values: ["bebe", "vetements", "chaussures"],
-    },
-  ].map((group) => {
-    const children = availableCategories.filter((category) => group.values.includes(category.value));
-    if (children.length === 0) return null;
-
-    const groupActive =
-      group.key === "poupees"
-        ? dollCategories.includes(active)
-        : group.values.includes(active);
-
-    return (
-      <details className={`category-menu-group category-menu-${group.key}${groupActive ? " is-active" : ""}`} key={group.key}>
-        <summary>
-          <span>{group.label}</span>
-          <span className="category-menu-chevron" aria-hidden="true">⌄</span>
-        </summary>
-
-        <div className="category-menu-panel">
-          {group.key === "poupees" && (
-            <button
-              type="button"
-              className={`doll-world-choice${active === "poupees" ? " active" : ""}`}
-              onClick={(event) => {
-                chooseCategory("poupees");
-                event.currentTarget.closest("details")?.removeAttribute("open");
-              }}
-            >
-              {say("Toutes les poupées", "All dolls")}
-            </button>
-          )}
-
-          {children
-            .filter((category) => !(group.key === "poupees" && category.value === "poupees"))
-            .map((category) => (
-              <button
-                type="button"
-                key={category.value}
-                className={`${group.key === "poupees" ? "doll-brand-choice" : ""}${active === category.value ? " active" : ""}`}
-                onClick={(event) => {
-                  chooseCategory(category.value);
-                  event.currentTarget.closest("details")?.removeAttribute("open");
-                }}
-              >
-                {category.label[language].replace("↳ ", "")}
-              </button>
-            ))}
-        </div>
-      </details>
-    );
-  })}
-</div><div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
+        <div className="category-tabs category-dropdowns" role="group" aria-label={say("Filtrer les univers", "Filter collections")}><button type="button" className={active === "all" ? "active" : ""} onClick={() => chooseCategory("all")}>{say("Tout voir", "View all")}</button>{[{ key: "jouets", label: say("Jouets", "Toys"), values: ["eveil", "vehicules", "piscine", "imitation", "dinosaures", "animaux"] },{ key: "poupees", label: say("Mon monde de poupées et princesses", "My world of dolls and princesses"), values: dollCategories },{ key: "ecole", label: say("École", "School"), values: ["scolaire", "sacs"] },{ key: "enfants", label: say("Bébé & enfants", "Baby & kids"), values: ["bebe", "vetements", "chaussures"] }].map((group) => { const children = availableCategories.filter((category) => group.values.includes(category.value)); if (children.length === 0) return null; const groupActive = group.key === "poupees" ? dollCategories.includes(active) : group.values.includes(active); return <details className={`category-menu-group category-menu-${group.key}${groupActive ? " is-active" : ""}`} key={group.key}><summary><span>{group.label}</span><span className="category-menu-chevron" aria-hidden="true">⌄</span></summary><div className="category-menu-panel">{group.key === "poupees" && <button type="button" className={`doll-world-choice${active === "poupees" ? " active" : ""}`} onClick={(event) => { chooseCategory("poupees"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{say("Toutes les poupées", "All dolls")}</button>}{children.filter((category) => !(group.key === "poupees" && category.value === "poupees")).map((category) => <button type="button" key={category.value} className={`${group.key === "poupees" ? "doll-brand-choice" : ""}${active === category.value ? " active" : ""}`} onClick={(event) => { chooseCategory(category.value); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{category.label[language].replace("↳ ", "")}</button>)}</div></details>; })}</div>
+        <div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
         <div className="product-grid" id="coups-de-coeur" key={`${active}-${status}-${query}`}>
-          {visibleProducts.map((item) => <article className={`product-card ${item.status === "sold" ? "product-sold" : ""}`} key={item.id || `${item.sheet}-${item.position}`} onClick={(event) => { if ((event.target as Element).closest("a,button")) return; setSelectedImageIndex(0); setSelectedProduct(item); }}><div className="product-visual" style={{backgroundImage:`url(${item.imageUrl || `/catalog-${item.sheet}.png`})`,backgroundPosition:item.imageUrl ? "center top" : `${[0,34,67,100][item.position]}% ${item.sheet === "17" ? "49%" : "15%"}`,backgroundSize:item.imageUrl ? "contain" : undefined}} onClick={() => { setSelectedImageIndex(0); setSelectedProduct(item); }} role="img" aria-label={item.name[language]}><button type="button" className="product-zoom-button" onClick={(event) => { event.stopPropagation(); setSelectedImageIndex(0); setSelectedProduct(item); }}>{say("Voir en grand", "View larger")}</button><span className={`availability availability-${item.status}`}>{item.status === "available" ? say("Disponible","Available") : item.status === "reserved" ? say("Réservé","Reserved") : say("Vendu","Sold")}</span></div><div className="product-details">{item.badge && <span className={`product-badge ${item.badge}`}>{item.badge === "new" ? say("Nouveauté","New arrival") : say("Rentrée","School days")}</span>}<h3>{item.name[language]}</h3><p className="product-price">{marketPrice(item.price, market, language)}</p><p className="product-description">{item.detail[language]}</p><span className="age-pill">{item.ages.includes("mois") ? item.ages.replace("mois", say("mois", "months")) : `${item.ages} ${say("ans", "yrs")}`}</span>{item.status === "sold" ? <span className="product-unavailable">{say("Indisponible", "Unavailable")}</span> : whatsappNumber ? <a className={`product-order${item.status === "reserved" ? " product-order-reserved" : ""}`} href={`${whatsappUrl}?text=${encodeURIComponent(isEnglish ? `Hello, I would like ${item.status === "reserved" ? "to know when this product is back" : "to order"}: ${item.name.en} (${marketPrice(item.price, market, language)}).` : `Bonjour, je souhaite ${item.status === "reserved" ? "être averti du retour de" : "commander"} : ${item.name.fr} (${marketPrice(item.price, market, language)}).`)}`} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>{item.status === "reserved" ? say("Me prévenir", "Notify me") : "WhatsApp"}</span></a> : <span className="product-unavailable">{say("Nous contacter", "Contact us")}</span>}</div></article>)}
+          {visibleProducts.map((item) => <ProductCard key={item.id || `${item.sheet}-${item.position}`} item={item} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onOpen={setSelectedProduct} />)}
         </div>
         {matchingProducts.length === 0 && <p className="catalog-empty">{say("Aucune trouvaille ne correspond à votre recherche.", "No products matched your search.")}</p>}
         {!showAll && active === "all" && status === "all" && !query.trim() && matchingProducts.length > visibleProducts.length && <button className="show-more" onClick={() => setShowAll(true)}>{say("Découvrir tout le catalogue", "Discover the whole collection")} <span>({matchingProducts.length}) →</span></button>}
@@ -419,22 +305,13 @@ export default function Home() {
 
       {featuredCollections.filter((collection) => collection.items.length > 0).map((collection) => <section className="featured-collection section wrap" id={collection.id} key={collection.id}><div className="section-heading"><div><p className="eyebrow">{collection.eyebrow}</p><h2>{collection.id === "nouveautes" ? <>{say("Les ", "Our ")}<span>{say("nouveautés", "newest arrivals")}.</span></> : <>{collection.title}<span>.</span></>}</h2></div><p>{collection.detail}</p></div><div className="featured-grid">{collection.items.map((item) => <a className="featured-card" href="#catalogue" key={item.id || `${collection.id}-${item.sheet}-${item.position}`} onClick={() => {setActive("all");setStatus("all");setQuery(item.name[language]);}}><div className="featured-visual" style={{backgroundImage:`url(${item.imageUrl || `/catalog-${item.sheet}.png`})`,backgroundPosition:item.imageUrl ? "center top" : `${[0,34,67,100][item.position]}% ${item.sheet === "17" ? "49%" : "15%"}`,backgroundSize:item.imageUrl ? "contain" : undefined}} role="img" aria-label={item.name[language]}><span className={`availability availability-${item.status}`}>{item.status === "reserved" ? say("Réservé", "Reserved") : say("Disponible", "Available")}</span></div><div className="featured-copy"><span>{item.badge === "new" ? say("Nouveauté", "New arrival") : say("Rentrée", "School days")}</span><h3>{item.name[language]}</h3><strong>{marketPrice(item.price, market, language)}</strong></div></a>)}</div></section>)}
 
-      <section className="promise" id="rentrée">
-        <div className="promise-inner wrap">
-          <div><span>01</span><h3>{say("Pour chaque âge", "For every age")}</h3><p>{say("Des idées qui grandissent avec les enfants.", "Thoughtful finds that grow alongside your children.")}</p></div>
-          <div><span>02</span><h3>{say("Pour chaque aventure", "For every adventure")}</h3><p>{say("De belles trouvailles pour jouer et bouger.", "Lovely discoveries for playtime and adventure.")}</p></div>
-          <div><span>03</span><h3>{say("Pour la rentrée", "For school days")}</h3><p>{say("Fournitures et essentiels pour l’école.", "School supplies and everyday essentials.")}</p></div>
-        </div>
-      </section>
+      <section className="promise" id="rentrée"><div className="promise-inner wrap"><div><span>01</span><h3>{say("Pour chaque âge", "For every age")}</h3><p>{say("Des idées qui grandissent avec les enfants.", "Thoughtful finds that grow alongside your children.")}</p></div><div><span>02</span><h3>{say("Pour chaque aventure", "For every adventure")}</h3><p>{say("De belles trouvailles pour jouer et bouger.", "Lovely discoveries for playtime and adventure.")}</p></div><div><span>03</span><h3>{say("Pour la rentrée", "For school days")}</h3><p>{say("Fournitures et essentiels pour l’école.", "School supplies and everyday essentials.")}</p></div></div></section>
 
       <section className="offer-section section wrap" id="promotions"><div className="section-heading"><div><p className="eyebrow">{say("Les petits plus du moment", "A few little extras")}</p><h2>{say("De jolies", "Lovely little")}<br/><span>{say("attentions.", "surprises.")}</span></h2></div><p>{say("Nos offres en boutique, dans la limite des disponibilités.", "Our in-store offers, while availability lasts.")}</p></div><div className="offer-grid"><article><span className="offer-label">−{storeSettings.welcome_discount || "10"} %</span><h3>{say("Un cadeau de bienvenue", "A little welcome gift")}</h3><p>{say("Votre rabais de bienvenue sur une première commande admissible.", "Your welcome discount on an eligible first order.")}</p><a href="#catalogue">{say("Voir les essentiels", "Shop the essentials")} →</a></article><article><span className="offer-label">{say("Offert", "Our treat")}</span><h3>{say("Un cadeau joliment préparé", "A beautifully wrapped gift")}</h3><p>{market === "conakry" ? say("Emballage cadeau offert dès 25 000 GNF de commande.", "Complimentary gift wrapping on orders of 25,000 GNF or more.") : say("Emballage cadeau selon les offres proposées par votre boutique.", "Gift wrapping according to your store’s available offers.")}</p><a href={whatsappUrl} target="_blank" rel="noreferrer">{say("Demander à la boutique", "Ask the store")} →</a></article><article><span className="offer-label">{say("Livraison", "Delivery")}</span><h3>{say("Livré chez vous", "Delivered to your door")}</h3><p>{market === "conakry" ? say("Livraison offerte dès 50 000 GNF à Dixinn et Matam.", "Free delivery on orders from 50,000 GNF in Dixinn and Matam.") : storeSettings.delivery_conditions || say("Livraison offerte selon les zones et modalités de votre boutique.", "Delivery according to your store’s areas and conditions.")}</p><a href="#livraison">{say("Découvrir les zones", "See delivery areas")} →</a></article></div></section>
 
       <section className="services-section" id="services"><div className="wrap"><div className="center-heading"><p className="eyebrow">{say("Bien plus qu’une boutique", "More than just a shop")}</p><h2>{say("À vos côtés,", "By your side,")} <em>{say("tout simplement.", "every step.")}</em></h2><p>{say("De petites attentions qui rendent l’expérience encore plus belle.", "The thoughtful little touches that make every visit special.")}</p></div><div className="services-grid"><article><span aria-hidden="true">✳</span><h3>{say("Emballage cadeau", "Gift wrapping")}</h3><p>{say("Pour les anniversaires et les belles occasions, préparé avec soin.", "Carefully wrapped for birthdays and special occasions.")}</p></article><article><span aria-hidden="true">↗</span><h3>{say("Livraison à domicile", "Home delivery")}</h3><p>{market === "qc" ? say("Au Québec, selon les modalités de votre boutique.", "Across Québec, based on your store’s delivery options.") : say("Conakry et banlieue, avec paiement à la livraison.", "Conakry and surrounding areas, with payment upon delivery.")}</p></article><article><span aria-hidden="true">◎</span><h3>{say("Conseils personnalisés", "Thoughtful advice")}</h3><p>{say("Des idées adaptées à l’âge et aux découvertes de chaque enfant.", "Suggestions chosen around each child’s age and curiosity.")}</p></article><article><span aria-hidden="true">♡</span><h3>{say("Garantie et échange", "Returns and exchanges")}</h3><p>{say("Un souci avec un produit? Parlons-en rapidement avec la boutique.", "Something not quite right? Contact the store and we will help.")}</p></article></div></div></section>
 
-      <section className="story section wrap" id="notre-histoire">
-        <div className="story-image"><img src="/boutique-hero.png" alt={say("Les rayons colorés de la boutique Envol des Enfants", "The colourful shelves at Envol des Enfants")} /><span>{say("Une boutique, mille sourires.", "One little shop, a thousand smiles.")}</span></div>
-        <div className="story-copy"><p className="eyebrow">{say(`Votre boutique · ${markets[market].label}`, `Your shop · ${markets[market].label}`)}</p><h2>{say("Un endroit où", "A place where")}<br /><span>{say("l’enfance prend", "childhood finds")}<br />{say("son envol.", "its wings.")}</span></h2><p>{say("Envol des Enfants, c’est un univers où les couleurs attirent les regards, où les petits véhicules font rêver et où chaque visite devient un moment à partager.", "Envol des Enfants is a world of eye-catching colours, dream-worthy little vehicles and shared moments around every corner.")}</p><p>{say(`Retrouvez votre boutique : ${address}.`, `Find your store at: ${address}.`)}</p><a className="text-link" href={facebookUrl} target="_blank" rel="noreferrer">{say("Voir nos nouveautés", "See what is new")} <span>↗</span></a></div>
-      </section>
+      <section className="story section wrap" id="notre-histoire"><div className="story-image"><img src="/boutique-hero.png" alt={say("Les rayons colorés de la boutique Envol des Enfants", "The colourful shelves at Envol des Enfants")} /><span>{say("Une boutique, mille sourires.", "One little shop, a thousand smiles.")}</span></div><div className="story-copy"><p className="eyebrow">{say(`Votre boutique · ${markets[market].label}`, `Your shop · ${markets[market].label}`)}</p><h2>{say("Un endroit où", "A place where")}<br /><span>{say("l’enfance prend", "childhood finds")}<br />{say("son envol.", "its wings.")}</span></h2><p>{say("Envol des Enfants, c’est un univers où les couleurs attirent les regards, où les petits véhicules font rêver et où chaque visite devient un moment à partager.", "Envol des Enfants is a world of eye-catching colours, dream-worthy little vehicles and shared moments around every corner.")}</p><p>{say(`Retrouvez votre boutique : ${address}.`, `Find your store at: ${address}.`)}</p><a className="text-link" href={facebookUrl} target="_blank" rel="noreferrer">{say("Voir nos nouveautés", "See what is new")} <span>↗</span></a></div></section>
 
       <section className="brands-section"><div className="wrap"><p className="eyebrow">{say("Des marques que les enfants adorent", "Brands little ones love")}</p><div className="brands-line">{["Crayola","Disney","LEGO","Hype","Mattel","Fisher-Price","Hasbro"].map((brand) => <span key={brand}>{brand}</span>)}</div></div></section>
 
@@ -447,100 +324,13 @@ export default function Home() {
       <section className="contact-section" id="contact"><div className="wrap contact-grid"><div className="contact-copy"><p className="eyebrow">{say("On vous attend avec le sourire", "We cannot wait to welcome you")}</p><h2>{say("Passez nous", "Come say")}<br/><em>{say("dire bonjour.", "hello.")}</em></h2><p>{address}</p>{storePhone && <a className="contact-phone" href={`tel:${storePhone.replace(/\s/g, "")}`}>{storePhone}</a>}<div className="contact-hour"><strong>{say("Horaires affichés", "Listed opening hours")}</strong><span>{storeSettings.opening_hours || (market === "conakry" ? "9 h – 19 h · 10 h – 14 h" : say("Horaires à confirmer", "Hours to be confirmed"))}</span><small>{say("Confirmez le jour et l’horaire avec la boutique.", "Confirm the relevant day and hours with the store.")}</small></div><div className="contact-links">{storePhone && <a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Appeler", "Call")}</a>}{whatsappNumber && <a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>WhatsApp</a>}</div></div><div className="contact-map"><iframe title={say(`Carte de la boutique · ${markets[market].label}`, `Store map · ${markets[market].label}`)} src={mapEmbedUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe><a href={mapsUrl} target="_blank" rel="noreferrer">{say("Ouvrir l’itinéraire dans Google Maps", "Get directions in Google Maps")} ↗</a></div></div></section>
 
       <section className="cta"><div className="wrap"><p className="eyebrow">{say("Une petite surprise de bienvenue", "A little welcome surprise")}</p><h2>{say("10 % pour leur", "10% off their")}<br /><em>{say("prochaine aventure.", "next adventure.")}</em></h2><button onClick={() => setPromoOpen(true)} className="button button-light">{say("Recevoir mon rabais", "Get my discount")} <span>↗</span></button></div></section>
-
       <footer className="footer footer-expanded wrap"><div><a href="#accueil" className="footer-brand">Envol <span>des Enfants</span></a><p>{address}</p></div><nav aria-label={say("Liens de bas de page", "Footer navigation")}><a href="#catalogue">{say("Catalogue", "Catalogue")}</a><a href="#services">{say("Services", "Services")}</a><a href="#promotions">{say("Promotions", "Offers")}</a><a href="#faq">FAQ</a><a href="#livraison">{say("Livraison", "Delivery")}</a><a href="/admin">{say("Administration", "Administration")}</a></nav><div className="footer-social"><a href={facebookUrl} target="_blank" rel="noreferrer">Facebook ↗</a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a></div><small>© 2026 Envol des Enfants</small></footer>
-
-      <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}>
-        <button type="button" aria-label={say("Revenir complètement en haut", "Scroll all the way to the top")} title={say("Retour en haut", "Back to top")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button>
-        <button type="button" aria-label={say("Aller complètement en bas", "Scroll all the way to the bottom")} title={say("Aller en bas", "Go to bottom")} onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button>
-      </div>
-
+      <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}><button type="button" aria-label={say("Revenir complètement en haut", "Scroll all the way to the top")} title={say("Retour en haut", "Back to top")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button><button type="button" aria-label={say("Aller complètement en bas", "Scroll all the way to the bottom")} title={say("Aller en bas", "Go to bottom")} onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button></div>
       <div className="floating-actions">{storePhone && <a className="floating-call" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler", "Call")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}{whatsappNumber && <a className="whatsapp-floating" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Nous joindre sur WhatsApp", "Contact us on WhatsApp")}><WhatsAppIcon/><span>WhatsApp</span></a>}</div>
 
-      {promoOpen && <div className="promo-backdrop" onClick={(event) => {if (event.target === event.currentTarget) closePromo();}}>
-        <section className="promo-modal" role="dialog" aria-modal="true" aria-labelledby="promo-title"><button className="promo-close" aria-label={say("Fermer la fenêtre promotionnelle", "Close promotional offer")} onClick={closePromo}>×</button><div className="promo-photo"><img src="/boutique-hero.png" alt={say("L’intérieur coloré de la boutique Envol des Enfants", "Inside the colourful Envol des Enfants store")} /><span>{say("Du bonheur à découvrir.", "Happiness around every corner.")}</span></div><div className="promo-content"><span className="promo-logo brand-picture"><img src="/envol-reference.png" alt="Envol des Enfants" /></span><p className="eyebrow">{say("Un cadeau de bienvenue", "A little welcome gift")}</p><h2 id="promo-title"><span>10 %</span><br />{say("de rabais", "off")}</h2><p className="promo-intro">{say("Abonnez-vous et profitez de", "Subscribe and enjoy")} <strong>{say("10 % de rabais sur votre première commande.", "10% off your first order.")}</strong></p>{requested ? <div className="promo-success"><strong>{say("Votre demande est prête!", "Your request is ready!")}</strong><p>{say("Finalisez votre inscription dans la conversation WhatsApp qui vient de s’ouvrir.", "Complete your subscription in the WhatsApp conversation that just opened.")}</p><button onClick={closePromo}>{say("Continuer ma visite", "Continue browsing")} →</button></div> : <form onSubmit={requestDiscount}><label htmlFor="promo-email">{say("Votre adresse courriel", "Your email address")}</label><input id="promo-email" type="email" autoComplete="email" placeholder={say("vous@exemple.com", "you@example.com")} value={email} onChange={(event) => setEmail(event.target.value)} required /><label style={{display:"flex",alignItems:"flex-start",gap:"8px",fontSize:"11px",lineHeight:"1.5",margin:"10px 0"}}><input type="checkbox" style={{width:"auto",marginTop:"3px"}} checked={consent} onChange={(event) => setConsent(event.target.checked)} required />{say("J’accepte de recevoir des nouvelles et des offres d’Envol des Enfants.", "I agree to receive news and offers from Envol des Enfants.")}</label><button className="promo-submit" type="submit">{say("Recevoir mon 10 %", "Get my 10% discount")} →</button><small>{say("Offre réservée aux nouveaux abonnés. Demande confirmée sur WhatsApp.", "Offer available to new subscribers. Request confirmed through WhatsApp.")}</small></form>}</div></section>
-      </div>}
-    
-      {selectedProduct && (
-        <div
-          className="product-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={selectedProduct.name[language]}
-          onClick={() => setSelectedProduct(null)}
-        >
-          <div className="product-lightbox-card" onClick={(event) => event.stopPropagation()}>
-            <button
-              type="button"
-              className="product-lightbox-close"
-              aria-label={say("Fermer", "Close")}
-              onClick={() => setSelectedProduct(null)}
-            >
-              ×
-            </button>
+      {promoOpen && <div className="promo-backdrop" onClick={(event) => {if (event.target === event.currentTarget) closePromo();}}><section className="promo-modal" role="dialog" aria-modal="true" aria-labelledby="promo-title"><button className="promo-close" aria-label={say("Fermer la fenêtre promotionnelle", "Close promotional offer")} onClick={closePromo}>×</button><div className="promo-photo"><img src="/boutique-hero.png" alt={say("L’intérieur coloré de la boutique Envol des Enfants", "Inside the colourful Envol des Enfants store")} /><span>{say("Du bonheur à découvrir.", "Happiness around every corner.")}</span></div><div className="promo-content"><span className="promo-logo brand-picture"><img src="/envol-reference.png" alt="Envol des Enfants" /></span><p className="eyebrow">{say("Un cadeau de bienvenue", "A little welcome gift")}</p><h2 id="promo-title"><span>10 %</span><br />{say("de rabais", "off")}</h2><p className="promo-intro">{say("Abonnez-vous et profitez de", "Subscribe and enjoy")} <strong>{say("10 % de rabais sur votre première commande.", "10% off your first order.")}</strong></p>{requested ? <div className="promo-success"><strong>{say("Votre demande est prête!", "Your request is ready!")}</strong><p>{say("Finalisez votre inscription dans la conversation WhatsApp qui vient de s’ouvrir.", "Complete your subscription in the WhatsApp conversation that just opened.")}</p><button onClick={closePromo}>{say("Continuer ma visite", "Continue browsing")} →</button></div> : <form onSubmit={requestDiscount}><label htmlFor="promo-email">{say("Votre adresse courriel", "Your email address")}</label><input id="promo-email" type="email" autoComplete="email" placeholder={say("vous@exemple.com", "you@example.com")} value={email} onChange={(event) => setEmail(event.target.value)} required /><label style={{display:"flex",alignItems:"flex-start",gap:"8px",fontSize:"11px",lineHeight:"1.5",margin:"10px 0"}}><input type="checkbox" style={{width:"auto",marginTop:"3px"}} checked={consent} onChange={(event) => setConsent(event.target.checked)} required />{say("J’accepte de recevoir des nouvelles et des offres d’Envol des Enfants.", "I agree to receive news and offers from Envol des Enfants.")}</label><button className="promo-submit" type="submit">{say("Recevoir mon 10 %", "Get my 10% discount")} →</button><small>{say("Offre réservée aux nouveaux abonnés. Demande confirmée sur WhatsApp.", "Offer available to new subscribers. Request confirmed through WhatsApp.")}</small></form>}</div></section></div>}
 
-            <div className="product-lightbox-image">
-              <img
-                src={[selectedProduct.imageUrl || `/catalog-${selectedProduct.sheet}.png`, ...(selectedProduct.extraImages || [])][selectedImageIndex] || selectedProduct.imageUrl || `/catalog-${selectedProduct.sheet}.png`}
-                alt={selectedProduct.name[language]}
-              />
-              {(selectedProduct.extraImages?.length || 0) > 0 && <div className="product-lightbox-thumbnails" aria-label={say("Photos du produit", "Product photos")}>{[selectedProduct.imageUrl || `/catalog-${selectedProduct.sheet}.png`, ...(selectedProduct.extraImages || [])].map((image, index) => <button type="button" className={selectedImageIndex === index ? "active" : ""} key={`${image}-${index}`} onClick={() => setSelectedImageIndex(index)} aria-label={`${say("Afficher la photo", "Show photo")} ${index + 1}`}><img src={image} alt="" /></button>)}</div>}
-            </div>
-
-            <div className="product-lightbox-info">
-              <p className="eyebrow">{say("Fiche article", "Product details")}</p>
-              <h2>{selectedProduct.name[language]}</h2>
-
-              <div className="product-lightbox-meta">
-                <div>
-                  <span>{say("No de commande", "Order number")}</span>
-                  <strong>{selectedProduct.articleNumber || "—"}</strong>
-                </div>
-                <div>
-                  <span>{say("Catégorie", "Category")}</span>
-                  <strong>{selectedProduct.category}</strong>
-                </div>
-                <div>
-                  <span>{say("Âge", "Age")}</span>
-                  <strong>{selectedProduct.ages}</strong>
-                </div>
-                <div>
-                  <span>{say("Disponibilité", "Availability")}</span>
-                  <strong>
-                    {selectedProduct.status === "available"
-                      ? say("Disponible", "Available")
-                      : selectedProduct.status === "reserved"
-                        ? say("Réservé", "Reserved")
-                        : say("Vendu", "Sold")}
-                  </strong>
-                </div>
-              </div>
-
-              <p className="product-lightbox-price">{marketPrice(selectedProduct.price, market, language)}</p>
-              <p className="product-lightbox-description">{selectedProduct.detail[language]}</p>
-
-              {whatsappNumber && selectedProduct.status !== "sold" && (
-                <a
-                  className="button button-dark product-lightbox-order"
-                  href={`${whatsappUrl}?text=${encodeURIComponent(
-                    isEnglish
-                      ? `Hello, I would like to order ${selectedProduct.name.en}. Order no.: ${selectedProduct.articleNumber || "N/A"}.`
-                      : `Bonjour, je souhaite commander ${selectedProduct.name.fr}. No de commande : ${selectedProduct.articleNumber || "N/D"}.`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <WhatsAppIcon />
-                  {say("Commander cet article", "Order this item")}
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-</main>
+      {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
+    </main>
   );
 }
-
-
-
