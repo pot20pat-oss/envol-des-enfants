@@ -45,7 +45,7 @@ export default function Administration() {
   const {
     checking, products, orders, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,
     setProducts, setOrders, setPromotions, setSubscribers, setMovements, setVersions, setSettings, setSiteSections, setSiteTexts,
-  } = useAdminData({ market, admin, setAdmin, flash, setError });
+  } = useAdminData({ market, admin, setAdmin, setNotice, setError });
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
