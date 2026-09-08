@@ -8,9 +8,10 @@ type Product = {
   description_fr?:string; description_en?:string; stock?:number; status?:string; article_number?:string;
 };
 
-type Props = { title:string; subtitle:string; categories?:string[] };
+type CategoryTab = { value:string; labelFr:string; labelEn:string };
+type Props = { title:string; subtitle:string; categories?:string[]; categoryTabs?:CategoryTab[] };
 
-export default function CategoryStorefront({ title, subtitle, categories }: Props) {
+export default function CategoryStorefront({ title, subtitle, categories, categoryTabs }: Props) {
   const [products,setProducts]=useState<Product[]>([]);
   const [loading,setLoading]=useState(true);
   const [query,setQuery]=useState("");
@@ -18,6 +19,7 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
   const [market,setMarket]=useState<Market>("conakry");
   const [selectedProduct,setSelectedProduct]=useState<Product|null>(null);
   const [selectedImageIndex,setSelectedImageIndex]=useState(0);
+  const [activeCategory,setActiveCategory]=useState("all");
 
   useEffect(()=>{
     const saved=window.localStorage.getItem("envol-language");
@@ -47,7 +49,7 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
     };
   },[selectedProduct]);
 
-  const visible=useMemo(()=>products.filter(p=>(!categories?.length||categories.includes(p.category))&&(!query.trim()||`${p.name_fr} ${p.name_en||""} ${p.description_fr||""}`.toLowerCase().includes(query.toLowerCase()))),[products,categories,query]);
+  const visible=useMemo(()=>products.filter(p=>(!categories?.length||categories.includes(p.category))&&(activeCategory==="all"||p.category===activeCategory)&&(!query.trim()||`${p.name_fr} ${p.name_en||""} ${p.description_fr||""}`.toLowerCase().includes(query.toLowerCase()))),[products,categories,activeCategory,query]);
   const productImages=(product:Product)=>{
     let extras:string[]=[];
     try {
@@ -56,6 +58,7 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
     } catch {}
     return [product.image_url,...extras].filter((image,index,array):image is string=>Boolean(image)&&array.indexOf(image)===index);
   };
+  const openProduct=(product:Product)=>{setSelectedImageIndex(0);setSelectedProduct(product);};
 
   return <main className="category-page">
     <header className="category-header wrap">
@@ -66,19 +69,17 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
       <p className="eyebrow">Envol des Enfants</p>
       <h1>{title}</h1><p>{subtitle}</p>
       <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={language==="fr"?"Rechercher dans cette catégorie…":"Search this category…"}/>
+      {categoryTabs?.length?<div className="category-tabs" role="tablist" aria-label={language==="fr"?"Catégories de poupées":"Doll categories"}>
+        <button type="button" className={activeCategory==="all"?"active":""} onClick={()=>setActiveCategory("all")}>{language==="fr"?"Toutes":"All"}</button>
+        {categoryTabs.map(tab=><button type="button" role="tab" aria-selected={activeCategory===tab.value} className={activeCategory===tab.value?"active":""} key={tab.value} onClick={()=>setActiveCategory(tab.value)}>{language==="fr"?tab.labelFr:tab.labelEn}</button>)}
+      </div>:null}
     </section>
     <section className="category-products wrap">
-      {loading?<p>Chargement…</p>:visible.length===0?<p>{language==="fr"?"Aucun article dans cette catégorie pour le moment.":"No items in this category right now."}</p>:<div className="category-grid">{visible.map(p=><article
-        className="category-card"
-        key={p.id}
-        role="button"
-        tabIndex={0}
-        aria-label={`${language==="fr"?"Voir la fiche de":"View details for"} ${language==="fr"?p.name_fr:(p.name_en||p.name_fr)}`}
-        onClick={()=>{setSelectedImageIndex(0);setSelectedProduct(p);}}
-        onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedImageIndex(0);setSelectedProduct(p);}}}
-      >
-        <div className="category-image">{p.image_url?<img src={p.image_url} alt={language==="fr"?p.name_fr:(p.name_en||p.name_fr)}/>:<span>Envol</span>}</div>
-        <div className="category-copy"><p className="category-kicker">{p.category}</p><h2>{language==="fr"?p.name_fr:(p.name_en||p.name_fr)}</h2><strong>{marketPrice(p.price,market,language)}</strong><p>{language==="fr"?(p.description_fr||""):(p.description_en||p.description_fr||"")}</p>{p.article_number&&<small>No {p.article_number}</small>}</div>
+      {loading?<p>Chargement…</p>:visible.length===0?<p>{language==="fr"?"Aucun article dans cette catégorie pour le moment.":"No items in this category right now."}</p>:<div className="category-grid">{visible.map(p=><article className="category-card" key={p.id}>
+        <button type="button" className="category-image-button" onClick={()=>openProduct(p)} aria-label={`${language==="fr"?"Agrandir l’image de":"Enlarge image of"} ${language==="fr"?p.name_fr:(p.name_en||p.name_fr)}`}>
+          <div className="category-image">{p.image_url?<img src={p.image_url} alt={language==="fr"?p.name_fr:(p.name_en||p.name_fr)}/>:<span>Envol</span>}</div>
+        </button>
+        <div className="category-copy" onClick={()=>openProduct(p)} role="button" tabIndex={0} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();openProduct(p);}}}><p className="category-kicker">{p.category}</p><h2>{language==="fr"?p.name_fr:(p.name_en||p.name_fr)}</h2><strong>{marketPrice(p.price,market,language)}</strong><p>{language==="fr"?(p.description_fr||""):(p.description_en||p.description_fr||"")}</p>{p.article_number&&<small>No {p.article_number}</small>}</div>
       </article>)}</div>}
     </section>
 
