@@ -1,0 +1,9 @@
+import { markets, type Market } from "@/lib/markets";
+import type { Row } from "./admin-shared";
+
+export function StockSection({ products, movements, market, adjustStock }: { products: Row[]; movements: Row[]; market: Market; adjustStock: (product: Row) => void }) {
+  return <>
+    <section className="cms-panel"><div className="cms-panel-title"><h2>Alertes de stock · {markets[market].label}</h2><span>{products.length} produit(s)</span></div><div className="cms-table-wrap"><table><thead><tr><th>Produit</th><th>Stock actuel</th><th>Seuil d’alerte</th><th></th></tr></thead><tbody>{products.map((product) => <tr key={String(product.id)}><td><strong>{String(product.name_fr)}</strong></td><td><span className="cms-stock-alert">{String(product[`stock_${market}`] || 0)}</span></td><td>{String(product.alert_threshold || 2)}</td><td><button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster le stock</button></td></tr>)}</tbody></table></div>{!products.length && <p className="cms-empty">Aucune alerte de stock pour cette boutique.</p>}</section>
+    <section className="cms-panel cms-stock-history"><div className="cms-panel-title"><h2>Historique des mouvements</h2></div><div className="cms-table-wrap"><table><thead><tr><th>Date</th><th>Produit</th><th>Variation</th><th>Nouveau stock</th><th>Motif</th></tr></thead><tbody>{movements.map((movement) => <tr key={String(movement.id)}><td>{new Date(String(movement.created_at)).toLocaleString("fr-CA")}</td><td>{String(movement.product_name)}</td><td className={Number(movement.delta) < 0 ? "cms-stock-alert" : "cms-stock-added"}>{Number(movement.delta) > 0 ? "+" : ""}{String(movement.delta)}</td><td>{String(movement.new_stock)}</td><td>{String(movement.reason)}</td></tr>)}</tbody></table></div>{!movements.length && <p className="cms-empty">Les ajustements apparaîtront ici.</p>}</section>
+  </>;
+}

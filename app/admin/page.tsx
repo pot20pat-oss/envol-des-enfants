@@ -2,7 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { DashboardSection, SettingsSection, SubscribersSection } from "./admin-sections";
-import { OrdersSection, ProductsSection, PromotionsSection, StockSection } from "./admin-commerce-sections";
+import { ProductsSection } from "./admin-products-section";
+import { StockSection } from "./admin-stock-section";
+import { OrdersSection } from "./admin-orders-section";
+import { PromotionsSection } from "./admin-promotions-section";
 import { SiteEditor } from "./admin-site-editor";
 import { AdminEditModal } from "./admin-edit-modal";
 import { AdminLayout, AdminLogin } from "./admin-layout";
