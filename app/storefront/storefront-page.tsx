@@ -6,6 +6,7 @@ import { marketPrice, markets } from "@/lib/markets";
 import StorefrontCatalog from "./storefront-catalog";
 import ProductLightbox from "./product-lightbox";
 import { PhoneIcon, WhatsAppIcon } from "./product-icons";
+import StorefrontNavigation from "./storefront-navigation";
 import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
 import { useStorefrontSettings } from "../hooks/use-storefront-settings";
@@ -47,7 +48,6 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [showAll, setShowAll] = useState(false);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const quickScrollFrame = useRef<number | null>(null);
   const { language, changeLanguage } = useStoreLanguage();
@@ -62,22 +62,6 @@ export default function Home() {
     { id: "nouveautes", eyebrow: say("Tout juste arrivés en boutique", "Freshly arrived in store"), title: say("Les nouveautés", "Our newest arrivals"), detail: say("Des découvertes à ne pas laisser filer.", "Little discoveries worth catching."), items: storeProducts.filter((item) => item.badge === "new").slice(0, 4) },
     { id: "rentree-scolaire", eyebrow: say("Les essentiels des petits écoliers", "Everything little learners need"), title: say("Une rentrée bien préparée", "Ready for school days"), detail: say("Cartables, fournitures et jolies trouvailles.", "Backpacks, supplies and thoughtful finds."), items: storeProducts.filter((item) => item.badge === "school").slice(0, 4) },
   ];
-
-  useEffect(() => {
-    if (!openMenu) return;
-    const closeMenu = (event: MouseEvent) => {
-      if (!(event.target instanceof Element) || !event.target.closest(".nav-dropdown")) setOpenMenu(null);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpenMenu(null);
-    };
-    document.addEventListener("click", closeMenu);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [openMenu]);
 
   useEffect(() => {
     if (window.sessionStorage.getItem("envol-promo-dismissed") === "yes") return;
@@ -147,28 +131,23 @@ export default function Home() {
     setActive(category);
     setStatus("all");
     setQuery("");
-    setOpenMenu(null);
   }
 
   return (
     <main className="editable-storefront">
       <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={() => setPromoOpen(true)}>{say("J’en profite", "Get the offer")} →</button></div>
 
-      <header className="header wrap">
-        <a className="brand" href="#accueil" aria-label="Envol des Enfants, accueil"><span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span></a>
-        <p className="header-location">{markets[market].label} <span>•</span> {say("Des jouets qui font grandir", "Toys that help little ones grow")}</p>
-        <div className="header-actions"><div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}><button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button><button className={language === "en" ? "selected" : ""} onClick={() => changeLanguage("en")}>EN</button></div><a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler la boutique", "Call the store")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a><a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>WhatsApp</span></a></div>
-      </header>
-
-      <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
-        {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
-        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>{openMenu === "catalogue" && <div className="nav-dropdown-panel">{availableCategories.map((category) => <a href="#catalogue" key={category.value} onClick={() => chooseCategory(category.value)}>{category.label[language]}</a>)}</div>}</div>}
-        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>{openMenu === "jouets" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a><a href="#catalogue" className="nav-dolls-link" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("disney")}>↳ Disney</a><a href="#catalogue" className="nav-princesses-link" onClick={() => chooseCategory("barbie")}>↳ Barbie</a><a href="#catalogue" onClick={() => chooseCategory("piscine")}>{say("Piscine & jeux d’eau", "Pool & water play")}</a><a href="#catalogue" onClick={() => chooseCategory("imitation")}>{say("Métiers & imitation", "Pretend play")}</a><a href="#catalogue" onClick={() => chooseCategory("dinosaures")}>{say("Dinosaures & aventures", "Dinosaurs & adventures")}</a><a href="#catalogue" onClick={() => chooseCategory("animaux")}>{say("Animaux & compagnons", "Animals & companions")}</a><a href="#catalogue" onClick={() => chooseCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a></div>}</div>}
-        {sectionVisible("catalogue") && <a className="nav-dolls-tab" href="#catalogue" onClick={() => chooseCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
-        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>{openMenu === "enfants" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => chooseCategory("bebe")}>{say("Bébé", "Baby")}</a><a href="#catalogue" onClick={() => chooseCategory("vetements")}>{say("Vêtements", "Clothing")}</a><a href="#catalogue" onClick={() => chooseCategory("chaussures")}>{say("Chaussures", "Shoes")}</a></div>}</div>}
-        {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}><button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>{openMenu === "rentree" && <div className="nav-dropdown-panel"><a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a><a href="#catalogue" onClick={() => chooseCategory("scolaire")}>{say("Articles scolaires", "School supplies")}</a><a href="#catalogue" onClick={() => chooseCategory("sacs")}>{say("Sacs & gourdes", "Bags & bottles")}</a></div>}</div>}
-        {sectionVisible("promotions") && <a href="#promotions">{say("Promotions", "Offers")}</a>}{sectionVisible("contact") && <a href="#contact">{say("Nous trouver", "Find us")}</a>}
-      </div></nav>
+      <StorefrontNavigation
+        language={language}
+        market={market}
+        storePhone={storePhone}
+        whatsappUrl={whatsappUrl}
+        availableCategories={availableCategories}
+        say={say}
+        sectionVisible={sectionVisible}
+        changeLanguage={changeLanguage}
+        chooseCategory={chooseCategory}
+      />
 
       <section className="hero wrap" id="accueil" style={sectionStyle("hero")}><div className="hero-copy"><p className="eyebrow"><span></span> {editable("hero_eyebrow", `Boutique de jouets éducatifs · ${markets[market].label}`, `Educational toy shop · ${markets[market].label}`)}</p><h1>{editable("hero_title", "Le jeu qui fait", "Play that helps")}<br /><span>{editable("hero_accent", "grandir vos enfants.", "your children grow.")}</span></h1><p className="hero-text">{editable("hero_description", "Jouets, articles pour bébé, vélos et fournitures scolaires choisis pour éveiller leur curiosité.", "Toys, baby essentials, bicycles and school supplies chosen to spark their curiosity.")}</p><div className="hero-buttons">{storePhone && <a className="button hero-call" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Nous appeler", "Call us")}</a>}{whatsappNumber && <a className="button button-dark hero-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>{say("Commander sur WhatsApp", "Order on WhatsApp")}</a>}</div><p className="tiny-note">{say("Livraison et paiement à la réception.", "Delivery available. Pay upon arrival.")}</p></div><div className="hero-visual"><img src={market === "qc" ? "/boutique-hero-quebec.png" : "/boutique-hero.png"} alt={market === "qc" ? say("Boutique québécoise en ligne et sélection de jouets éducatifs", "Quebec online shop and selection of educational toys") : say("Vue panoramique de la boutique Envol des Enfants avec ses vélos, véhicules et rayons de jouets", "Panoramic view of the Envol des Enfants store, bicycles, vehicles and toy displays")} /><div className="floating-note"><span>★</span><div><strong>{market === "qc" ? say("Bienvenue au Québec", "Welcome to Québec") : say("Bienvenue à Dixinn", "Welcome to Dixinn")}</strong><small>{say("Un univers fait pour jouer.", "A world made for play.")}</small></div></div></div></section>
 
