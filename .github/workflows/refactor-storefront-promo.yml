@@ -1,0 +1,32 @@
+name: Refactor storefront promo
+
+on:
+  push:
+    branches:
+      - refactor/storefront-promo
+
+permissions:
+  contents: write
+
+jobs:
+  transform:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/storefront-promo
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/refactor-storefront-promo.mjs
+      - name: Commit transformed storefront
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/storefront/storefront-page.tsx
+          git commit -m "Raccorder la vitrine au module promotionnel"
+          git push origin HEAD:refactor/storefront-promo
