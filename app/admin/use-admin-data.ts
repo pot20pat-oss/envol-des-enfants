@@ -6,16 +6,17 @@ import { defaultSiteSections, readSiteSections, readSiteTexts, type SiteSection 
 import type { Market } from "@/lib/markets";
 import { request, type Row } from "./admin-shared";
 
-type AdminIdentity = { email: string; name: string };
+export type AdminIdentity = { email: string; name: string };
 
 type Options = {
   market: Market;
   admin: AdminIdentity | null;
+  setAdmin: (admin: AdminIdentity | null) => void;
   flash: (message: string) => void;
   setError: (message: string) => void;
 };
 
-export function useAdminData({ market, admin, flash, setError }: Options) {
+export function useAdminData({ market, admin, setAdmin, flash, setError }: Options) {
   const [checking, setChecking] = useState(true);
   const [products, setProducts] = useState<Row[]>([]);
   const [orders, setOrders] = useState<Row[]>([]);
@@ -29,10 +30,12 @@ export function useAdminData({ market, admin, flash, setError }: Options) {
 
   useEffect(() => {
     request("/api/admin/session")
-      .then((result) => result.authenticated ? result.admin as AdminIdentity : null)
-      .catch(() => null)
+      .then((result) => {
+        if (result.authenticated) setAdmin(result.admin as AdminIdentity);
+      })
+      .catch(() => {})
       .finally(() => setChecking(false));
-  }, []);
+  }, [setAdmin]);
 
   const load = useCallback(async () => {
     const results = await Promise.allSettled([
