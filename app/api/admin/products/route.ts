@@ -1,8 +1,56 @@
-import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
 import { createArticleNumberGenerator } from "@/lib/article-number";
 import { categorizedMamaProduct } from "@/lib/doll-category";
 import { withVerifiedConakryPrice } from "@/lib/reference-prices";
 import { ensureArchiveProducts } from "@/lib/archive-products";
+import { booleanInput, numericInput, optionalBooleanInput, optionalNumericInput, optionalTextInput, validateJsonBody } from "@/lib/api-validation";
+
+const optionalProductFields = {
+  name_en: optionalTextInput,
+  description_fr: optionalTextInput,
+  description_en: optionalTextInput,
+  price: optionalNumericInput,
+  stock: optionalNumericInput,
+  status: optionalTextInput,
+  badge: optionalTextInput,
+  ages: optionalTextInput,
+  image_url: optionalTextInput,
+  image_sheet: optionalTextInput,
+  image_position: optionalNumericInput,
+  brand: optionalTextInput,
+  material: optionalTextInput,
+  dimensions: optionalTextInput,
+  exchange_terms_fr: optionalTextInput,
+  exchange_terms_en: optionalTextInput,
+  visible: optionalBooleanInput,
+  price_qc: optionalNumericInput,
+  price_conakry: optionalNumericInput,
+  stock_qc: optionalNumericInput,
+  stock_conakry: optionalNumericInput,
+  visible_qc: optionalBooleanInput,
+  visible_conakry: optionalBooleanInput,
+  alert_threshold: optionalNumericInput,
+  featured: optionalBooleanInput,
+  promo_price_qc: optionalNumericInput,
+  promo_price_conakry: optionalNumericInput,
+  variants_json: optionalTextInput,
+  images_json: optionalTextInput,
+};
+
+const createProductSchema = v.looseObject({
+  name_fr: v.string(),
+  category: v.string(),
+  ...optionalProductFields,
+});
+
+const updateProductSchema = v.looseObject({
+  id: v.string(),
+  name_fr: v.string(),
+  category: v.optional(v.string()),
+  ...optionalProductFields,
+});
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -24,7 +72,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const data = await body(request);
+  const parsed = await validateJsonBody(request, createProductSchema);
+  if (!parsed.success) return parsed.response;
+  const data = parsed.data;
   const name = stringValue(data.name_fr);
   const category = stringValue(data.category);
   if (!name || !category) return Response.json({ error: "Le nom français et la catégorie sont obligatoires." }, { status: 400 });
@@ -42,7 +92,9 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const data = await body(request);
+  const parsed = await validateJsonBody(request, updateProductSchema);
+  if (!parsed.success) return parsed.response;
+  const data = parsed.data;
   const id = stringValue(data.id);
   if (!id || !stringValue(data.name_fr)) return Response.json({ error: "Produit incomplet." }, { status: 400 });
   const conakryPrice = numberValue(data.price_conakry ?? data.price);
