@@ -9,7 +9,6 @@ export function useStorefrontSettings(
   storeSettings: Record<string, string>,
   market: Market,
   language: StoreLanguage,
-  promoOpen: boolean,
 ) {
   const siteSections = readSiteSections(storeSettings.site_sections);
   const siteTexts = readSiteTexts(storeSettings.site_texts);
@@ -20,6 +19,8 @@ export function useStorefrontSettings(
   const address = storeSettings.address || (market === "conakry" ? "Immeuble Famille Diallo, Cameroun, Dixinn, Conakry, Guinée" : "Québec, Canada");
   const mapsUrl = storeSettings.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=${market === "qc" && !storeSettings.address ? "6" : "13"}&ie=UTF8&iwloc=&output=embed`;
+  const parsedDiscount = Number(storeSettings.welcome_discount || 10);
+  const welcomeDiscount = Number.isFinite(parsedDiscount) && parsedDiscount > 0 && parsedDiscount <= 100 ? parsedDiscount : 10;
   const isEnglish = language === "en";
   const say = (french: string, english: string) => isEnglish ? english : french;
   const editable = (key: string, french: string, english: string) => siteTexts[`${key}_${language}`]?.trim() || say(french, english);
@@ -76,14 +77,9 @@ export function useStorefrontSettings(
       const delivery = root.querySelector<HTMLElement>("#livraison .section-heading > p");
       if (delivery) delivery.textContent = storeSettings.delivery_conditions;
     }
-    const discount = Number(storeSettings.welcome_discount || 10);
-    if (Number.isFinite(discount) && discount > 0 && discount <= 100) {
-      const announcement = root.querySelector<HTMLElement>(".announcement strong");
-      if (announcement) announcement.textContent = language === "fr" ? `${discount} % de rabais` : `${discount}% off`;
-      const modalDiscount = root.querySelector<HTMLElement>(".promo-modal h2 > span");
-      if (modalDiscount) modalDiscount.textContent = `${discount} %`;
-    }
-  }, [storeSettings.site_sections, storeSettings.site_texts, storeSettings.phone, storeSettings.opening_hours, storeSettings.delivery_conditions, storeSettings.welcome_discount, language, promoOpen]);
+    const announcement = root.querySelector<HTMLElement>(".announcement strong");
+    if (announcement) announcement.textContent = language === "fr" ? `${welcomeDiscount} % de rabais` : `${welcomeDiscount}% off`;
+  }, [storeSettings.site_sections, storeSettings.site_texts, storeSettings.phone, storeSettings.opening_hours, storeSettings.delivery_conditions, storeSettings.welcome_discount, language, welcomeDiscount]);
 
   return {
     storePhone,
@@ -93,6 +89,7 @@ export function useStorefrontSettings(
     address,
     mapsUrl,
     mapEmbedUrl,
+    welcomeDiscount,
     isEnglish,
     say,
     editable,
