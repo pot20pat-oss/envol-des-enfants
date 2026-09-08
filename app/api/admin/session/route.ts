@@ -1,4 +1,12 @@
-import { allowedEmails, body, bootstrapAdmins, cmsEnv, createSession, currentAdmin, deleteSession, hashPassword, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { allowedEmails, bootstrapAdmins, cmsEnv, createSession, currentAdmin, deleteSession, hashPassword, stringValue } from "@/lib/cms";
+import { validateJsonBody } from "@/lib/api-validation";
+
+const loginSchema = v.object({
+  email: v.pipe(v.string(), v.trim(), v.email()),
+  password: v.string(),
+});
 
 export async function GET(request: Request) {
   try {
@@ -12,7 +20,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     await bootstrapAdmins();
-    const data = await body(request);
+    const parsed = await validateJsonBody(request, loginSchema);
+    if (!parsed.success) return parsed.response;
+    const data = parsed.data;
     const email = stringValue(data.email).toLowerCase();
     const password = stringValue(data.password);
     const runtime = cmsEnv();
