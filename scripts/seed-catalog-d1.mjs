@@ -183,7 +183,7 @@ const sqlForProduct = (product) => {
   return `UPDATE products SET ${assignments.join(",")} WHERE ${where};\nINSERT INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,images_json,created_at,updated_at) SELECT ${values.join(",")} WHERE NOT EXISTS (SELECT 1 FROM products WHERE ${where});`;
 };
 
-const sql = `BEGIN TRANSACTION;\n\n${products.map(sqlForProduct).join("\n\n")}\n\nINSERT INTO settings (key,value,updated_at) VALUES ('catalog_initialized','true',CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at;\n\nCOMMIT;\n`;
+const sql = `${products.map(sqlForProduct).join("\n\n")}\n\nINSERT INTO settings (key,value,updated_at) VALUES ('catalog_initialized','true',CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at;\n`;
 
 const outputDir = path.join(root, ".wrangler");
 fs.mkdirSync(outputDir, { recursive: true });
@@ -206,10 +206,10 @@ if (!process.argv.includes("--apply")) {
   process.exit(0);
 }
 
-const npx = process.platform === "win32" ? "npx.cmd" : "npx";
-const command = spawnSync(npx, ["wrangler", "d1", "execute", "envol-des-enfants-db", "--remote", `--file=${outputPath}`], {
+const command = spawnSync("npx", ["wrangler", "d1", "execute", "envol-des-enfants-db", "--remote", `--file=${outputPath}`], {
   cwd: root,
   stdio: "inherit",
+  shell: process.platform === "win32",
 });
 if (command.error) throw command.error;
 process.exit(command.status ?? 1);
