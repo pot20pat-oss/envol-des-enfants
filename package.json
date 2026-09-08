@@ -11,6 +11,8 @@
     "build": "vinext build",
     "deploy": "npm run build && wrangler deploy",
     "db:migrate": "wrangler d1 migrations apply envol-des-enfants-db --remote",
+    "seed:catalog": "node scripts/seed-catalog-d1.mjs",
+    "seed:catalog:apply": "node scripts/seed-catalog-d1.mjs --apply",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "test:unit": "node --experimental-strip-types --test tests/article-number.test.mjs tests/archive-products.test.mjs tests/markets.test.mjs",
