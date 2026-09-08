@@ -6,17 +6,12 @@ import type { Market } from "@/lib/markets";
 
 type Say = (french: string, english: string) => string;
 
-export function useStorefrontPromo({
-  language,
-  market,
-  whatsappNumber,
-  whatsappUrl,
-  say,
-}: {
+export function useStorefrontPromo({ language, market, whatsappNumber, whatsappUrl, welcomeDiscount, say }: {
   language: StoreLanguage;
   market: Market;
   whatsappNumber: string;
   whatsappUrl: string;
+  welcomeDiscount: number;
   say: Say;
 }) {
   const [promoOpen, setPromoOpen] = useState(false);
@@ -39,10 +34,7 @@ export function useStorefrontPromo({
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [promoOpen]);
 
-  function openPromo() {
-    setPromoOpen(true);
-  }
-
+  function openPromo() { setPromoOpen(true); }
   function closePromo() {
     setPromoOpen(false);
     window.sessionStorage.setItem("envol-promo-dismissed", "yes");
@@ -55,27 +47,12 @@ export function useStorefrontPromo({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, language, region: market, consent: true }),
     }).catch(() => {});
-
     const message = language === "en"
-      ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the 10% welcome discount on my first order.`
-      : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de 10 % sur ma première commande.`;
-
-    if (whatsappNumber) {
-      window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    }
+      ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the ${welcomeDiscount}% welcome discount on my first order.`
+      : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de ${welcomeDiscount} % sur ma première commande.`;
+    if (whatsappNumber) window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     setRequested(true);
   }
 
-  return {
-    promoOpen,
-    email,
-    requested,
-    consent,
-    openPromo,
-    closePromo,
-    setEmail,
-    setConsent,
-    requestDiscount,
-    say,
-  };
+  return { promoOpen, email, requested, consent, openPromo, closePromo, setEmail, setConsent, requestDiscount, say };
 }
