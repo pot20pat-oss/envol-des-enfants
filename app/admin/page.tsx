@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { defaultProducts, removedProductNames } from "@/lib/default-catalog";
 import {
-  defaultSiteSections,
   readSiteSections,
   readSiteTexts,
-  type SiteSection,
 } from "@/lib/site-editor";
 import { markets, type Market } from "@/lib/markets";
 import { DashboardSection, SettingsSection, SubscribersSection } from "./admin-sections";
@@ -15,31 +13,18 @@ import { SiteEditor } from "./admin-site-editor";
 import { AdminEditModal } from "./admin-edit-modal";
 import { AdminLayout, AdminLogin } from "./admin-layout";
 import { deriveAdminLists } from "./admin-derived";
+import { useAdminData, type AdminIdentity } from "./use-admin-data";
 import { blankProduct, orderLabels, request, type Row, type Section } from "./admin-shared";
 import "./admin.css";
 
 export default function Administration() {
-  const [admin, setAdmin] = useState<{ email: string; name: string } | null>(
-    null,
-  );
-  const [checking, setChecking] = useState(true);
+  const [admin, setAdmin] = useState<AdminIdentity | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [section, setSection] = useState<Section>("dashboard");
   const [market, setMarket] = useState<Market>("conakry");
-  const [products, setProducts] = useState<Row[]>([]);
-  const [orders, setOrders] = useState<Row[]>([]);
-  const [promotions, setPromotions] = useState<Row[]>([]);
-  const [subscribers, setSubscribers] = useState<Row[]>([]);
-  const [movements, setMovements] = useState<Row[]>([]);
-  const [versions, setVersions] = useState<Row[]>([]);
-  const [settings, setSettings] = useState<Record<string, string>>({});
-  const [siteSections, setSiteSections] = useState<SiteSection[]>(
-    defaultSiteSections.map((item) => ({ ...item })),
-  );
-  const [siteTexts, setSiteTexts] = useState<Record<string, string>>({});
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | null>(null);
   const [editingType, setEditingType] = useState<
@@ -57,90 +42,10 @@ export default function Administration() {
     new_password: "",
   });
 
-  useEffect(() => {
-    request("/api/admin/session")
-      .then((result) => {
-        if (result.authenticated)
-          setAdmin(result.admin as { email: string; name: string });
-      })
-      .catch(() => {})
-      .finally(() => setChecking(false));
-  }, []);
-  useEffect(() => {
-    if (admin) void load();
-  }, [admin, market]);
-
-  async function load() {
-    const results = await Promise.allSettled([
-      request("/api/admin/products"),
-      request(`/api/admin/orders?region=${market}`),
-      request(`/api/admin/promotions?region=${market}`),
-      request(`/api/admin/subscribers?region=${market}`),
-      request("/api/admin/settings"),
-      request(`/api/admin/stock?region=${market}`),
-      request(`/api/admin/site-versions?region=${market}`),
-    ]);
-    const loadedProducts =
-      results[0].status === "fulfilled"
-        ? (results[0].value.products as Row[])
-        : null;
-    if (loadedProducts) setProducts(loadedProducts);
-    if (results[1].status === "fulfilled")
-      setOrders(results[1].value.orders as Row[]);
-    if (results[2].status === "fulfilled")
-      setPromotions(results[2].value.promotions as Row[]);
-    if (results[3].status === "fulfilled")
-      setSubscribers(results[3].value.subscribers as Row[]);
-    if (results[5].status === "fulfilled")
-      setMovements(results[5].value.movements as Row[]);
-    if (results[6].status === "fulfilled")
-      setVersions(results[6].value.versions as Row[]);
-    if (results[4].status === "fulfilled") {
-      const loadedSettings = results[4].value.settings as Record<
-        string,
-        string
-      >;
-      setSettings(loadedSettings);
-      setSiteSections(
-        readSiteSections(
-          loadedSettings[`${market}_site_sections`] ||
-            (market === "conakry" ? loadedSettings.site_sections : undefined),
-        ),
-      );
-      setSiteTexts(
-        readSiteTexts(
-          loadedSettings[`${market}_site_texts`] ||
-            (market === "conakry" ? loadedSettings.site_texts : undefined),
-        ),
-      );
-      if (
-        loadedProducts?.length === 0 &&
-        loadedSettings.catalog_initialized !== "true"
-      ) {
-        try {
-          const result = await request("/api/admin/products/import", {
-            method: "POST",
-            body: JSON.stringify({ products: defaultProducts }),
-          });
-          const refreshed = await request("/api/admin/products");
-          setProducts(refreshed.products as Row[]);
-          setSettings((current) => ({
-            ...current,
-            catalog_initialized: "true",
-          }));
-          flash(
-            `${Number(result.imported || 0)} produits importés automatiquement depuis la boutique.`,
-          );
-        } catch (failure) {
-          setError(
-            failure instanceof Error
-              ? failure.message
-              : "Import automatique impossible.",
-          );
-        }
-      }
-    }
-  }
+  const {
+    checking, products, orders, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,
+    setProducts, setOrders, setPromotions, setSubscribers, setMovements, setVersions, setSettings, setSiteSections, setSiteTexts,
+  } = useAdminData({ market, admin, setAdmin, flash, setError });
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
