@@ -1,15 +1,17 @@
 ﻿"use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type Product, type Translation } from "@/lib/default-catalog";
 import { marketPrice, markets } from "@/lib/markets";
 import StorefrontCatalog from "./storefront-catalog";
 import ProductLightbox from "./product-lightbox";
 import { PhoneIcon, WhatsAppIcon } from "./product-icons";
 import StorefrontNavigation from "./storefront-navigation";
+import StorefrontPromo from "./storefront-promo";
 import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
 import { useStorefrontSettings } from "../hooks/use-storefront-settings";
+import { useStorefrontPromo } from "../hooks/use-storefront-promo";
 
 const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Tout voir", en: "View all" }, value: "all" },
@@ -41,47 +43,24 @@ const categories: { label: Translation; value: string }[] = [
 
 export default function Home() {
   const [active, setActive] = useState("all");
-  const [promoOpen, setPromoOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [email, setEmail] = useState("");
-  const [requested, setRequested] = useState(false);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [showAll, setShowAll] = useState(false);
-  const [consent, setConsent] = useState(false);
   const quickScrollFrame = useRef<number | null>(null);
   const { language, changeLanguage } = useStoreLanguage();
   const { market, storeSettings, storeProducts } = useStoreMarket();
   const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"];
   const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => dollCategories.includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const {
-    storePhone, whatsappNumber, whatsappUrl, facebookUrl, address, mapsUrl, mapEmbedUrl,
+    storePhone, whatsappNumber, whatsappUrl, facebookUrl, address, mapsUrl, mapEmbedUrl, welcomeDiscount,
     isEnglish, say, editable, sectionStyle, sectionVisible,
-  } = useStorefrontSettings(storeSettings, market, language, promoOpen);
+  } = useStorefrontSettings(storeSettings, market, language);
+  const promo = useStorefrontPromo({ language, market, whatsappNumber, whatsappUrl, welcomeDiscount, say });
   const featuredCollections = [
     { id: "nouveautes", eyebrow: say("Tout juste arrivés en boutique", "Freshly arrived in store"), title: say("Les nouveautés", "Our newest arrivals"), detail: say("Des découvertes à ne pas laisser filer.", "Little discoveries worth catching."), items: storeProducts.filter((item) => item.badge === "new").slice(0, 4) },
     { id: "rentree-scolaire", eyebrow: say("Les essentiels des petits écoliers", "Everything little learners need"), title: say("Une rentrée bien préparée", "Ready for school days"), detail: say("Cartables, fournitures et jolies trouvailles.", "Backpacks, supplies and thoughtful finds."), items: storeProducts.filter((item) => item.badge === "school").slice(0, 4) },
   ];
-
-  useEffect(() => {
-    if (window.sessionStorage.getItem("envol-promo-dismissed") === "yes") return;
-    const timer = window.setTimeout(() => setPromoOpen(true), 1250);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!promoOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closePromo();
-    };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [promoOpen]);
-
-  function closePromo() {
-    setPromoOpen(false);
-    window.sessionStorage.setItem("envol-promo-dismissed", "yes");
-  }
 
   function stopQuickScroll() {
     if (quickScrollFrame.current !== null) window.clearInterval(quickScrollFrame.current);
@@ -118,15 +97,6 @@ export default function Home() {
     };
   }, []);
 
-  async function requestDiscount(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!consent) return;
-    await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, language, region: market, consent: true }) }).catch(() => {});
-    const message = isEnglish ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the 10% welcome discount on my first order.` : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de 10 % sur ma première commande.`;
-    if (whatsappNumber) window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    setRequested(true);
-  }
-
   function chooseCategory(category: string) {
     setActive(category);
     setStatus("all");
@@ -135,7 +105,7 @@ export default function Home() {
 
   return (
     <main className="editable-storefront">
-      <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={() => setPromoOpen(true)}>{say("J’en profite", "Get the offer")} →</button></div>
+      <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={promo.openPromo}>{say("J’en profite", "Get the offer")} →</button></div>
 
       <StorefrontNavigation
         language={language}
@@ -175,12 +145,23 @@ export default function Home() {
 
       <section className="contact-section" id="contact"><div className="wrap contact-grid"><div className="contact-copy"><p className="eyebrow">{say("On vous attend avec le sourire", "We cannot wait to welcome you")}</p><h2>{say("Passez nous", "Come say")}<br/><em>{say("dire bonjour.", "hello.")}</em></h2><p>{address}</p>{storePhone && <a className="contact-phone" href={`tel:${storePhone.replace(/\s/g, "")}`}>{storePhone}</a>}<div className="contact-hour"><strong>{say("Horaires affichés", "Listed opening hours")}</strong><span>{storeSettings.opening_hours || (market === "conakry" ? "9 h – 19 h · 10 h – 14 h" : say("Horaires à confirmer", "Hours to be confirmed"))}</span><small>{say("Confirmez le jour et l’horaire avec la boutique.", "Confirm the relevant day and hours with the store.")}</small></div><div className="contact-links">{storePhone && <a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Appeler", "Call")}</a>}{whatsappNumber && <a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>WhatsApp</a>}</div></div><div className="contact-map"><iframe title={say(`Carte de la boutique · ${markets[market].label}`, `Store map · ${markets[market].label}`)} src={mapEmbedUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe><a href={mapsUrl} target="_blank" rel="noreferrer">{say("Ouvrir l’itinéraire dans Google Maps", "Get directions in Google Maps")} ↗</a></div></div></section>
 
-      <section className="cta"><div className="wrap"><p className="eyebrow">{say("Une petite surprise de bienvenue", "A little welcome surprise")}</p><h2>{say("10 % pour leur", "10% off their")}<br /><em>{say("prochaine aventure.", "next adventure.")}</em></h2><button onClick={() => setPromoOpen(true)} className="button button-light">{say("Recevoir mon rabais", "Get my discount")} <span>↗</span></button></div></section>
+      <section className="cta"><div className="wrap"><p className="eyebrow">{say("Une petite surprise de bienvenue", "A little welcome surprise")}</p><h2>{say("10 % pour leur", "10% off their")}<br /><em>{say("prochaine aventure.", "next adventure.")}</em></h2><button onClick={promo.openPromo} className="button button-light">{say("Recevoir mon rabais", "Get my discount")} <span>↗</span></button></div></section>
       <footer className="footer footer-expanded wrap"><div><a href="#accueil" className="footer-brand">Envol <span>des Enfants</span></a><p>{address}</p></div><nav aria-label={say("Liens de bas de page", "Footer navigation")}><a href="#catalogue">{say("Catalogue", "Catalogue")}</a><a href="#services">{say("Services", "Services")}</a><a href="#promotions">{say("Promotions", "Offers")}</a><a href="#faq">FAQ</a><a href="#livraison">{say("Livraison", "Delivery")}</a><a href="/admin">{say("Administration", "Administration")}</a></nav><div className="footer-social"><a href={facebookUrl} target="_blank" rel="noreferrer">Facebook ↗</a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a></div><small>© 2026 Envol des Enfants</small></footer>
       <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}><button type="button" aria-label={say("Revenir complètement en haut", "Scroll all the way to the top")} title={say("Retour en haut", "Back to top")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button><button type="button" aria-label={say("Aller complètement en bas", "Scroll all the way to the bottom")} title={say("Aller en bas", "Go to bottom")} onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button></div>
       <div className="floating-actions">{storePhone && <a className="floating-call" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler", "Call")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}{whatsappNumber && <a className="whatsapp-floating" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Nous joindre sur WhatsApp", "Contact us on WhatsApp")}><WhatsAppIcon/><span>WhatsApp</span></a>}</div>
 
-      {promoOpen && <div className="promo-backdrop" onClick={(event) => {if (event.target === event.currentTarget) closePromo();}}><section className="promo-modal" role="dialog" aria-modal="true" aria-labelledby="promo-title"><button className="promo-close" aria-label={say("Fermer la fenêtre promotionnelle", "Close promotional offer")} onClick={closePromo}>×</button><div className="promo-photo"><img src="/boutique-hero.png" alt={say("L’intérieur coloré de la boutique Envol des Enfants", "Inside the colourful Envol des Enfants store")} /><span>{say("Du bonheur à découvrir.", "Happiness around every corner.")}</span></div><div className="promo-content"><span className="promo-logo brand-picture"><img src="/envol-reference.png" alt="Envol des Enfants" /></span><p className="eyebrow">{say("Un cadeau de bienvenue", "A little welcome gift")}</p><h2 id="promo-title"><span>10 %</span><br />{say("de rabais", "off")}</h2><p className="promo-intro">{say("Abonnez-vous et profitez de", "Subscribe and enjoy")} <strong>{say("10 % de rabais sur votre première commande.", "10% off your first order.")}</strong></p>{requested ? <div className="promo-success"><strong>{say("Votre demande est prête!", "Your request is ready!")}</strong><p>{say("Finalisez votre inscription dans la conversation WhatsApp qui vient de s’ouvrir.", "Complete your subscription in the WhatsApp conversation that just opened.")}</p><button onClick={closePromo}>{say("Continuer ma visite", "Continue browsing")} →</button></div> : <form onSubmit={requestDiscount}><label htmlFor="promo-email">{say("Votre adresse courriel", "Your email address")}</label><input id="promo-email" type="email" autoComplete="email" placeholder={say("vous@exemple.com", "you@example.com")} value={email} onChange={(event) => setEmail(event.target.value)} required /><label style={{display:"flex",alignItems:"flex-start",gap:"8px",fontSize:"11px",lineHeight:"1.5",margin:"10px 0"}}><input type="checkbox" style={{width:"auto",marginTop:"3px"}} checked={consent} onChange={(event) => setConsent(event.target.checked)} required />{say("J’accepte de recevoir des nouvelles et des offres d’Envol des Enfants.", "I agree to receive news and offers from Envol des Enfants.")}</label><button className="promo-submit" type="submit">{say("Recevoir mon 10 %", "Get my 10% discount")} →</button><small>{say("Offre réservée aux nouveaux abonnés. Demande confirmée sur WhatsApp.", "Offer available to new subscribers. Request confirmed through WhatsApp.")}</small></form>}</div></section></div>}
+      <StorefrontPromo
+        open={promo.promoOpen}
+        email={promo.email}
+        requested={promo.requested}
+        consent={promo.consent}
+        discount={welcomeDiscount}
+        say={say}
+        onClose={promo.closePromo}
+        onEmailChange={promo.setEmail}
+        onConsentChange={promo.setConsent}
+        onSubmit={promo.requestDiscount}
+      />
 
       {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
     </main>
