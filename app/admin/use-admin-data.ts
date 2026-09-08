@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { defaultProducts } from "@/lib/default-catalog";
 import { defaultSiteSections, readSiteSections, readSiteTexts, type SiteSection } from "@/lib/site-editor";
 import type { Market } from "@/lib/markets";
@@ -11,12 +11,12 @@ export type AdminIdentity = { email: string; name: string };
 type Options = {
   market: Market;
   admin: AdminIdentity | null;
-  setAdmin: (admin: AdminIdentity | null) => void;
-  flash: (message: string) => void;
-  setError: (message: string) => void;
+  setAdmin: Dispatch<SetStateAction<AdminIdentity | null>>;
+  setNotice: Dispatch<SetStateAction<string>>;
+  setError: Dispatch<SetStateAction<string>>;
 };
 
-export function useAdminData({ market, admin, setAdmin, flash, setError }: Options) {
+export function useAdminData({ market, admin, setAdmin, setNotice, setError }: Options) {
   const [checking, setChecking] = useState(true);
   const [products, setProducts] = useState<Row[]>([]);
   const [orders, setOrders] = useState<Row[]>([]);
@@ -72,12 +72,13 @@ export function useAdminData({ market, admin, setAdmin, flash, setError }: Optio
         const refreshed = await request("/api/admin/products");
         setProducts(refreshed.products as Row[]);
         setSettings((current) => ({ ...current, catalog_initialized: "true" }));
-        flash(`${Number(result.imported || 0)} produits importés automatiquement depuis la boutique.`);
+        setNotice(`${Number(result.imported || 0)} produits importés automatiquement depuis la boutique.`);
+        window.setTimeout(() => setNotice(""), 3500);
       } catch (failure) {
         setError(failure instanceof Error ? failure.message : "Import automatique impossible.");
       }
     }
-  }, [market, flash, setError]);
+  }, [market, setError, setNotice]);
 
   useEffect(() => {
     if (admin) void load();
