@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import * as v from "valibot";
 
@@ -8,14 +9,14 @@ const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, re
 
 const translationSchema = v.object({ fr: v.string(), en: v.string() });
 const productSchema = v.object({
-  id: v.string(),
+  id: v.optional(v.string()),
   name: translationSchema,
   category: v.string(),
   price: v.number(),
   ages: v.string(),
   sheet: v.string(),
   position: v.number(),
-  imageUrl: v.string(),
+  imageUrl: v.optional(v.string()),
   extraImages: v.optional(v.array(v.string())),
   stock: v.optional(v.number()),
   status: v.picklist(["available", "reserved", "sold"]),
@@ -76,15 +77,26 @@ const rawProducts = [
   ...readJson("data/swim-products.json"),
 ];
 
+const stableId = (name) => `seed-${createHash("sha1").update(name.trim().toLocaleLowerCase("fr")).digest("hex").slice(0, 12)}`;
 const products = [];
 const errors = [];
+
 for (const [index, raw] of rawProducts.entries()) {
   const result = v.safeParse(productSchema, raw);
   if (!result.success) {
     errors.push(`Produit #${index + 1}: ${result.issues.map((issue) => issue.message).join("; ")}`);
     continue;
   }
-  products.push(result.output);
+
+  const product = result.output;
+  const id = product.id?.trim() || stableId(product.name.fr);
+  const imageUrl = id.startsWith("mama4-") ? `/products/mama4/${id}.jpg` : product.imageUrl;
+  if (!imageUrl) {
+    errors.push(`Produit ${id}: imageUrl absent.`);
+    continue;
+  }
+
+  products.push({ ...product, id, imageUrl });
 }
 
 const duplicateValues = (values) => {
@@ -98,18 +110,15 @@ const duplicateValues = (values) => {
   return [...duplicates];
 };
 
-const duplicateIds = duplicateValues(products.map((product) => product.id));
-const duplicateNames = duplicateValues(products.map((product) => product.name.fr.trim().toLowerCase()));
-const duplicateImages = duplicateValues(products.map((product) => product.imageUrl));
+for (const id of duplicateValues(products.map((product) => product.id))) errors.push(`ID en double: ${id}`);
+for (const name of duplicateValues(products.map((product) => product.name.fr.trim().toLocaleLowerCase("fr")))) errors.push(`Nom FR en double: ${name}`);
+for (const image of duplicateValues(products.map((product) => product.imageUrl))) errors.push(`Image en double: ${image}`);
 
-for (const id of duplicateIds) errors.push(`ID en double: ${id}`);
-for (const name of duplicateNames) errors.push(`Nom FR en double: ${name}`);
-for (const image of duplicateImages) errors.push(`Image en double: ${image}`);
-
-const missingImages = products
-  .filter((product) => product.imageUrl.startsWith("/") && !fs.existsSync(path.join(root, "public", product.imageUrl.replace(/^\//, ""))))
-  .map((product) => `${product.id}: ${product.imageUrl}`);
-for (const item of missingImages) errors.push(`Image manquante: ${item}`);
+for (const product of products) {
+  if (product.imageUrl.startsWith("/") && !fs.existsSync(path.join(root, "public", product.imageUrl.replace(/^\//, "")))) {
+    errors.push(`Image manquante: ${product.id}: ${product.imageUrl}`);
+  }
+}
 
 if (errors.length) {
   console.error(`Seed annulé: ${errors.length} erreur(s).`);
@@ -121,41 +130,55 @@ const sqlString = (value) => value == null ? "NULL" : `'${String(value).replaceA
 const sqlNumber = (value, fallback = 0) => Number.isFinite(Number(value)) ? String(Math.trunc(Number(value))) : String(fallback);
 const sqlBool = (value, fallback) => (value ?? fallback) ? "1" : "0";
 
-const rows = products.map((product) => {
-  const imageUrl = product.id.startsWith("mama4-") ? `/products/mama4/${product.id}.jpg` : product.imageUrl;
+const sqlForProduct = (product) => {
   const priceConakry = product.priceConakry ?? product.price;
   const priceQc = product.priceQc ?? 0;
-  const stockConakry = product.stockConakry ?? product.stock ?? 1;
-  const stockQc = product.stockQc ?? product.stock ?? 1;
-  const values = [
-    sqlString(product.id),
-    sqlString(product.name.fr),
-    sqlString(product.name.en),
-    sqlString(product.detail.fr),
-    sqlString(product.detail.en),
-    sqlString(product.category),
-    sqlNumber(priceConakry),
-    sqlNumber(stockConakry, 1),
-    sqlString(product.status),
-    sqlString(product.badge ?? null),
-    sqlString(product.ages),
-    sqlString(imageUrl),
-    sqlString(product.sheet || null),
-    sqlNumber(product.position),
-    sqlString(product.brand || null),
-    "1",
-    sqlNumber(priceQc),
-    sqlNumber(priceConakry),
-    sqlNumber(stockQc, 1),
-    sqlNumber(stockConakry, 1),
-    sqlBool(product.visibleQc, true),
-    sqlBool(product.visibleConakry, true),
-    sqlString(JSON.stringify(product.extraImages || [])),
-  ];
-  return `(${values.join(",")},CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`;
-});
+  const stockConakry = product.stockConakry ?? product.stock ?? (product.status === "sold" ? 0 : 1);
+  const stockQc = product.stockQc ?? product.stock ?? (product.status === "sold" ? 0 : 1);
+  const nameKey = product.name.fr.trim();
+  const where = `(id=${sqlString(product.id)} OR lower(trim(name_fr))=lower(trim(${sqlString(nameKey)})))`;
 
-const sql = `BEGIN TRANSACTION;\n\nINSERT INTO products (id,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,images_json,created_at,updated_at) VALUES\n${rows.join(",\n")}\nON CONFLICT(id) DO UPDATE SET\n  name_fr=excluded.name_fr,\n  name_en=excluded.name_en,\n  description_fr=excluded.description_fr,\n  description_en=excluded.description_en,\n  category=excluded.category,\n  price=excluded.price,\n  stock=excluded.stock,\n  status=excluded.status,\n  badge=excluded.badge,\n  ages=excluded.ages,\n  image_url=excluded.image_url,\n  image_sheet=excluded.image_sheet,\n  image_position=excluded.image_position,\n  brand=excluded.brand,\n  visible=excluded.visible,\n  price_qc=excluded.price_qc,\n  price_conakry=excluded.price_conakry,\n  stock_qc=excluded.stock_qc,\n  stock_conakry=excluded.stock_conakry,\n  visible_qc=excluded.visible_qc,\n  visible_conakry=excluded.visible_conakry,\n  images_json=excluded.images_json,\n  updated_at=CURRENT_TIMESTAMP;\n\nCOMMIT;\n`;
+  const assignments = [
+    `name_fr=${sqlString(product.name.fr)}`,
+    `name_en=${sqlString(product.name.en)}`,
+    `description_fr=${sqlString(product.detail.fr)}`,
+    `description_en=${sqlString(product.detail.en)}`,
+    `category=${sqlString(product.category)}`,
+    `price=${sqlNumber(priceConakry)}`,
+    `stock=${sqlNumber(stockConakry, 1)}`,
+    `status=${sqlString(product.status)}`,
+    `badge=${sqlString(product.badge ?? null)}`,
+    `ages=${sqlString(product.ages)}`,
+    `image_url=${sqlString(product.imageUrl)}`,
+    `image_sheet=${sqlString(product.sheet || null)}`,
+    `image_position=${sqlNumber(product.position)}`,
+    `brand=${sqlString(product.brand || null)}`,
+    "visible=1",
+    `price_qc=${sqlNumber(priceQc)}`,
+    `price_conakry=${sqlNumber(priceConakry)}`,
+    `stock_qc=${sqlNumber(stockQc, 1)}`,
+    `stock_conakry=${sqlNumber(stockConakry, 1)}`,
+    `visible_qc=${sqlBool(product.visibleQc, true)}`,
+    `visible_conakry=${sqlBool(product.visibleConakry, true)}`,
+    `images_json=${sqlString(JSON.stringify(product.extraImages || []))}`,
+    "updated_at=CURRENT_TIMESTAMP",
+  ];
+
+  const values = [
+    sqlString(product.id), "NULL", sqlString(product.name.fr), sqlString(product.name.en),
+    sqlString(product.detail.fr), sqlString(product.detail.en), sqlString(product.category),
+    sqlNumber(priceConakry), sqlNumber(stockConakry, 1), sqlString(product.status),
+    sqlString(product.badge ?? null), sqlString(product.ages), sqlString(product.imageUrl),
+    sqlString(product.sheet || null), sqlNumber(product.position), sqlString(product.brand || null),
+    "1", sqlNumber(priceQc), sqlNumber(priceConakry), sqlNumber(stockQc, 1), sqlNumber(stockConakry, 1),
+    sqlBool(product.visibleQc, true), sqlBool(product.visibleConakry, true),
+    sqlString(JSON.stringify(product.extraImages || [])), "CURRENT_TIMESTAMP", "CURRENT_TIMESTAMP",
+  ];
+
+  return `UPDATE products SET ${assignments.join(",")} WHERE ${where};\nINSERT INTO products (id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,images_json,created_at,updated_at) SELECT ${values.join(",")} WHERE NOT EXISTS (SELECT 1 FROM products WHERE ${where});`;
+};
+
+const sql = `BEGIN TRANSACTION;\n\n${products.map(sqlForProduct).join("\n\n")}\n\nINSERT INTO settings (key,value,updated_at) VALUES ('catalog_initialized','true',CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at;\n\nCOMMIT;\n`;
 
 const outputDir = path.join(root, ".wrangler");
 fs.mkdirSync(outputDir, { recursive: true });
@@ -163,12 +186,14 @@ const outputPath = path.join(outputDir, "catalog-seed.sql");
 fs.writeFileSync(outputPath, sql, "utf8");
 
 const zeroPriceCount = products.filter((product) => (product.priceConakry ?? product.price) <= 0).length;
+const generatedIdCount = products.filter((product) => product.id.startsWith("seed-")).length;
 console.log(`Catalogue valide: ${products.length} produits.`);
-console.log(`Images manquantes: 0.`);
-console.log(`Doublons ID/nom/image: 0.`);
+console.log(`IDs stables générés pour produits historiques: ${generatedIdCount}.`);
+console.log("Images manquantes: 0.");
+console.log("Doublons ID/nom/image: 0.");
 console.log(`Prix Conakry à 0: ${zeroPriceCount}.`);
 console.log(`SQL généré: ${path.relative(root, outputPath)}`);
-console.log("Les numéros d’article existants ne sont jamais écrasés par ce seed.");
+console.log("Le seed réutilise les produits existants par ID ou nom FR et ne modifie jamais article_number.");
 
 if (!process.argv.includes("--apply")) {
   console.log("Dry-run terminé. Utilise --apply pour exécuter le seed sur D1 distant.");
