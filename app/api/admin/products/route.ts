@@ -5,7 +5,7 @@ import { createArticleNumberGenerator } from "@/lib/article-number";
 import { categorizedMamaProduct } from "@/lib/doll-category";
 import { withVerifiedConakryPrice } from "@/lib/reference-prices";
 import { ensureArchiveProducts } from "@/lib/archive-products";
-import { booleanInput, numericInput, optionalBooleanInput, optionalNumericInput, optionalTextInput, validateJsonBody } from "@/lib/api-validation";
+import { optionalBooleanInput, optionalNumericInput, optionalTextInput, validateJsonBody } from "@/lib/api-validation";
 
 const optionalProductFields = {
   name_en: optionalTextInput,
