@@ -1,0 +1,21 @@
+name: Audit Catalog Data
+
+on:
+  push:
+    branches:
+      - refactor/archive-products-cleanup
+    paths:
+      - scripts/audit-catalog-data.mjs
+      - .github/workflows/audit-catalog-data.yml
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: refactor/archive-products-cleanup
+
+      - name: Audit catalog data
+        run: node scripts/audit-catalog-data.mjs
