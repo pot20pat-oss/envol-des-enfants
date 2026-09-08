@@ -1,66 +1,18 @@
 import { archiveSupplementProducts } from "./default-catalog";
-import { mama4Products1 } from "./mama4-products-1";
-import { mama4Products2 } from "./mama4-products-2";
-import { mama4Products3 } from "./mama4-products-3";
-import { mama4Products4 } from "./mama4-products-4";
-import { mama4Products5 } from "./mama4-products-5";
-import { mama4Products6 } from "./mama4-products-6";
+import { mama4Products } from "./mama4-products";
 import { swimProducts } from "./swim-products";
-import { articlePrefix } from "./article-number";
+import { ensureCategoryArticleNumbers } from "./archive-product-numbering";
 
 const allArchiveProducts = [
   ...archiveSupplementProducts,
-  ...mama4Products1,
-  ...mama4Products2,
-  ...mama4Products3,
-  ...mama4Products4,
-  ...mama4Products5,
-  ...mama4Products6,
+  ...mama4Products,
   ...swimProducts,
 ];
 
 const productImageUrl = (product: (typeof allArchiveProducts)[number]) =>
   product.id.startsWith("mama4-") ? `/products/mama4/${product.id}.jpg` : (product.imageUrl || null);
 
-async function ensureCategoryArticleNumbers(database: D1Database, now: string) {
-  const { results } = await database.prepare(
-    "SELECT id,category,article_number FROM products ORDER BY created_at,id",
-  ).all<{ id: string; category: string; article_number: string | null }>();
-
-  const maxByPrefix = new Map<string, number>();
-  const needsNumber: { id: string; category: string }[] = [];
-
-  for (const product of results || []) {
-    const prefix = articlePrefix(product.category);
-    const current = String(product.article_number || "").trim().toUpperCase();
-    const match = current.match(/^([A-Z0-9]{3})-(\d{4,6})$/);
-    if (match && match[1] === prefix) {
-      maxByPrefix.set(prefix, Math.max(maxByPrefix.get(prefix) || 0, Number(match[2])));
-    } else {
-      needsNumber.push({ id: product.id, category: product.category });
-    }
-  }
-
-  if (!needsNumber.length) return;
-
-  // Retire temporairement les anciens numéros pour éviter toute collision UNIQUE.
-  const clearStatements = needsNumber.map((product) => database.prepare(
-    "UPDATE products SET article_number=NULL WHERE id=?",
-  ).bind(product.id));
-  await database.batch(clearStatements);
-
-  const updateStatements = needsNumber.map((product) => {
-    const prefix = articlePrefix(product.category);
-    const next = (maxByPrefix.get(prefix) || 0) + 1;
-    maxByPrefix.set(prefix, next);
-    const articleNumber = `${prefix}-${String(next).padStart(4, "0")}`;
-    return database.prepare(
-      "UPDATE products SET article_number=?,updated_at=? WHERE id=?",
-    ).bind(articleNumber, now, product.id);
-  });
-
-  await database.batch(updateStatements);
-}
+export { ensureCategoryArticleNumbers } from "./archive-product-numbering";
 
 export async function ensureArchiveProducts(database: D1Database) {
   const now = new Date().toISOString();

@@ -1,4 +1,12 @@
-import { body, cmsEnv, currentAdmin, forbidden, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { cmsEnv, currentAdmin, forbidden, stringValue } from "@/lib/cms";
+import { validateJsonBody } from "@/lib/api-validation";
+
+const settingsSchema = v.record(
+  v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_]{1,60}$/)),
+  v.string(),
+);
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -8,8 +16,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const data = await body(request);
-  const entries = Object.entries(data).filter(([key, value]) => /^[a-z][a-z0-9_]{1,60}$/.test(key) && typeof value === "string");
+  const parsed = await validateJsonBody(request, settingsSchema);
+  if (!parsed.success) return parsed.response;
+  const entries = Object.entries(parsed.data);
   if (entries.length) await cmsEnv().DB.batch(entries.map(([key, value]) => cmsEnv().DB.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").bind(key, stringValue(value), new Date().toISOString())));
   return Response.json({ success: true });
 }

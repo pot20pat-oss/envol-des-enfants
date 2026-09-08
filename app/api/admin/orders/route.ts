@@ -1,5 +1,21 @@
-import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
 import { normalizeMarket } from "@/lib/markets";
+import { optionalNumericInput, optionalTextInput, validateJsonBody } from "@/lib/api-validation";
+
+const orderSchema = v.looseObject({
+  id: optionalTextInput,
+  customer_name: optionalTextInput,
+  customer_phone: optionalTextInput,
+  product_name: optionalTextInput,
+  quantity: optionalNumericInput,
+  total: optionalNumericInput,
+  status: optionalTextInput,
+  notes: optionalTextInput,
+  region: optionalTextInput,
+  delivery_zone: optionalTextInput,
+});
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -10,7 +26,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const data = await body(request);
+  const parsed = await validateJsonBody(request, orderSchema);
+  if (!parsed.success) return parsed.response;
+  const data = parsed.data;
   const id = stringValue(data.id) || crypto.randomUUID();
   const now = new Date().toISOString();
   const region = normalizeMarket(data.region);

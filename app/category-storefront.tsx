@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { marketPrice, normalizeMarket, type Market } from "@/lib/markets";
 
 type Product = {
   id:string; name_fr:string; name_en?:string; category:string; price:number; image_url?:string; images_json?:string;
@@ -14,6 +15,7 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
   const [loading,setLoading]=useState(true);
   const [query,setQuery]=useState("");
   const [language,setLanguage]=useState<"fr"|"en">("fr");
+  const [market,setMarket]=useState<Market>("conakry");
   const [selectedProduct,setSelectedProduct]=useState<Product|null>(null);
   const [selectedImageIndex,setSelectedImageIndex]=useState(0);
 
@@ -24,7 +26,10 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
     const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone;
     fetch(`/api/catalog?${region?`region=${encodeURIComponent(region)}&`:""}timezone=${encodeURIComponent(timezone)}`)
       .then(r=>r.json())
-      .then(data=>setProducts(Array.isArray(data.products)?data.products:[]))
+      .then(data=>{
+        setProducts(Array.isArray(data.products)?data.products:[]);
+        setMarket(normalizeMarket(data.region));
+      })
       .finally(()=>setLoading(false));
   },[]);
 
@@ -43,7 +48,6 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
   },[selectedProduct]);
 
   const visible=useMemo(()=>products.filter(p=>(!categories?.length||categories.includes(p.category))&&(!query.trim()||`${p.name_fr} ${p.name_en||""} ${p.description_fr||""}`.toLowerCase().includes(query.toLowerCase()))),[products,categories,query]);
-  const money=(n:number)=>new Intl.NumberFormat(language==="fr"?"fr-CA":"en-CA",{maximumFractionDigits:0}).format(n);
   const productImages=(product:Product)=>{
     let extras:string[]=[];
     try {
@@ -74,7 +78,7 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
         onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedImageIndex(0);setSelectedProduct(p);}}}
       >
         <div className="category-image">{p.image_url?<img src={p.image_url} alt={language==="fr"?p.name_fr:(p.name_en||p.name_fr)}/>:<span>Envol</span>}</div>
-        <div className="category-copy"><p className="category-kicker">{p.category}</p><h2>{language==="fr"?p.name_fr:(p.name_en||p.name_fr)}</h2><strong>{money(Number(p.price||0))}</strong><p>{language==="fr"?(p.description_fr||""):(p.description_en||p.description_fr||"")}</p>{p.article_number&&<small>No {p.article_number}</small>}</div>
+        <div className="category-copy"><p className="category-kicker">{p.category}</p><h2>{language==="fr"?p.name_fr:(p.name_en||p.name_fr)}</h2><strong>{marketPrice(p.price,market,language)}</strong><p>{language==="fr"?(p.description_fr||""):(p.description_en||p.description_fr||"")}</p>{p.article_number&&<small>No {p.article_number}</small>}</div>
       </article>)}</div>}
     </section>
 
@@ -97,7 +101,7 @@ export default function CategoryStorefront({ title, subtitle, categories }: Prop
               <div><span>{language==="fr"?"Stock":"Stock"}</span><strong>{selectedProduct.stock??"—"}</strong></div>
               <div><span>{language==="fr"?"Disponibilité":"Availability"}</span><strong>{selectedProduct.status==="sold"?(language==="fr"?"Vendu":"Sold"):selectedProduct.status==="reserved"?(language==="fr"?"Réservé":"Reserved"):(language==="fr"?"Disponible":"Available")}</strong></div>
             </div>
-            <p className="product-lightbox-price">{money(Number(selectedProduct.price||0))}</p>
+            <p className="product-lightbox-price">{marketPrice(selectedProduct.price,market,language)}</p>
             <p className="product-lightbox-description">{language==="fr"?(selectedProduct.description_fr||""):(selectedProduct.description_en||selectedProduct.description_fr||"")}</p>
           </div>
         </div>
