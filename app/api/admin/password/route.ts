@@ -1,12 +1,21 @@
-import { body, cmsEnv, currentAdmin, forbidden, hashPassword, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { cmsEnv, currentAdmin, forbidden, hashPassword, stringValue } from "@/lib/cms";
+import { validateJsonBody } from "@/lib/api-validation";
+
+const passwordSchema = v.object({
+  current_password: v.string(),
+  new_password: v.pipe(v.string(), v.minLength(12)),
+});
 
 export async function POST(request: Request) {
   const admin = await currentAdmin(request);
   if (!admin) return forbidden();
-  const data = await body(request);
+  const parsed = await validateJsonBody(request, passwordSchema);
+  if (!parsed.success) return parsed.response;
+  const data = parsed.data;
   const current = stringValue(data.current_password);
   const next = stringValue(data.new_password);
-  if (next.length < 12) return Response.json({ error: "Le nouveau mot de passe doit comporter au moins 12 caractères." }, { status: 400 });
   const row = await cmsEnv().DB.prepare("SELECT password_hash,salt FROM admins WHERE id=?").bind(admin.id).first<{ password_hash: string; salt: string }>();
   if (!row || await hashPassword(current, row.salt) !== row.password_hash) return Response.json({ error: "Mot de passe actuel incorrect." }, { status: 401 });
   const salt = crypto.randomUUID();
