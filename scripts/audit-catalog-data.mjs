@@ -7,6 +7,8 @@ const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 const defaultProducts = readJson("data/default-products.json");
 const archiveProducts = readJson("data/archive-supplement-products.json");
 const mamaItems = readJson("data/mama-products.json");
+const mama4Items = readJson("data/mama4-products.json");
+const swimItems = readJson("data/swim-products.json");
 
 const mamaProducts = mamaItems.map(([fr, en, category, brand], index) => ({
   id: `mama-${String(index + 1).padStart(2, "0")}`,
@@ -21,10 +23,23 @@ const mamaProducts = mamaItems.map(([fr, en, category, brand], index) => ({
   source: "mama-products.json",
 }));
 
+const mama4Products = mama4Items.map((product) => ({
+  ...product,
+  imageUrl: `/products/mama4/${product.id}.jpg`,
+  source: "mama4-products.json",
+}));
+
+const swimProducts = swimItems.map((product) => ({
+  ...product,
+  source: "swim-products.json",
+}));
+
 const products = [
   ...mamaProducts,
   ...archiveProducts.map((p) => ({ ...p, source: "archive-supplement-products.json" })),
   ...defaultProducts.map((p) => ({ ...p, source: "default-products.json" })),
+  ...mama4Products,
+  ...swimProducts,
 ];
 
 const norm = (v) => String(v ?? "").trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
@@ -54,7 +69,7 @@ for (const p of products) {
 
 const suspiciousCategories = [...categories.entries()].filter(([c]) => !c || c !== c.toLowerCase() || /\s{2,}/.test(c));
 const missingCore = products.filter((p) => !p.name?.fr || !p.name?.en || !p.category || !p.imageUrl);
-const badImagePaths = products.filter((p) => p.imageUrl && (!p.imageUrl.startsWith("/") || !/\.(webp|png|jpe?g|avif)$/i.test(p.imageUrl)));
+const badImagePaths = products.filter((p) => p.imageUrl && (!p.imageUrl.startsWith("/") || !/\.(webp|png|jpe?g|avif|svg)$/i.test(p.imageUrl)));
 const missingImageFiles = products.filter((p) => p.imageUrl && !fs.existsSync(path.join(root, "public", p.imageUrl.replace(/^\//, ""))));
 const missingArticleNumbers = products.filter((p) => !String(p.articleNumber || "").trim());
 const zeroOrNegativePrices = products.filter((p) => Number(p.price ?? p.priceConakry ?? 0) <= 0);
@@ -66,6 +81,8 @@ const summary = {
     mama: mamaProducts.length,
     archiveSupplement: archiveProducts.length,
     defaultProducts: defaultProducts.length,
+    mama4: mama4Products.length,
+    swim: swimProducts.length,
   },
   duplicateIds: duplicateIds.length,
   duplicateArticleNumbers: duplicateArticleNumbers.length,
@@ -89,7 +106,7 @@ const printable = (groups, label) => {
   }
 };
 
-const printProducts = (arr, label, max = 80, extra = () => "") => {
+const printProducts = (arr, label, max = 120, extra = () => "") => {
   console.log(`\n## ${label} (${arr.length})`);
   for (const p of arr.slice(0, max)) console.log(`- ${p.id || "(no id)"} | ${p.name?.fr || "(no name)"} | ${p.source}${extra(p)}`);
 };
@@ -104,8 +121,8 @@ console.log(`\n## Suspicious categories (${suspiciousCategories.length})`);
 for (const [c, count] of suspiciousCategories) console.log(`- ${JSON.stringify(c)}: ${count}`);
 
 printProducts(missingCore, "Missing core fields");
-printProducts(badImagePaths, "Bad image paths", 80, (p) => ` | image=${p.imageUrl}`);
-printProducts(missingImageFiles, "Image paths whose file is absent from public/", 120, (p) => ` | image=${p.imageUrl}`);
-printProducts(missingArticleNumbers, "Missing article numbers", 180);
-printProducts(filteredOutByRuntime.map((p) => ({ ...p, source: "default-products.json" })), "Default products filtered out at runtime", 80);
-printProducts(zeroOrNegativePrices, "Zero or negative raw prices", 180, (p) => ` | price=${p.price ?? "n/a"} | conakry=${p.priceConakry ?? "n/a"} | qc=${p.priceQc ?? "n/a"}`);
+printProducts(badImagePaths, "Bad image paths", 120, (p) => ` | image=${p.imageUrl}`);
+printProducts(missingImageFiles, "Image paths whose file is absent from public/", 180, (p) => ` | image=${p.imageUrl}`);
+printProducts(missingArticleNumbers, "Missing article numbers", 240);
+printProducts(filteredOutByRuntime.map((p) => ({ ...p, source: "default-products.json" })), "Default products filtered out at runtime", 120);
+printProducts(zeroOrNegativePrices, "Zero or negative raw prices", 240, (p) => ` | price=${p.price ?? "n/a"} | conakry=${p.priceConakry ?? "n/a"} | qc=${p.priceQc ?? "n/a"}`);
