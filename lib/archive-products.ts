@@ -1,21 +1,11 @@
 import { archiveSupplementProducts } from "./default-catalog";
-import { mama4Products1 } from "./mama4-products-1";
-import { mama4Products2 } from "./mama4-products-2";
-import { mama4Products3 } from "./mama4-products-3";
-import { mama4Products4 } from "./mama4-products-4";
-import { mama4Products5 } from "./mama4-products-5";
-import { mama4Products6 } from "./mama4-products-6";
+import { mama4Products } from "./mama4-products";
 import { swimProducts } from "./swim-products";
 import { ensureCategoryArticleNumbers } from "./archive-product-numbering";
 
 const allArchiveProducts = [
   ...archiveSupplementProducts,
-  ...mama4Products1,
-  ...mama4Products2,
-  ...mama4Products3,
-  ...mama4Products4,
-  ...mama4Products5,
-  ...mama4Products6,
+  ...mama4Products,
   ...swimProducts,
 ];
 
