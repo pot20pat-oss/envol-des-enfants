@@ -1,13 +1,16 @@
 ﻿"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { type Product, type Translation } from "@/lib/default-catalog";
-import { marketPrice, markets } from "@/lib/markets";
+import { markets } from "@/lib/markets";
 import StorefrontCatalog from "./storefront-catalog";
 import ProductLightbox from "./product-lightbox";
 import { PhoneIcon, WhatsAppIcon } from "./product-icons";
 import StorefrontNavigation from "./storefront-navigation";
 import StorefrontPromo from "./storefront-promo";
+import StorefrontHero from "./storefront-hero";
+import StorefrontFeaturedCollections from "./storefront-featured-collections";
+import StorefrontQuickScroll from "./storefront-quick-scroll";
 import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
 import { useStorefrontSettings } from "../hooks/use-storefront-settings";
@@ -47,7 +50,6 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [showAll, setShowAll] = useState(false);
-  const quickScrollFrame = useRef<number | null>(null);
   const { language, changeLanguage } = useStoreLanguage();
   const { market, storeSettings, storeProducts } = useStoreMarket();
   const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"];
@@ -57,46 +59,6 @@ export default function Home() {
     isEnglish, say, editable, sectionStyle, sectionVisible,
   } = useStorefrontSettings(storeSettings, market, language);
   const promo = useStorefrontPromo({ language, market, whatsappNumber, whatsappUrl, welcomeDiscount, say });
-  const featuredCollections = [
-    { id: "nouveautes", eyebrow: say("Tout juste arrivés en boutique", "Freshly arrived in store"), title: say("Les nouveautés", "Our newest arrivals"), detail: say("Des découvertes à ne pas laisser filer.", "Little discoveries worth catching."), items: storeProducts.filter((item) => item.badge === "new").slice(0, 4) },
-    { id: "rentree-scolaire", eyebrow: say("Les essentiels des petits écoliers", "Everything little learners need"), title: say("Une rentrée bien préparée", "Ready for school days"), detail: say("Cartables, fournitures et jolies trouvailles.", "Backpacks, supplies and thoughtful finds."), items: storeProducts.filter((item) => item.badge === "school").slice(0, 4) },
-  ];
-
-  function stopQuickScroll() {
-    if (quickScrollFrame.current !== null) window.clearInterval(quickScrollFrame.current);
-    quickScrollFrame.current = null;
-  }
-
-  function startQuickScroll(direction: -1 | 1) {
-    stopQuickScroll();
-    const startedAt = Date.now();
-    const scroll = () => {
-      const speed = Math.min(28, 8 + (Date.now() - startedAt) / 180);
-      window.scrollBy({ top: direction * speed, behavior: "auto" });
-    };
-    scroll();
-    quickScrollFrame.current = window.setInterval(scroll, 16);
-  }
-
-  useEffect(() => {
-    const stop = () => stopQuickScroll();
-    window.addEventListener("mouseup", stop);
-    window.addEventListener("pointerup", stop);
-    window.addEventListener("pointercancel", stop);
-    window.addEventListener("touchend", stop);
-    window.addEventListener("touchcancel", stop);
-    window.addEventListener("blur", stop);
-    return () => {
-      stop();
-      window.removeEventListener("mouseup", stop);
-      window.removeEventListener("pointerup", stop);
-      window.removeEventListener("pointercancel", stop);
-      window.removeEventListener("touchend", stop);
-      window.removeEventListener("touchcancel", stop);
-      window.removeEventListener("blur", stop);
-    };
-  }, []);
-
   function chooseCategory(category: string) {
     setActive(category);
     setStatus("all");
@@ -119,13 +81,26 @@ export default function Home() {
         chooseCategory={chooseCategory}
       />
 
-      <section className="hero wrap" id="accueil" style={sectionStyle("hero")}><div className="hero-copy"><p className="eyebrow"><span></span> {editable("hero_eyebrow", `Boutique de jouets éducatifs · ${markets[market].label}`, `Educational toy shop · ${markets[market].label}`)}</p><h1>{editable("hero_title", "Le jeu qui fait", "Play that helps")}<br /><span>{editable("hero_accent", "grandir vos enfants.", "your children grow.")}</span></h1><p className="hero-text">{editable("hero_description", "Jouets, articles pour bébé, vélos et fournitures scolaires choisis pour éveiller leur curiosité.", "Toys, baby essentials, bicycles and school supplies chosen to spark their curiosity.")}</p><div className="hero-buttons">{storePhone && <a className="button hero-call" href={`tel:${storePhone.replace(/\s/g, "")}`}><PhoneIcon/>{say("Nous appeler", "Call us")}</a>}{whatsappNumber && <a className="button button-dark hero-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/>{say("Commander sur WhatsApp", "Order on WhatsApp")}</a>}</div><p className="tiny-note">{say("Livraison et paiement à la réception.", "Delivery available. Pay upon arrival.")}</p></div><div className="hero-visual"><img src={market === "qc" ? "/boutique-hero-quebec.png" : "/boutique-hero.png"} alt={market === "qc" ? say("Boutique québécoise en ligne et sélection de jouets éducatifs", "Quebec online shop and selection of educational toys") : say("Vue panoramique de la boutique Envol des Enfants avec ses vélos, véhicules et rayons de jouets", "Panoramic view of the Envol des Enfants store, bicycles, vehicles and toy displays")} /><div className="floating-note"><span>★</span><div><strong>{market === "qc" ? say("Bienvenue au Québec", "Welcome to Québec") : say("Bienvenue à Dixinn", "Welcome to Dixinn")}</strong><small>{say("Un univers fait pour jouer.", "A world made for play.")}</small></div></div></div></section>
-
-      <div className="service-ribbon wrap" style={sectionStyle("ribbon")}><span>{say("Jouets éducatifs", "Educational toys")}</span><span>{say("Livraison chez vous", "Delivered to you")}</span><span>{say("Paiement à la réception", "Pay on delivery")}</span><a href={facebookUrl} target="_blank" rel="noreferrer">{say("Suivez-nous sur Facebook", "Follow us on Facebook")} ↗</a></div>
+      <StorefrontHero
+        market={market}
+        storePhone={storePhone}
+        whatsappNumber={whatsappNumber}
+        whatsappUrl={whatsappUrl}
+        facebookUrl={facebookUrl}
+        say={say}
+        editable={editable}
+        sectionStyle={sectionStyle}
+      />
 
       <StorefrontCatalog products={storeProducts} availableCategories={availableCategories} dollCategories={dollCategories} language={language} market={market} active={active} query={query} status={status} showAll={showAll} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} style={sectionStyle("catalogue")} title={editable("catalogue_title", "Le catalogue", "A little shop")} accent={editable("catalogue_accent", "des petits bonheurs.", "full of joy.")} description={editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")} onActiveChange={setActive} onQueryChange={setQuery} onStatusChange={setStatus} onShowAll={() => setShowAll(true)} onOpenProduct={setSelectedProduct} />
 
-      {featuredCollections.filter((collection) => collection.items.length > 0).map((collection) => <section className="featured-collection section wrap" id={collection.id} key={collection.id}><div className="section-heading"><div><p className="eyebrow">{collection.eyebrow}</p><h2>{collection.id === "nouveautes" ? <>{say("Les ", "Our ")}<span>{say("nouveautés", "newest arrivals")}.</span></> : <>{collection.title}<span>.</span></>}</h2></div><p>{collection.detail}</p></div><div className="featured-grid">{collection.items.map((item) => <a className="featured-card" href="#catalogue" key={item.id || `${collection.id}-${item.sheet}-${item.position}`} onClick={() => {setActive("all");setStatus("all");setQuery(item.name[language]);}}><div className="featured-visual" style={{backgroundImage:`url(${item.imageUrl || `/catalog-${item.sheet}.png`})`,backgroundPosition:item.imageUrl ? "center top" : `${[0,34,67,100][item.position]}% ${item.sheet === "17" ? "49%" : "15%"}`,backgroundSize:item.imageUrl ? "contain" : undefined}} role="img" aria-label={item.name[language]}><span className={`availability availability-${item.status}`}>{item.status === "reserved" ? say("Réservé", "Reserved") : say("Disponible", "Available")}</span></div><div className="featured-copy"><span>{item.badge === "new" ? say("Nouveauté", "New arrival") : say("Rentrée", "School days")}</span><h3>{item.name[language]}</h3><strong>{marketPrice(item.price, market, language)}</strong></div></a>)}</div></section>)}
+      <StorefrontFeaturedCollections
+        products={storeProducts}
+        language={language}
+        market={market}
+        say={say}
+        onSelectProduct={(search) => { setActive("all"); setStatus("all"); setQuery(search); }}
+      />
 
       <section className="promise" id="rentrée"><div className="promise-inner wrap"><div><span>01</span><h3>{say("Pour chaque âge", "For every age")}</h3><p>{say("Des idées qui grandissent avec les enfants.", "Thoughtful finds that grow alongside your children.")}</p></div><div><span>02</span><h3>{say("Pour chaque aventure", "For every adventure")}</h3><p>{say("De belles trouvailles pour jouer et bouger.", "Lovely discoveries for playtime and adventure.")}</p></div><div><span>03</span><h3>{say("Pour la rentrée", "For school days")}</h3><p>{say("Fournitures et essentiels pour l’école.", "School supplies and everyday essentials.")}</p></div></div></section>
 
@@ -147,7 +122,7 @@ export default function Home() {
 
       <section className="cta"><div className="wrap"><p className="eyebrow">{say("Une petite surprise de bienvenue", "A little welcome surprise")}</p><h2>{say("10 % pour leur", "10% off their")}<br /><em>{say("prochaine aventure.", "next adventure.")}</em></h2><button onClick={promo.openPromo} className="button button-light">{say("Recevoir mon rabais", "Get my discount")} <span>↗</span></button></div></section>
       <footer className="footer footer-expanded wrap"><div><a href="#accueil" className="footer-brand">Envol <span>des Enfants</span></a><p>{address}</p></div><nav aria-label={say("Liens de bas de page", "Footer navigation")}><a href="#catalogue">{say("Catalogue", "Catalogue")}</a><a href="#services">{say("Services", "Services")}</a><a href="#promotions">{say("Promotions", "Offers")}</a><a href="#faq">FAQ</a><a href="#livraison">{say("Livraison", "Delivery")}</a><a href="/admin">{say("Administration", "Administration")}</a></nav><div className="footer-social"><a href={facebookUrl} target="_blank" rel="noreferrer">Facebook ↗</a><a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp ↗</a></div><small>© 2026 Envol des Enfants</small></footer>
-      <div className="quick-scroll" aria-label={say("Défilement rapide", "Quick navigation")}><button type="button" aria-label={say("Revenir complètement en haut", "Scroll all the way to the top")} title={say("Retour en haut", "Back to top")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button><button type="button" aria-label={say("Aller complètement en bas", "Scroll all the way to the bottom")} title={say("Aller en bas", "Go to bottom")} onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}>↓</button></div>
+      <StorefrontQuickScroll say={say} />
       <div className="floating-actions">{storePhone && <a className="floating-call" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler", "Call")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}{whatsappNumber && <a className="whatsapp-floating" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Nous joindre sur WhatsApp", "Contact us on WhatsApp")}><WhatsAppIcon/><span>WhatsApp</span></a>}</div>
 
       <StorefrontPromo
