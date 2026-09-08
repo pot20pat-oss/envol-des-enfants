@@ -1,11 +1,21 @@
-import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
 import { defaultProducts, removedProductNames } from "@/lib/default-catalog";
 import { createArticleNumberGenerator } from "@/lib/article-number";
+import { validateJsonBody } from "@/lib/api-validation";
+
+const importSchema = v.object({
+  products: v.optional(v.array(v.unknown())),
+  removedProductNames: v.optional(v.array(v.string())),
+});
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const data = await body(request);
-  const requestedProducts = Array.isArray(data.products) ? data.products : [];
+  const parsed = await validateJsonBody(request, importSchema);
+  if (!parsed.success) return parsed.response;
+  const data = parsed.data;
+  const requestedProducts = data.products ?? [];
   const products = [...requestedProducts, ...defaultProducts].filter((candidate, index, all) => {
     if (!candidate || typeof candidate !== "object") return false;
     const product = candidate as Record<string, unknown>;
@@ -29,7 +39,7 @@ export async function POST(request: Request) {
   let removed = 0;
   const now = new Date().toISOString();
 
-  const productsToRemove = [...(Array.isArray(data.removedProductNames) ? data.removedProductNames : []), ...removedProductNames];
+  const productsToRemove = [...(data.removedProductNames ?? []), ...removedProductNames];
   if (productsToRemove.length) {
     for (const candidate of [...new Set(productsToRemove.map((name) => stringValue(name).trim()))].slice(0, 100)) {
       const name = stringValue(candidate).trim();
@@ -77,4 +87,3 @@ export async function POST(request: Request) {
   await database.batch(statements);
   return Response.json({ imported, updated, removed, skipped: Math.min(products.length, 250) - imported - updated });
 }
-
