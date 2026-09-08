@@ -1,14 +1,14 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
-import { defaultProducts, type Product, type Translation } from "@/lib/default-catalog";
+import { type Product, type Translation } from "@/lib/default-catalog";
 import { readSiteSections, readSiteTexts } from "@/lib/site-editor";
-import { marketPrice, markets, normalizeMarket, type Market } from "@/lib/markets";
+import { marketPrice, markets } from "@/lib/markets";
 import StorefrontCatalog from "./storefront-catalog";
 import ProductLightbox from "./product-lightbox";
 import { PhoneIcon, WhatsAppIcon } from "./product-icons";
-
-type Language = "fr" | "en";
+import { useStoreLanguage } from "../hooks/use-store-language";
+import { useStoreMarket } from "../hooks/use-store-market";
 
 const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Tout voir", en: "View all" }, value: "all" },
@@ -44,17 +44,14 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [email, setEmail] = useState("");
   const [requested, setRequested] = useState(false);
-  const [language, setLanguage] = useState<Language>("fr");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [showAll, setShowAll] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [managedProducts, setManagedProducts] = useState<Product[] | null>(null);
-  const [storeSettings, setStoreSettings] = useState<Record<string, string>>({});
-  const [market, setMarket] = useState<Market>("conakry");
   const [consent, setConsent] = useState(false);
   const quickScrollFrame = useRef<number | null>(null);
-  const storeProducts = managedProducts === null ? market === "conakry" ? defaultProducts : [] : managedProducts;
+  const { language, changeLanguage } = useStoreLanguage();
+  const { market, storeSettings, storeProducts } = useStoreMarket();
   const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"];
   const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => dollCategories.includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const siteSections = readSiteSections(storeSettings.site_sections);
@@ -79,43 +76,6 @@ export default function Home() {
     { id: "nouveautes", eyebrow: say("Tout juste arrivés en boutique", "Freshly arrived in store"), title: say("Les nouveautés", "Our newest arrivals"), detail: say("Des découvertes à ne pas laisser filer.", "Little discoveries worth catching."), items: storeProducts.filter((item) => item.badge === "new").slice(0, 4) },
     { id: "rentree-scolaire", eyebrow: say("Les essentiels des petits écoliers", "Everything little learners need"), title: say("Une rentrée bien préparée", "Ready for school days"), detail: say("Cartables, fournitures et jolies trouvailles.", "Backpacks, supplies and thoughtful finds."), items: storeProducts.filter((item) => item.badge === "school").slice(0, 4) },
   ];
-
-  useEffect(() => {
-    const preferred = new URLSearchParams(window.location.search).get("region");
-    window.localStorage.removeItem("envol-market");
-    void loadMarket(preferred === "qc" || preferred === "conakry" ? preferred : undefined);
-  }, []);
-
-  async function loadMarket(preferred?: Market) {
-    try {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const response = await fetch(preferred ? `/api/catalog?region=${preferred}&timezone=${encodeURIComponent(timezone)}` : `/api/catalog?timezone=${encodeURIComponent(timezone)}`);
-      const payload = await response.json() as { products?: Record<string, unknown>[]; settings?: Record<string, string>; region?: string };
-      const selected = normalizeMarket(payload.region || preferred);
-      setMarket(selected);
-      const savedSettings = payload.settings || {};
-      setStoreSettings(savedSettings);
-      if (!payload.products?.length && savedSettings.catalog_initialized !== "true" && selected === "conakry") return;
-      setManagedProducts((payload.products || []).map((item) => ({
-        id: String(item.id), articleNumber: item.article_number ? String(item.article_number) : undefined, name: { fr: String(item.name_fr || ""), en: String(item.name_en || item.name_fr || "") },
-        category: String(item.category), price: Number(item.price || 0), ages: String(item.ages || "3+"),
-        sheet: String(item.image_sheet || "17"), position: Number(item.image_position || 0), imageUrl: item.image_url ? String(item.image_url) : undefined,
-        extraImages: (() => { try { const images = JSON.parse(String(item.images_json || "[]")); return Array.isArray(images) ? images.filter((image): image is string => typeof image === "string" && image.trim().length > 0) : []; } catch { return []; } })(),
-        stock: Number(item.stock || 0), status: String(item.status || "available") as Product["status"], badge: item.badge ? String(item.badge) as Product["badge"] : undefined,
-        detail: { fr: String(item.description_fr || ""), en: String(item.description_en || item.description_fr || "") },
-      })));
-    } catch {}
-  }
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("envol-language");
-    const initialLanguage: Language = saved === "fr" || saved === "en" ? saved : navigator.language.toLowerCase().startsWith("en") ? "en" : "fr";
-    setLanguage(initialLanguage);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
 
   useEffect(() => {
     const root = document.querySelector<HTMLElement>(".editable-storefront");
@@ -251,11 +211,6 @@ export default function Home() {
     const message = isEnglish ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the 10% welcome discount on my first order.` : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de 10 % sur ma première commande.`;
     if (whatsappNumber) window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     setRequested(true);
-  }
-
-  function changeLanguage(nextLanguage: Language) {
-    setLanguage(nextLanguage);
-    window.localStorage.setItem("envol-language", nextLanguage);
   }
 
   function chooseCategory(category: string) {
