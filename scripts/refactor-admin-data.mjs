@@ -3,7 +3,14 @@ import fs from "node:fs";
 const path = "app/admin/page.tsx";
 let source = fs.readFileSync(path, "utf8");
 
-if (source.includes("useAdminData({")) process.exit(0);
+if (source.includes("useAdminData({")) {
+  source = source.replace(
+    "useAdminData({ market, admin, setAdmin, flash, setError })",
+    "useAdminData({ market, admin, setAdmin, setNotice, setError })",
+  );
+  fs.writeFileSync(path, source, "utf8");
+  process.exit(0);
+}
 
 source = source
   .replace('import { useEffect, useState, type FormEvent } from "react";', 'import { useState, type FormEvent } from "react";')
@@ -17,6 +24,6 @@ source = source.replace(dataStatePattern, '  const [draggedSection, setDraggedSe
 
 const effectsPattern = /  useEffect\(\(\) => \{\n    request\("\/api\/admin\/session"\)[\s\S]*?\n  async function signIn/;
 if (!effectsPattern.test(source)) throw new Error("Chargement admin introuvable");
-source = source.replace(effectsPattern, `  const {\n    checking, products, orders, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,\n    setProducts, setOrders, setPromotions, setSubscribers, setMovements, setVersions, setSettings, setSiteSections, setSiteTexts,\n  } = useAdminData({ market, admin, setAdmin, flash, setError });\n\n  async function signIn`);
+source = source.replace(effectsPattern, `  const {\n    checking, products, orders, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,\n    setProducts, setOrders, setPromotions, setSubscribers, setMovements, setVersions, setSettings, setSiteSections, setSiteTexts,\n  } = useAdminData({ market, admin, setAdmin, setNotice, setError });\n\n  async function signIn`);
 
 fs.writeFileSync(path, source, "utf8");
