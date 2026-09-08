@@ -1,4 +1,25 @@
-import { body, cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import * as v from "valibot";
+
+import { cmsEnv, currentAdmin, forbidden, numberValue, stringValue } from "@/lib/cms";
+import { optionalBooleanInput, optionalNumericInput, optionalTextInput, validateJsonBody } from "@/lib/api-validation";
+
+const promotionSchema = v.looseObject({
+  id: optionalTextInput,
+  title_fr: v.string(),
+  title_en: optionalTextInput,
+  description_fr: optionalTextInput,
+  description_en: optionalTextInput,
+  discount_percent: optionalNumericInput,
+  active: optionalBooleanInput,
+  starts_at: optionalTextInput,
+  ends_at: optionalTextInput,
+  region: v.optional(v.picklist(["qc", "conakry", "both"])),
+  promo_code: optionalTextInput,
+  discount_type: v.optional(v.picklist(["percent", "amount"])),
+  discount_amount: optionalNumericInput,
+  minimum_purchase: optionalNumericInput,
+  usage_limit: optionalNumericInput,
+});
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
@@ -9,7 +30,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const data = await body(request);
+  const parsed = await validateJsonBody(request, promotionSchema);
+  if (!parsed.success) return parsed.response;
+  const data = parsed.data;
   const id = stringValue(data.id) || crypto.randomUUID();
   const title = stringValue(data.title_fr);
   if (!title) return Response.json({ error: "Le titre de la promotion est obligatoire." }, { status: 400 });
