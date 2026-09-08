@@ -235,6 +235,7 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
 
   return {
     busy,
+    setBusy,
     passwords,
     setPasswords,
     updateEditing,
