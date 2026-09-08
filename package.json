@@ -15,7 +15,7 @@
     "seed:catalog:apply": "node scripts/seed-catalog-d1.mjs --apply",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
-    "test:unit": "node --experimental-strip-types --test tests/article-number.test.mjs tests/archive-products.test.mjs tests/markets.test.mjs",
+    "test:unit": "node --experimental-strip-types --test tests/article-number.test.mjs tests/archive-products.test.mjs tests/markets.test.mjs tests/seed-catalog.test.mjs",
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

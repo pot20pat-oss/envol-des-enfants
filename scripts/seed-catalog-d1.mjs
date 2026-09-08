@@ -150,8 +150,6 @@ const sqlForProduct = (product) => {
     `description_en=${sqlString(product.detail.en)}`,
     `category=${sqlString(product.category)}`,
     `price=${preservePositive("price", priceConakrySql)}`,
-    `stock=${preservePositive("stock", stockConakrySql)}`,
-    `status=${sqlString(product.status)}`,
     `badge=${sqlString(product.badge ?? null)}`,
     `ages=${sqlString(product.ages)}`,
     `image_url=${sqlString(product.imageUrl)}`,
@@ -161,8 +159,6 @@ const sqlForProduct = (product) => {
     "visible=1",
     `price_qc=${preservePositive("price_qc", priceQcSql)}`,
     `price_conakry=${preservePositive("price_conakry", priceConakrySql)}`,
-    `stock_qc=${preservePositive("stock_qc", stockQcSql)}`,
-    `stock_conakry=${preservePositive("stock_conakry", stockConakrySql)}`,
     `visible_qc=${sqlBool(product.visibleQc, true)}`,
     `visible_conakry=${sqlBool(product.visibleConakry, true)}`,
     `images_json=${sqlString(JSON.stringify(product.extraImages || []))}`,
@@ -197,7 +193,7 @@ console.log(`IDs stables générés pour produits historiques: ${generatedIdCoun
 console.log("Images manquantes: 0.");
 console.log("Doublons ID/nom/image: 0.");
 console.log(`Prix Conakry à 0 dans les JSON: ${zeroPriceCount}.`);
-console.log("Protection production: prix/stock existants > 0 conservés quand le JSON fournit 0.");
+console.log("Protection production: les prix existants sont conservés quand le JSON fournit 0; stock, stock par marché et statut ne sont jamais modifiés sur les produits existants.");
 console.log(`SQL généré: ${path.relative(root, outputPath)}`);
 console.log("Le seed réutilise les produits existants par ID ou nom FR et ne modifie jamais article_number.");
 
