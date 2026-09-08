@@ -129,6 +129,7 @@ if (errors.length) {
 const sqlString = (value) => value == null ? "NULL" : `'${String(value).replaceAll("'", "''")}'`;
 const sqlNumber = (value, fallback = 0) => Number.isFinite(Number(value)) ? String(Math.trunc(Number(value))) : String(fallback);
 const sqlBool = (value, fallback) => (value ?? fallback) ? "1" : "0";
+const preservePositive = (column, incoming) => `CASE WHEN ${incoming}>0 THEN ${incoming} ELSE ${column} END`;
 
 const sqlForProduct = (product) => {
   const priceConakry = product.priceConakry ?? product.price;
@@ -137,6 +138,10 @@ const sqlForProduct = (product) => {
   const stockQc = product.stockQc ?? product.stock ?? (product.status === "sold" ? 0 : 1);
   const nameKey = product.name.fr.trim();
   const where = `(id=${sqlString(product.id)} OR lower(trim(name_fr))=lower(trim(${sqlString(nameKey)})))`;
+  const priceConakrySql = sqlNumber(priceConakry);
+  const priceQcSql = sqlNumber(priceQc);
+  const stockConakrySql = sqlNumber(stockConakry, 1);
+  const stockQcSql = sqlNumber(stockQc, 1);
 
   const assignments = [
     `name_fr=${sqlString(product.name.fr)}`,
@@ -144,8 +149,8 @@ const sqlForProduct = (product) => {
     `description_fr=${sqlString(product.detail.fr)}`,
     `description_en=${sqlString(product.detail.en)}`,
     `category=${sqlString(product.category)}`,
-    `price=${sqlNumber(priceConakry)}`,
-    `stock=${sqlNumber(stockConakry, 1)}`,
+    `price=${preservePositive("price", priceConakrySql)}`,
+    `stock=${preservePositive("stock", stockConakrySql)}`,
     `status=${sqlString(product.status)}`,
     `badge=${sqlString(product.badge ?? null)}`,
     `ages=${sqlString(product.ages)}`,
@@ -154,10 +159,10 @@ const sqlForProduct = (product) => {
     `image_position=${sqlNumber(product.position)}`,
     `brand=${sqlString(product.brand || null)}`,
     "visible=1",
-    `price_qc=${sqlNumber(priceQc)}`,
-    `price_conakry=${sqlNumber(priceConakry)}`,
-    `stock_qc=${sqlNumber(stockQc, 1)}`,
-    `stock_conakry=${sqlNumber(stockConakry, 1)}`,
+    `price_qc=${preservePositive("price_qc", priceQcSql)}`,
+    `price_conakry=${preservePositive("price_conakry", priceConakrySql)}`,
+    `stock_qc=${preservePositive("stock_qc", stockQcSql)}`,
+    `stock_conakry=${preservePositive("stock_conakry", stockConakrySql)}`,
     `visible_qc=${sqlBool(product.visibleQc, true)}`,
     `visible_conakry=${sqlBool(product.visibleConakry, true)}`,
     `images_json=${sqlString(JSON.stringify(product.extraImages || []))}`,
@@ -167,10 +172,10 @@ const sqlForProduct = (product) => {
   const values = [
     sqlString(product.id), "NULL", sqlString(product.name.fr), sqlString(product.name.en),
     sqlString(product.detail.fr), sqlString(product.detail.en), sqlString(product.category),
-    sqlNumber(priceConakry), sqlNumber(stockConakry, 1), sqlString(product.status),
+    priceConakrySql, stockConakrySql, sqlString(product.status),
     sqlString(product.badge ?? null), sqlString(product.ages), sqlString(product.imageUrl),
     sqlString(product.sheet || null), sqlNumber(product.position), sqlString(product.brand || null),
-    "1", sqlNumber(priceQc), sqlNumber(priceConakry), sqlNumber(stockQc, 1), sqlNumber(stockConakry, 1),
+    "1", priceQcSql, priceConakrySql, stockQcSql, stockConakrySql,
     sqlBool(product.visibleQc, true), sqlBool(product.visibleConakry, true),
     sqlString(JSON.stringify(product.extraImages || [])), "CURRENT_TIMESTAMP", "CURRENT_TIMESTAMP",
   ];
@@ -191,7 +196,8 @@ console.log(`Catalogue valide: ${products.length} produits.`);
 console.log(`IDs stables générés pour produits historiques: ${generatedIdCount}.`);
 console.log("Images manquantes: 0.");
 console.log("Doublons ID/nom/image: 0.");
-console.log(`Prix Conakry à 0: ${zeroPriceCount}.`);
+console.log(`Prix Conakry à 0 dans les JSON: ${zeroPriceCount}.`);
+console.log("Protection production: prix/stock existants > 0 conservés quand le JSON fournit 0.");
 console.log(`SQL généré: ${path.relative(root, outputPath)}`);
 console.log("Le seed réutilise les produits existants par ID ou nom FR et ne modifie jamais article_number.");
 
