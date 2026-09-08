@@ -5,7 +5,7 @@ import {
   assignCategoryArticleNumbers,
   collectCategoryArticleNumberState,
   ensureCategoryArticleNumbers,
-} from "../lib/archive-products.ts";
+} from "../lib/archive-product-numbering.ts";
 
 test("collectCategoryArticleNumberState keeps valid maxima and flags invalid numbers", () => {
   const { maxByPrefix, needsNumber } = collectCategoryArticleNumberState([
