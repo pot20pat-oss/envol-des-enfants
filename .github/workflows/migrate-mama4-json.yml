@@ -1,0 +1,33 @@
+name: Migrate Mama4 to JSON
+
+on:
+  push:
+    branches:
+      - refactor/archive-products-cleanup
+    paths:
+      - scripts/migrate-mama4-to-json.mjs
+      - .github/workflows/migrate-mama4-json.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: ${{ !contains(github.event.head_commit.message, '[mama4-json]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: refactor/archive-products-cleanup
+
+      - name: Migrate Mama4 data
+        run: node scripts/migrate-mama4-to-json.mjs
+
+      - name: Commit migration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/mama4-products.json lib/mama4-products.ts lib/archive-products.ts lib/mama4-products-*.ts
+          git commit -m "Move Mama4 product data to JSON [mama4-json]"
+          git push origin HEAD:refactor/archive-products-cleanup
