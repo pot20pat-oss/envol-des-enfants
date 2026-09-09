@@ -45,15 +45,25 @@ export default function StorefrontFeaturedCollections({ products, language, mark
           </div>
           <div className="featured-grid">
             {collection.items.map((item) => (
-              <a
+              <button
+                type="button"
                 className="featured-card"
-                href="#catalogue"
                 key={item.id || `${collection.id}-${item.sheet}-${item.position}`}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onOpenProduct(item);
-                }}
+                onClick={() => onOpenProduct(item)}
                 aria-label={say(`Voir ${item.name[language]} en grand`, `View ${item.name[language]} in detail`)}
+                style={{
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  border: 0,
+                  padding: 0,
+                  margin: 0,
+                  width: "100%",
+                  background: "transparent",
+                  color: "inherit",
+                  font: "inherit",
+                  textAlign: "left",
+                  cursor: "zoom-in",
+                }}
               >
                 <div
                   className="featured-visual"
@@ -72,7 +82,7 @@ export default function StorefrontFeaturedCollections({ products, language, mark
                   <h3>{item.name[language]}</h3>
                   <strong>{marketPrice(item.price, market, language)}</strong>
                 </div>
-              </a>
+              </button>
             ))}
           </div>
         </section>
