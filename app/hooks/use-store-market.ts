@@ -38,9 +38,14 @@ export function useStoreMarket() {
   const [market, setMarket] = useState<Market>("conakry");
 
   useEffect(() => {
-    const preferred = new URLSearchParams(window.location.search).get("region");
-    window.localStorage.removeItem("envol-market");
-    void loadMarket(preferred === "qc" || preferred === "conakry" ? preferred : undefined);
+    const queryMarket = new URLSearchParams(window.location.search).get("region");
+    const savedMarket = window.localStorage.getItem("envol-market");
+    const preferred = queryMarket === "qc" || queryMarket === "conakry"
+      ? queryMarket
+      : savedMarket === "qc" || savedMarket === "conakry"
+        ? savedMarket
+        : undefined;
+    void loadMarket(preferred);
   }, []);
 
   async function loadMarket(preferred?: Market) {
@@ -58,6 +63,7 @@ export function useStoreMarket() {
       };
       const selected = normalizeMarket(payload.region || preferred);
       const savedSettings = payload.settings || {};
+      window.localStorage.setItem("envol-market", selected);
       setMarket(selected);
       setStoreSettings(savedSettings);
       if (!payload.products?.length && savedSettings.catalog_initialized !== "true" && selected === "conakry") return;
