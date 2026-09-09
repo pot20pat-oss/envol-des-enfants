@@ -58,6 +58,7 @@ export default function StorefrontNavigation({
   chooseCategory,
 }: Props) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const marketRoute = (route: string) => `${route}${route.includes("?") ? "&" : "?"}region=${market}`;
 
   const availableValues = useMemo(
     () => new Set(availableCategories.map((category) => category.value)),
@@ -90,12 +91,12 @@ export default function StorefrontNavigation({
   }
 
   function goTo(route: string) {
-    window.location.assign(route);
+    window.location.assign(marketRoute(route));
   }
 
   function renderMenuItems(items: MenuItem[]) {
     return items.map((item) => item.route ? (
-      <a href={item.route} key={item.value} className={item.className}>{item.label(say)}</a>
+      <a href={marketRoute(item.route)} key={item.value} className={item.className}>{item.label(say)}</a>
     ) : (
       <a href="#catalogue" key={item.value} className={item.className} onClick={() => selectCategory(item.value)}>
         {item.label(say)}
@@ -106,7 +107,7 @@ export default function StorefrontNavigation({
   return (
     <>
       <header className="header wrap">
-        <a className="brand" href="/" aria-label="Envol des Enfants, accueil">
+        <a className="brand" href={marketRoute("/")} aria-label="Envol des Enfants, accueil">
           <span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span>
         </a>
         <p className="header-location">{markets[market].label} <span>•</span> {say("Des jouets qui font grandir", "Toys that help little ones grow")}</p>
@@ -121,21 +122,17 @@ export default function StorefrontNavigation({
       </header>
 
       <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
-        {sectionVisible("nouveautes") && <a href="/">{say("Nouveautés", "New arrivals")}</a>}
-
-        {sectionVisible("catalogue") && <a className="nav-catalog-tab" href="/catalogue">{say("Catalogue", "Shop")}</a>}
-        {sectionVisible("catalogue") && visibleToyItems.length > 0 && <a className="nav-toys-tab" href="/jouets">{say("Jouets", "Toys")}</a>}
-
-        {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href="/poupees">{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
-
+        {sectionVisible("nouveautes") && <a href={marketRoute("/")}>{say("Nouveautés", "New arrivals")}</a>}
+        {sectionVisible("catalogue") && <a className="nav-catalog-tab" href={marketRoute("/catalogue")}>{say("Catalogue", "Shop")}</a>}
+        {sectionVisible("catalogue") && visibleToyItems.length > 0 && <a className="nav-toys-tab" href={marketRoute("/jouets")}>{say("Jouets", "Toys")}</a>}
+        {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href={marketRoute("/poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
         {sectionVisible("catalogue") && visibleKidsItems.length > 0 && <div className={`nav-dropdown nav-kids-menu${openMenu === "enfants" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>
           {openMenu === "enfants" && <div className="nav-dropdown-panel">{renderMenuItems(visibleKidsItems)}</div>}
         </div>}
-
-        {sectionVisible("rentree") && <a className="nav-school-tab" href="/articles-scolaires" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/articles-scolaires"); }} style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>{say("Articles scolaires", "School supplies")}</a>}
-        <a className="nav-promotions-tab" href="/promotions" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/promotions"); }} style={{ position: "relative", zIndex: 40, pointerEvents: "auto" }}>{say("Promotions", "Offers")}</a>
-        {sectionVisible("contact") && <a className="nav-find-tab" href="/nous-trouver">{say("Nous trouver", "Find us")}</a>}
+        {sectionVisible("rentree") && <a className="nav-school-tab" href={marketRoute("/articles-scolaires")} onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/articles-scolaires"); }} style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>{say("Articles scolaires", "School supplies")}</a>}
+        <a className="nav-promotions-tab" href={marketRoute("/promotions")} onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/promotions"); }} style={{ position: "relative", zIndex: 40, pointerEvents: "auto" }}>{say("Promotions", "Offers")}</a>
+        {sectionVisible("contact") && <a className="nav-find-tab" href={marketRoute("/nous-trouver")}>{say("Nous trouver", "Find us")}</a>}
       </div></nav>
     </>
   );
