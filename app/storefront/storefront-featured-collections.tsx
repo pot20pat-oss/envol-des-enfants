@@ -11,10 +11,10 @@ type Props = {
   language: StoreLanguage;
   market: Market;
   say: Say;
-  onSelectProduct: (search: string) => void;
+  onOpenProduct: (product: Product) => void;
 };
 
-export default function StorefrontFeaturedCollections({ products, language, market, say, onSelectProduct }: Props) {
+export default function StorefrontFeaturedCollections({ products, language, market, say, onOpenProduct }: Props) {
   const collections = [
     {
       id: "nouveautes",
@@ -49,7 +49,11 @@ export default function StorefrontFeaturedCollections({ products, language, mark
                 className="featured-card"
                 href="#catalogue"
                 key={item.id || `${collection.id}-${item.sheet}-${item.position}`}
-                onClick={() => onSelectProduct(item.name[language])}
+                onClick={(event) => {
+                  event.preventDefault();
+                  onOpenProduct(item);
+                }}
+                aria-label={say(`Voir ${item.name[language]} en grand`, `View ${item.name[language]} in detail`)}
               >
                 <div
                   className="featured-visual"
