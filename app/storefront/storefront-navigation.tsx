@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Translation } from "@/lib/default-catalog";
 import type { Market } from "@/lib/markets";
 import { markets } from "@/lib/markets";
@@ -22,6 +22,35 @@ type Props = {
   chooseCategory: (category: string) => void;
 };
 
+type MenuItem = {
+  value: string;
+  label: (say: Props["say"]) => string;
+  className?: string;
+};
+
+const toyItems: MenuItem[] = [
+  { value: "eveil", label: (say) => say("Jouets éducatifs", "Educational toys") },
+  { value: "poupees", label: (say) => say("Mon monde de poupées et princesses", "My world of dolls and princesses"), className: "nav-dolls-link" },
+  { value: "disney", label: () => "↳ Disney", className: "nav-princesses-link" },
+  { value: "barbie", label: () => "↳ Barbie", className: "nav-princesses-link" },
+  { value: "piscine", label: (say) => say("Piscine & jeux d’eau", "Pool & water play") },
+  { value: "imitation", label: (say) => say("Métiers & imitation", "Pretend play") },
+  { value: "dinosaures", label: (say) => say("Dinosaures & aventures", "Dinosaurs & adventures") },
+  { value: "animaux", label: (say) => say("Animaux & compagnons", "Animals & companions") },
+  { value: "vehicules", label: (say) => say("Véhicules", "Vehicles") },
+];
+
+const kidsItems: MenuItem[] = [
+  { value: "bebe", label: (say) => say("Bébé", "Baby") },
+  { value: "vetements", label: (say) => say("Vêtements", "Clothing") },
+  { value: "chaussures", label: (say) => say("Chaussures", "Shoes") },
+];
+
+const schoolItems: MenuItem[] = [
+  { value: "scolaire", label: (say) => say("Articles scolaires", "School supplies") },
+  { value: "sacs", label: (say) => say("Sacs & gourdes", "Bags & bottles") },
+];
+
 export default function StorefrontNavigation({
   language,
   market,
@@ -34,6 +63,16 @@ export default function StorefrontNavigation({
   chooseCategory,
 }: Props) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  const availableValues = useMemo(
+    () => new Set(availableCategories.map((category) => category.value)),
+    [availableCategories],
+  );
+
+  const visibleToyItems = toyItems.filter((item) => availableValues.has(item.value));
+  const visibleKidsItems = kidsItems.filter((item) => availableValues.has(item.value));
+  const visibleSchoolItems = schoolItems.filter((item) => availableValues.has(item.value));
+  const hasDolls = availableValues.has("poupees");
 
   useEffect(() => {
     if (!openMenu) return;
@@ -56,6 +95,19 @@ export default function StorefrontNavigation({
     setOpenMenu(null);
   }
 
+  function renderMenuItems(items: MenuItem[]) {
+    return items.map((item) => (
+      <a
+        href="#catalogue"
+        key={item.value}
+        className={item.className}
+        onClick={() => selectCategory(item.value)}
+      >
+        {item.label(say)}
+      </a>
+    ));
+  }
+
   return (
     <>
       <header className="header wrap">
@@ -75,33 +127,32 @@ export default function StorefrontNavigation({
 
       <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
         {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
-        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
+
+        {sectionVisible("catalogue") && availableCategories.length > 0 && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>
           {openMenu === "catalogue" && <div className="nav-dropdown-panel">{availableCategories.map((category) => <a href="#catalogue" key={category.value} onClick={() => selectCategory(category.value)}>{category.label[language]}</a>)}</div>}
         </div>}
-        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
+
+        {sectionVisible("catalogue") && visibleToyItems.length > 0 && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
-          {openMenu === "jouets" && <div className="nav-dropdown-panel">
-            <a href="#catalogue" onClick={() => selectCategory("eveil")}>{say("Jouets éducatifs", "Educational toys")}</a>
-            <a href="#catalogue" className="nav-dolls-link" onClick={() => selectCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>
-            <a href="#catalogue" className="nav-princesses-link" onClick={() => selectCategory("disney")}>↳ Disney</a>
-            <a href="#catalogue" className="nav-princesses-link" onClick={() => selectCategory("barbie")}>↳ Barbie</a>
-            <a href="#catalogue" onClick={() => selectCategory("piscine")}>{say("Piscine & jeux d’eau", "Pool & water play")}</a>
-            <a href="#catalogue" onClick={() => selectCategory("imitation")}>{say("Métiers & imitation", "Pretend play")}</a>
-            <a href="#catalogue" onClick={() => selectCategory("dinosaures")}>{say("Dinosaures & aventures", "Dinosaurs & adventures")}</a>
-            <a href="#catalogue" onClick={() => selectCategory("animaux")}>{say("Animaux & compagnons", "Animals & companions")}</a>
-            <a href="#catalogue" onClick={() => selectCategory("vehicules")}>{say("Véhicules", "Vehicles")}</a>
-          </div>}
+          {openMenu === "jouets" && <div className="nav-dropdown-panel">{renderMenuItems(visibleToyItems)}</div>}
         </div>}
-        {sectionVisible("catalogue") && <a className="nav-dolls-tab" href="#catalogue" onClick={() => selectCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
-        {sectionVisible("catalogue") && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
+
+        {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href="#catalogue" onClick={() => selectCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
+
+        {sectionVisible("catalogue") && visibleKidsItems.length > 0 && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>
-          {openMenu === "enfants" && <div className="nav-dropdown-panel"><a href="#catalogue" onClick={() => selectCategory("bebe")}>{say("Bébé", "Baby")}</a><a href="#catalogue" onClick={() => selectCategory("vetements")}>{say("Vêtements", "Clothing")}</a><a href="#catalogue" onClick={() => selectCategory("chaussures")}>{say("Chaussures", "Shoes")}</a></div>}
+          {openMenu === "enfants" && <div className="nav-dropdown-panel">{renderMenuItems(visibleKidsItems)}</div>}
         </div>}
+
         {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>
-          {openMenu === "rentree" && <div className="nav-dropdown-panel"><a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a><a href="#catalogue" onClick={() => selectCategory("scolaire")}>{say("Articles scolaires", "School supplies")}</a><a href="#catalogue" onClick={() => selectCategory("sacs")}>{say("Sacs & gourdes", "Bags & bottles")}</a></div>}
+          {openMenu === "rentree" && <div className="nav-dropdown-panel">
+            <a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a>
+            {renderMenuItems(visibleSchoolItems)}
+          </div>}
         </div>}
+
         {sectionVisible("promotions") && <a href="#promotions">{say("Promotions", "Offers")}</a>}
         {sectionVisible("contact") && <a href="#contact">{say("Nous trouver", "Find us")}</a>}
       </div></nav>
