@@ -10,12 +10,15 @@
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(2){left:23.046875%!important;width:9.521484%!important}
 .shop-nav>.wrap>a.nav-dolls-tab{left:32.763672%!important;width:18.212891%!important}
 .shop-nav>.wrap>.nav-dropdown:nth-of-type(3){left:51.171875%!important;width:12.890625%!important}
-.shop-nav>.wrap>.nav-dropdown:nth-of-type(4){left:64.257813%!important;width:11.767578%!important}
-.shop-nav>.wrap>a:is([href="#promotions"],[href="/promotions"],[data-route="/promotions"]){left:76.220703%!important;width:12.5%!important}
-.shop-nav>.wrap>a:is([href="#contact"],[href="/nous-trouver"],[data-route="/nous-trouver"]){left:88.916016%!important;width:10.693359%!important;z-index:50!important}
+.shop-nav>.wrap>a.nav-school-tab{left:64.257813%!important;width:11.767578%!important;z-index:20!important}
+.shop-nav>.wrap>a.nav-promotions-tab{left:76.220703%!important;width:12.5%!important;z-index:30!important}
+.shop-nav>.wrap>a.nav-find-tab{left:88.916016%!important;width:10.693359%!important;z-index:50!important}
 
 .shop-nav>.wrap>.nav-dropdown{overflow:visible!important;z-index:5!important;pointer-events:none!important}
 .shop-nav>.wrap>a{overflow:hidden!important;z-index:10!important}
+.shop-nav>.wrap>a.nav-school-tab{z-index:20!important}
+.shop-nav>.wrap>a.nav-promotions-tab{z-index:30!important}
+.shop-nav>.wrap>a.nav-find-tab{z-index:50!important}
 .shop-nav>.wrap>.nav-dropdown>button,.shop-nav>.wrap>.nav-dropdown>.nav-dropdown-panel,.shop-nav>.wrap>a{pointer-events:auto!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown>button{width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:14px!important;background:transparent!important;box-shadow:none!important;outline:0!important;color:transparent!important;font-size:0!important;text-shadow:none!important;cursor:pointer!important;transform:none!important;filter:none!important;box-sizing:border-box!important;-webkit-tap-highlight-color:transparent!important}
 .shop-nav>.wrap>a::before,.shop-nav>.wrap>.nav-dropdown>button::before{content:none!important;display:none!important}
