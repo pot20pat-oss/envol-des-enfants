@@ -1,6 +1,7 @@
 /* Navigation 3D illustrée : largeur calée sur le même conteneur que le Hero. */
 .shop-nav{display:block!important;position:relative!important;height:96px!important;padding:0!important;border:0!important;background:#fff!important;overflow:visible!important}
 .shop-nav::before{content:""!important;position:absolute!important;top:0!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;background:transparent url('/nav-kids-3d.svg') 0 0/100% 100% no-repeat!important;pointer-events:none!important}
+.shop-nav.nav-en::before{background-image:url('/nav-kids-3d-en.svg')!important}
 .shop-nav>.wrap{position:absolute!important;top:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(1240px,calc(100% - 104px))!important;max-width:none!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important;z-index:3!important}
 .shop-nav>.wrap>a,.shop-nav>.wrap>.nav-dropdown{position:absolute!important;top:10%!important;height:85.2%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;box-sizing:border-box!important}
 
