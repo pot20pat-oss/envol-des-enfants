@@ -23,7 +23,16 @@ export function useStorefrontSettings(
   const welcomeDiscount = Number.isFinite(parsedDiscount) && parsedDiscount > 0 && parsedDiscount <= 100 ? parsedDiscount : 10;
   const isEnglish = language === "en";
   const say = (french: string, english: string) => isEnglish ? english : french;
-  const editable = (key: string, french: string, english: string) => siteTexts[`${key}_${language}`]?.trim() || say(french, english);
+
+  const localizedSiteText = (key: string) => {
+    const localized = siteTexts[`${key}_${language}`]?.trim();
+    if (language !== "en") return localized;
+    const french = siteTexts[`${key}_fr`]?.trim();
+    if (!localized || (french && localized === french)) return "";
+    return localized;
+  };
+
+  const editable = (key: string, french: string, english: string) => localizedSiteText(key) || say(french, english);
   const sectionStyle = (id: string): CSSProperties => {
     const index = siteSections.findIndex((section) => section.id === id);
     const section = siteSections[index];
@@ -49,7 +58,7 @@ export function useStorefrontSettings(
     });
 
     const replaceText = (key: string, selector: string, firstOnly = false) => {
-      const value = siteTexts[`${key}_${language}`]?.trim();
+      const value = localizedSiteText(key);
       const element = root.querySelector<HTMLElement>(selector);
       if (!value || !element) return;
       if (firstOnly && element.firstChild) element.firstChild.textContent = value;
@@ -73,7 +82,7 @@ export function useStorefrontSettings(
       const hours = root.querySelector<HTMLElement>(".contact-hour > span");
       if (hours) hours.textContent = storeSettings.opening_hours;
     }
-    if (storeSettings.delivery_conditions?.trim() && !siteTexts[`delivery_description_${language}`]?.trim()) {
+    if (language === "fr" && storeSettings.delivery_conditions?.trim() && !siteTexts.delivery_description_fr?.trim()) {
       const delivery = root.querySelector<HTMLElement>("#livraison .section-heading > p");
       if (delivery) delivery.textContent = storeSettings.delivery_conditions;
     }
