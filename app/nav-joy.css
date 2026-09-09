@@ -28,4 +28,8 @@
 .shop-nav .nav-dropdown-panel{position:absolute!important;left:0!important;right:auto!important;top:calc(100% + 8px)!important;margin-top:0!important;z-index:1000!important;min-width:230px!important;border-radius:18px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 14px 34px rgba(25,54,72,.20)!important}
 .shop-nav .nav-dropdown-panel>a{display:block!important;height:auto!important;min-height:0!important;padding:13px 16px!important;background:#fff!important;color:#173e5c!important;font-size:15px!important;font-weight:800!important;text-align:left!important;text-shadow:none!important}
 .shop-nav .nav-dropdown-panel>a:hover{background:#f5f8fa!important;color:#0b4d7c!important}
+
+/* Le CMS reste accessible directement à /admin, mais ne doit pas être exposé sur la vitrine publique. */
+.footer a[href="/admin"]{display:none!important}
+
 @media(max-width:800px){.shop-nav{height:70px!important}.shop-nav::before,.shop-nav>.wrap{width:min(600px,calc(100% - 34px))!important}}
