@@ -89,6 +89,10 @@ export default function StorefrontNavigation({
     setOpenMenu(null);
   }
 
+  function goTo(route: string) {
+    window.location.assign(route);
+  }
+
   function renderMenuItems(items: MenuItem[]) {
     return items.map((item) => item.route ? (
       <a href={item.route} key={item.value} className={item.className}>{item.label(say)}</a>
@@ -136,9 +140,9 @@ export default function StorefrontNavigation({
           {openMenu === "enfants" && <div className="nav-dropdown-panel">{renderMenuItems(visibleKidsItems)}</div>}
         </div>}
 
-        {sectionVisible("rentree") && <a href="/articles-scolaires">{say("Articles scolaires", "School supplies")}</a>}
-        {sectionVisible("promotions") && <a href="/promotions">{say("Promotions", "Offers")}</a>}
-        {sectionVisible("contact") && <a href="/nous-trouver">{say("Nous trouver", "Find us")}</a>}
+        {sectionVisible("rentree") && <a className="nav-school-tab" href="/articles-scolaires" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/articles-scolaires"); }} style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>{say("Articles scolaires", "School supplies")}</a>}
+        {sectionVisible("promotions") && <a className="nav-promotions-tab" href="/promotions" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/promotions"); }} style={{ position: "relative", zIndex: 40, pointerEvents: "auto" }}>{say("Promotions", "Offers")}</a>}
+        {sectionVisible("contact") && <a className="nav-find-tab" href="/nous-trouver">{say("Nous trouver", "Find us")}</a>}
       </div></nav>
     </>
   );
