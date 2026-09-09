@@ -7,7 +7,6 @@ import { markets } from "@/lib/markets";
 import { PhoneIcon, WhatsAppIcon } from "./product-icons";
 
 type Language = "fr" | "en";
-
 type Category = { label: Translation; value: string };
 
 type Props = {
@@ -26,11 +25,12 @@ type MenuItem = {
   value: string;
   label: (say: Props["say"]) => string;
   className?: string;
+  route?: string;
 };
 
 const toyItems: MenuItem[] = [
   { value: "eveil", label: (say) => say("Jouets éducatifs", "Educational toys") },
-  { value: "poupees", label: (say) => say("Mon monde de poupées et princesses", "My world of dolls and princesses"), className: "nav-dolls-link" },
+  { value: "poupees", label: (say) => say("Mon monde de poupées et princesses", "My world of dolls and princesses"), className: "nav-dolls-link", route: "/poupees" },
   { value: "disney", label: () => "↳ Disney", className: "nav-princesses-link" },
   { value: "barbie", label: () => "↳ Barbie", className: "nav-princesses-link" },
   { value: "piscine", label: (say) => say("Piscine & jeux d’eau", "Pool & water play") },
@@ -96,13 +96,10 @@ export default function StorefrontNavigation({
   }
 
   function renderMenuItems(items: MenuItem[]) {
-    return items.map((item) => (
-      <a
-        href="#catalogue"
-        key={item.value}
-        className={item.className}
-        onClick={() => selectCategory(item.value)}
-      >
+    return items.map((item) => item.route ? (
+      <a href={item.route} key={item.value} className={item.className}>{item.label(say)}</a>
+    ) : (
+      <a href="#catalogue" key={item.value} className={item.className} onClick={() => selectCategory(item.value)}>
         {item.label(say)}
       </a>
     ));
@@ -111,7 +108,7 @@ export default function StorefrontNavigation({
   return (
     <>
       <header className="header wrap">
-        <a className="brand" href="#accueil" aria-label="Envol des Enfants, accueil">
+        <a className="brand" href="/" aria-label="Envol des Enfants, accueil">
           <span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span>
         </a>
         <p className="header-location">{markets[market].label} <span>•</span> {say("Des jouets qui font grandir", "Toys that help little ones grow")}</p>
@@ -126,7 +123,7 @@ export default function StorefrontNavigation({
       </header>
 
       <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
-        {sectionVisible("nouveautes") && <a href="#nouveautes">{say("Nouveautés", "New arrivals")}</a>}
+        {sectionVisible("nouveautes") && <a href="/">{say("Nouveautés", "New arrivals")}</a>}
 
         {sectionVisible("catalogue") && availableCategories.length > 0 && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>
@@ -138,7 +135,7 @@ export default function StorefrontNavigation({
           {openMenu === "jouets" && <div className="nav-dropdown-panel">{renderMenuItems(visibleToyItems)}</div>}
         </div>}
 
-        {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href="#catalogue" onClick={() => selectCategory("poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
+        {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href="/poupees">{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
 
         {sectionVisible("catalogue") && visibleKidsItems.length > 0 && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>
@@ -148,13 +145,13 @@ export default function StorefrontNavigation({
         {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>
           {openMenu === "rentree" && <div className="nav-dropdown-panel">
-            <a href="#rentree-scolaire" onClick={() => setOpenMenu(null)}>{say("Sélection d'articles scolaires", "School supplies selection")}</a>
+            <a href="/articles-scolaires">{say("Sélection d'articles scolaires", "School supplies selection")}</a>
             {renderMenuItems(visibleSchoolItems)}
           </div>}
         </div>}
 
-        {sectionVisible("promotions") && <a href="#promotions">{say("Promotions", "Offers")}</a>}
-        {sectionVisible("contact") && <a href="#contact">{say("Nous trouver", "Find us")}</a>}
+        {sectionVisible("promotions") && <a href="/promotions">{say("Promotions", "Offers")}</a>}
+        {sectionVisible("contact") && <a href="/nous-trouver">{say("Nous trouver", "Find us")}</a>}
       </div></nav>
     </>
   );
