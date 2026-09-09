@@ -16,8 +16,6 @@ export default function NavRouteBridge() {
       [".nav-dropdown:nth-of-type(2)", "/jouets"],
       ["a.nav-dolls-tab", "/poupees"],
       [".nav-dropdown:nth-of-type(3)", "/bebe-enfants"],
-      [".nav-dropdown:nth-of-type(4)", "/articles-scolaires"],
-      ['a[href="#promotions"]', "/promotions"],
       ['a[href="#contact"]', "/nous-trouver"],
     ];
 
