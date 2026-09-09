@@ -123,19 +123,12 @@ export default function StorefrontNavigation({
       <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
         {sectionVisible("nouveautes") && <a href="/">{say("Nouveautés", "New arrivals")}</a>}
 
-        {sectionVisible("catalogue") && availableCategories.length > 0 && <div className={`nav-dropdown${openMenu === "catalogue" ? " is-open" : ""}`}>
-          <button type="button" aria-expanded={openMenu === "catalogue"} onClick={() => setOpenMenu(openMenu === "catalogue" ? null : "catalogue")}>{say("Catalogue", "Shop")} <span aria-hidden="true">⌄</span></button>
-          {openMenu === "catalogue" && <div className="nav-dropdown-panel">{availableCategories.map((category) => <a href="#catalogue" key={category.value} onClick={() => selectCategory(category.value)}>{category.label[language]}</a>)}</div>}
-        </div>}
-
-        {sectionVisible("catalogue") && visibleToyItems.length > 0 && <div className={`nav-dropdown${openMenu === "jouets" ? " is-open" : ""}`}>
-          <button type="button" aria-expanded={openMenu === "jouets"} onClick={() => setOpenMenu(openMenu === "jouets" ? null : "jouets")}>{say("Jouets", "Toys")} <span aria-hidden="true">⌄</span></button>
-          {openMenu === "jouets" && <div className="nav-dropdown-panel">{renderMenuItems(visibleToyItems)}</div>}
-        </div>}
+        {sectionVisible("catalogue") && <a className="nav-catalog-tab" href="/catalogue">{say("Catalogue", "Shop")}</a>}
+        {sectionVisible("catalogue") && visibleToyItems.length > 0 && <a className="nav-toys-tab" href="/jouets">{say("Jouets", "Toys")}</a>}
 
         {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href="/poupees">{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
 
-        {sectionVisible("catalogue") && visibleKidsItems.length > 0 && <div className={`nav-dropdown${openMenu === "enfants" ? " is-open" : ""}`}>
+        {sectionVisible("catalogue") && visibleKidsItems.length > 0 && <div className={`nav-dropdown nav-kids-menu${openMenu === "enfants" ? " is-open" : ""}`}>
           <button type="button" aria-expanded={openMenu === "enfants"} onClick={() => setOpenMenu(openMenu === "enfants" ? null : "enfants")}>{say("Bébé & enfants", "Baby & kids")} <span aria-hidden="true">⌄</span></button>
           {openMenu === "enfants" && <div className="nav-dropdown-panel">{renderMenuItems(visibleKidsItems)}</div>}
         </div>}
