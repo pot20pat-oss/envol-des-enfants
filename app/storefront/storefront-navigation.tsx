@@ -46,11 +46,6 @@ const kidsItems: MenuItem[] = [
   { value: "chaussures", label: (say) => say("Chaussures", "Shoes") },
 ];
 
-const schoolItems: MenuItem[] = [
-  { value: "scolaire", label: (say) => say("Articles scolaires", "School supplies") },
-  { value: "sacs", label: (say) => say("Sacs & gourdes", "Bags & bottles") },
-];
-
 export default function StorefrontNavigation({
   language,
   market,
@@ -71,7 +66,6 @@ export default function StorefrontNavigation({
 
   const visibleToyItems = toyItems.filter((item) => availableValues.has(item.value));
   const visibleKidsItems = kidsItems.filter((item) => availableValues.has(item.value));
-  const visibleSchoolItems = schoolItems.filter((item) => availableValues.has(item.value));
   const hasDolls = availableValues.has("poupees");
 
   useEffect(() => {
@@ -142,14 +136,7 @@ export default function StorefrontNavigation({
           {openMenu === "enfants" && <div className="nav-dropdown-panel">{renderMenuItems(visibleKidsItems)}</div>}
         </div>}
 
-        {sectionVisible("rentree") && <div className={`nav-dropdown${openMenu === "rentree" ? " is-open" : ""}`}>
-          <button type="button" aria-expanded={openMenu === "rentree"} onClick={() => setOpenMenu(openMenu === "rentree" ? null : "rentree")}>{say("Articles scolaires", "School supplies")} <span aria-hidden="true">⌄</span></button>
-          {openMenu === "rentree" && <div className="nav-dropdown-panel">
-            <a href="/articles-scolaires">{say("Sélection d'articles scolaires", "School supplies selection")}</a>
-            {renderMenuItems(visibleSchoolItems)}
-          </div>}
-        </div>}
-
+        {sectionVisible("rentree") && <a href="/articles-scolaires">{say("Articles scolaires", "School supplies")}</a>}
         {sectionVisible("promotions") && <a href="/promotions">{say("Promotions", "Offers")}</a>}
         {sectionVisible("contact") && <a href="/nous-trouver">{say("Nous trouver", "Find us")}</a>}
       </div></nav>
