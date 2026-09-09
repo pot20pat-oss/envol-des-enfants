@@ -1,35 +1,48 @@
 "use client";
 import { useEffect,useState } from "react";
 
+type Market = "conakry" | "qc";
 type CatalogResponse = {
   settings?: Record<string,string>;
-  region?: "conakry" | "qc";
+  region?: Market;
 };
 
 export default function Page(){
   const [settings,setSettings]=useState<Record<string,string>>({});
-  const [region,setRegion]=useState<"conakry"|"qc">("conakry");
+  const [region,setRegion]=useState<Market>("conakry");
 
   useEffect(()=>{
+    const queryRegion=new URLSearchParams(window.location.search).get("region");
+    const savedRegion=window.localStorage.getItem("envol-market");
+    const preferred:Market|undefined=queryRegion==="qc"||queryRegion==="conakry"
+      ? queryRegion
+      : savedRegion==="qc"||savedRegion==="conakry"
+        ? savedRegion
+        : undefined;
     const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone;
-    fetch(`/api/catalog?timezone=${encodeURIComponent(timezone)}`)
+    const params=new URLSearchParams({timezone});
+    if(preferred) params.set("region",preferred);
+    fetch(`/api/catalog?${params.toString()}`)
       .then(r=>r.json())
       .then((d:CatalogResponse)=>{
+        const selected:Market=d.region==="qc"?"qc":"conakry";
+        window.localStorage.setItem("envol-market",selected);
         setSettings(d.settings||{});
-        setRegion(d.region==="qc"?"qc":"conakry");
+        setRegion(selected);
       })
       .catch(()=>{});
   },[]);
 
   const phone=settings.phone||"";
   const address=settings.address||(region==="conakry"?"Immeuble Famille Diallo, Cameroun, Dixinn, Conakry, Guinée":"");
+  const homeUrl=`/?region=${region}`;
   const mapUrl=settings.map_url||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-  const mapEmbedUrl=`https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+  const mapEmbedUrl=`https://www.google.com/maps?output=embed&q=${encodeURIComponent(address)}`;
 
   return <main className="category-page">
     <header className="category-header wrap">
-      <a href="/" className="category-brand"><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
-      <a href="/" className="category-back">← Accueil</a>
+      <a href={homeUrl} className="category-brand"><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
+      <a href={homeUrl} className="category-back">← Accueil</a>
     </header>
     <section className="category-hero wrap">
       <p className="eyebrow">Envol des Enfants</p>
@@ -39,14 +52,15 @@ export default function Page(){
       {settings.opening_hours&&<p>{settings.opening_hours}</p>}
     </section>
     {region==="conakry"&&address&&<section className="wrap" style={{paddingBottom:"48px"}}>
-      <div style={{overflow:"hidden",borderRadius:"20px",boxShadow:"0 14px 34px rgba(25,54,72,.16)",background:"#fff"}}>
+      <div style={{overflow:"hidden",borderRadius:"20px",boxShadow:"0 14px 34px rgba(25,54,72,.16)",background:"#fff",minHeight:"420px"}}>
         <iframe
           title="Carte de la boutique Envol des Enfants à Conakry"
           src={mapEmbedUrl}
           width="100%"
           height="420"
           style={{border:0,display:"block"}}
-          loading="lazy"
+          loading="eager"
+          allowFullScreen
           referrerPolicy="no-referrer-when-downgrade"
         />
       </div>
