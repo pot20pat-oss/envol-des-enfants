@@ -121,9 +121,9 @@ export default function StorefrontNavigation({
         </div>
       </header>
 
-      <nav className="shop-nav" aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
+      <nav className={`shop-nav ${language === "en" ? "nav-en" : "nav-fr"}`} aria-label={say("Navigation principale", "Main navigation")}><div className="wrap">
         {sectionVisible("nouveautes") && <a href={marketRoute("/")}>{say("Nouveautés", "New arrivals")}</a>}
-        {sectionVisible("catalogue") && <a className="nav-catalog-tab" href={marketRoute("/catalogue")}>{say("Catalogue", "Shop")}</a>}
+        {sectionVisible("catalogue") && <a className="nav-catalog-tab" href={marketRoute("/catalogue")}>{say("Catalogue", "Catalog")}</a>}
         {sectionVisible("catalogue") && visibleToyItems.length > 0 && <a className="nav-toys-tab" href={marketRoute("/jouets")}>{say("Jouets", "Toys")}</a>}
         {sectionVisible("catalogue") && hasDolls && <a className="nav-dolls-tab" href={marketRoute("/poupees")}>{say("Mon monde de poupées et princesses", "My world of dolls and princesses")}</a>}
         {sectionVisible("catalogue") && visibleKidsItems.length > 0 && <div className={`nav-dropdown nav-kids-menu${openMenu === "enfants" ? " is-open" : ""}`}>
