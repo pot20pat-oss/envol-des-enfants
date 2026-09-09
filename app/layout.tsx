@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import NavRouteBridge from "./nav-route-bridge";
 import "./globals.css";
 import "./navigation-large.css";
 import "./nav-icons.css";
@@ -42,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr-GN">
-      <body className="antialiased"><NavRouteBridge />{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
