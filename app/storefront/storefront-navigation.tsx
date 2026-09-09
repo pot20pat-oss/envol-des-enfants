@@ -141,7 +141,7 @@ export default function StorefrontNavigation({
         </div>}
 
         {sectionVisible("rentree") && <a className="nav-school-tab" href="/articles-scolaires" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/articles-scolaires"); }} style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>{say("Articles scolaires", "School supplies")}</a>}
-        {sectionVisible("promotions") && <a className="nav-promotions-tab" href="/promotions" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/promotions"); }} style={{ position: "relative", zIndex: 40, pointerEvents: "auto" }}>{say("Promotions", "Offers")}</a>}
+        <a className="nav-promotions-tab" href="/promotions" onClick={(event) => { event.preventDefault(); event.stopPropagation(); goTo("/promotions"); }} style={{ position: "relative", zIndex: 40, pointerEvents: "auto" }}>{say("Promotions", "Offers")}</a>
         {sectionVisible("contact") && <a className="nav-find-tab" href="/nous-trouver">{say("Nous trouver", "Find us")}</a>}
       </div></nav>
     </>
