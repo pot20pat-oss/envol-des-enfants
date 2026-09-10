@@ -34,7 +34,7 @@ export default function Page(){
   },[]);
 
   const phone=settings.phone||"";
-  const address=settings.address||(region==="conakry"?"Immeuble Famille Diallo, Cameroun, Dixinn, Conakry, Guinée":"");
+  const address=settings.address||(region==="conakry"?"Conakry, Matam — Route du Niger":"");
   const homeUrl=`/?region=${region}`;
   const mapUrl=settings.map_url||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   const mapEmbedUrl=`https://www.google.com/maps?output=embed&q=${encodeURIComponent(address)}`;
