@@ -28,9 +28,9 @@ export const metadata: Metadata = {
     description: "Jouets éducatifs, articles pour bébé et fournitures scolaires à Dixinn, Conakry. 10 % de rabais pour les nouveaux abonnés.",
     images: ["https://envol-des-enfants.pages.dev/boutique-hero.png"],
   },
-  icons: {
-    icon: "https://envoldesenfants.com/envol-reference.png",
-    shortcut: "https://envoldesenfants.com/envol-reference.png",
+    icons: {
+    icon: "/favicon-envol.png",
+    shortcut: "/favicon-envol.png",
   },
 };
 
