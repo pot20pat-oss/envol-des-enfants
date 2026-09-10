@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     images: ["https://envol-des-enfants.pages.dev/boutique-hero.png"],
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "https://envoldesenfants.com/?region=qc",
+    shortcut: "https://envoldesenfants.com/?region=qc",
   },
 };
 
