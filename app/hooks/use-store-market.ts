@@ -35,16 +35,13 @@ function mapCatalogProduct(item: Record<string, unknown>): Product {
 export function useStoreMarket() {
   const [managedProducts, setManagedProducts] = useState<Product[] | null>(null);
   const [storeSettings, setStoreSettings] = useState<Record<string, string>>({});
-  const [market, setMarket] = useState<Market>("conakry");
+  const [market, setMarket] = useState<Market>("qc");
 
   useEffect(() => {
     const queryMarket = new URLSearchParams(window.location.search).get("region");
-    const savedMarket = window.localStorage.getItem("envol-market");
     const preferred = queryMarket === "qc" || queryMarket === "conakry"
       ? queryMarket
-      : savedMarket === "qc" || savedMarket === "conakry"
-        ? savedMarket
-        : undefined;
+      : undefined;
     void loadMarket(preferred);
   }, []);
 
