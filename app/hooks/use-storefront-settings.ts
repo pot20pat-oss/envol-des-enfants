@@ -16,7 +16,7 @@ export function useStorefrontSettings(
   const whatsappNumber = (storeSettings.whatsapp || (market === "conakry" ? "224666547976" : "")).replace(/[^\d]/g, "");
   const whatsappUrl = whatsappNumber ? `https://wa.me/${whatsappNumber}` : "#contact";
   const facebookUrl = storeSettings.facebook || (market === "conakry" ? "https://www.facebook.com/rachetteboutique/" : "#contact");
-  const address = storeSettings.address || (market === "conakry" ? "Immeuble Famille Diallo, Cameroun, Dixinn, Conakry, Guinée" : "Québec, Canada");
+  const address = storeSettings.address || (market === "conakry" ? "Conakry, Matam — Route du Niger" : "Québec, Canada");
   const mapsUrl = storeSettings.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=${market === "qc" && !storeSettings.address ? "6" : "13"}&ie=UTF8&iwloc=&output=embed`;
   const parsedDiscount = Number(storeSettings.welcome_discount || 10);
