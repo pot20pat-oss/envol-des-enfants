@@ -13,6 +13,7 @@ import "./homepage-only.css";
 import "./category-pages.css";
 import "./hero-mobile.css";
 import "./product-lightbox.css";
+import "./promo-responsive.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
