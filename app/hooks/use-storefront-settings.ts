@@ -36,7 +36,7 @@ export function useStorefrontSettings(
   const sectionStyle = (id: string): CSSProperties => {
     const index = siteSections.findIndex((section) => section.id === id);
     const section = siteSections[index];
-    return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible ? { display: "none" } : {}) };
+    return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible && !(id === "hero" && market === "qc") ? { display: "none" } : {}) };
   };
   const sectionVisible = (id: string) => siteSections.find((section) => section.id === id)?.visible !== false;
 
@@ -53,7 +53,7 @@ export function useStorefrontSettings(
       const element = root.querySelector<HTMLElement>(selectors[section.id]);
       if (!element) return;
       element.style.order = String(index + 10);
-      if (section.visible) element.style.removeProperty("display");
+      if (section.visible || (section.id === "hero" && market === "qc")) element.style.removeProperty("display");
       else element.style.display = "none";
     });
 
@@ -88,7 +88,7 @@ export function useStorefrontSettings(
     }
     const announcement = root.querySelector<HTMLElement>(".announcement strong");
     if (announcement) announcement.textContent = language === "fr" ? `${welcomeDiscount} % de rabais` : `${welcomeDiscount}% off`;
-  }, [storeSettings.site_sections, storeSettings.site_texts, storeSettings.phone, storeSettings.opening_hours, storeSettings.delivery_conditions, storeSettings.welcome_discount, language, welcomeDiscount]);
+  }, [storeSettings.site_sections, storeSettings.site_texts, storeSettings.phone, storeSettings.opening_hours, storeSettings.delivery_conditions, storeSettings.welcome_discount, language, welcomeDiscount, market]);
 
   return {
     storePhone,

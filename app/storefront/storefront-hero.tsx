@@ -35,7 +35,7 @@ export default function StorefrontHero({ market, storePhone, whatsappNumber, wha
         </div>
         <div className="hero-visual">
           <img
-            src={market === "qc" ? "/boutique-hero-quebec.png" : "/boutique-hero.png"}
+            src={market === "qc" ? "/hero-quebec-2026.png" : "/boutique-hero.png"}
             alt={market === "qc" ? say("Boutique québécoise en ligne et sélection de jouets éducatifs", "Quebec online shop and selection of educational toys") : say("Vue panoramique de la boutique Envol des Enfants avec ses vélos, véhicules et rayons de jouets", "Panoramic view of the Envol des Enfants store, bicycles, vehicles and toy displays")}
           />
           <div className="floating-note"><span>★</span><div><strong>{market === "qc" ? say("Bienvenue au Québec", "Welcome to Québec") : say("Bienvenue à Dixinn", "Welcome to Dixinn")}</strong><small>{say("Un univers fait pour jouer.", "A world made for play.")}</small></div></div>
