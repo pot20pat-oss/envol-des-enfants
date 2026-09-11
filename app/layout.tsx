@@ -11,6 +11,7 @@ import "./logo-large.css";
 import "./nav-icons-final.css";
 import "./homepage-only.css";
 import "./category-pages.css";
+import "./catalog-menu-autoclose.css";
 import "./hero-mobile.css";
 import "./product-lightbox.css";
 import "./promo-responsive.css";
