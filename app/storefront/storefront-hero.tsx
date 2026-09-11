@@ -53,14 +53,15 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduceMotion) return;
-    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 5600);
+    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 9000);
     return () => window.clearInterval(timer);
   }, [slides.length]);
 
   return (
     <section className="hero hero-editorial wrap" id="accueil" style={heroStyle}>
-      <img className="hero-story-image" src={slide.image} alt={slide.alt} key={slide.image} />
-      <a className="hero-story-cta" href={slide.href} aria-label={slide.label} title={slide.label} />
+      <a className="hero-story-link" href={slide.href} aria-label={slide.label} title={slide.label}>
+        <img className="hero-story-image" src={slide.image} alt={slide.alt} key={slide.image} />
+      </a>
 
       <button
         type="button"
