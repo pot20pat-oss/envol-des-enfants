@@ -2,7 +2,6 @@
 
 import type { Translation } from "@/lib/default-catalog";
 import type { Market } from "@/lib/markets";
-import { markets } from "@/lib/markets";
 import { PhoneIcon, WhatsAppIcon } from "./product-icons";
 
 type Language = "fr" | "en";
@@ -35,7 +34,6 @@ export default function StorefrontNavigation({
       <a className="brand" href={marketRoute("/")} aria-label="Envol des Enfants, accueil">
         <span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span>
       </a>
-      <p className="header-location">{markets[market].label} <span>•</span> {say("Des jouets qui font grandir", "Toys that help little ones grow")}</p>
       <div className="header-actions">
         <div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}>
           <button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button>
