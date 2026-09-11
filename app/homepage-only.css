@@ -15,10 +15,15 @@
 .editable-storefront{background:#fff}
 .editable-storefront>.quick-scroll{display:none!important}
 
-/* Hero large : occupe réellement la largeur utile de la page. */
+/* Hero large : la boîte prend exactement la hauteur de l'image, sans espace vide hérité. */
 .editable-storefront>.hero-story.wrap{
   width:min(1480px,calc(100% - 32px));
   max-width:none;
+  min-height:0!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  align-self:start;
+  display:block!important;
   margin:16px auto 0;
   padding:0;
   border-radius:20px;
@@ -31,6 +36,8 @@
 .hero-story-stage{
   position:relative;
   width:100%;
+  height:auto;
+  min-height:0;
   aspect-ratio:1024/380;
   overflow:hidden;
   background:#f8f5ef;
@@ -134,6 +141,9 @@
 @media(max-width:800px){
   .editable-storefront>.hero-story.wrap{
     width:calc(100% - 12px);
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:auto!important;
     margin-top:6px;
     border-radius:12px;
   }
