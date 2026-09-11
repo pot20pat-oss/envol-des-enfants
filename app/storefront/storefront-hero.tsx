@@ -22,25 +22,25 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   const heroStyle = { ...sectionStyle("hero"), display: "block" };
   const slides = [
     {
-      image: "/hero-envol-intro.webp",
+      image: "/hero-story-intro.jpg",
       alt: say("Grandir, découvrir et rêver avec Envol des Enfants", "Grow, discover and dream with Envol des Enfants"),
       href: `/catalogue?region=${market}`,
       label: say("Découvrir le catalogue", "Browse the catalog"),
     },
     {
-      image: "/hero-envol-poupees.webp",
+      image: "/hero-story-poupees.jpg",
       alt: say("Poupées, princesses et histoires à inventer", "Dolls, princesses and stories to imagine"),
       href: `/catalogue?region=${market}&categorie=poupees`,
       label: say("Voir les poupées", "See the dolls"),
     },
     {
-      image: "/hero-envol-apprendre.webp",
+      image: "/hero-story-apprendre.jpg",
       alt: say("Curieux aujourd’hui, grands demain", "Curious today, growing tomorrow"),
       href: `/catalogue?region=${market}&categorie=eveil`,
       label: say("Explorer les jeux", "Explore toys"),
     },
     {
-      image: "/hero-envol-nouveautes.webp",
+      image: "/hero-story-nouveautes.jpg",
       alt: say("De nouvelles idées pour jouer", "Fresh ideas for play"),
       href: `/catalogue?region=${market}&categorie=new`,
       label: say("Voir les nouveautés", "See what's new"),
@@ -48,42 +48,57 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   ];
 
   const [active, setActive] = useState(0);
-  const slide = slides[active];
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) return;
-    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 9000);
+    if (reduceMotion || paused) return;
+    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 12000);
     return () => window.clearInterval(timer);
-  }, [slides.length]);
+  }, [paused, slides.length]);
+
+  const previous = () => setActive((current) => (current - 1 + slides.length) % slides.length);
+  const next = () => setActive((current) => (current + 1) % slides.length);
 
   return (
-    <section className="hero hero-editorial wrap" id="accueil" style={heroStyle}>
-      <a className="hero-story-link" href={slide.href} aria-label={slide.label} title={slide.label}>
-        <img className="hero-story-image" src={slide.image} alt={slide.alt} key={slide.image} />
-      </a>
+    <section
+      className="hero hero-story wrap"
+      id="accueil"
+      style={heroStyle}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <div className="hero-story-stage">
+        {slides.map((slide, index) => (
+          <img
+            key={slide.image}
+            className={`hero-story-image${index === active ? " is-active" : ""}`}
+            src={slide.image}
+            alt={index === active ? slide.alt : ""}
+            aria-hidden={index !== active}
+            onError={(event) => {
+              event.currentTarget.src = market === "qc" ? "/hero-quebec-2026.png" : "/boutique-hero.png";
+            }}
+          />
+        ))}
 
-      <button
-        type="button"
-        className="hero-story-arrow hero-story-arrow-left"
-        onClick={() => setActive((current) => (current - 1 + slides.length) % slides.length)}
-        aria-label={say("Image précédente", "Previous slide")}
-      >
-        ‹
-      </button>
-      <button
-        type="button"
-        className="hero-story-arrow hero-story-arrow-right"
-        onClick={() => setActive((current) => (current + 1) % slides.length)}
-        aria-label={say("Image suivante", "Next slide")}
-      >
-        ›
-      </button>
+        <a
+          className="hero-story-cta-hitbox"
+          href={slides[active].href}
+          aria-label={slides[active].label}
+          title={slides[active].label}
+        />
 
-      <div className="hero-editorial-dots" aria-label={say("Choisir une présentation", "Choose a slide")}>
-        {slides.map((item, index) => (
+        <button type="button" className="hero-story-nav hero-story-nav-left" onClick={previous} aria-label={say("Image précédente", "Previous slide")} />
+        <button type="button" className="hero-story-nav hero-story-nav-right" onClick={next} aria-label={say("Image suivante", "Next slide")} />
+      </div>
+
+      <div className="hero-story-pagination" aria-label={say("Choisir une présentation", "Choose a slide")}>
+        {slides.map((slide, index) => (
           <button
-            key={item.image}
+            key={slide.image}
             type="button"
             className={index === active ? "is-active" : ""}
             onClick={() => setActive(index)}
