@@ -1,4 +1,4 @@
-/* Accueil : Hero + avantages + nouveautés seulement. Les pages de catégories portent le reste. */
+/* Accueil volontairement éditorial : Hero, introduction, accès catalogue, nouveautés. */
 .editable-storefront > #catalogue,
 .editable-storefront > #rentree-scolaire,
 .editable-storefront > .promise,
@@ -12,7 +12,42 @@
 .editable-storefront > #contact,
 .editable-storefront > .cta { display:none!important; }
 
-/* Le masquage visuel du bouton Promotions est géré uniquement dans nav-joy.css.
-   On ne duplique plus ici un masque basé sur href="#promotions", car NavRouteBridge
-   transforme ensuite le lien en /promotions et cela faisait disparaître la carte
-   même lorsque Promotions était visible dans le CMS. */
+/* Direction Marina & Pau / Souris Mini : beaucoup d'air, produit prioritaire,
+   identité Envol utilisée comme accent plutôt que comme grands aplats. */
+.editable-storefront{background:#fff}
+.editable-storefront>.hero.wrap{width:min(1380px,calc(100% - 48px));margin-top:18px;border-radius:24px;overflow:hidden}
+.editable-storefront>.hero .hero-visual,
+.editable-storefront>.hero .hero-visual>img{border-radius:24px!important}
+.editable-storefront>.center-heading.section{max-width:900px;padding-top:62px!important;padding-bottom:76px!important}
+.editable-storefront>.center-heading.section .eyebrow{margin-bottom:17px;color:#7d878c;letter-spacing:1.8px}
+.editable-storefront>.center-heading.section h2{max-width:780px;margin:0 auto;font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,4.2vw,61px);font-weight:400;line-height:1.08;letter-spacing:-2px;color:#17364a}
+.editable-storefront>.center-heading.section h2 em{font-weight:400;color:#ea765f}
+.editable-storefront>.center-heading.section>p:not(.eyebrow){max-width:650px!important;margin:20px auto 8px!important;color:#75838a;font-size:14px;line-height:1.85}
+.editable-storefront>.center-heading.section .button{margin-top:24px;padding:14px 25px;border-radius:999px;box-shadow:none}
+
+.editable-storefront>.featured-collection{padding-top:72px;padding-bottom:105px;border-top:1px solid #eeeae4}
+.editable-storefront>.featured-collection .section-heading{align-items:end;margin-bottom:38px}
+.editable-storefront>.featured-collection .section-heading h2{font-size:clamp(39px,4vw,56px);letter-spacing:-2.5px}
+.editable-storefront>.featured-collection .section-heading>p{max-width:300px;color:#7c878c}
+.editable-storefront>.featured-collection .featured-grid{gap:34px 20px}
+.editable-storefront>.featured-collection .featured-card{transition:transform .22s ease}
+.editable-storefront>.featured-collection .featured-card:hover{transform:translateY(-3px)}
+.editable-storefront>.featured-collection .featured-visual{background-color:#faf9f6!important;border-radius:18px!important;overflow:hidden;box-shadow:none!important}
+.editable-storefront>.featured-collection .featured-copy{padding:17px 4px 0!important;background:transparent!important}
+.editable-storefront>.featured-collection .featured-copy>span{font-size:9px;letter-spacing:1.25px;text-transform:uppercase;color:#8b7770}
+.editable-storefront>.featured-collection .featured-copy h3{margin-top:8px;margin-bottom:8px;font-family:Georgia,"Times New Roman",serif;font-weight:400;color:#17364a}
+.editable-storefront>.featured-collection .featured-copy strong{font-size:13px;color:#17364a}
+.editable-storefront>.featured-collection .availability{top:12px;left:12px;border-radius:999px;box-shadow:none}
+
+/* Le masquage visuel du bouton Promotions est géré uniquement dans nav-joy.css. */
+@media(max-width:800px){
+  .editable-storefront>.hero.wrap{width:calc(100% - 24px);margin-top:10px;border-radius:16px}
+  .editable-storefront>.hero .hero-visual,
+  .editable-storefront>.hero .hero-visual>img{border-radius:16px!important}
+  .editable-storefront>.center-heading.section{width:min(100% - 40px,620px);padding-top:46px!important;padding-bottom:58px!important}
+  .editable-storefront>.center-heading.section h2{font-size:clamp(34px,9vw,47px);letter-spacing:-1.5px}
+  .editable-storefront>.center-heading.section>p:not(.eyebrow){font-size:13px;line-height:1.75}
+  .editable-storefront>.featured-collection{padding-top:55px;padding-bottom:75px}
+  .editable-storefront>.featured-collection .featured-grid{gap:28px 12px}
+  .editable-storefront>.featured-collection .featured-visual{border-radius:13px!important}
+}
