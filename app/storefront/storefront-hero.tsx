@@ -18,7 +18,7 @@ type Props = {
   sectionStyle: SectionStyle;
 };
 
-export default function StorefrontHero({ market, say, editable, sectionStyle }: Props) {
+export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   const heroStyle = { ...sectionStyle("hero"), display: "block" };
   const slides = [
     {
@@ -55,6 +55,7 @@ export default function StorefrontHero({ market, say, editable, sectionStyle }: 
     },
   ];
   const [active, setActive] = useState(0);
+  const slide = slides[active];
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -64,37 +65,28 @@ export default function StorefrontHero({ market, say, editable, sectionStyle }: 
   }, [slides.length]);
 
   return (
-    <>
-      <section className="hero hero-editorial wrap" id="accueil" style={heroStyle}>
-        <div className="hero-editorial-media">
-          <img
-            src={market === "qc" ? "/hero-quebec-2026.png" : "/boutique-hero.png"}
-            alt={market === "qc" ? say("Sélection Envol des Enfants au Québec", "Envol des Enfants selection in Quebec") : say("Boutique Envol des Enfants à Conakry", "Envol des Enfants store in Conakry")}
-          />
-        </div>
-        <div className="hero-editorial-copy" aria-live="polite">
-          {slides.map((slide, index) => (
-            <div className={`hero-editorial-slide${index === active ? " is-active" : ""}`} aria-hidden={index !== active} key={slide.eyebrow}>
-              <p className="hero-editorial-eyebrow">{slide.eyebrow}</p>
-              <h1>{slide.title} <em>{slide.accent}</em></h1>
-              <p className="hero-editorial-text">{slide.text}</p>
-              <a className="hero-editorial-cta" href={slide.href}>{slide.cta} <span aria-hidden="true">→</span></a>
-            </div>
-          ))}
-          <div className="hero-editorial-dots" aria-label={say("Choisir une présentation", "Choose a slide")}>
-            {slides.map((slide, index) => (
-              <button key={slide.eyebrow} type="button" className={index === active ? "is-active" : ""} onClick={() => setActive(index)} aria-label={`${say("Présentation", "Slide")} ${index + 1}`} />
-            ))}
-          </div>
-        </div>
-      </section>
+    <section className="hero hero-editorial wrap" id="accueil" style={heroStyle}>
+      <div className="hero-editorial-media">
+        <img
+          src={market === "qc" ? "/hero-quebec-2026.png" : "/boutique-hero.png"}
+          alt={market === "qc" ? say("Sélection Envol des Enfants au Québec", "Envol des Enfants selection in Quebec") : say("Boutique Envol des Enfants à Conakry", "Envol des Enfants store in Conakry")}
+        />
+      </div>
 
-      <section className="section wrap center-heading" style={{ order: 2, textAlign: "center" }}>
-        <p className="eyebrow">{say("Envol des Enfants", "Envol des Enfants")}</p>
-        <h2>{editable("hero_title", "Des jouets choisis pour", "Toys chosen to")} <em>{editable("hero_accent", "grandir, découvrir et rêver.", "grow, discover and dream.")}</em></h2>
-        <p>{editable("hero_description", "Une sélection pensée avec soin pour accompagner les découvertes, les jeux et les petits bonheurs de l’enfance.", "A carefully chosen selection for childhood discoveries, play and little everyday joys.")}</p>
-        <a className="button button-dark" href={`/catalogue?region=${market}`}>{say("Découvrir le catalogue", "Browse the catalog")} <span aria-hidden="true">→</span></a>
-      </section>
-    </>
+      <div className="hero-editorial-copy" aria-live="polite">
+        <div className="hero-editorial-slide is-active" key={active}>
+          <p className="hero-editorial-eyebrow">{slide.eyebrow}</p>
+          <h1>{slide.title} <em>{slide.accent}</em></h1>
+          <p className="hero-editorial-text">{slide.text}</p>
+          <a className="hero-editorial-cta" href={slide.href}>{slide.cta} <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div className="hero-editorial-dots" aria-label={say("Choisir une présentation", "Choose a slide")}>
+          {slides.map((item, index) => (
+            <button key={item.eyebrow} type="button" className={index === active ? "is-active" : ""} onClick={() => setActive(index)} aria-label={`${say("Présentation", "Slide")} ${index + 1}`} />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
