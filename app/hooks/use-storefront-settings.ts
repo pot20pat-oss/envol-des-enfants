@@ -36,7 +36,8 @@ export function useStorefrontSettings(
   const sectionStyle = (id: string): CSSProperties => {
     const index = siteSections.findIndex((section) => section.id === id);
     const section = siteSections[index];
-    return { order: index < 0 ? 500 : index + 10, ...(section && !section.visible && !(id === "hero" && market === "qc") ? { display: "none" } : {}) };
+    const order = id === "hero" && market === "qc" ? 1 : index < 0 ? 500 : index + 10;
+    return { order, ...(section && !section.visible && !(id === "hero" && market === "qc") ? { display: "none" } : {}) };
   };
   const sectionVisible = (id: string) => siteSections.find((section) => section.id === id)?.visible !== false;
 
@@ -52,7 +53,7 @@ export function useStorefrontSettings(
     siteSections.forEach((section, index) => {
       const element = root.querySelector<HTMLElement>(selectors[section.id]);
       if (!element) return;
-      element.style.order = String(index + 10);
+      element.style.order = section.id === "hero" && market === "qc" ? "1" : String(index + 10);
       if (section.visible || (section.id === "hero" && market === "qc")) element.style.removeProperty("display");
       else element.style.display = "none";
     });
