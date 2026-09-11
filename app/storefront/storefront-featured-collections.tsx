@@ -35,7 +35,7 @@ export default function StorefrontFeaturedCollections({ products, language, mark
   return (
     <>
       {collections.filter((collection) => collection.items.length > 0).map((collection) => (
-        <section className="featured-collection section wrap" id={collection.id} key={collection.id}>
+        <section className="featured-collection section wrap" id={collection.id} key={collection.id} style={{ order: collection.id === "nouveautes" ? 3 : 4 }}>
           <div className="section-heading">
             <div>
               <p className="eyebrow">{collection.eyebrow}</p>
