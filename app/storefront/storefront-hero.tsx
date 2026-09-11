@@ -21,7 +21,15 @@ type Props = {
 const SLIDE_DELAY = 14000;
 
 export default function StorefrontHero({ market, say, sectionStyle }: Props) {
-  const heroStyle = { ...sectionStyle("hero"), display: "block" };
+  const heroStyle: CSSProperties = {
+    ...sectionStyle("hero"),
+    display: "block",
+    minHeight: 0,
+    height: "auto",
+    padding: 0,
+    aspectRatio: "auto",
+  };
+
   const slides = [
     {
       image: "/hero-story-intro.jpg",
@@ -65,7 +73,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
 
   return (
     <section
-      className="hero hero-story wrap"
+      className="hero-story wrap"
       id="accueil"
       style={heroStyle}
       onMouseEnter={() => setPaused(true)}
