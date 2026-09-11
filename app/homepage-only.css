@@ -17,7 +17,7 @@
 
 /* Hero storytelling : l'image contient déjà logo, texte et bouton. */
 .editable-storefront>.hero-editorial.wrap{
-  width:min(1380px,calc(100% - 48px));
+  width:min(1024px,calc(100% - 48px));
   margin-top:18px;
   padding:0;
   border-radius:22px;
@@ -27,32 +27,25 @@
   box-shadow:0 10px 34px rgba(32,50,62,.07);
   isolation:isolate;
 }
+.hero-story-link{
+  display:block;
+  position:relative;
+  z-index:1;
+  text-decoration:none;
+  cursor:pointer;
+}
 .hero-story-image{
   width:100%;
   height:auto;
-  aspect-ratio:1024/380;
   display:block;
-  object-fit:cover;
+  object-fit:contain;
   object-position:center;
-  animation:heroStoryFade .55s ease both;
+  animation:heroStoryFade .8s ease both;
 }
-@keyframes heroStoryFade{from{opacity:.45;transform:scale(1.006)}to{opacity:1;transform:scale(1)}}
-
-/* Zone cliquable exactement au-dessus du bouton dessiné dans chaque bannière. */
-.hero-story-cta{
-  position:absolute;
-  left:8.2%;
-  bottom:7.2%;
-  width:22.5%;
-  height:14.5%;
-  z-index:4;
-  border-radius:999px;
-  cursor:pointer;
-}
-.hero-story-cta:focus-visible{
-  outline:3px solid #fff;
-  outline-offset:2px;
-  box-shadow:0 0 0 5px #0d5aa7;
+@keyframes heroStoryFade{from{opacity:.3}to{opacity:1}}
+.hero-story-link:focus-visible{
+  outline:3px solid #0d5aa7;
+  outline-offset:-5px;
 }
 
 .hero-story-arrow{
@@ -126,7 +119,7 @@
     margin-top:10px;
     border-radius:14px;
   }
-  .hero-story-image{aspect-ratio:1024/380;object-fit:cover}
+  .hero-story-image{object-fit:contain}
   .hero-story-arrow{width:34px;height:34px;margin-top:-17px;font-size:23px}
   .hero-story-arrow-left{left:7px}
   .hero-story-arrow-right{right:7px}
