@@ -15,10 +15,11 @@
 .editable-storefront{background:#fff}
 .editable-storefront>.quick-scroll{display:none!important}
 
-/* Hero reconstruit à neuf : quatre images superposées, aucune zone blanche entre deux slides. */
+/* Hero large : occupe réellement la largeur utile de la page. */
 .editable-storefront>.hero-story.wrap{
-  width:min(1220px,calc(100% - 40px));
-  margin:18px auto 0;
+  width:min(1480px,calc(100% - 32px));
+  max-width:none;
+  margin:16px auto 0;
   padding:0;
   border-radius:20px;
   overflow:hidden;
@@ -132,10 +133,11 @@
 
 @media(max-width:800px){
   .editable-storefront>.hero-story.wrap{
-    width:calc(100% - 18px);
-    margin-top:9px;
-    border-radius:14px;
+    width:calc(100% - 12px);
+    margin-top:6px;
+    border-radius:12px;
   }
+  .hero-story-stage{aspect-ratio:1024/380}
   .hero-story-nav{width:34px;height:34px;font-size:24px}
   .hero-story-nav-left{left:7px}
   .hero-story-nav-right{right:7px}
@@ -148,6 +150,7 @@
 }
 
 @media(max-width:520px){
+  .editable-storefront>.hero-story.wrap{width:calc(100% - 8px);border-radius:10px}
   .hero-story-nav{width:30px;height:30px;font-size:21px}
   .hero-story-dots{bottom:4px}
 }
