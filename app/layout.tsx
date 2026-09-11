@@ -16,19 +16,19 @@ import "./product-lightbox.css";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
-  description: "Boutique de jouets éducatifs, articles pour bébé, vêtements et fournitures scolaires à Dixinn, Conakry. Livraison et 10 % de rabais pour les nouveaux abonnés.",
+  description: "Boutique de jouets, poupées et princesses, articles pour bébé, véhicules, jeux de plein air et essentiels scolaires au Québec et à Conakry.",
   openGraph: {
     title: "Envol des Enfants",
-    description: "Jouets éducatifs, articles pour bébé et fournitures scolaires à Dixinn, Conakry. 10 % de rabais pour les nouveaux abonnés.",
+    description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
     images: ["https://envol-des-enfants.pages.dev/boutique-hero.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Envol des Enfants",
-    description: "Jouets éducatifs, articles pour bébé et fournitures scolaires à Dixinn, Conakry. 10 % de rabais pour les nouveaux abonnés.",
+    description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
     images: ["https://envol-des-enfants.pages.dev/boutique-hero.png"],
   },
-     icons: {
+  icons: {
     icon: "/favicon-envol.png?v=2",
     shortcut: "/favicon-envol.png?v=2",
   },
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr-GN">
+    <html lang="fr">
       <body className="antialiased">{children}</body>
     </html>
   );
