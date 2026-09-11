@@ -18,6 +18,8 @@ type Props = {
   sectionStyle: SectionStyle;
 };
 
+const SLIDE_DELAY = 14000;
+
 export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   const heroStyle = { ...sectionStyle("hero"), display: "block" };
   const slides = [
@@ -51,9 +53,10 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion || paused) return;
-    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 12000);
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      setActive((current) => (current + 1) % slides.length);
+    }, SLIDE_DELAY);
     return () => window.clearInterval(timer);
   }, [paused, slides.length]);
 
@@ -67,44 +70,49 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
       style={heroStyle}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
     >
       <div className="hero-story-stage">
         {slides.map((slide, index) => (
-          <img
+          <a
             key={slide.image}
-            className={`hero-story-image${index === active ? " is-active" : ""}`}
-            src={slide.image}
-            alt={index === active ? slide.alt : ""}
+            className={`hero-story-slide${index === active ? " is-active" : ""}`}
+            href={slide.href}
+            aria-label={slide.label}
             aria-hidden={index !== active}
-            onError={(event) => {
-              event.currentTarget.src = market === "qc" ? "/hero-quebec-2026.png" : "/boutique-hero.png";
-            }}
-          />
+            tabIndex={index === active ? 0 : -1}
+          >
+            <img
+              src={slide.image}
+              alt={slide.alt}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              draggable={false}
+              onError={(event) => {
+                if (!event.currentTarget.src.endsWith("/hero-quebec-2026.png")) {
+                  event.currentTarget.src = "/hero-quebec-2026.png";
+                }
+              }}
+            />
+          </a>
         ))}
 
-        <a
-          className="hero-story-cta-hitbox"
-          href={slides[active].href}
-          aria-label={slides[active].label}
-          title={slides[active].label}
-        />
+        <button type="button" className="hero-story-nav hero-story-nav-left" onClick={previous} aria-label={say("Image précédente", "Previous slide")}>‹</button>
+        <button type="button" className="hero-story-nav hero-story-nav-right" onClick={next} aria-label={say("Image suivante", "Next slide")}>›</button>
 
-        <button type="button" className="hero-story-nav hero-story-nav-left" onClick={previous} aria-label={say("Image précédente", "Previous slide")} />
-        <button type="button" className="hero-story-nav hero-story-nav-right" onClick={next} aria-label={say("Image suivante", "Next slide")} />
-      </div>
-
-      <div className="hero-story-pagination" aria-label={say("Choisir une présentation", "Choose a slide")}>
-        {slides.map((slide, index) => (
-          <button
-            key={slide.image}
-            type="button"
-            className={index === active ? "is-active" : ""}
-            onClick={() => setActive(index)}
-            aria-label={`${say("Présentation", "Slide")} ${index + 1}`}
-          />
-        ))}
+        <div className="hero-story-dots" aria-label={say("Choisir une présentation", "Choose a slide")}>
+          {slides.map((slide, index) => (
+            <button
+              key={slide.image}
+              type="button"
+              className={index === active ? "is-active" : ""}
+              onClick={() => setActive(index)}
+              aria-label={`${say("Présentation", "Slide")} ${index + 1}`}
+              aria-current={index === active ? "true" : undefined}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
