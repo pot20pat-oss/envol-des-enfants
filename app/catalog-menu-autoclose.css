@@ -1,0 +1,13 @@
+/* Les <details> natifs gardent leur attribut open après un clic.
+   Sur pointeur, on masque le panneau dès que l'utilisateur quitte le menu.
+   Le focus clavier reste pris en charge via :focus-within. */
+@media (hover: hover) and (pointer: fine) {
+  .catalog-menu-group[open]:not(:hover):not(:focus-within) > .catalog-menu-panel {
+    display: none !important;
+  }
+
+  .catalog-menu-group[open]:hover > .catalog-menu-panel,
+  .catalog-menu-group[open]:focus-within > .catalog-menu-panel {
+    display: flex;
+  }
+}
