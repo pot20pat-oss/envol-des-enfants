@@ -79,7 +79,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const [market,setMarket]=useState<Market>("conakry");
   const [selectedProduct,setSelectedProduct]=useState<Product|null>(null);
   const [selectedImageIndex,setSelectedImageIndex]=useState(0);
-  const [activeCategory,setActiveCategory]=useState(()=>isFullCatalog?"new":"all");
+  const [activeCategory,setActiveCategory]=useState("all");
   const [availability,setAvailability]=useState("all");
   const [sort,setSort]=useState("newest");
   const [minPrice,setMinPrice]=useState("");
@@ -163,7 +163,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       <nav className="catalog-menu" aria-label={label("Familles du catalogue","Catalog families")}>
         <button type="button" className={activeCategory==="new"?"active":""} onClick={()=>selectCategory("new")}>{label("Nouveautés","New arrivals")}</button>
         <button type="button" className={activeCategory==="all"?"active":""} onClick={()=>selectCategory("all")}>{label("Tout voir","View all")}</button>
-        {catalogFamilies.map(family=><details className="catalog-menu-group" key={family.value}>
+        {catalogFamilies.map(family=><details className="catalog-menu-group" key={family.value} onMouseLeave={event=>event.currentTarget.removeAttribute("open")}>
           <summary className={family.categories.includes(activeCategory)||family.value===activeCategory?"active":""}>{label(family.labelFr,family.labelEn)} <span>⌄</span></summary>
           <div className="catalog-menu-panel">
             <button type="button" onClick={event=>{selectCategory(family.value);event.currentTarget.closest("details")?.removeAttribute("open");}}>{label("Voir toute la famille","View all in this family")}</button>
@@ -177,7 +177,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         <label><span>{label("Prix min.","Min price")}</span><input inputMode="numeric" type="number" min="0" value={minPrice} onChange={e=>setMinPrice(e.target.value)} placeholder="0"/></label>
         <label><span>{label("Prix max.","Max price")}</span><input inputMode="numeric" type="number" min="0" value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} placeholder="∞"/></label>
         <label><span>{label("Trier par","Sort by")}</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">{label("Nouveautés d’abord","Newest first")}</option><option value="price-asc">{label("Prix croissant","Price: low to high")}</option><option value="price-desc">{label("Prix décroissant","Price: high to low")}</option><option value="name">{label("Nom A–Z","Name A–Z")}</option></select></label>
-        <button className="catalog-reset" type="button" onClick={()=>{setActiveCategory("new");setAvailability("all");setMinPrice("");setMaxPrice("");setQuery("");setSort("newest");}}>{label("Réinitialiser","Reset")}</button>
+        <button className="catalog-reset" type="button" onClick={()=>{setActiveCategory("all");setAvailability("all");setMinPrice("");setMaxPrice("");setQuery("");setSort("newest");}}>{label("Réinitialiser","Reset")}</button>
       </div>
       <div className="catalog-result-line"><strong>{visible.length}</strong> {label("articles affichés","items shown")} · {market==="qc"?label("Québec","Quebec"):"Conakry"}</div>
     </section>}
