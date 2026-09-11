@@ -15,87 +15,106 @@
 .editable-storefront{background:#fff}
 .editable-storefront>.quick-scroll{display:none!important}
 
-/* Hero reconstruit : images empilées et préchargées, transition douce, aucun recadrage. */
+/* Hero reconstruit à neuf : quatre images superposées, aucune zone blanche entre deux slides. */
 .editable-storefront>.hero-story.wrap{
-  width:min(1180px,calc(100% - 48px));
-  margin:22px auto 0;
+  width:min(1220px,calc(100% - 40px));
+  margin:18px auto 0;
   padding:0;
-  border-radius:24px;
+  border-radius:20px;
   overflow:hidden;
   position:relative;
-  background:#fff;
-  box-shadow:0 16px 44px rgba(31,48,60,.08);
+  background:#f8f5ef;
+  box-shadow:0 12px 36px rgba(24,48,66,.08);
+  isolation:isolate;
 }
 .hero-story-stage{
   position:relative;
   width:100%;
-  aspect-ratio:1024/381;
+  aspect-ratio:1024/380;
   overflow:hidden;
-  background:#faf7f2;
+  background:#f8f5ef;
 }
-.hero-story-image{
+.hero-story-slide{
   position:absolute;
   inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center;
   display:block;
   opacity:0;
-  transition:opacity 1.15s ease;
+  visibility:hidden;
   pointer-events:none;
+  transition:opacity .85s ease,visibility .85s ease;
+  z-index:1;
 }
-.hero-story-image.is-active{opacity:1;z-index:1}
+.hero-story-slide.is-active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  z-index:2;
+}
+.hero-story-slide img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.hero-story-slide:focus-visible{
+  outline:4px solid #0d5aa7;
+  outline-offset:-6px;
+}
 
-/* Le CTA imprimé dans le visuel devient réellement cliquable. */
-.hero-story-cta-hitbox{
-  position:absolute;
-  z-index:4;
-  left:7.8%;
-  bottom:7.5%;
-  width:23.5%;
-  height:16%;
-  border-radius:999px;
-  cursor:pointer;
-}
-.hero-story-cta-hitbox:focus-visible{
-  outline:3px solid #0c5da8;
-  outline-offset:3px;
-}
-
-/* Les flèches sont déjà dessinées dans les images : on rend seulement leurs zones cliquables. */
 .hero-story-nav{
   position:absolute;
-  z-index:5;
-  top:34%;
-  width:8%;
-  height:34%;
-  border:0;
-  background:transparent;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:6;
+  width:42px;
+  height:42px;
+  padding:0;
+  border:1px solid rgba(19,63,94,.12);
+  border-radius:50%;
+  background:rgba(255,255,255,.88);
+  color:#17466c;
+  display:grid;
+  place-items:center;
+  font-size:30px;
+  line-height:1;
   cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
+  backdrop-filter:blur(7px);
+  transition:transform .2s ease,background .2s ease;
 }
-.hero-story-nav-left{left:0}
-.hero-story-nav-right{right:0}
+.hero-story-nav:hover{transform:translateY(-50%) scale(1.06);background:#fff}
+.hero-story-nav-left{left:14px}
+.hero-story-nav-right{right:14px}
 
-.hero-story-pagination{
-  height:34px;
+.hero-story-dots{
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  transform:translateX(-50%);
+  z-index:7;
   display:flex;
-  align-items:center;
-  justify-content:center;
   gap:7px;
-  background:#fff;
+  align-items:center;
+  padding:6px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 3px 12px rgba(0,0,0,.06);
+  backdrop-filter:blur(7px);
 }
-.hero-story-pagination button{
+.hero-story-dots button{
   width:7px;
   height:7px;
   padding:0;
   border:0;
   border-radius:999px;
-  background:#c4cbce;
+  background:#bbc2c5;
   cursor:pointer;
-  transition:width .3s ease,background .3s ease;
+  transition:width .25s ease,background .25s ease;
 }
-.hero-story-pagination button.is-active{width:28px;background:#145d9d}
+.hero-story-dots button.is-active{width:26px;background:#155b9b}
 
 .editable-storefront>.featured-collection{padding-top:72px;padding-bottom:105px;border-top:1px solid #eeeae4}
 .editable-storefront>.featured-collection .section-heading{align-items:end;margin-bottom:38px}
@@ -113,19 +132,26 @@
 
 @media(max-width:800px){
   .editable-storefront>.hero-story.wrap{
-    width:calc(100% - 20px);
-    margin-top:10px;
-    border-radius:15px;
+    width:calc(100% - 18px);
+    margin-top:9px;
+    border-radius:14px;
   }
-  .hero-story-pagination{height:28px}
-  .hero-story-pagination button{width:5px;height:5px}
-  .hero-story-pagination button.is-active{width:19px}
-  .hero-story-cta-hitbox{left:7.5%;bottom:7%;width:24%;height:18%}
+  .hero-story-nav{width:34px;height:34px;font-size:24px}
+  .hero-story-nav-left{left:7px}
+  .hero-story-nav-right{right:7px}
+  .hero-story-dots{bottom:5px;padding:5px 7px;gap:5px}
+  .hero-story-dots button{width:5px;height:5px}
+  .hero-story-dots button.is-active{width:18px}
   .editable-storefront>.featured-collection{padding-top:55px;padding-bottom:75px}
   .editable-storefront>.featured-collection .featured-grid{gap:28px 12px}
   .editable-storefront>.featured-collection .featured-visual{border-radius:13px!important}
 }
 
+@media(max-width:520px){
+  .hero-story-nav{width:30px;height:30px;font-size:21px}
+  .hero-story-dots{bottom:4px}
+}
+
 @media(prefers-reduced-motion:reduce){
-  .hero-story-image{transition:none}
+  .hero-story-slide{transition:none}
 }
