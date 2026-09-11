@@ -27,13 +27,8 @@ export default function StorefrontNavigation({
   say,
   changeLanguage,
 }: Props) {
-  const marketRoute = (route: string) => `${route}${route.includes("?") ? "&" : "?"}region=${market}`;
-
   return (
-    <header className="header wrap">
-      <a className="brand" href={marketRoute("/")} aria-label="Envol des Enfants, accueil">
-        <span className="brand-picture"><img src="/envol-reference.png" alt="Logo officiel Envol des Enfants" /></span>
-      </a>
+    <header className="header wrap header-without-logo">
       <div className="header-actions">
         <div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}>
           <button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button>
