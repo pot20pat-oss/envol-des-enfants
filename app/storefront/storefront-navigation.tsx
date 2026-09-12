@@ -28,7 +28,10 @@ export default function StorefrontNavigation({
   changeLanguage,
 }: Props) {
   return (
-    <header className="header wrap header-without-logo">
+    <header className="header wrap">
+      <a className="brand" href={`/?region=${market}`} aria-label={say("Accueil — Envol des Enfants", "Home — Envol des Enfants")}>
+        <span className="brand-picture" aria-hidden="true" />
+      </a>
       <div className="header-actions">
         <div className="language-switch" role="group" aria-label={say("Choisir la langue", "Choose language")}>
           <button className={language === "fr" ? "selected" : ""} onClick={() => changeLanguage("fr")}>FR</button>

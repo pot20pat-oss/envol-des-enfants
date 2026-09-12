@@ -18,7 +18,7 @@ type Props = {
   sectionStyle: SectionStyle;
 };
 
-const SLIDE_DELAY = 14000;
+const SLIDE_DELAY = 6000;
 
 export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   const heroStyle: CSSProperties = {
@@ -104,15 +104,13 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   ];
 
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-
   useEffect(() => {
-    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
       setActive((current) => (current + 1) % slides.length);
     }, SLIDE_DELAY);
     return () => window.clearInterval(timer);
-  }, [paused, slides.length]);
+  }, [slides.length]);
 
   const previous = () => setActive((current) => (current - 1 + slides.length) % slides.length);
   const next = () => setActive((current) => (current + 1) % slides.length);
@@ -122,10 +120,6 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
       className="hero-story wrap"
       id="accueil"
       style={heroStyle}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
     >
       <div className="hero-story-stage">
         {slides.map((slide, index) => (
