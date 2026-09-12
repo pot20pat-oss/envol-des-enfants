@@ -91,6 +91,16 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
       label: say("Explorer les jeux", "Explore toys"),
       tone: "green",
     },
+    {
+      image: "/hero-slider/07-catalogue.webp",
+      title: say("L’aventure", "The adventure"),
+      accent: say("commence ici.", "starts here."),
+      description: say("Des jouets pour découvrir, apprendre et s’épanouir.", "Toys to discover, learn and grow."),
+      alt: say("Petite fille devant un bac de blocs de jeu", "Little girl in front of a box of play blocks"),
+      href: `/catalogue?region=${market}`,
+      label: say("Parcourir le catalogue", "Browse the catalogue"),
+      tone: "blue",
+    },
   ];
 
   const [active, setActive] = useState(0);
