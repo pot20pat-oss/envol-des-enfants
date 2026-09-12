@@ -49,7 +49,17 @@
   place-items:center;
   padding:44px 30px;
   overflow:hidden;
-  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+  background:#f8fbfd;
+}
+
+.promo-child-photo{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 27%;
 }
 
 .promo-offer-panel::after{
@@ -61,13 +71,16 @@
   height:180px;
   border-radius:50% 50% 0 0;
   background:linear-gradient(90deg,#bfeeff 0 48%,#fff3bb 48% 100%);
-  z-index:0;
+  z-index:2;
+  opacity:.82;
 }
 
 .promo-badge{
-  position:relative;
-  z-index:2;
-  width:min(330px,90%);
+  position:absolute;
+  left:22px;
+  bottom:24px;
+  z-index:4;
+  width:min(220px,52%);
   aspect-ratio:1.06;
   border-radius:47% 53% 55% 45% / 43% 44% 56% 57%;
   background:linear-gradient(145deg,#1b9cf4,#0a79e3);
@@ -77,27 +90,27 @@
   align-items:center;
   justify-content:center;
   text-align:center;
-  transform:rotate(-2deg);
+  transform:rotate(-3deg);
   box-shadow:0 14px 30px #087ad126;
 }
 
 .promo-badge strong{
-  font-size:clamp(76px,8vw,118px);
+  font-size:clamp(54px,5.4vw,76px);
   line-height:.82;
   letter-spacing:-6px;
 }
 
 .promo-badge span{
-  margin-top:14px;
-  font-size:clamp(34px,3.3vw,50px);
+  margin-top:9px;
+  font-size:clamp(24px,2.4vw,34px);
   font-weight:800;
   line-height:.9;
 }
 
 .promo-badge small{
-  margin-top:14px;
-  max-width:240px;
-  font-size:clamp(18px,1.5vw,24px);
+  margin-top:9px;
+  max-width:170px;
+  font-size:clamp(13px,1.15vw,17px);
   line-height:1.12;
 }
 
@@ -107,9 +120,9 @@
   font-weight:900;
   line-height:1;
 }
-.promo-confetti-star{left:12%;top:13%;font-size:48px;color:#ffc629;transform:rotate(-10deg)}
-.promo-confetti-yellow{right:18%;top:9%;font-size:48px;color:#ffc629;transform:rotate(22deg)}
-.promo-confetti-green{right:10%;top:24%;font-size:36px;color:#77c51b;transform:rotate(20deg)}
+.promo-confetti-star{left:8%;top:8%;font-size:42px;color:#ffc629;transform:rotate(-10deg)}
+.promo-confetti-yellow{right:10%;top:8%;font-size:42px;color:#ffc629;transform:rotate(22deg)}
+.promo-confetti-green{right:7%;top:23%;font-size:32px;color:#77c51b;transform:rotate(20deg)}
 
 .promo-content-new{
   position:relative;
@@ -227,13 +240,14 @@
     border-radius:16px;
   }
   .promo-offer-panel{
-    min-height:300px;
+    min-height:360px;
     padding:38px 18px 26px;
   }
-  .promo-badge{width:min(300px,82%)}
-  .promo-badge strong{font-size:84px}
-  .promo-badge span{font-size:38px}
-  .promo-badge small{font-size:19px;max-width:220px}
+  .promo-child-photo{object-position:center 24%}
+  .promo-badge{left:18px;bottom:18px;width:min(200px,48%)}
+  .promo-badge strong{font-size:60px}
+  .promo-badge span{font-size:27px}
+  .promo-badge small{font-size:14px;max-width:150px}
   .promo-content-new{
     min-height:0;
     padding:30px 22px 34px;
@@ -247,11 +261,11 @@
 }
 
 @media (max-width:520px){
-  .promo-offer-panel{min-height:250px}
-  .promo-badge{width:min(245px,82%)}
-  .promo-badge strong{font-size:66px}
-  .promo-badge span{font-size:31px}
-  .promo-badge small{font-size:16px;max-width:180px}
+  .promo-offer-panel{min-height:310px}
+  .promo-badge{left:12px;bottom:12px;width:min(160px,46%)}
+  .promo-badge strong{font-size:48px}
+  .promo-badge span{font-size:22px}
+  .promo-badge small{font-size:12px;max-width:125px}
   .promo-confetti-star{font-size:34px}
   .promo-confetti-yellow{font-size:34px}
   .promo-confetti-green{font-size:28px}
