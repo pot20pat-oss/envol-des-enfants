@@ -1,22 +1,24 @@
 /* Fenêtres et dialogues : toujours visibles et fermables, même sur les portables à faible hauteur. */
 .promo-backdrop{
   padding:clamp(10px,2vh,20px);
-  overflow:auto;
+  overflow:hidden;
   overscroll-behavior:contain;
 }
 
 .promo-modal{
   position:relative;
   max-height:calc(100dvh - 24px);
-  overflow:auto;
+  overflow:hidden;
   overscroll-behavior:contain;
   border-radius:22px;
 }
 
 .promo-modal-new{
-  width:min(980px,calc(100vw - 32px));
+  width:min(980px,calc(100vw - 24px))!important;
+  height:min(570px,calc(100dvh - 24px));
+  min-height:0!important;
   display:grid;
-  grid-template-columns:minmax(320px,.95fr) minmax(360px,1.05fr);
+  grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)!important;
   background:#fff;
   box-shadow:0 28px 80px #10223d38;
 }
@@ -44,7 +46,8 @@
 
 .promo-offer-panel{
   position:relative;
-  min-height:470px;
+  min-width:0;
+  min-height:0;
   display:grid;
   place-items:center;
   padding:44px 30px;
@@ -58,8 +61,8 @@
   z-index:1;
   width:100%;
   height:100%;
-  object-fit:cover;
-  object-position:center 27%;
+  object-fit:contain;
+  object-position:center;
 }
 
 .promo-offer-panel::after{
@@ -80,7 +83,7 @@
   left:22px;
   bottom:24px;
   z-index:4;
-  width:min(220px,52%);
+  width:min(180px,43%);
   aspect-ratio:1.06;
   border-radius:47% 53% 55% 45% / 43% 44% 56% 57%;
   background:linear-gradient(145deg,#1b9cf4,#0a79e3);
@@ -126,8 +129,9 @@
 
 .promo-content-new{
   position:relative;
-  min-height:470px;
-  padding:48px 54px 52px 42px;
+  min-width:0;
+  min-height:0;
+  padding:36px 44px 40px 36px;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -147,24 +151,11 @@
   pointer-events:none;
 }
 
-.promo-logo-new,
 .promo-intro-new,
 .promo-form-new,
 .promo-success{
   position:relative;
   z-index:1;
-}
-
-.promo-logo-new{
-  display:flex;
-  justify-content:center;
-  margin:0 auto 20px;
-}
-
-.promo-logo-new img{
-  width:min(310px,75%);
-  max-height:190px;
-  object-fit:contain;
 }
 
 .promo-intro-new{
@@ -235,25 +226,26 @@
   .promo-backdrop{align-items:start;padding:10px}
   .promo-modal-new{
     width:100%;
-    max-height:calc(100dvh - 20px);
-    display:block;
+    height:calc(100dvh - 20px);
+    max-height:760px;
+    display:grid;
+    grid-template-columns:1fr!important;
+    grid-template-rows:minmax(220px,42%) minmax(0,58%);
     border-radius:16px;
   }
   .promo-offer-panel{
-    min-height:360px;
+    min-height:0;
     padding:38px 18px 26px;
   }
-  .promo-child-photo{object-position:center 24%}
-  .promo-badge{left:18px;bottom:18px;width:min(200px,48%)}
-  .promo-badge strong{font-size:60px}
-  .promo-badge span{font-size:27px}
-  .promo-badge small{font-size:14px;max-width:150px}
+  .promo-child-photo{object-position:center}
+  .promo-badge{left:12px;bottom:12px;width:min(150px,40%)}
+  .promo-badge strong{font-size:48px}
+  .promo-badge span{font-size:22px}
+  .promo-badge small{font-size:12px;max-width:120px}
   .promo-content-new{
     min-height:0;
-    padding:30px 22px 34px;
+    padding:24px 22px 28px;
   }
-  .promo-logo-new{margin-bottom:14px}
-  .promo-logo-new img{width:min(260px,72%)}
   .promo-intro-new{font-size:18px;margin-bottom:20px}
   .promo-form-row{grid-template-columns:1fr}
   .promo-submit-new{width:100%}
@@ -261,14 +253,19 @@
 }
 
 @media (max-width:520px){
-  .promo-offer-panel{min-height:310px}
-  .promo-badge{left:12px;bottom:12px;width:min(160px,46%)}
-  .promo-badge strong{font-size:48px}
-  .promo-badge span{font-size:22px}
-  .promo-badge small{font-size:12px;max-width:125px}
+  .promo-modal-new{grid-template-rows:minmax(190px,40%) minmax(0,60%)}
+  .promo-offer-panel{min-height:0}
+  .promo-badge{left:8px;bottom:8px;width:min(125px,36%)}
+  .promo-badge strong{font-size:39px}
+  .promo-badge span{font-size:18px}
+  .promo-badge small{font-size:10px;max-width:100px}
   .promo-confetti-star{font-size:34px}
   .promo-confetti-yellow{font-size:34px}
   .promo-confetti-green{font-size:28px}
-  .promo-content-new{padding:24px 18px 30px}
+  .promo-content-new{padding:18px 16px 22px}
+  .promo-intro-new{font-size:16px;margin-bottom:14px}
+  .promo-form-new{gap:10px}
+  .promo-form-row{gap:10px}
+  .promo-form-row input,.promo-submit-new{height:48px!important}
   .promo-consent{font-size:14px!important}
 }

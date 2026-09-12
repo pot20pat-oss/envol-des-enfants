@@ -31,7 +31,7 @@ export default function StorefrontPromo({ open, email, requested, consent, disco
         <button className="promo-close" aria-label={say("Fermer la fenêtre promotionnelle", "Close promotional offer")} onClick={onClose}>×</button>
 
         <div className="promo-offer-panel" aria-hidden="true">
-          <img className="promo-child-photo" src="/promo-child-10.webp" alt="" />
+          <img className="promo-child-photo" src="/promo-child-toys.webp" alt="" />
           <span className="promo-confetti promo-confetti-star">★</span>
           <span className="promo-confetti promo-confetti-yellow">◆</span>
           <span className="promo-confetti promo-confetti-green">◆</span>
@@ -43,7 +43,6 @@ export default function StorefrontPromo({ open, email, requested, consent, disco
         </div>
 
         <div className="promo-content promo-content-new">
-          <div className="promo-logo-new"><img src="/envol-reference.png" alt="Envol des Enfants" /></div>
           <p id="promo-title" className="promo-intro-new">
             {say("Abonnez-vous à notre infolettre et profitez de", "Subscribe to our newsletter and enjoy")} <strong>{say(`${discount}% de rabais sur votre première commande !`, `${discount}% off your first order!`)}</strong>
           </p>
