@@ -9,6 +9,32 @@
   background-color: #fff !important;
 }
 
+/* Les cartes de nouveautés doivent rester parfaitement alignées,
+   même si les images sources et les titres ont des proportions différentes. */
+.featured-grid {
+  align-items: stretch !important;
+}
+
+.featured-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.featured-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+}
+
+.featured-copy h3 {
+  min-height: 2.35em !important;
+}
+
+.featured-copy strong {
+  margin-top: auto !important;
+}
+
 @media (min-width: 1101px) {
   .product-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -24,6 +50,9 @@
   .featured-visual,
   .featured-card .product-visual {
     min-height: 430px !important;
+    height: 430px !important;
+    aspect-ratio: auto !important;
+    flex: 0 0 430px !important;
     background-size: contain !important;
   }
 }
@@ -38,6 +67,14 @@
     height: 360px !important;
     background-size: contain !important;
   }
+
+  .featured-visual,
+  .featured-card .product-visual {
+    min-height: 360px !important;
+    height: 360px !important;
+    aspect-ratio: auto !important;
+    flex: 0 0 360px !important;
+  }
 }
 
 @media (max-width: 800px) {
@@ -46,9 +83,17 @@
     border-radius: 20px !important;
   }
 
-  .product-visual {
+  .product-visual,
+  .featured-visual,
+  .featured-card .product-visual {
     min-height: 285px !important;
     height: 285px !important;
+    aspect-ratio: auto !important;
     background-size: contain !important;
+  }
+
+  .featured-visual,
+  .featured-card .product-visual {
+    flex: 0 0 285px !important;
   }
 }
