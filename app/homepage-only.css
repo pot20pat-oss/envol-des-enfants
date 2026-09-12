@@ -121,7 +121,7 @@
   box-shadow:0 8px 24px rgba(21,91,155,.2);
   transition:transform .2s ease,background .2s ease;
 }
-.hero-story-slide:hover .hero-story-cta{transform:translateY(-2px);background:#104c84}
+.hero-story-cta:hover{transform:translateY(-2px);background:#104c84}
 .hero-story-cta b{font-size:1.25em;line-height:1}
 .hero-story-slide:focus-visible{
   outline:4px solid #0d5aa7;

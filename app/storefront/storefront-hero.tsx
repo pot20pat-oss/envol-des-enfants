@@ -113,13 +113,10 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
     >
       <div className="hero-story-stage">
         {slides.map((slide, index) => (
-          <a
+          <div
             key={slide.image}
             className={`hero-story-slide${index === active ? " is-active" : ""}`}
-            href={slide.href}
-            aria-label={slide.label}
             aria-hidden={index !== active}
-            tabIndex={index === active ? 0 : -1}
           >
             <img
               src={slide.image}
@@ -136,9 +133,9 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
             <div className={`hero-story-copy hero-story-copy-${slide.tone}`}>
               <h2>{slide.title}<br /><span>{slide.accent}</span></h2>
               <p>{slide.description}</p>
-              <span className="hero-story-cta">{slide.label}<b aria-hidden="true">→</b></span>
+              <a className="hero-story-cta" href={slide.href}>{slide.label}<b aria-hidden="true">→</b></a>
             </div>
-          </a>
+          </div>
         ))}
 
         <button type="button" className="hero-story-nav hero-story-nav-left" onClick={previous} aria-label={say("Image précédente", "Previous slide")}>‹</button>
