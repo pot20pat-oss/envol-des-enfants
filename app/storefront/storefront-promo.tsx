@@ -31,7 +31,7 @@ export default function StorefrontPromo({ open, email, requested, consent, disco
         <button className="promo-close" aria-label={say("Fermer la fenêtre promotionnelle", "Close promotional offer")} onClick={onClose}>×</button>
 
         <div className="promo-offer-panel" aria-hidden="true">
-          <img className="promo-child-photo" src="/promo-child-light.webp" alt="" />
+          <img className="promo-child-photo" src="/promo-child-original.webp" alt="" />
           <span className="promo-confetti promo-confetti-star">★</span>
           <span className="promo-confetti promo-confetti-yellow">◆</span>
           <span className="promo-confetti promo-confetti-green">◆</span>
