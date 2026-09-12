@@ -125,8 +125,8 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
               fetchPriority={index === 0 ? "high" : "auto"}
               draggable={false}
               onError={(event) => {
-                if (!event.currentTarget.src.endsWith("/hero-slider/01-intro.webp")) {
-                  event.currentTarget.src = "/hero-slider/01-intro.webp";
+                if (!event.currentTarget.src.endsWith("/hero-client/01-costume.webp")) {
+                  event.currentTarget.src = "/hero-client/01-costume.webp";
                 }
               }}
             />
