@@ -171,18 +171,108 @@ export function ProductDetailsFields({ editing, update }: Pick<ProductEditorProp
   </>;
 }
 
+function productImages(editing: Row) {
+  const images: string[] = [];
+  const addImage = (value: unknown) => {
+    if (typeof value !== "string") return;
+    const image = value.trim();
+    if (image && !images.includes(image)) images.push(image);
+  };
+
+  addImage(editing.image_url);
+  try {
+    const extras = JSON.parse(String(editing.images_json || "[]"));
+    if (Array.isArray(extras)) extras.forEach(addImage);
+  } catch {
+    // Une ancienne valeur invalide reste modifiable dès qu'une image est déplacée ou supprimée.
+  }
+  return images;
+}
+
+function saveProductImages(
+  images: string[],
+  update: ProductEditorProps["update"],
+) {
+  update("image_url", images[0] || "");
+  update("images_json", JSON.stringify(images.slice(1)));
+}
+
 export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<ProductEditorProps, "editing" | "update" | "upload">) {
+  const images = productImages(editing);
+
+  const moveImage = (index: number, direction: -1 | 1) => {
+    const destination = index + direction;
+    if (destination < 0 || destination >= images.length) return;
+    const reordered = [...images];
+    [reordered[index], reordered[destination]] = [reordered[destination], reordered[index]];
+    saveProductImages(reordered, update);
+  };
+
+  const removeImage = (index: number) => {
+    saveProductImages(images.filter((_, imageIndex) => imageIndex !== index), update);
+  };
+
   return <>
     <label>
-      Photo principale du produit
+      Remplacer la photo principale
       <input type="file" accept="image/*" onChange={(event) => void upload(event.target.files?.[0])} />
     </label>
-    {editing.image_url && <img className="cms-image-preview" src={String(editing.image_url)} alt="Aperçu du produit" />}
 
-    <label>
-      Photos supplémentaires · liens JSON
-      <input value={String(editing.images_json || "[]")} onChange={(event) => update("images_json", event.target.value)} />
-    </label>
+    <section className="cms-product-images-manager" aria-labelledby="cms-product-images-title">
+      <div className="cms-product-images-heading">
+        <div>
+          <h3 id="cms-product-images-title">Photos du produit</h3>
+          <p>La première photo est présentée en premier sur le site.</p>
+        </div>
+        <strong>{images.length} photo{images.length === 1 ? "" : "s"}</strong>
+      </div>
+
+      {images.length > 0 ? (
+        <div className="cms-product-images-list">
+          {images.map((image, index) => (
+            <article className="cms-product-image-item" key={image}>
+              <img src={image} alt={index === 0 ? "Photo principale du produit" : `Photo ${index + 1} du produit`} />
+              <div className="cms-product-image-meta">
+                <strong>{index === 0 ? "Photo principale" : `Photo ${index + 1}`}</strong>
+                <span>Position {index + 1}</span>
+              </div>
+              <div className="cms-product-image-controls">
+                <button
+                  type="button"
+                  className="cms-image-order-button"
+                  onClick={() => moveImage(index, -1)}
+                  disabled={index === 0}
+                  aria-label="Déplacer cette photo vers le début"
+                  title="Monter"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="cms-image-order-button"
+                  onClick={() => moveImage(index, 1)}
+                  disabled={index === images.length - 1}
+                  aria-label="Déplacer cette photo vers la fin"
+                  title="Descendre"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  className="cms-image-remove-button"
+                  onClick={() => removeImage(index)}
+                  aria-label={`Supprimer la photo ${index + 1}`}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="cms-product-images-empty">Aucune photo. Téléversez une photo principale ci-dessus.</p>
+      )}
+    </section>
 
     <label>
       Conditions d’échange · FR
