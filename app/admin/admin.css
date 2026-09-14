@@ -14,3 +14,26 @@
 .cms-product-filters{display:flex;align-items:flex-end;gap:10px;margin:0 0 18px;padding:12px;border:1px solid #e7ecef;border-radius:10px;background:#f8fafb}.cms-product-filters label{display:grid;gap:5px;color:#71818a;font-size:9px;font-weight:700}.cms-product-filters select{min-width:145px;padding:9px 10px;border:1px solid #dce4e8;border-radius:7px;background:#fff;color:#17364a;font-size:10px}.cms-filter-count{margin-left:auto;padding:9px 3px;color:#536671;font-size:10px;font-weight:700}.cms-product-filters .cms-secondary{padding:9px 12px;font-size:10px}@media(max-width:900px){.cms-product-filters{align-items:stretch;flex-wrap:wrap}.cms-product-filters label{flex:1 1 140px}.cms-product-filters select{width:100%;min-width:0}.cms-filter-count{width:100%;margin-left:0}}
 .cms-article-number{display:inline-block!important;padding:6px 9px;border-radius:7px;background:#edf4fa;color:#173e60;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.5px;white-space:nowrap}.cms-article-number-input{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;font-weight:700;letter-spacing:.5px;background:#f4f7f8!important}
 .cms-quick-scroll{position:fixed;z-index:90;right:20px;bottom:20px;display:grid;gap:7px}.cms-quick-scroll button{display:grid;place-items:center;width:44px;height:44px;border:1px solid #d6e1e7;border-radius:50%;background:#fff;color:#173e60;font-size:21px;font-weight:700;box-shadow:0 6px 20px #17364a2b;cursor:pointer;touch-action:none;user-select:none}.cms-quick-scroll button:hover,.cms-quick-scroll button:focus-visible,.cms-quick-scroll button:active{background:#173e60;color:#fff;outline:none}.cms-quick-scroll button:active{transform:scale(.96)}@media(max-width:820px){.cms-quick-scroll{right:11px;bottom:12px}.cms-quick-scroll button{width:39px;height:39px;font-size:18px}}
+
+
+.cms-product-images-manager{margin-top:18px;padding:16px;border:1px solid #e0e7ea;border-radius:10px;background:#f8fafb}
+.cms-product-images-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:13px}
+.cms-product-images-heading h3{margin:0;color:#17364a;font-size:13px}
+.cms-product-images-heading p{margin:5px 0 0;color:#71818a;font-size:10px;line-height:1.5}
+.cms-product-images-heading>strong{flex:none;padding:5px 9px;border-radius:999px;background:#edf4fa;color:#397fb0;font-size:10px}
+.cms-product-images-list{display:grid;gap:9px}
+.cms-product-image-item{display:grid;grid-template-columns:86px minmax(0,1fr) auto;align-items:center;gap:12px;padding:9px;border:1px solid #e4eaed;border-radius:9px;background:#fff}
+.cms-product-image-item>img{width:86px;height:86px;border-radius:7px;background:#f5f7f8;object-fit:contain}
+.cms-product-image-meta{min-width:0}
+.cms-product-image-meta strong,.cms-product-image-meta span{display:block}
+.cms-product-image-meta strong{color:#17364a;font-size:11px}
+.cms-product-image-meta span{margin-top:5px;color:#71818a;font-size:9px}
+.cms-product-image-controls{display:flex;align-items:center;gap:6px}
+.cms-image-order-button,.cms-image-remove-button{border:1px solid #dce5e9;border-radius:7px;background:#fff;cursor:pointer}
+.cms-image-order-button{display:grid;place-items:center;width:34px;height:34px;color:#397fb0;font-size:17px;font-weight:700}
+.cms-image-order-button:disabled{opacity:.3;cursor:default}
+.cms-image-remove-button{padding:8px 10px;color:#b24853;font-size:10px;font-weight:700}
+.cms-image-order-button:not(:disabled):hover,.cms-image-order-button:not(:disabled):focus-visible{border-color:#397fb0;background:#edf4fa}
+.cms-image-remove-button:hover,.cms-image-remove-button:focus-visible{border-color:#d98b92;background:#fff0f1}
+.cms-product-images-empty{margin:0;padding:18px;border:1px dashed #ccd8de;border-radius:8px;color:#71818a;text-align:center;font-size:11px}
+@media(max-width:620px){.cms-product-image-item{grid-template-columns:72px 1fr}.cms-product-image-item>img{width:72px;height:72px}.cms-product-image-controls{grid-column:1/-1;justify-content:flex-end}.cms-image-remove-button{margin-left:auto}}
