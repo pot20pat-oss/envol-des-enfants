@@ -32,13 +32,13 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
 
   const slides = [
     {
-      image: "/hero-client/01-costume.webp",
-      title: say("L’imagination", "Imagination"),
-      accent: say("prend son envol.", "takes flight."),
-      description: say("Des jeux pour inventer, créer et devenir le héros de chaque aventure.", "Toys to imagine, create and become the hero of every adventure."),
+      image: "/hero-quebec-2026.png",
+      title: say("Aimer · Jouer", "Love · Play"),
+      accent: say("Grandir", "Grow"),
+      description: say("Des jeux et des découvertes pour accompagner chaque enfant dans son envol.", "Toys and discoveries to help every child spread their wings."),
       alt: say("Enfant déguisé en héros", "Child dressed as a hero"),
       href: `/catalogue?region=${market}`,
-      label: say("Découvrir les jeux", "Discover the toys"),
+      label: say("Découvrir nos produits", "Discover our products"),
       tone: "coral",
     },
     {
@@ -125,8 +125,8 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
               fetchPriority={index === 0 ? "high" : "auto"}
               draggable={false}
               onError={(event) => {
-                if (!event.currentTarget.src.endsWith("/hero-client/01-costume.webp")) {
-                  event.currentTarget.src = "/hero-client/01-costume.webp";
+                if (!event.currentTarget.src.endsWith("/hero-quebec-2026.png")) {
+                  event.currentTarget.src = "/hero-quebec-2026.png";
                 }
               }}
             />
