@@ -8,13 +8,15 @@ type Props = {
 };
 
 const categories = [
-  { labelFr: "Éveil 0–3 ans", labelEn: "Early years", image: "/products/archive-complements/bebe-peluche-rose.webp", href: "/bebe-enfants" },
-  { labelFr: "Jouets éducatifs", labelEn: "Educational toys", image: "/products/mama3/mama3-01.jpg", href: "/jouets" },
-  { labelFr: "Poupées", labelEn: "Dolls", image: "/products/barbie/barbie-01.webp", href: "/poupees" },
-  { labelFr: "Princesses", labelEn: "Princesses", image: "/products/disney/disney-01.webp", href: "/poupees" },
-  { labelFr: "Jeux & aventures", labelEn: "Games & adventures", image: "/products/archive-complements/camion-pompier-angle-2.webp", href: "/jouets" },
-  { labelFr: "Véhicules", labelEn: "Vehicles", image: "/products/archive-complements/vtt-utv-rouge.webp", href: "/catalogue" },
-  { labelFr: "Articles scolaires", labelEn: "School supplies", image: "/products/mama3/mama3-08.jpg", href: "/articles-scolaires" },
+  { labelFr: "Éveil 0–3 ans", labelEn: "Early years", image: "/category-buttons/eveil.png", href: "/bebe-enfants" },
+  { labelFr: "Jouets éducatifs", labelEn: "Educational toys", image: "/category-buttons/educatifs.png", href: "/jouets" },
+  { labelFr: "Montessori", labelEn: "Montessori", image: "/category-buttons/montessori.png", href: "/catalogue?category=montessori" },
+  { labelFr: "Jeux & Jouets", labelEn: "Games & Toys", image: "/category-buttons/jeux-jouets.png", href: "/jouets" },
+  { labelFr: "Mon Monde de Poupée", labelEn: "My Doll World", image: "/category-buttons/poupees.png", href: "/poupees" },
+  { labelFr: "Vêtements", labelEn: "Clothing", image: "/category-buttons/vetements.png", href: "/catalogue?category=vetements" },
+  { labelFr: "Chaussures", labelEn: "Shoes", image: "/category-buttons/chaussures.png", href: "/catalogue?category=chaussures" },
+  { labelFr: "Voitures électriques", labelEn: "Electric vehicles", image: "/category-buttons/voitures.png", href: "/catalogue?category=vehicules" },
+  { labelFr: "Scolaire", labelEn: "School", image: "/category-buttons/scolaire.png", href: "/articles-scolaires" },
 ];
 
 const worlds = [
@@ -34,9 +36,8 @@ export default function StorefrontShopSections({ market, say }: Props) {
     </section>
 
     <section className="shop-category-strip wrap">
-      {categories.map((category) => <a href={`${category.href}${region}`} key={category.labelFr}>
-        <span><img src={category.image} alt="" /></span>
-        <strong>{say(category.labelFr, category.labelEn)}</strong>
+      {categories.map((category) => <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)}>
+        <img src={category.image} alt={say(category.labelFr, category.labelEn)} />
       </a>)}
     </section>
 
