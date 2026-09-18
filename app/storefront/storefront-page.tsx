@@ -11,6 +11,7 @@ import StorefrontPromo from "./storefront-promo";
 import StorefrontHero from "./storefront-hero";
 import StorefrontFeaturedCollections from "./storefront-featured-collections";
 import StorefrontQuickScroll from "./storefront-quick-scroll";
+import StorefrontShopSections from "./storefront-shop-sections";
 import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
 import { useStorefrontSettings } from "../hooks/use-storefront-settings";
@@ -98,6 +99,8 @@ export default function Home() {
         editable={editable}
         sectionStyle={sectionStyle}
       />
+
+      <StorefrontShopSections market={market} say={say} />
 
       <StorefrontCatalog products={storeProducts} availableCategories={availableCategories} dollCategories={dollCategories} language={language} market={market} active={active} query={query} status={status} showAll={showAll} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} style={sectionStyle("catalogue")} title={editable("catalogue_title", "Le catalogue", "A little shop")} accent={editable("catalogue_accent", "des petits bonheurs.", "full of joy.")} description={editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")} onActiveChange={setActive} onQueryChange={setQuery} onStatusChange={setStatus} onShowAll={() => setShowAll(true)} onOpenProduct={setSelectedProduct} />
 
