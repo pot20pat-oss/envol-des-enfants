@@ -17,6 +17,7 @@ import "./product-lightbox.css";
 import "./dialog-responsive.css";
 import "./commerce/commerce.css";
 import "./commerce/storefront-commerce.css";
+import "./storefront/shop-reference.css";
 import { CommerceProvider } from "./commerce/commerce-provider";
 
 export const metadata: Metadata = {
