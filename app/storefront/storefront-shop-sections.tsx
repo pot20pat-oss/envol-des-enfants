@@ -24,16 +24,6 @@ const worlds = [
   { className: "world-princess", titleFr: "Princesses", titleEn: "Princesses", textFr: "Un univers pour rêver et créer", textEn: "A world made for dreaming", image: "/products/disney/disney-04.webp", href: "/poupees" },
 ];
 
-const brandLogos = [
-  { name: "VTech", src: "/brands/vtech-client.png" },
-  { name: "LEGO", src: "/brands/lego-client.png" },
-  { name: "Fisher-Price", src: "/brands/fisher-price-client.png" },
-  { name: "Playmobil", src: "/brands/playmobil-client.png" },
-  { name: "Barbie", src: "/brands/barbie-client.png" },
-  { name: "Hasbro", src: "/brands/hasbro-client.png" },
-  { name: "Marina & Pau", src: "/brands/marina-pau-client.png" },
-];
-
 export default function StorefrontShopSections({ market, say }: Props) {
   const region = `?region=${market}`;
   return <div className="shop-home-sections">
@@ -70,6 +60,6 @@ export default function StorefrontShopSections({ market, say }: Props) {
       <a href={`/promotions${region}`}><div><h2>{say("Des idées-cadeaux pour toutes les occasions", "Gift ideas for every occasion")}</h2><p>{say("Des jouets pour créer de beaux souvenirs", "Toys for beautiful memories")}</p><span>{say("Découvrir", "Discover")} →</span></div><span aria-hidden="true">🎁 🧸</span></a>
     </section>
 
-    <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><div className="shop-brand-vector-row">{brandLogos.map((brand) => <a href={`/catalogue${region}`} key={brand.name} aria-label={brand.name}><img src={brand.src} alt={brand.name}/></a>)}<a className="shop-brand-vector-more" href={`/catalogue${region}`}>{say("et plus encore!", "and many more!")}</a></div></section>
+    <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><a className="shop-brand-official-strip" href={`/catalogue${region}`} aria-label={say("Voir toutes nos grandes marques", "See all our major brands")}><img src="/brand-logos-official.png" alt="VTech, LEGO, Fisher-Price, Playmobil, Barbie, Hasbro, Marina & Pau et plus encore"/></a></section>
   </div>;
 }
