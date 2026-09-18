@@ -69,3 +69,12 @@
 .shop-category-links{position:absolute!important;inset:0!important;display:grid!important;grid-template-columns:repeat(9,1fr)!important;z-index:2}
 .shop-category-links>a{display:block!important;width:100%!important;height:100%!important;background:transparent!important;border:0!important}
 @media(max-width:800px){.shop-category-strip{overflow-x:auto!important}.shop-category-rail{min-width:900px}.shop-category-rail>img{width:900px!important}}
+
+/* approved category treatment: individual round images, no capsule artwork */
+.shop-category-strip{background:#fff8f9!important;padding:14px 10px!important}
+.shop-category-circles{display:grid!important;grid-template-columns:repeat(9,minmax(0,1fr))!important;gap:10px!important;min-width:0!important;width:100%!important;background:transparent!important}
+.shop-category-circles>a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;color:#102f49!important;text-decoration:none!important;text-align:center!important;min-width:0!important}
+.shop-category-circle{width:86px;height:86px;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden;box-shadow:0 2px 8px rgba(26,45,61,.07)}
+.shop-category-circle img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
+.shop-category-circles strong{font-size:12px;line-height:1.15;max-width:105px}
+@media(max-width:800px){.shop-category-circles{min-width:820px!important}.shop-category-strip{overflow-x:auto!important}}
