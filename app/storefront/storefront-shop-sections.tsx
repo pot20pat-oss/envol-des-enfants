@@ -25,13 +25,13 @@ const worlds = [
 ];
 
 const brandLogos = [
-  { name: "VTech", src: "/brands/vtech.svg" },
-  { name: "LEGO", src: "/brands/lego.svg" },
-  { name: "Fisher-Price", src: "/brands/fisher-price.svg" },
-  { name: "Playmobil", src: "/brands/playmobil.svg" },
-  { name: "Barbie", src: "/brands/barbie.svg" },
-  { name: "Hasbro", src: "/brands/hasbro.svg" },
-  { name: "Marina & Pau", src: "/brands/marina-pau.svg" },
+  { name: "VTech", src: "/brands/vtech-client.svg" },
+  { name: "LEGO", src: "/brands/lego-client.svg" },
+  { name: "Fisher-Price", src: "/brands/fisher-price-client.svg" },
+  { name: "Playmobil", src: "/brands/playmobil-client.svg" },
+  { name: "Barbie", src: "/brands/barbie-client.svg" },
+  { name: "Hasbro", src: "/brands/hasbro-client.svg" },
+  { name: "Marina & Pau", src: "/brands/marina-pau-client.svg" },
 ];
 
 export default function StorefrontShopSections({ market, say }: Props) {
