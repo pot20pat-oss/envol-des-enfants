@@ -1,5 +1,5 @@
-import type { Dispatch, SetStateAction } from "react";
-import { categories, type Row } from "./admin-shared";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import { categories, request, type Row } from "./admin-shared";
 
 type ProductEditorProps = {
   editing: Row;
@@ -199,6 +199,8 @@ function saveProductImages(
 
 export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<ProductEditorProps, "editing" | "update" | "upload">) {
   const images = productImages(editing);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisNotice, setAnalysisNotice] = useState("");
 
   const moveImage = (index: number, direction: -1 | 1) => {
     const destination = index + direction;
@@ -210,6 +212,32 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
 
   const removeImage = (index: number) => {
     saveProductImages(images.filter((_, imageIndex) => imageIndex !== index), update);
+  };
+
+  const analyzeImage = async () => {
+    if (!images[0]) return;
+    setAnalyzing(true);
+    setAnalysisNotice("");
+    try {
+      const result = await request("/api/admin/analyze-product", {
+        method: "POST",
+        body: JSON.stringify({ image_url: images[0] }),
+      });
+      const suggestion = result.suggestion;
+      if (!suggestion || typeof suggestion !== "object" || Array.isArray(suggestion)) {
+        throw new Error("Suggestion NVIDIA invalide.");
+      }
+      const fields = suggestion as Record<string, unknown>;
+      for (const field of ["name_fr", "name_en", "description_fr", "description_en", "category", "brand", "ages"]) {
+        if (typeof fields[field] === "string" && fields[field]) update(field, fields[field]);
+      }
+      const confidence = Number(fields.confidence || 0);
+      setAnalysisNotice(`Suggestions ajoutées au formulaire${confidence ? ` · confiance ${Math.round(confidence * 100)} %` : ""}. Vérifiez-les avant d’enregistrer.`);
+    } catch (failure) {
+      setAnalysisNotice(failure instanceof Error ? failure.message : "Analyse NVIDIA impossible.");
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return <>
@@ -280,6 +308,18 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
       ) : (
         <p className="cms-product-images-empty">Aucune photo. Ajoutez une ou plusieurs photos ci-dessus.</p>
       )}
+
+      <div className="cms-product-analysis">
+        <button
+          type="button"
+          className="cms-secondary"
+          disabled={!images[0] || analyzing}
+          onClick={() => void analyzeImage()}
+        >
+          {analyzing ? "Analyse en cours…" : "Analyser avec NVIDIA"}
+        </button>
+        <p>{analysisNotice || "NVIDIA proposera le nom, la catégorie, la marque, l’âge et les descriptions. Rien ne sera enregistré sans votre confirmation."}</p>
+      </div>
     </section>
 
     <label>
