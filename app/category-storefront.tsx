@@ -155,8 +155,12 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   return <main className={`category-page${isFullCatalog?" catalog-marketplace":""}`}>
     <header className="category-header wrap">
       <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
+      <label className="category-header-search"><span className="sr-only">{label("Rechercher", "Search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={label("Que recherchez-vous? (ex. Barbie, LEGO, Montessori…)","What are you looking for? (e.g. Barbie, LEGO, Montessori…)")}/><b aria-hidden="true">⌕</b></label>
       <div className="commerce-actions"><a href={`/?region=${market}`} className="category-back">← {label("Accueil","Home")}</a><button className="commerce-action" onClick={()=>commerce.open("account")}>♙ <span>{label("Compte","Account")}</span></button><button className="commerce-action" onClick={()=>commerce.open("favorites")}>♡ <span>{label("Favoris","Favorites")}</span>{commerce.favorites.length>0&&<b>{commerce.favorites.length}</b>}</button><button className="commerce-action" onClick={()=>commerce.open("cart")}>🛒 <span>{label("Panier","Cart")}</span>{commerce.cartCount>0&&<b>{commerce.cartCount}</b>}</button></div>
     </header>
+    <nav className="category-main-nav">
+      <a href={`/?region=${market}`}>⌂ {label("Accueil","Home")}</a><a href={`/bebe-enfants?region=${market}`}>{label("Éveil 0–3 ans","Early years")}</a><a href={`/jouets?region=${market}`}>{label("Jouets éducatifs","Educational toys")}</a><a href={`/poupees?region=${market}`}>{label("Mon monde de poupées","World of dolls")}</a><a href={`/catalogue?region=${market}`}>{label("Véhicules et jeux","Vehicles and games")}</a><a href={`/articles-scolaires?region=${market}`}>{label("Articles scolaires","School supplies")}</a><a href={`/promotions?region=${market}`}>{label("Soldes","Sales")}</a>
+    </nav>
 
     <section className="category-hero wrap">
       <p className="eyebrow">Envol des Enfants</p>
