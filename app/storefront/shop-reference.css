@@ -16,3 +16,26 @@
 @media(max-width:620px){.shop-brand-row{gap:16px 24px}.shop-brand-logo{height:50px}}
 
 .shop-brands{overflow:visible;padding-bottom:22px}.shop-brands h2{margin:0 0 14px!important;line-height:1.3!important}.shop-brand-official-strip{display:block!important;width:100%!important;margin:0!important;padding:28px 24px!important;background:#fff;border:1px solid #e8edf0;border-radius:999px;box-shadow:0 6px 22px rgba(23,54,74,.06)}.shop-brand-official-strip img{display:block;width:min(100%,930px);height:auto;margin:0 auto;object-fit:contain}.shop-brand-official-strip:hover{transform:none!important}@media(max-width:620px){.shop-brand-official-strip{padding:18px 14px!important;border-radius:36px}}
+
+
+/* 2026-09-18 — accueil aligné sur les maquettes client */
+.editable-storefront{background:#fff;color:#102f49}
+.editable-storefront .announcement{display:none}
+.store-trust-bar{min-height:30px;padding:7px max(24px,calc((100% - 1240px)/2));display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:28px;background:#fff;color:#102f49;border-bottom:1px solid #f2f2f2;font-size:11px}
+.store-trust-bar strong{text-align:center;font-weight:600}
+.header.wrap{min-height:82px;display:grid;grid-template-columns:245px 1fr;align-items:center;gap:24px;padding-block:10px}
+.brand{display:block;width:230px;max-width:100%}.brand-logo-official{display:block;width:100%;height:68px;object-fit:contain;object-position:left center}
+.header-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px}.commerce-actions{display:flex;gap:14px}.commerce-action{background:transparent;border:0;color:#102f49;font-size:12px}.contact-button{display:none!important}
+.store-header-search.wrap{display:grid;grid-template-columns:minmax(320px,1fr) auto auto;align-items:center;gap:28px;padding-bottom:14px}
+.store-search-box{height:46px;display:flex!important;align-items:center;justify-content:space-between;border:1px solid #d9dee3;border-radius:9px;overflow:hidden;color:#7a858d;background:#fff}
+.store-search-box span{padding-left:17px}.store-search-box b{display:grid;place-items:center;width:54px;height:100%;background:#ed2470;color:#fff;font-size:23px}
+.store-fast-delivery,.store-whatsapp-link{display:flex!important;align-items:center;gap:8px;color:#102f49}.store-fast-delivery{font-size:20px}.store-fast-delivery strong,.store-whatsapp-link strong{display:block;font-size:12px}.store-fast-delivery small,.store-whatsapp-link small{display:block;font-size:10px;font-weight:400}.store-whatsapp-link{color:#17a768;font-size:22px}.store-whatsapp-link span{color:#102f49}
+.store-category-nav{display:flex;justify-content:center;align-items:stretch;overflow-x:auto;background:#fff1f5;border-block:1px solid #f5dce5;padding:0 max(10px,calc((100% - 1280px)/2))}
+.store-category-nav a{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 17px;color:#102f49;font-size:12px;font-weight:700;white-space:nowrap}.store-category-nav a:first-child{color:#ed2470}.store-category-nav a:last-child{background:#ed2470;color:#fff}
+.hero-story.wrap{max-width:1280px!important;margin:0 auto!important}.hero-story-stage{border-radius:0!important}
+.shop-home-sections{padding-top:0}.shop-benefits{border-top:0;padding-block:16px}.shop-category-strip{margin-top:10px;margin-bottom:18px}
+.shop-world-grid{gap:10px}.shop-world-grid>a{border-radius:10px;min-height:245px}
+.shop-age{padding-top:22px}.shop-age h2{margin-bottom:14px}.shop-age a{border:1px solid #f1ece9;background:#fff;min-height:92px}
+.shop-seasonal>a{border-radius:10px}.shop-brand-official-strip{border:0!important;box-shadow:none!important;border-radius:0!important;padding:15px 24px!important}
+@media(max-width:800px){.store-trust-bar{grid-template-columns:1fr auto}.store-trust-bar strong{display:none}.header.wrap{grid-template-columns:170px 1fr}.brand{width:165px}.brand-logo-official{height:54px}.commerce-action span{display:none}.store-header-search.wrap{grid-template-columns:1fr}.store-fast-delivery,.store-whatsapp-link{display:none!important}.store-category-nav{justify-content:flex-start}}
+@media(max-width:520px){.store-trust-bar{font-size:9px}.header.wrap{grid-template-columns:150px 1fr;padding-inline:12px}.commerce-actions{gap:4px}.language-switch{display:none}.store-header-search.wrap{padding-inline:12px}.store-search-box{min-width:0}.hero-story.wrap{width:100%!important}.shop-category-strip{margin-top:8px}}
