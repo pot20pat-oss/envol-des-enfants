@@ -11,3 +11,6 @@
 /* Logos de marques fournis par la cliente. */
 .shop-brands .shop-brand-strip{display:block;width:100%;padding:12px 0;color:inherit;font-size:inherit;font-weight:inherit}
 .shop-brands .shop-brand-strip img{display:block;width:min(100%,900px);height:auto;margin:0 auto;object-fit:contain}
+
+.shop-brand-row{display:flex;align-items:center;justify-content:center;gap:clamp(18px,3vw,42px);padding:18px 0;flex-wrap:wrap}.shop-brand-logo{display:block;height:54px;width:82px;overflow:hidden;position:relative}.shop-brand-logo span{position:absolute;top:0;height:67px;width:661px;background:url('/brand-logos-client.svg') no-repeat 0 0;transform-origin:top left}.shop-brand-vtech{width:49px}.shop-brand-vtech span{left:-18px}.shop-brand-lego{width:36px}.shop-brand-lego span{left:-92px}.shop-brand-fisher-price{width:63px}.shop-brand-fisher-price span{left:-150px}.shop-brand-playmobil{width:69px}.shop-brand-playmobil span{left:-232px}.shop-brand-barbie{width:52px}.shop-brand-barbie span{left:-328px}.shop-brand-hasbro{width:45px}.shop-brand-hasbro span{left:-401px}.shop-brand-marina-pau{width:84px}.shop-brand-marina-pau span{left:-463px}.shop-brand-more{color:#17364a;font-size:11px;font-weight:700;white-space:nowrap}.shop-brand-logo:hover{transform:translateY(-2px)}
+@media(max-width:620px){.shop-brand-row{gap:16px 24px}.shop-brand-logo{height:50px}}
