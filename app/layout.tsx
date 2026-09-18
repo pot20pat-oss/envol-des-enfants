@@ -15,6 +15,9 @@ import "./catalog-menu-autoclose.css";
 import "./hero-mobile.css";
 import "./product-lightbox.css";
 import "./dialog-responsive.css";
+import "./commerce/commerce.css";
+import "./commerce/storefront-commerce.css";
+import { CommerceProvider } from "./commerce/commerce-provider";
 
 export const metadata: Metadata = {
   title: "Envol des Enfants",
@@ -85,7 +88,7 @@ export default function RootLayout({
           <strong>Le bloqueur de contenu empêche l’affichage normal du site.</strong>{" "}
           Si vous utilisez Opera, autorisez <strong>envoldesenfants.com</strong> dans « Bloquer les publicités », puis rechargez la page.
         </div>
-        {children}
+        <CommerceProvider>{children}</CommerceProvider>
         <script dangerouslySetInnerHTML={{ __html: styleBlockerCheck }} />
       </body>
     </html>
