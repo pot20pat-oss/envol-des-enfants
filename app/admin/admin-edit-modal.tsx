@@ -13,7 +13,7 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   setEditing: Dispatch<SetStateAction<Row | null>>;
   save: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
   update: (field: string, value: string | number | boolean) => void;
-  upload: (file?: File) => void | Promise<void>;
+  upload: (files?: FileList | File[]) => void | Promise<void>;
   busy: boolean;
   market: Market;
   products: Row[];
