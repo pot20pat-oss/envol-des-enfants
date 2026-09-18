@@ -60,6 +60,6 @@ export default function StorefrontShopSections({ market, say }: Props) {
       <a href={`/promotions${region}`}><div><h2>{say("Des idées-cadeaux pour toutes les occasions", "Gift ideas for every occasion")}</h2><p>{say("Des jouets pour créer de beaux souvenirs", "Toys for beautiful memories")}</p><span>{say("Découvrir", "Discover")} →</span></div><span aria-hidden="true">🎁 🧸</span></a>
     </section>
 
-    <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><div>{["VTech","LEGO","Fisher-Price","Disney","Barbie","Hasbro"].map(brand=><a href={`/catalogue${region}`} key={brand}>{brand}</a>)}</div></section>
+    <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><a className="shop-brand-strip" href={`/catalogue${region}`} aria-label={say("Voir les produits de nos grandes marques", "Browse products from our favourite brands")}><img src="/brand-logos-client.svg" alt="VTech, LEGO, Fisher-Price, Playmobil, Barbie, Hasbro, Marina & Pau" /></a></section>
   </div>;
 }
