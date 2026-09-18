@@ -36,9 +36,8 @@ export default function StorefrontShopSections({ market, say }: Props) {
     </section>
 
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
-      <div className="shop-category-rail">
-        <img src="/category-buttons-row.png" alt="" />
-        <div className="shop-category-links">{categories.map((category) => <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)} title={say(category.labelFr, category.labelEn)} />)}</div>
+      <div className="shop-category-rail shop-category-circles">
+        {categories.map((category) => <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)} title={say(category.labelFr, category.labelEn)}><span className="shop-category-circle"><img src={category.image} alt="" /></span><strong>{say(category.labelFr, category.labelEn)}</strong></a>)}
       </div>
     </section>
 
