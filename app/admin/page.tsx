@@ -113,7 +113,7 @@ export default function Administration() {
         <SettingsSection market={market} settings={settings} setSettings={setSettings} passwords={passwords} setPasswords={setPasswords} busy={busy} saveSettings={(event) => void saveSettings(event, settings)} changePassword={(event) => void changePassword(event)} />
       )}
 
-      {editing && <AdminEditModal editing={editing} editingType={editingType} setEditing={setEditing} save={(event) => void saveEditing(event, editing, editingType, setEditing)} update={(field, value) => updateEditing(setEditing, field, value)} upload={(file) => void upload(file, setEditing)} busy={busy} market={market} products={products} />}
+      {editing && <AdminEditModal editing={editing} editingType={editingType} setEditing={setEditing} save={(event) => void saveEditing(event, editing, editingType, setEditing)} update={(field, value) => updateEditing(setEditing, field, value)} upload={(files) => void upload(files, setEditing)} busy={busy} market={market} products={products} />}
     </AdminLayout>
   );
 }
