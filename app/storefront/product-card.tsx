@@ -1,6 +1,7 @@
 import type { Product } from "@/lib/default-catalog";
 import { marketPrice, type Market } from "@/lib/markets";
 import { WhatsAppIcon } from "./product-icons";
+import { useCommerce } from "../commerce/commerce-provider";
 
 type Language = "fr" | "en";
 
@@ -14,6 +15,7 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ item, language, market, whatsappNumber, whatsappUrl, onOpen }: ProductCardProps) {
+  const commerce = useCommerce();
   const isEnglish = language === "en";
   const say = (french: string, english: string) => isEnglish ? english : french;
   const price = marketPrice(item.price, market, language);
@@ -58,6 +60,7 @@ export default function ProductCard({ item, language, market, whatsappNumber, wh
         <p className="product-price">{price}</p>
         <p className="product-description">{item.detail[language]}</p>
         <span className="age-pill">{item.ages.includes("mois") ? item.ages.replace("mois", say("mois", "months")) : `${item.ages} ${say("ans", "yrs")}`}</span>
+        {item.status !== "sold" && <div className="product-commerce-buttons"><button type="button" className="product-cart" onClick={() => commerce.addToCart(item)}>{say("Ajouter au panier", "Add to cart")}</button><button type="button" className="product-favorite" aria-label={say("Ajouter aux favoris", "Add to favorites")} onClick={() => commerce.toggleFavorite(item)}>{commerce.isFavorite(item) ? "♥" : "♡"}</button></div>}
         {item.status === "sold" ? (
           <span className="product-unavailable">{say("Indisponible", "Unavailable")}</span>
         ) : whatsappNumber ? (
