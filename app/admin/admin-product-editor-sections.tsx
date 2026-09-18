@@ -5,7 +5,7 @@ type ProductEditorProps = {
   editing: Row;
   setEditing: Dispatch<SetStateAction<Row | null>>;
   update: (field: string, value: string | number | boolean) => void;
-  upload: (file?: File) => void | Promise<void>;
+  upload: (files?: FileList | File[]) => void | Promise<void>;
 };
 
 export function ProductIdentityFields({ editing, setEditing, update }: Omit<ProductEditorProps, "upload">) {
@@ -214,8 +214,16 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
 
   return <>
     <label>
-      Remplacer la photo principale
-      <input type="file" accept="image/*" onChange={(event) => void upload(event.target.files?.[0])} />
+      Ajouter une ou plusieurs photos
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={(event) => {
+          void upload(event.target.files || undefined);
+          event.target.value = "";
+        }}
+      />
     </label>
 
     <section className="cms-product-images-manager" aria-labelledby="cms-product-images-title">
@@ -270,7 +278,7 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
           ))}
         </div>
       ) : (
-        <p className="cms-product-images-empty">Aucune photo. Téléversez une photo principale ci-dessus.</p>
+        <p className="cms-product-images-empty">Aucune photo. Ajoutez une ou plusieurs photos ci-dessus.</p>
       )}
     </section>
 
