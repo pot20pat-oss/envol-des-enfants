@@ -73,15 +73,45 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
     flash("Élément supprimé.");
   }
 
-  async function upload(file: File | undefined, setEditing: Dispatch<SetStateAction<Row | null>>) {
-    if (!file) return;
+  async function upload(files: FileList | File[] | undefined, setEditing: Dispatch<SetStateAction<Row | null>>) {
+    const selectedFiles = Array.from(files || []);
+    if (selectedFiles.length === 0) return;
     setBusy(true);
+    setError("");
     try {
-      const data = new FormData();
-      data.append("file", file);
-      const result = await request("/api/admin/upload", { method: "POST", body: data });
-      updateEditing(setEditing, "image_url", String(result.url));
-      flash("Photo téléversée.");
+      const uploadedImages: string[] = [];
+      for (const file of selectedFiles) {
+        const data = new FormData();
+        data.append("file", file);
+        const result = await request("/api/admin/upload", { method: "POST", body: data });
+        uploadedImages.push(String(result.url));
+      }
+
+      setEditing((current) => {
+        if (!current) return current;
+        const images: string[] = [];
+        const addImage = (value: unknown) => {
+          if (typeof value !== "string") return;
+          const image = value.trim();
+          if (image && !images.includes(image)) images.push(image);
+        };
+
+        addImage(current.image_url);
+        try {
+          const extras = JSON.parse(String(current.images_json || "[]"));
+          if (Array.isArray(extras)) extras.forEach(addImage);
+        } catch {
+          // Conserver l'image principale même si une ancienne liste est invalide.
+        }
+        uploadedImages.forEach(addImage);
+
+        return {
+          ...current,
+          image_url: images[0] || "",
+          images_json: JSON.stringify(images.slice(1)),
+        };
+      });
+      flash(`${uploadedImages.length} photo${uploadedImages.length === 1 ? "" : "s"} téléversée${uploadedImages.length === 1 ? "" : "s"}.`);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Téléversement impossible.");
     } finally {
