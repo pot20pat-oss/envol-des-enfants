@@ -32,7 +32,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
 
   const slides = [
     {
-      image: "/hero-quebec-2026.png",
+      image: market === "qc" ? "/hero-quebec-2026.png" : "/hero-client/01-costume.webp",
       title: say("Aimer · Jouer", "Love · Play"),
       accent: say("Grandir", "Grow"),
       description: say("Des jeux et des découvertes pour accompagner chaque enfant dans son envol.", "Toys and discoveries to help every child spread their wings."),
@@ -125,8 +125,9 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
               fetchPriority={index === 0 ? "high" : "auto"}
               draggable={false}
               onError={(event) => {
-                if (!event.currentTarget.src.endsWith("/hero-quebec-2026.png")) {
-                  event.currentTarget.src = "/hero-quebec-2026.png";
+                const fallback = market === "qc" ? "/hero-quebec-2026.png" : "/hero-client/01-costume.webp";
+                if (!event.currentTarget.src.endsWith(fallback)) {
+                  event.currentTarget.src = fallback;
                 }
               }}
             />
