@@ -24,6 +24,16 @@ const worlds = [
   { className: "world-princess", titleFr: "Princesses", titleEn: "Princesses", textFr: "Un univers pour rêver et créer", textEn: "A world made for dreaming", image: "/products/disney/disney-04.webp", href: "/poupees" },
 ];
 
+const brandLogos = [
+  { name: "VTech", src: "https://logo.clearbit.com/vtechkids.com?size=256" },
+  { name: "LEGO", src: "https://logo.clearbit.com/lego.com?size=256" },
+  { name: "Fisher-Price", src: "https://logo.clearbit.com/fisher-price.com?size=256" },
+  { name: "Playmobil", src: "https://logo.clearbit.com/playmobil.com?size=256" },
+  { name: "Barbie", src: "https://logo.clearbit.com/barbie.com?size=256" },
+  { name: "Hasbro", src: "https://logo.clearbit.com/hasbro.com?size=256" },
+  { name: "Marina & Pau", src: "https://logo.clearbit.com/marinapau.com?size=256" },
+];
+
 export default function StorefrontShopSections({ market, say }: Props) {
   const region = `?region=${market}`;
   return <div className="shop-home-sections">
@@ -61,7 +71,7 @@ export default function StorefrontShopSections({ market, say }: Props) {
     </section>
 
     <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><div className="shop-brand-row">
-      {["vtech","lego","fisher-price","playmobil","barbie","hasbro","marina-pau"].map((brand)=><a href={`/catalogue${region}`} className={`shop-brand-logo shop-brand-${brand}`} key={brand} aria-label={brand.replace("-"," ")}><span aria-hidden="true" /></a>)}
+      {brandLogos.map((brand)=><a href={`/catalogue${region}`} className="shop-brand-logo" key={brand.name} aria-label={brand.name}><img src={brand.src} alt={brand.name} /></a>)}
       <a className="shop-brand-more" href={`/catalogue${region}`}>{say("et plus encore!", "and many more!")}</a>
     </div></section>
   </div>;
