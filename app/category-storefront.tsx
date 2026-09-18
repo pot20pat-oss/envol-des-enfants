@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { marketPrice, normalizeMarket, type Market } from "@/lib/markets";
+import type { Product as CommerceProduct } from "@/lib/default-catalog";
+import { useCommerce } from "./commerce/commerce-provider";
 
 type Product = {
   id:string;
@@ -84,6 +86,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const [sort,setSort]=useState("newest");
   const [minPrice,setMinPrice]=useState("");
   const [maxPrice,setMaxPrice]=useState("");
+  const commerce=useCommerce();
 
   useEffect(()=>{
     const saved=window.localStorage.getItem("envol-language");
@@ -140,11 +143,19 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const openProduct=(product:Product)=>{setSelectedImageIndex(0);setSelectedProduct(product);};
   const selectCategory=(value:string)=>setActiveCategory(value);
   const label=(fr:string,en:string)=>language==="fr"?fr:en;
+  const commerceProduct=(product:Product):CommerceProduct=>({
+    id:product.id, articleNumber:product.article_number,
+    name:{fr:product.name_fr,en:product.name_en||product.name_fr}, category:product.category,
+    price:product.price, ages:"3+", sheet:"17", position:0, imageUrl:product.image_url,
+    stock:product.stock, status:(product.status||"available") as CommerceProduct["status"],
+    badge:product.badge as CommerceProduct["badge"],
+    detail:{fr:product.description_fr||"",en:product.description_en||product.description_fr||""},
+  });
 
   return <main className={`category-page${isFullCatalog?" catalog-marketplace":""}`}>
     <header className="category-header wrap">
       <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
-      <a href={`/?region=${market}`} className="category-back">← {label("Accueil","Home")}</a>
+      <div className="commerce-actions"><a href={`/?region=${market}`} className="category-back">← {label("Accueil","Home")}</a><button className="commerce-action" onClick={()=>commerce.open("account")}>♙ <span>{label("Compte","Account")}</span></button><button className="commerce-action" onClick={()=>commerce.open("favorites")}>♡ <span>{label("Favoris","Favorites")}</span>{commerce.favorites.length>0&&<b>{commerce.favorites.length}</b>}</button><button className="commerce-action" onClick={()=>commerce.open("cart")}>🛒 <span>{label("Panier","Cart")}</span>{commerce.cartCount>0&&<b>{commerce.cartCount}</b>}</button></div>
     </header>
 
     <section className="category-hero wrap">
@@ -196,6 +207,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
           <strong>{marketPrice(p.price,market,language)}</strong>
           <p>{language==="fr"?(p.description_fr||""):(p.description_en||p.description_fr||"")}</p>
           {p.article_number&&<small>No {p.article_number}</small>}
+          {p.status!=="sold"&&<div className="product-commerce-buttons"><button type="button" className="product-cart" onClick={(event)=>{event.stopPropagation();commerce.addToCart(commerceProduct(p));}}>{label("Ajouter au panier","Add to cart")}</button><button type="button" className="product-favorite" onClick={(event)=>{event.stopPropagation();commerce.toggleFavorite(commerceProduct(p));}}>{commerce.isFavorite(commerceProduct(p))?"♥":"♡"}</button></div>}
         </div>
       </article>)}</div>}
     </section>
