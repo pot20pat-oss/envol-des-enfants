@@ -24,16 +24,6 @@ const worlds = [
   { className: "world-princess", titleFr: "Princesses", titleEn: "Princesses", textFr: "Un univers pour rêver et créer", textEn: "A world made for dreaming", image: "/products/disney/disney-04.webp", href: "/poupees" },
 ];
 
-const brandLogos = [
-  { name: "VTech", src: "https://logo.clearbit.com/vtechkids.com?size=256" },
-  { name: "LEGO", src: "https://logo.clearbit.com/lego.com?size=256" },
-  { name: "Fisher-Price", src: "https://logo.clearbit.com/fisher-price.com?size=256" },
-  { name: "Playmobil", src: "https://logo.clearbit.com/playmobil.com?size=256" },
-  { name: "Barbie", src: "https://logo.clearbit.com/barbie.com?size=256" },
-  { name: "Hasbro", src: "https://logo.clearbit.com/hasbro.com?size=256" },
-  { name: "Marina & Pau", src: "https://logo.clearbit.com/marinapau.com?size=256" },
-];
-
 export default function StorefrontShopSections({ market, say }: Props) {
   const region = `?region=${market}`;
   return <div className="shop-home-sections">
@@ -70,9 +60,6 @@ export default function StorefrontShopSections({ market, say }: Props) {
       <a href={`/promotions${region}`}><div><h2>{say("Des idées-cadeaux pour toutes les occasions", "Gift ideas for every occasion")}</h2><p>{say("Des jouets pour créer de beaux souvenirs", "Toys for beautiful memories")}</p><span>{say("Découvrir", "Discover")} →</span></div><span aria-hidden="true">🎁 🧸</span></a>
     </section>
 
-    <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><div className="shop-brand-row">
-      {brandLogos.map((brand)=><a href={`/catalogue${region}`} className="shop-brand-logo" key={brand.name} aria-label={brand.name}><img src={brand.src} alt={brand.name} /></a>)}
-      <a className="shop-brand-more" href={`/catalogue${region}`}>{say("et plus encore!", "and many more!")}</a>
-    </div></section>
+    <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><a className="shop-brand-official-strip" href={`/catalogue${region}`} aria-label={say("Voir les produits de nos grandes marques", "Browse products from our favourite brands")}><img src="/brand-logos-client.svg" alt="VTech, LEGO, Fisher-Price, Playmobil, Barbie, Hasbro, Marina & Pau et plus encore" /></a></section>
   </div>;
 }
