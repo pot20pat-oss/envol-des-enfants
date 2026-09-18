@@ -52,9 +52,9 @@ export default function StorefrontShopSections({ market, say }: Props) {
     <section className="shop-age wrap">
       <h2>{say("Magasiner par âge", "Shop by age")}</h2>
       <div>{[
-        ["0–12 mois", "0–12 months", "🧸"], ["1–2 ans", "1–2 years", "🌈"], ["3–5 ans", "3–5 years", "🧩"],
-        ["6–8 ans", "6–8 years", "🚗"], ["9–12 ans", "9–12 years", "🎨"], ["12 ans et +", "12 years +", "🎒"],
-      ].map(([fr,en,icon]) => <a href={`/catalogue${region}`} key={fr}><b>{icon}</b><span>{say(fr,en)}</span></a>)}</div>
+        ["0–12 mois", "0–12 months", "/products/mama3/mama3-01.jpg"], ["1–2 ans", "1–2 years", "/products/mama3/mama3-02.jpg"], ["3–5 ans", "3–5 years", "/products/mama3/mama3-03.jpg"],
+        ["6–8 ans", "6–8 years", "/products/archive-complements/vtt-utv-rouge.webp"], ["9–12 ans", "9–12 years", "/products/barbie/barbie-08.webp"], ["12 ans et +", "12 years +", "/category-buttons/scolaire.png"],
+      ].map(([fr,en,image]) => <a href={`/catalogue${region}`} key={fr}><img src={image} alt="" /><span>{say(fr,en)}</span></a>)}</div>
     </section>
 
     <section className="shop-seasonal wrap">
