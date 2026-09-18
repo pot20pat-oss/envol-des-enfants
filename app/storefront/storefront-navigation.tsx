@@ -34,7 +34,7 @@ export default function StorefrontNavigation({
   return (
     <><div className="store-trust-bar"><span>🇨🇦 {say("Entreprise canadienne", "Canadian business")}</span><strong>{say("Des enfants heureux aujourd’hui, un meilleur demain!", "Happy children today, a brighter tomorrow!")}</strong><span>{say("Livraison rapide", "Fast delivery")}</span></div><header className="header wrap">
       <a className="brand" href={`/?region=${market}`} aria-label={say("Accueil — Envol des Enfants", "Home — Envol des Enfants")}>
-        <span className="brand-picture" aria-hidden="true" />
+        <img className="brand-logo-official" src="/envol-logo-officiel.svg" alt="Envol des Enfants" />
       </a>
       <div className="header-actions">
         <div className="commerce-actions">
@@ -49,6 +49,6 @@ export default function StorefrontNavigation({
         {storePhone && <a className="contact-button call-button" href={`tel:${storePhone.replace(/\s/g, "")}`} aria-label={say("Appeler la boutique", "Call the store")}><PhoneIcon/><span>{say("Appeler", "Call")}</span></a>}
         <a className="contact-button whatsapp-button" href={whatsappUrl} target="_blank" rel="noreferrer"><WhatsAppIcon/><span>WhatsApp</span></a>
       </div>
-    </header><div className="store-header-search wrap"><a href="#catalogue">{say("Que cherchez-vous aujourd’hui?", "What are you looking for today?")} <b>⌕</b></a><span>🚚 {say("Livraison rapide", "Fast delivery")}</span><a href={whatsappUrl} target="_blank" rel="noreferrer">● WhatsApp</a></div><nav className="store-category-nav"><a href={`/?region=${market}`}>⌂ {say("Accueil", "Home")}</a>{availableCategories.filter((category)=>category.value!=="all"&&!['vetements','chaussures'].includes(category.value)).slice(0,9).map((category)=><a href="#catalogue" key={category.value} onClick={()=>chooseCategory(category.value)}>{category.label[language].replace("↳ ","")}</a>)}<a href="#promotions">{say("Soldes", "Sales")}</a></nav></>
+    </header><div className="store-header-search wrap"><a className="store-search-box" href="#catalogue"><span>{say("Que cherchez-vous aujourd’hui?", "What are you looking for today?")}</span><b>⌕</b></a><span className="store-fast-delivery">🚚 <strong>{say("Livraison rapide", "Fast delivery")}</strong><small>{say("au Canada et ailleurs", "across Canada and beyond")}</small></span><a className="store-whatsapp-link" href={whatsappUrl} target="_blank" rel="noreferrer">● <span><strong>{say("Contact WhatsApp", "WhatsApp contact")}</strong><small>{say("Une question?", "A question?")}</small></span></a></div><nav className="store-category-nav"><a href={`/?region=${market}`}>⌂ {say("Accueil", "Home")}</a>{availableCategories.filter((category)=>category.value!=="all"&&!['vetements','chaussures'].includes(category.value)).slice(0,9).map((category)=><a href="#catalogue" key={category.value} onClick={()=>chooseCategory(category.value)}>{category.label[language].replace("↳ ","")}</a>)}<a href="#promotions">{say("Soldes", "Sales")}</a></nav></>
   );
 }
