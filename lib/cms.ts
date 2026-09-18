@@ -6,6 +6,8 @@ export type CmsEnv = {
   ADMIN_EMAILS?: string;
   ADMIN_BOOTSTRAP_PASSWORD?: string;
   SESSION_SECRET?: string;
+  NVIDIA_API_KEY?: string;
+  NVIDIA_VISION_MODEL?: string;
 };
 
 const COOKIE = "envol_admin_session";
