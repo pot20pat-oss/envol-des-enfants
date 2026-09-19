@@ -312,3 +312,20 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .shop-home-sections{background:#fff;padding-bottom:50px}.shop-home-sections .wrap{width:min(1480px,calc(100% - 48px));max-width:1480px;margin-inline:auto}.shop-category-rail{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:14px}.shop-category-button{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;color:#102f48}.shop-category-button img{width:100%;max-width:130px;aspect-ratio:1/1;object-fit:contain}.shop-world-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.shop-world-grid>a{display:grid;grid-template-columns:46% 54%;min-height:365px;overflow:hidden}.shop-world-grid>a>img{position:static!important;width:100%!important;height:100%!important;object-fit:contain!important}
 @media(max-width:1100px){.storefront-header-shell>.header.wrap{grid-template-columns:210px 1fr auto}.storefront-header-shell .brand{width:200px}.storefront-header-shell .brand-logo-official{width:195px}.storefront-header-shell .commerce-action span{display:none}.storefront-header-shell .store-category-nav{display:flex;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}.storefront-header-shell .store-category-nav::-webkit-scrollbar{display:none}.storefront-header-shell .store-category-nav a{flex:0 0 125px}.shop-world-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.storefront-header-shell>.header.wrap{width:calc(100% - 24px);height:auto;min-height:0;grid-template-columns:145px 1fr;grid-template-rows:72px 52px auto;gap:8px;padding:8px 0}.storefront-header-shell .brand{grid-column:1;grid-row:1;width:140px;height:68px}.storefront-header-shell .brand-logo-official{width:135px;height:64px}.storefront-header-shell .header-actions{grid-column:2;grid-row:1}.storefront-header-shell .store-search-box{grid-column:1/3;grid-row:2}.header-service-links{grid-column:1/3;grid-row:3;justify-content:center}.editable-storefront>.hero-story.wrap{width:100%}.shop-home-sections .wrap{width:calc(100% - 16px)}.shop-category-strip{overflow-x:auto}.shop-category-rail{grid-template-columns:repeat(9,112px);width:max-content}.shop-world-grid{grid-template-columns:1fr}}
+
+/* Taille uniquement — disposition inchangée. */
+.storefront-header-shell .brand-logo-official{width:320px!important;height:126px!important;max-width:none!important}
+.storefront-header-shell .brand{overflow:visible!important}
+.storefront-header-shell .store-search-box span{font-size:18px!important}
+.storefront-header-shell .commerce-action{font-size:15px!important;font-weight:700!important}
+.header-service-links strong{font-size:15px!important}.header-service-links small{font-size:12px!important}
+.storefront-header-shell .store-category-nav a{font-size:14px!important;font-weight:800!important}
+.hero-story-copy p{font-size:20px!important}.hero-story-cta{font-size:16px!important}
+.shop-benefits strong{font-size:15px!important}.shop-benefits span{font-size:12px!important}
+.shop-category-button strong{font-size:17px!important}
+.shop-world-grid h2{font-size:clamp(30px,2.25vw,42px)!important}.shop-world-grid p{font-size:16px!important}.shop-world-grid div span{font-size:14px!important}
+.shop-age h2{font-size:36px!important}.shop-age span{font-size:15px!important}
+.shop-seasonal h2{font-size:38px!important}.shop-seasonal p{font-size:15px!important}.shop-seasonal div span{font-size:14px!important}
+.shop-brands h2{font-size:24px!important}
+.shop-bottom-benefits strong{font-size:14px!important}.shop-bottom-benefits span{font-size:12px!important}
+@media(max-width:700px){.storefront-header-shell .brand-logo-official{width:165px!important;height:72px!important}.storefront-header-shell .store-category-nav a{font-size:12px!important}.shop-category-button strong{font-size:14px!important}}
