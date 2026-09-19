@@ -56,19 +56,6 @@ export default function StorefrontNavigation({
         </div>
       </header>
 
-      <nav className="store-category-nav">
-        <a href={`/?region=${market}`}>⌂ {say("Accueil", "Home")}</a>
-        <a href="/bebe-enfants">{say("Éveil", "Early years")}</a>
-        <a href="/jouets">{say("Jouets éducatifs", "Educational toys")}</a>
-        <a href="/catalogue?category=montessori">{say("Montessori", "Montessori")}</a>
-        <a href="/jouets">{say("Jeux & Jouets", "Games & Toys")}</a>
-        <a href="/poupees">{say("Mon Monde de Poupée", "My Doll World")}</a>
-        <a href="/catalogue?category=vetements">{say("Vêtements", "Clothing")}</a>
-        <a href="/catalogue?category=chaussures">{say("Chaussures", "Shoes")}</a>
-        <a href="/catalogue?category=vehicules">{say("Voitures électriques", "Electric vehicles")}</a>
-        <a href="/articles-scolaires">{say("Scolaire", "School")}</a>
-        <a href="#promotions">{say("Soldes", "Sales")}</a>
-      </nav>
     </div>
   );
 }
