@@ -309,16 +309,16 @@
 .store-trust-bar{width:min(1480px,calc(100% - 40px));height:34px;margin:auto;display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;font-size:12px;color:#102f48}
 .store-trust-bar strong{text-align:center}.store-trust-bar span:last-child{text-align:right}
 
-.editable-storefront>.header.wrap{width:min(1480px,calc(100% - 40px));max-width:1480px;min-height:176px!important;height:176px!important;margin:auto;padding:8px 0!important;display:flex;align-items:center}
-.editable-storefront .brand{flex:0 0 300px!important;width:300px!important;height:160px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important}
-.editable-storefront .brand-picture{width:250px!important;height:150px!important;background-size:contain!important;background-position:left center!important}
+.editable-storefront>.header.wrap{width:min(1480px,calc(100% - 40px));max-width:1480px;min-height:220px!important;height:220px!important;margin:auto;padding:18px 0!important;display:flex;align-items:center}
+.editable-storefront .brand{flex:0 0 330px!important;width:330px!important;height:190px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important}
+.editable-storefront .brand-picture{width:290px!important;height:180px!important;background-size:contain!important;background-position:left center!important}
 .editable-storefront .header-actions{margin-left:auto;align-self:flex-start;padding-top:8px}.editable-storefront .commerce-actions{display:flex;gap:28px}.editable-storefront .commerce-action{border:0;background:none;font-size:13px;color:#111}
 .editable-storefront .language-switch,.editable-storefront .contact-button{display:none!important}
 
-.store-header-search{width:min(1480px,calc(100% - 40px));max-width:1480px;margin:-112px auto 30px;padding-left:320px;display:grid;grid-template-columns:minmax(430px,1fr) 230px 220px;gap:24px;align-items:center;pointer-events:none}
+.store-header-search{width:min(1480px,calc(100% - 40px));max-width:1480px;margin:-138px auto 46px;padding-left:350px;display:grid;grid-template-columns:minmax(430px,1fr) 240px 230px;gap:28px;align-items:center;pointer-events:none}
 .store-header-search>*{pointer-events:auto}.store-search-box{height:54px;border:1px solid #ddd;border-radius:5px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;color:#7d888e;box-shadow:0 2px 8px #0000000d}.store-search-box span{padding-left:20px}.store-search-box b{width:58px;height:54px;display:grid;place-items:center;background:#ed2d70;color:#fff;font-size:26px}
 .store-fast-delivery,.store-whatsapp-link{display:flex;align-items:center;gap:10px;color:#102f48}.store-whatsapp-link{color:#27a95e}.store-fast-delivery strong,.store-whatsapp-link strong{display:block;font-size:13px}.store-fast-delivery small,.store-whatsapp-link small{display:block;font-size:11px;font-weight:400}
-.store-category-nav{height:50px;display:flex;justify-content:center;align-items:stretch;background:#fde5ed;border-block:1px solid #f7d0dd;overflow-x:auto}.store-category-nav a{display:flex;align-items:center;padding:0 20px;white-space:nowrap;font-size:12px;font-weight:700;color:#102f48}.store-category-nav a:last-child{background:#ed2d70;color:#fff}
+.store-category-nav{height:58px;display:flex;justify-content:center;align-items:stretch;background:#fde5ed;border-block:1px solid #f7d0dd;overflow-x:auto}.store-category-nav a{display:flex;align-items:center;padding:0 22px;white-space:nowrap;font-size:13px;font-weight:700;color:#102f48}.store-category-nav a:last-child{background:#ed2d70;color:#fff}
 
 .editable-storefront>.hero-story.wrap{width:min(1480px,calc(100% - 40px))!important;max-width:1480px!important;min-height:0!important;height:auto!important;margin:0 auto!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important}
 .editable-storefront>.hero-story.wrap .hero-story-stage{position:relative!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:2.05/1!important;overflow:hidden!important}
