@@ -345,3 +345,59 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .shop-brands h2{font-size:29px!important}
 .shop-bottom-benefits strong{font-size:17px!important}.shop-bottom-benefits span{font-size:15px!important}
 @media(max-width:700px){.storefront-header-shell .brand-logo-official{width:190px!important;height:82px!important}.storefront-header-shell .store-category-nav a{font-size:14px!important}.shop-category-button strong{font-size:16px!important}}
+
+/* Alignement du header — tailles conservées, placement corrigé. */
+.storefront-header-shell>.header.wrap{
+  grid-template-columns:360px minmax(520px,760px) minmax(390px,1fr)!important;
+  grid-template-rows:64px 48px!important;
+  column-gap:32px!important;
+  justify-content:center!important;
+  align-content:center!important;
+}
+.storefront-header-shell .brand{
+  width:360px!important;
+  height:132px!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+.storefront-header-shell .brand-logo-official{
+  width:340px!important;
+  height:132px!important;
+  object-position:center center!important;
+}
+.storefront-header-shell .store-search-box{
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:center!important;
+  width:100%!important;
+}
+.storefront-header-shell .header-actions{
+  grid-column:3!important;
+  grid-row:1!important;
+  justify-self:center!important;
+  align-self:center!important;
+  width:100%!important;
+}
+.storefront-header-shell .commerce-actions{
+  justify-content:center!important;
+  gap:28px!important;
+}
+.header-service-links{
+  grid-column:3!important;
+  grid-row:2!important;
+  justify-content:center!important;
+  gap:38px!important;
+}
+.storefront-header-shell .store-category-nav{
+  padding-inline:34px!important;
+}
+.storefront-header-shell .store-category-nav a{
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+@media(max-width:1100px){
+  .storefront-header-shell>.header.wrap{grid-template-columns:240px minmax(360px,1fr) auto!important}
+  .storefront-header-shell .brand{width:230px!important}
+  .storefront-header-shell .brand-logo-official{width:220px!important;height:105px!important}
+}
