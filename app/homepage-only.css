@@ -334,3 +334,17 @@
 .shop-age a{background:#fff!important;border:1px solid #eee7e2!important}
 @media(max-width:1000px){.editable-storefront>.hero-story.wrap,.editable-storefront>.hero-story.wrap .hero-story-stage{min-height:520px!important}.shop-category-rail{grid-template-columns:repeat(5,minmax(120px,1fr))!important}.shop-benefits{margin-top:0!important}}
 @media(max-width:700px){.editable-storefront>.hero-story.wrap,.editable-storefront>.hero-story.wrap .hero-story-stage{min-height:0!important}.editable-storefront>.header.wrap{min-height:90px!important;height:90px!important}.editable-storefront .brand{width:180px!important;height:76px!important}.editable-storefront .brand-logo-official{width:175px!important;height:70px!important;transform:scale(1.25)}.shop-category-strip{overflow-x:auto!important}.shop-category-rail{grid-template-columns:repeat(9,112px)!important;width:max-content!important;gap:8px!important}.shop-category-button img{max-width:100px!important}.shop-category-button strong{font-size:12px!important}}
+
+/* Ordre réel de la page : navigation -> hero -> contenu. */
+.editable-storefront>.store-trust-bar{order:-50!important}
+.editable-storefront>.header{order:-49!important}
+.editable-storefront>.store-header-search{order:-48!important}
+.editable-storefront>.store-category-nav{order:-47!important}
+.editable-storefront>.hero-story{order:-46!important}
+.editable-storefront>.shop-home-sections{order:-45!important}
+.editable-storefront>.hero-story.wrap{margin-top:0!important}
+.shop-benefits{margin-top:0!important;width:min(1480px,calc(100% - 32px))!important;margin-left:auto!important;margin-right:auto!important;padding:18px 40px!important;grid-template-columns:repeat(3,1fr)!important;border-bottom:1px solid #eee!important}
+.editable-storefront>.header.wrap{min-height:118px!important;height:118px!important}
+.editable-storefront .brand{width:285px!important;height:100px!important;flex:0 0 285px!important}
+.editable-storefront .brand-logo-official{width:270px!important;height:92px!important;transform:none!important;object-fit:contain!important;object-position:left center!important}
+@media(max-width:700px){.shop-benefits{width:calc(100% - 12px)!important;grid-template-columns:1fr!important;padding:12px!important}.editable-storefront>.header.wrap{min-height:82px!important;height:82px!important}.editable-storefront .brand{width:180px!important;height:70px!important;flex-basis:180px!important}.editable-storefront .brand-logo-official{width:175px!important;height:66px!important}}
