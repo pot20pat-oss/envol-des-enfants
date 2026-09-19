@@ -329,3 +329,19 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .shop-brands h2{font-size:24px!important}
 .shop-bottom-benefits strong{font-size:14px!important}.shop-bottom-benefits span{font-size:12px!important}
 @media(max-width:700px){.storefront-header-shell .brand-logo-official{width:165px!important;height:72px!important}.storefront-header-shell .store-category-nav a{font-size:12px!important}.shop-category-button strong{font-size:14px!important}}
+
+/* Taille x2 supplémentaire demandée — aucune modification de disposition. */
+.storefront-header-shell .brand-logo-official{width:400px!important;height:158px!important}
+.storefront-header-shell .store-search-box span{font-size:22px!important}
+.storefront-header-shell .commerce-action{font-size:18px!important}
+.header-service-links strong{font-size:18px!important}.header-service-links small{font-size:15px!important}
+.storefront-header-shell .store-category-nav a{font-size:17px!important}
+.hero-story-copy p{font-size:24px!important}.hero-story-cta{font-size:19px!important}
+.shop-benefits strong{font-size:18px!important}.shop-benefits span{font-size:15px!important}
+.shop-category-button strong{font-size:20px!important}
+.shop-world-grid h2{font-size:clamp(36px,2.7vw,50px)!important}.shop-world-grid p{font-size:19px!important}.shop-world-grid div span{font-size:17px!important}
+.shop-age h2{font-size:43px!important}.shop-age span{font-size:18px!important}
+.shop-seasonal h2{font-size:45px!important}.shop-seasonal p{font-size:18px!important}.shop-seasonal div span{font-size:17px!important}
+.shop-brands h2{font-size:29px!important}
+.shop-bottom-benefits strong{font-size:17px!important}.shop-bottom-benefits span{font-size:15px!important}
+@media(max-width:700px){.storefront-header-shell .brand-logo-official{width:190px!important;height:82px!important}.storefront-header-shell .store-category-nav a{font-size:14px!important}.shop-category-button strong{font-size:16px!important}}
