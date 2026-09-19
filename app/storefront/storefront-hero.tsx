@@ -104,6 +104,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
 
   const previous = () => setActive((current) => (current - 1 + slides.length) % slides.length);
   const next = () => setActive((current) => (current + 1) % slides.length);
+  const activeSlide = slides[active];
 
   return (
     <section
@@ -112,32 +113,24 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
       style={heroStyle}
     >
       <div className="hero-story-stage">
-        {slides.map((slide, index) => (
-          <div
-            key={slide.image}
-            className={`hero-story-slide${index === active ? " is-active" : ""}`}
-            aria-hidden={index !== active}
-          >
-            <img
-              src={slide.image}
-              alt={slide.alt}
-              loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : "auto"}
-              draggable={false}
-              onError={(event) => {
-                const fallback = market === "qc" ? "/hero-quebec-2026.png" : "/hero-client/01-costume.webp";
-                if (!event.currentTarget.src.endsWith(fallback)) {
-                  event.currentTarget.src = fallback;
-                }
-              }}
-            />
-            <div className={`hero-story-copy hero-story-copy-${slide.tone}`}>
-              <h2>{slide.title}<br /><span>{slide.accent}</span></h2>
-              <p>{slide.description}</p>
-              <a className="hero-story-cta" href={slide.href}>{slide.label}<b aria-hidden="true">→</b></a>
-            </div>
+        <div className="hero-story-slide is-active" aria-hidden="false">
+          <img
+            src={activeSlide.image}
+            alt={activeSlide.alt}
+            loading="eager"
+            fetchPriority="high"
+            draggable={false}
+            onError={(event) => {
+              const fallback = market === "qc" ? "/hero-quebec-2026.png" : "/hero-client/01-costume.webp";
+              if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
+            }}
+          />
+          <div className={`hero-story-copy hero-story-copy-${activeSlide.tone}`}>
+            <h2>{activeSlide.title}<br /><span>{activeSlide.accent}</span></h2>
+            <p>{activeSlide.description}</p>
+            <a className="hero-story-cta" href={activeSlide.href}>{activeSlide.label}<b aria-hidden="true">→</b></a>
           </div>
-        ))}
+        </div>
 
         <button type="button" className="hero-story-nav hero-story-nav-left" onClick={previous} aria-label={say("Image précédente", "Previous slide")}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
