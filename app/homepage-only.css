@@ -291,3 +291,32 @@
 @media(prefers-reduced-motion:reduce){
   .hero-story-slide{transition:none}
 }
+
+
+/* Accueil compact inspiré de la maquette validée : hero -> engagements -> catégories -> univers -> âges. */
+.shop-home-sections{padding:0 0 54px;background:#fff}
+.shop-home-sections .wrap{width:min(1480px,calc(100% - 32px));max-width:none;margin-left:auto;margin-right:auto}
+.shop-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:16px 24px;border-bottom:1px solid #eee9e5}
+.shop-benefits>div{display:flex;align-items:center;justify-content:center;gap:10px;color:#18344b}
+.shop-benefits b{font-size:22px}.shop-benefits span{display:grid;font-size:11px;color:#687780}.shop-benefits strong{font-size:12px;color:#18344b}
+.shop-category-strip{padding:10px 0 16px!important}
+.shop-category-rail{position:relative;width:100%;overflow:hidden}
+.shop-category-rail>img{display:block;width:100%;height:auto;margin:0;object-fit:contain}
+.shop-category-links{position:absolute;inset:0;display:grid;grid-template-columns:repeat(9,1fr)}
+.shop-category-links a{display:block;min-width:0}
+.shop-category-links a:focus-visible{outline:3px solid #ec2c73;outline-offset:-3px;border-radius:12px}
+.shop-world-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0!important}
+.shop-world-grid>a{position:relative;display:grid;grid-template-columns:1.05fr .95fr;min-height:260px;overflow:hidden;border-radius:14px;text-decoration:none;color:#102f48}
+.shop-world-grid>a>div{z-index:2;padding:28px 8px 22px 28px;display:flex;flex-direction:column;align-items:flex-start}
+.shop-world-grid h2{margin:0;font-size:clamp(23px,2vw,34px);line-height:.94;text-transform:uppercase;letter-spacing:-1px}
+.shop-world-grid p{margin:14px 0 12px;font-size:13px;line-height:1.45}
+.shop-world-grid span{margin-top:auto;padding:10px 16px;border-radius:999px;background:#ed246d;color:#fff;font-size:12px;font-weight:800}
+.shop-world-grid img{width:100%;height:100%;object-fit:contain;object-position:center bottom;align-self:end}
+.world-educational{background:#fde9e5}.world-dolls{background:#f8e1ee}.world-vehicles{background:#dcecf6}.world-princess{background:#f9e4ed}
+.shop-age{padding:28px 0 0!important}.shop-age h2{text-align:center;margin:0 0 15px;color:#102f48;font-size:28px}
+.shop-age>div{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.shop-age a{position:relative;min-height:145px;overflow:hidden;border-radius:10px;background:#faf7f5;color:#102f48;text-decoration:none}
+.shop-age img{display:block;width:100%;height:145px;object-fit:contain}.shop-age span{position:absolute;left:0;right:0;bottom:7px;text-align:center;font-weight:800;font-size:12px}
+.shop-seasonal{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 0 0!important}.shop-seasonal>a{min-height:175px;padding:24px 28px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:#102f48;overflow:hidden}.shop-seasonal>a:first-child{background:#eaf4fb}.shop-seasonal>a:last-child{background:#fff0df}.shop-seasonal h2{margin:0;font-size:28px}.shop-seasonal p{margin:8px 0 15px}.shop-seasonal div span{display:inline-block;padding:9px 15px;border-radius:999px;background:#efb900;color:#102f48;font-weight:800;font-size:12px}.shop-seasonal>a:last-child div span{background:#e72d60;color:#fff}.shop-seasonal>a>span{font-size:56px;white-space:nowrap}
+.shop-brands{padding:24px 0 0!important}.shop-brands h2{margin:0 0 10px;font-size:18px;color:#102f48}.shop-brand-official-strip{display:block}.shop-brand-official-strip img{display:block;width:100%;height:auto;max-height:105px;object-fit:contain}
+@media(max-width:1000px){.shop-world-grid{grid-template-columns:repeat(2,1fr)}.shop-age>div{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.shop-home-sections .wrap{width:calc(100% - 16px)}.shop-benefits{grid-template-columns:1fr;padding:12px}.shop-benefits>div{justify-content:flex-start}.shop-category-strip{overflow-x:auto!important}.shop-category-rail{width:900px;max-width:none}.shop-world-grid{grid-template-columns:1fr 1fr;gap:8px}.shop-world-grid>a{grid-template-columns:1fr;min-height:280px}.shop-world-grid>a>div{padding:18px}.shop-world-grid img{position:absolute;right:0;bottom:0;width:58%;height:58%;opacity:.9}.shop-world-grid h2{font-size:22px}.shop-world-grid p{max-width:60%;font-size:11px}.shop-age>div{grid-template-columns:repeat(2,1fr)}.shop-seasonal{grid-template-columns:1fr}.shop-seasonal>a{min-height:145px}.shop-seasonal h2{font-size:22px}}
