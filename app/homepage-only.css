@@ -455,3 +455,10 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
   .storefront-header-shell .commerce-actions{gap:18px!important}
   .header-service-links{gap:26px!important}
 }
+
+/* Boutons catégories exacts de la référence : une seule image, 9 zones cliquables. */
+.shop-category-rail.shop-category-reference{position:relative!important;display:block!important;width:100%!important;max-width:none!important}
+.shop-category-reference-image{display:block!important;width:100%!important;height:auto!important;max-width:none!important;aspect-ratio:auto!important;object-fit:contain!important}
+.shop-category-reference-links{position:absolute!important;inset:0!important;display:grid!important;grid-template-columns:repeat(9,1fr)!important;z-index:2!important}
+.shop-category-reference-links a{display:block!important;width:100%!important;height:100%!important}
+@media(max-width:700px){.shop-category-rail.shop-category-reference{width:1000px!important}.shop-category-reference-image{width:1000px!important}.shop-category-strip{overflow-x:auto!important}}
