@@ -462,3 +462,13 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .shop-category-reference-links{position:absolute!important;inset:0!important;display:grid!important;grid-template-columns:repeat(9,1fr)!important;z-index:2!important}
 .shop-category-reference-links a{display:block!important;width:100%!important;height:100%!important}
 @media(max-width:700px){.shop-category-rail.shop-category-reference{width:1000px!important}.shop-category-reference-image{width:1000px!important}.shop-category-strip{overflow-x:auto!important}}
+
+/* Ordre demandé : header -> boutons catégories -> hero, avec espacements resserrés. */
+.editable-storefront>.shop-home-sections{order:1!important;padding-top:0!important}
+.editable-storefront>.hero-story{order:2!important}
+.shop-home-sections>.shop-benefits{display:none!important}
+.shop-category-strip{padding:6px 0 8px!important;margin-top:0!important;margin-bottom:0!important}
+.shop-category-reference-image{display:block!important;margin:0!important}
+.shop-home-sections>.shop-world-grid{margin-top:0!important}
+.editable-storefront>.hero-story.wrap{margin-top:8px!important;margin-bottom:8px!important}
+.storefront-header-shell>.header.wrap{margin-bottom:0!important}
