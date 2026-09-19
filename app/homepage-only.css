@@ -489,3 +489,37 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .shop-category-reference-image{width:100%!important;height:235px!important;object-fit:cover!important;object-position:center center!important}
 .shop-category-reference-links{height:235px!important}
 .shop-home-sections>.shop-world-grid{margin-top:8px!important}
+
+/* PRIORITÉ FINALE — ordre demandé : HEADER -> BOUTONS -> HERO -> 4 CARTES.
+   Les sections du site restent présentes; seul l'ordre visuel du haut est corrigé. */
+.editable-storefront>.shop-home-sections{display:contents!important}
+.editable-storefront>.storefront-header-shell{order:0!important}
+.editable-storefront>.shop-category-strip{order:1!important}
+.editable-storefront>.hero-story{order:2!important}
+.editable-storefront>.shop-world-grid{order:3!important}
+.editable-storefront>.shop-age{order:4!important}
+.editable-storefront>.shop-seasonal{order:5!important}
+.editable-storefront>.shop-brands{order:6!important}
+.editable-storefront>.shop-bottom-benefits{order:7!important}
+.editable-storefront>.shop-benefits{display:none!important}
+
+/* Boutons : conserver l'image exacte, sans la couper et sans énorme zone blanche. */
+.editable-storefront>.shop-category-strip{width:min(1480px,calc(100% - 48px))!important;max-width:1480px!important;padding:4px 0!important;margin:0 auto!important;overflow:hidden!important}
+.editable-storefront>.shop-category-strip .shop-category-reference{height:170px!important;max-height:170px!important;overflow:hidden!important}
+.editable-storefront>.shop-category-strip .shop-category-reference-image{width:100%!important;height:170px!important;object-fit:cover!important;object-position:center 50%!important;margin:0!important}
+.editable-storefront>.shop-category-strip .shop-category-reference-links{height:170px!important}
+
+/* Hero immédiatement sous les boutons. */
+.editable-storefront>.hero-story.wrap{width:min(1480px,calc(100% - 48px))!important;max-width:1480px!important;margin:4px auto 8px!important}
+
+/* Header : même disposition, plus lisible, sans grossissement démesuré. */
+.storefront-header-shell>.header.wrap{height:170px!important;min-height:170px!important}
+.storefront-header-shell .brand-logo-official{width:350px!important;height:145px!important}
+.storefront-header-shell .store-search-box span{font-size:19px!important}
+.storefront-header-shell .commerce-action{font-size:16px!important}
+.header-service-links strong{font-size:16px!important}
+
+/* Les cartes ne collent plus aux boutons : elles viennent après le hero. */
+.editable-storefront>.shop-world-grid{width:min(1480px,calc(100% - 48px))!important;max-width:1480px!important;margin:8px auto 0!important}
+.editable-storefront>.shop-age,.editable-storefront>.shop-seasonal,.editable-storefront>.shop-brands{width:min(1480px,calc(100% - 48px))!important;max-width:1480px!important;margin-left:auto!important;margin-right:auto!important}
+@media(max-width:700px){.editable-storefront>.shop-category-strip{width:100%!important;overflow-x:auto!important}.editable-storefront>.shop-category-strip .shop-category-reference{width:1000px!important;height:150px!important;max-height:150px!important}.editable-storefront>.shop-category-strip .shop-category-reference-image{width:1000px!important;height:150px!important}.editable-storefront>.shop-category-strip .shop-category-reference-links{height:150px!important}}
