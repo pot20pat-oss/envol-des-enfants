@@ -30,7 +30,14 @@ const worlds = [
 export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
   const categorySection = (
-    {mode === "all" ? categorySection : null}
+    <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
+      <div className="shop-category-rail shop-category-reference">
+        <img className="shop-category-reference-image" src="/category-buttons-row.png" alt={say("Éveil 0–3 ans, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques, Scolaire", "Shop categories")} />
+        <div className="shop-category-reference-links">
+          {categories.map((category) => <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)} />)}
+        </div>
+      </div>
+    </section>
   );
   if (mode === "categories") return categorySection;
   return <div className="shop-home-sections">
