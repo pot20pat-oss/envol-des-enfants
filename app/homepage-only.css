@@ -68,3 +68,16 @@ html,body{overflow-x:hidden!important}
 
 @media(max-width:1200px){.storefront-header-shell>.header.wrap{grid-template-columns:260px minmax(350px,1fr) 350px!important;column-gap:24px!important}.storefront-header-shell .brand{width:250px!important}.storefront-header-shell .brand-logo-official{width:245px!important}.storefront-header-shell .commerce-actions{gap:14px!important}.header-service-links{gap:20px!important}.editable-storefront>.shop-world-grid h2{font-size:23px!important}}
 @media(max-width:800px){.storefront-header-shell>.header.wrap{width:calc(100% - 24px)!important;height:auto!important;min-height:0!important;grid-template-columns:150px 1fr!important;grid-template-rows:72px 54px auto!important;gap:8px!important;padding:8px 0!important}.storefront-header-shell .brand{grid-column:1!important;grid-row:1!important;width:145px!important;height:68px!important}.storefront-header-shell .brand-logo-official{width:140px!important;height:66px!important}.storefront-header-shell .header-actions{grid-column:2!important;grid-row:1!important}.storefront-header-shell .commerce-action span{display:none!important}.storefront-header-shell .store-search-box{grid-column:1/3!important;grid-row:2!important}.header-service-links{grid-column:1/3!important;grid-row:3!important;justify-content:center!important}.editable-storefront>.shop-category-strip{width:100%!important;height:170px!important;overflow-x:auto!important}.shop-category-rail.shop-category-reference{width:1000px!important;height:170px!important}.shop-category-reference-image{width:1000px!important;transform:translateY(-100px)!important}.shop-category-reference-links{width:1000px!important}.editable-storefront>.hero-story.wrap{width:100%!important}.editable-storefront>.hero-story.wrap .hero-story-stage{aspect-ratio:4/5!important}.editable-storefront>.shop-world-grid{width:calc(100% - 16px)!important;grid-template-columns:1fr!important}.editable-storefront>.shop-age{width:calc(100% - 16px)!important}.editable-storefront>.shop-age>div{grid-template-columns:repeat(2,1fr)!important}.editable-storefront>.shop-seasonal{width:calc(100% - 16px)!important;grid-template-columns:1fr!important}.editable-storefront>.shop-bottom-benefits{grid-template-columns:1fr!important}}
+
+/* Correction ciblée 2026-09-19 : supprimer le grand vide sous les 9 boutons.
+   Aucun changement aux boutons eux-mêmes. */
+.editable-storefront>.shop-category-strip{
+  height:158px!important;
+  margin-bottom:4px!important;
+}
+.shop-category-rail.shop-category-reference{
+  height:158px!important;
+}
+.shop-category-reference-links{
+  height:158px!important;
+}
