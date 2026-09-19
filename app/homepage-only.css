@@ -472,3 +472,20 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .shop-home-sections>.shop-world-grid{margin-top:0!important}
 .editable-storefront>.hero-story.wrap{margin-top:8px!important;margin-bottom:8px!important}
 .storefront-header-shell>.header.wrap{margin-bottom:0!important}
+
+/* Correction visuelle : header plus présent, hero restauré, catégories compactes. */
+.editable-storefront>.hero-story{order:1!important}
+.editable-storefront>.shop-home-sections{order:2!important}
+.storefront-header-shell>.header.wrap{height:178px!important;min-height:178px!important;padding-top:18px!important;padding-bottom:18px!important}
+.storefront-header-shell .brand{height:145px!important}
+.storefront-header-shell .brand-logo-official{width:385px!important;height:150px!important}
+.storefront-header-shell .store-search-box{height:60px!important}
+.storefront-header-shell .store-search-box span{font-size:20px!important}
+.storefront-header-shell .commerce-action{font-size:17px!important}
+.header-service-links strong{font-size:17px!important}.header-service-links small{font-size:13px!important}
+.editable-storefront>.hero-story.wrap{margin-top:4px!important;margin-bottom:4px!important}
+.shop-category-strip{padding:0!important;margin:0 auto!important}
+.shop-category-rail.shop-category-reference{max-height:235px!important;overflow:hidden!important}
+.shop-category-reference-image{width:100%!important;height:235px!important;object-fit:cover!important;object-position:center center!important}
+.shop-category-reference-links{height:235px!important}
+.shop-home-sections>.shop-world-grid{margin-top:8px!important}
