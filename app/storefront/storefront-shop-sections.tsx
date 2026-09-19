@@ -20,15 +20,21 @@ const categories = [
 ];
 
 const worlds = [
-  { className: "world-educational", titleFr: "Jouets éducatifs", titleEn: "Educational toys", textFr: "Stimuler leur curiosité dès le plus jeune âge", textEn: "Inspire curiosity from an early age", image: "/products/mama3/mama3-01.jpg", href: "/jouets" },
-  { className: "world-dolls", titleFr: "Mon monde de poupées", titleEn: "My world of dolls", textFr: "Des poupées qui célèbrent toutes les histoires", textEn: "Dolls that celebrate every story", image: "/products/barbie/barbie-08.webp", href: "/poupees" },
-  { className: "world-vehicles", titleFr: "Véhicules & aventures", titleEn: "Vehicles & adventures", textFr: "De grandes aventures les attendent", textEn: "Big adventures are waiting", image: "/products/archive-complements/vtt-utv-rouge.webp", href: "/catalogue" },
-  { className: "world-princess", titleFr: "Princesses", titleEn: "Princesses", textFr: "Un univers pour rêver et créer", textEn: "A world made for dreaming", image: "/products/disney/disney-04.webp", href: "/poupees" },
+  { className: "world-educational", titleFr: "Jouets éducatifs", titleEn: "Educational toys", textFr: "Stimuler leur curiosité dès le plus jeune âge", textEn: "Inspire curiosity from an early age", image: "/products/mama3/mama3-01.jpg", href: "/jouets", ctaFr: "Découvrir", ctaEn: "Discover" },
+  { className: "world-montessori", titleFr: "Montessori", titleEn: "Montessori", textFr: "Apprendre autrement", textEn: "Learn differently", image: "/category-buttons/montessori.png", href: "/catalogue?category=montessori", ctaFr: "Voir la collection", ctaEn: "See the collection" },
+  { className: "world-vehicles", titleFr: "Voitures électriques", titleEn: "Electric vehicles", textFr: "De grandes aventures les attendent!", textEn: "Big adventures are waiting!", image: "/products/archive-complements/vtt-utv-rouge.webp", href: "/catalogue?category=vehicules", ctaFr: "Voir les modèles", ctaEn: "See models" },
+  { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/products/barbie/barbie-08.webp", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
 ];
 
 export default function StorefrontShopSections({ market, say }: Props) {
   const region = `?region=${market}`;
   return <div className="shop-home-sections">
+    <section className="shop-benefits wrap" aria-label={say("Nos engagements", "Our promises")}>
+      <div><b>✓</b><span><strong>{say("Produits choisis avec soin", "Carefully selected products")}</strong>{say("Pour accompagner chaque enfant", "Made for every child")}</span></div>
+      <div><b>♢</b><span><strong>{say("Paiement sécurisé", "Secure payment")}</strong>{say("Commandez en toute confiance", "Shop with confidence")}</span></div>
+      <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et ailleurs", "Across Canada and beyond")}</span></div>
+    </section>
+
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail">
         <img src="/category-buttons-row.png" alt={say("Catégories : Éveil, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques et Scolaire", "Shop categories")} />
@@ -36,15 +42,9 @@ export default function StorefrontShopSections({ market, say }: Props) {
       </div>
     </section>
 
-    <section className="shop-benefits wrap" aria-label={say("Nos engagements", "Our promises")}>
-      <div><b>✓</b><span><strong>{say("Produits choisis avec soin", "Carefully selected products")}</strong>{say("Pour accompagner chaque enfant", "Made for every child")}</span></div>
-      <div><b>♢</b><span><strong>{say("Paiement sécurisé", "Secure payment")}</strong>{say("Commandez en toute confiance", "Shop with confidence")}</span></div>
-      <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et ailleurs", "Across Canada and beyond")}</span></div>
-    </section>
-
     <section className="shop-world-grid wrap">
       {worlds.map((world) => <a className={world.className} href={`${world.href}${region}`} key={world.titleFr}>
-        <div><h2>{say(world.titleFr, world.titleEn)}</h2><p>{say(world.textFr, world.textEn)}</p><span>{say("Découvrir", "Discover")} →</span></div>
+        <div><h2>{say(world.titleFr, world.titleEn)}</h2><p>{say(world.textFr, world.textEn)}</p><span>{say(world.ctaFr, world.ctaEn)} →</span></div>
         <img src={world.image} alt="" />
       </a>)}
     </section>
@@ -59,9 +59,16 @@ export default function StorefrontShopSections({ market, say }: Props) {
 
     <section className="shop-seasonal wrap">
       <a href={`/articles-scolaires${region}`}><div><h2>{say("Préparez la rentrée scolaire!", "Get ready for school!")}</h2><p>{say("Sacs, fournitures et plus encore", "Bags, supplies and more")}</p><span>{say("Voir la sélection", "See the selection")} →</span></div><span aria-hidden="true">🎒 ✏️ 📚</span></a>
-      <a href={`/promotions${region}`}><div><h2>{say("Des idées-cadeaux pour toutes les occasions", "Gift ideas for every occasion")}</h2><p>{say("Des jouets pour créer de beaux souvenirs", "Toys for beautiful memories")}</p><span>{say("Découvrir", "Discover")} →</span></div><span aria-hidden="true">🎁 🧸</span></a>
+      <a href={`/promotions${region}`}><div><h2>{say("Idées cadeaux de Noël", "Christmas gift ideas")}</h2><p>{say("Des jouets pour des fêtes inoubliables!", "Toys for unforgettable holidays!")}</p><span>{say("Découvrir", "Discover")} →</span></div><span aria-hidden="true">🎁 🧸</span></a>
     </section>
 
     <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><a className="shop-brand-official-strip" href={`/catalogue${region}`} aria-label={say("Voir toutes nos grandes marques", "See all our major brands")}><img src="/brand-logos-content.png" alt="VTech, LEGO, Fisher-Price, Playmobil, Barbie, Hasbro, Marina & Pau et plus encore"/></a></section>
+      <section className="shop-bottom-benefits" aria-label={say("Pourquoi nous choisir", "Why choose us")}>
+      <div><b>◇</b><span><strong>{say("Qualité & sécurité", "Quality & safety")}</strong>{say("Des produits fiables pour vos enfants", "Reliable products for your children")}</span></div>
+      <div><b>♡</b><span><strong>{say("Service client", "Customer service")}</strong>{say("À votre écoute", "Here to help")}</span></div>
+      <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et à l’international", "Across Canada and internationally")}</span></div>
+      <div><b>✦</b><span><strong>{say("Entreprise canadienne", "Canadian business")}</strong>{say("Fièrement d’ici", "Proudly Canadian")}</span></div>
+      <div><b>☆</b><span><strong>{say("Satisfaction garantie", "Satisfaction guaranteed")}</strong>{say("Des familles qui nous font confiance", "Trusted by families")}</span></div>
+    </section>
   </div>;
 }
