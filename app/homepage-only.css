@@ -411,3 +411,47 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
 .storefront-header-shell .brand{
   overflow:visible!important;
 }
+
+/* Anti-chevauchement du header — même disposition, zones redistribuées. */
+.storefront-header-shell>.header.wrap{
+  grid-template-columns:390px minmax(430px,680px) minmax(430px,1fr)!important;
+  column-gap:46px!important;
+}
+.storefront-header-shell .brand{
+  width:390px!important;
+  min-width:390px!important;
+  justify-content:flex-start!important;
+}
+.storefront-header-shell .brand-logo-official{
+  width:360px!important;
+  height:145px!important;
+  object-position:left center!important;
+}
+.storefront-header-shell .store-search-box{
+  min-width:0!important;
+  width:100%!important;
+}
+.storefront-header-shell .header-actions{
+  min-width:430px!important;
+  justify-self:end!important;
+}
+.storefront-header-shell .commerce-actions{
+  justify-content:flex-end!important;
+  gap:32px!important;
+}
+.header-service-links{
+  min-width:430px!important;
+  justify-content:flex-end!important;
+  gap:48px!important;
+}
+@media(max-width:1300px){
+  .storefront-header-shell>.header.wrap{
+    grid-template-columns:300px minmax(360px,1fr) 360px!important;
+    column-gap:28px!important;
+  }
+  .storefront-header-shell .brand{width:300px!important;min-width:300px!important}
+  .storefront-header-shell .brand-logo-official{width:285px!important;height:125px!important}
+  .storefront-header-shell .header-actions,.header-service-links{min-width:360px!important}
+  .storefront-header-shell .commerce-actions{gap:18px!important}
+  .header-service-links{gap:26px!important}
+}
