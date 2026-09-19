@@ -9,7 +9,6 @@ import "./product-previews-large.css";
 import "./catalog-search-highlight.css";
 import "./logo-large.css";
 import "./nav-icons-final.css";
-import "./homepage-only.css";
 import "./category-pages.css";
 import "./catalog-menu-autoclose.css";
 import "./hero-mobile.css";
@@ -18,6 +17,7 @@ import "./dialog-responsive.css";
 import "./commerce/commerce.css";
 import "./commerce/storefront-commerce.css";
 import "./storefront/shop-reference.css";
+import "./homepage-only.css";
 import { CommerceProvider } from "./commerce/commerce-provider";
 
 export const metadata: Metadata = {
