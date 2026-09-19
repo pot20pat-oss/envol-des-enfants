@@ -134,3 +134,9 @@ html,body{overflow-x:hidden!important}
   width:100%!important;
   height:100%!important;
 }
+
+/* Hero/categories sont maintenant séparés dans le JSX : ne plus utiliser display:contents. */
+.editable-storefront>.shop-home-sections{display:block!important;order:auto!important}
+.editable-storefront>.shop-category-strip{order:auto!important}
+.editable-storefront>.hero-story{order:auto!important}
+.editable-storefront>.shop-home-sections>.shop-category-strip{display:none!important}
