@@ -140,3 +140,45 @@ html,body{overflow-x:hidden!important}
 .editable-storefront>.shop-category-strip{order:auto!important}
 .editable-storefront>.hero-story{order:auto!important}
 .editable-storefront>.shop-home-sections>.shop-category-strip{display:none!important}
+
+/* Hero garanti visible entre catégories et contenu. */
+.editable-storefront>.hero-story{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:relative!important;
+  z-index:1!important;
+  width:min(1480px,calc(100% - 48px))!important;
+  max-width:1480px!important;
+  min-height:520px!important;
+  height:auto!important;
+  margin:4px auto 10px!important;
+  overflow:hidden!important;
+}
+.editable-storefront>.hero-story>.hero-story-stage{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:520px!important;
+  min-height:520px!important;
+  aspect-ratio:auto!important;
+  overflow:hidden!important;
+}
+.editable-storefront>.hero-story .hero-story-slide{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+}
+.editable-storefront>.hero-story .hero-story-slide.is-active{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:2!important;
+}
+.editable-storefront>.hero-story .hero-story-slide.is-active>img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
