@@ -81,3 +81,16 @@ html,body{overflow-x:hidden!important}
 .shop-category-reference-links{
   height:158px!important;
 }
+
+/* Ajustement fin : rangée des catégories serrée sur son contenu visible. */
+.editable-storefront>.shop-category-strip{
+  height:146px!important;
+  margin-top:0!important;
+  margin-bottom:2px!important;
+}
+.shop-category-rail.shop-category-reference{
+  height:146px!important;
+}
+.shop-category-reference-links{
+  height:146px!important;
+}
