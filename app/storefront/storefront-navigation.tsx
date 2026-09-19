@@ -33,12 +33,6 @@ export default function StorefrontNavigation({
   const commerce = useCommerce();
   return (
     <div className="storefront-header-shell">
-      <div className="store-trust-bar">
-        <span>🇨🇦 {say("Entreprise canadienne", "Canadian business")}</span>
-        <strong>{say("Des enfants heureux aujourd’hui, un meilleur demain!", "Happy children today, a brighter tomorrow!")}</strong>
-        <span>{say("Livraison rapide", "Fast delivery")}</span>
-      </div>
-
       <header className="header wrap">
         <a className="brand" href={`/?region=${market}`} aria-label={say("Accueil — Envol des Enfants", "Home — Envol des Enfants")}>
           <img className="brand-logo-official" src="/envol-logo-officiel.svg" alt="Envol des Enfants" />
@@ -64,9 +58,15 @@ export default function StorefrontNavigation({
 
       <nav className="store-category-nav">
         <a href={`/?region=${market}`}>⌂ {say("Accueil", "Home")}</a>
-        {availableCategories.filter((category)=>category.value!=="all"&&!['vetements','chaussures'].includes(category.value)).slice(0,9).map((category)=>
-          <a href="#catalogue" key={category.value} onClick={()=>chooseCategory(category.value)}>{category.label[language].replace("↳ ","")}</a>
-        )}
+        <a href="/bebe-enfants">{say("Éveil", "Early years")}</a>
+        <a href="/jouets">{say("Jouets éducatifs", "Educational toys")}</a>
+        <a href="/catalogue?category=montessori">{say("Montessori", "Montessori")}</a>
+        <a href="/jouets">{say("Jeux & Jouets", "Games & Toys")}</a>
+        <a href="/poupees">{say("Mon Monde de Poupée", "My Doll World")}</a>
+        <a href="/catalogue?category=vetements">{say("Vêtements", "Clothing")}</a>
+        <a href="/catalogue?category=chaussures">{say("Chaussures", "Shoes")}</a>
+        <a href="/catalogue?category=vehicules">{say("Voitures électriques", "Electric vehicles")}</a>
+        <a href="/articles-scolaires">{say("Scolaire", "School")}</a>
         <a href="#promotions">{say("Soldes", "Sales")}</a>
       </nav>
     </div>
