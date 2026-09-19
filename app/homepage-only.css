@@ -94,3 +94,43 @@ html,body{overflow-x:hidden!important}
 .shop-category-reference-links{
   height:146px!important;
 }
+
+/* 2026-09-19 : ordre réel et nouvelle barre PNG sans capsule. */
+.editable-storefront>.shop-home-sections{display:contents!important}
+.editable-storefront>.shop-category-strip{order:1!important}
+.editable-storefront>.hero-story{order:2!important}
+
+/* La nouvelle image n'a plus besoin du vieux recadrage vertical. */
+.editable-storefront>.shop-category-strip{
+  width:min(1480px,calc(100% - 48px))!important;
+  max-width:1480px!important;
+  height:auto!important;
+  margin:4px auto!important;
+  padding:0!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.shop-category-rail.shop-category-reference{
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  background:#fff!important;
+}
+.shop-category-reference-image{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:none!important;
+  transform:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:0!important;
+  background:#fff!important;
+}
+.shop-category-reference-links{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+}
