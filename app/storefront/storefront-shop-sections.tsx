@@ -29,17 +29,17 @@ const worlds = [
 export default function StorefrontShopSections({ market, say }: Props) {
   const region = `?region=${market}`;
   return <div className="shop-home-sections">
-    <section className="shop-benefits wrap" aria-label={say("Nos engagements", "Our promises")}>
-      <div><b>✓</b><span><strong>{say("Produits choisis avec soin", "Carefully selected products")}</strong>{say("Pour accompagner chaque enfant", "Made for every child")}</span></div>
-      <div><b>♢</b><span><strong>{say("Paiement sécurisé", "Secure payment")}</strong>{say("Commandez en toute confiance", "Shop with confidence")}</span></div>
-      <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et ailleurs", "Across Canada and beyond")}</span></div>
-    </section>
-
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail">
         <img src="/category-buttons-row.png" alt={say("Catégories : Éveil, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques et Scolaire", "Shop categories")} />
         <div className="shop-category-links">{categories.map((category) => <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)} title={say(category.labelFr, category.labelEn)} />)}</div>
       </div>
+    </section>
+
+    <section className="shop-benefits wrap" aria-label={say("Nos engagements", "Our promises")}>
+      <div><b>✓</b><span><strong>{say("Produits choisis avec soin", "Carefully selected products")}</strong>{say("Pour accompagner chaque enfant", "Made for every child")}</span></div>
+      <div><b>♢</b><span><strong>{say("Paiement sécurisé", "Secure payment")}</strong>{say("Commandez en toute confiance", "Shop with confidence")}</span></div>
+      <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et ailleurs", "Across Canada and beyond")}</span></div>
     </section>
 
     <section className="shop-world-grid wrap">
