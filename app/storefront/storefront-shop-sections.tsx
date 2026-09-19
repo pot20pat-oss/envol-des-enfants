@@ -35,6 +35,8 @@ export default function StorefrontShopSections({ market, say }: Props) {
       <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et ailleurs", "Across Canada and beyond")}</span></div>
     </section>
 
+
+
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail shop-category-reference">
         <img className="shop-category-reference-image" src="/category-buttons-row.png" alt={say("Éveil 0–3 ans, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques, Scolaire", "Shop categories")} />
