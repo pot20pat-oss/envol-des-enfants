@@ -99,7 +99,7 @@ export default function Administration() {
         <DashboardSection stats={stats} products={regionalProducts} orders={orders} market={market} goTo={changeSection} />
       )}
 
-      {section === "products" && (<ProductsSection products={filtered} market={market} busy={busy} search={search} setSearch={setSearch} category={productCategory} setCategory={setProductCategory} visibility={productVisibility} setVisibility={setProductVisibility} stock={productStock} setStock={setProductStock} synchronize={() => void synchronizeProducts()} add={addProduct} edit={editProduct} adjustStock={(product) => void adjustStock(product)} remove={(id) => void remove("products", id)} />)}
+      {section === "products" && (<ProductsSection products={filtered} market={market} busy={busy} search={search} setSearch={setSearch} category={productCategory} setCategory={setProductCategory} visibility={productVisibility} setVisibility={setProductVisibility} stock={productStock} setStock={setProductStock} synchronize={() => void synchronizeProducts()} add={addProduct} edit={editProduct} adjustStock={(product) => void adjustStock(product)} remove={(id) => void remove("products", id)} reload={load} />)}
 
       {section === "stock" && (<StockSection products={lowStock} movements={movements} market={market} adjustStock={(product) => void adjustStock(product)} />)}
 

@@ -1,14 +1,16 @@
 import { marketPrice, markets, type Market } from "@/lib/markets";
 import { categories, type Row } from "./admin-shared";
+import { AiBatchImport } from "./admin-ai-batch-import";
 
-export function ProductsSection({ products, market, busy, search, setSearch, category, setCategory, visibility, setVisibility, stock, setStock, synchronize, add, edit, adjustStock, remove }: {
+export function ProductsSection({ products, market, busy, search, setSearch, category, setCategory, visibility, setVisibility, stock, setStock, synchronize, add, edit, adjustStock, remove, reload }: {
   products: Row[]; market: Market; busy: boolean; search: string; setSearch: (value: string) => void;
   category: string; setCategory: (value: string) => void; visibility: string; setVisibility: (value: string) => void;
   stock: string; setStock: (value: string) => void; synchronize: () => void; add: () => void;
-  edit: (product: Row) => void; adjustStock: (product: Row) => void; remove: (id: string) => void;
+  edit: (product: Row) => void; adjustStock: (product: Row) => void; remove: (id: string) => void; reload: () => Promise<void>;
 }) {
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
   return <section className="cms-panel">
+    <AiBatchImport market={market} busy={busy} onDone={reload} />
     <div className="cms-panel-title"><input className="cms-search" placeholder="Nom, marque ou numéro d’article…" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="cms-product-actions"><button className="cms-secondary" disabled={busy} onClick={synchronize}>↻ Synchroniser la boutique</button><button className="cms-primary" onClick={add}>+ Ajouter un produit</button></div></div>
     <div className="cms-product-filters">
       <label>Catégorie<select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">Toutes les catégories</option>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
