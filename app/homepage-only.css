@@ -401,3 +401,13 @@ html,body{overflow-x:hidden!important}.storefront-header-shell{order:0;width:100
   .storefront-header-shell .brand{width:230px!important}
   .storefront-header-shell .brand-logo-official{width:220px!important;height:105px!important}
 }
+
+/* Logo uniquement — disposition du header inchangée. */
+.storefront-header-shell .brand-logo-official{
+  width:430px!important;
+  height:155px!important;
+  max-width:none!important;
+}
+.storefront-header-shell .brand{
+  overflow:visible!important;
+}
