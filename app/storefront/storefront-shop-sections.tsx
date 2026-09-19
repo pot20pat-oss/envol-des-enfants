@@ -5,6 +5,7 @@ import type { Market } from "@/lib/markets";
 type Props = {
   market: Market;
   say: (french: string, english: string) => string;
+  mode?: "all" | "categories" | "content";
 };
 
 const categories = [
@@ -26,8 +27,12 @@ const worlds = [
   { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/products/barbie/barbie-08.webp", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
 ];
 
-export default function StorefrontShopSections({ market, say }: Props) {
+export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
+  const categorySection = (
+    {mode === "all" ? categorySection : null}
+  );
+  if (mode === "categories") return categorySection;
   return <div className="shop-home-sections">
     <section className="shop-benefits wrap" aria-label={say("Nos engagements", "Our promises")}>
       <div><b>✓</b><span><strong>{say("Produits choisis avec soin", "Carefully selected products")}</strong>{say("Pour accompagner chaque enfant", "Made for every child")}</span></div>
