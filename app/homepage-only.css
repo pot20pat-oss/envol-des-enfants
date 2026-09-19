@@ -348,3 +348,21 @@
 .editable-storefront .brand{width:285px!important;height:100px!important;flex:0 0 285px!important}
 .editable-storefront .brand-logo-official{width:270px!important;height:92px!important;transform:none!important;object-fit:contain!important;object-position:left center!important}
 @media(max-width:700px){.shop-benefits{width:calc(100% - 12px)!important;grid-template-columns:1fr!important;padding:12px!important}.editable-storefront>.header.wrap{min-height:82px!important;height:82px!important}.editable-storefront .brand{width:180px!important;height:70px!important;flex-basis:180px!important}.editable-storefront .brand-logo-official{width:175px!important;height:66px!important}}
+
+/* Correctif structurel: l'accueil est un flex-column; ne jamais utiliser un ordre négatif. */
+.editable-storefront>.store-trust-bar{order:0!important}
+.editable-storefront>.header{order:0!important}
+.editable-storefront>.store-header-search{order:0!important}
+.editable-storefront>.store-category-nav{order:0!important}
+.editable-storefront>.hero-story{order:1!important}
+.editable-storefront>.shop-home-sections{order:2!important}
+.editable-storefront>.hero-story.wrap{display:block!important;width:100%!important;max-width:none!important;min-height:0!important;height:auto!important;margin:0!important;overflow:hidden!important}
+.editable-storefront>.hero-story.wrap .hero-story-stage{position:relative!important;display:block!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:16/7!important;overflow:hidden!important}
+.editable-storefront>.hero-story.wrap .hero-story-slide{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+.editable-storefront>.hero-story.wrap .hero-story-slide.is-active{display:block!important;opacity:1!important;visibility:visible!important}
+.editable-storefront>.hero-story.wrap .hero-story-slide>img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important}
+.editable-storefront>.header.wrap{width:min(1480px,calc(100% - 32px))!important;max-width:1480px!important;margin-inline:auto!important}
+.store-header-search{width:min(1480px,calc(100% - 32px))!important;max-width:1480px!important;margin-left:auto!important;margin-right:auto!important}
+.store-category-nav{overflow-x:hidden!important}
+@media(max-width:1100px){.store-category-nav{overflow-x:auto!important}.editable-storefront>.hero-story.wrap .hero-story-stage{aspect-ratio:3/2!important}}
+@media(max-width:700px){.editable-storefront>.hero-story.wrap .hero-story-stage{aspect-ratio:4/5!important}}
