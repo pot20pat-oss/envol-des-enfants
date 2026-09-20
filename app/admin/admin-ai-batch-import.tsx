@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import { categories, request, type Row } from "./admin-shared";
 import type { Market } from "@/lib/markets";
 
-type Item={id:string;file:File;preview:string;hash:string;visualHash:string;duplicate:boolean;duplicateKind?:"exact"|"visual";url?:string;suggestion?:Row;group?:string;catalogMatch?:Row;catalogScore?:number;matchRejected?:boolean;matchAccepted?:boolean;state:"ready"|"uploading"|"analyzing"|"done"|"error";error?:string};
+type Match={product:Row;score:number};
+type Item={id:string;file:File;preview:string;hash:string;visualHash:string;duplicate:boolean;duplicateKind?:"exact"|"visual";url?:string;suggestion?:Row;group?:string;catalogMatch?:Row;catalogScore?:number;catalogMatches?:Match[];matchRejected?:boolean;matchAccepted?:boolean;state:"ready"|"uploading"|"analyzing"|"done"|"error";error?:string};
 
 async function sha256(file:File){const d=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 async function visualHash(file:File){const bitmap=await createImageBitmap(file);const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;const ctx=canvas.getContext("2d")!;ctx.drawImage(bitmap,0,0,16,16);bitmap.close();const data=ctx.getImageData(0,0,16,16).data;const lum:number[]=[];for(let i=0;i<data.length;i+=4)lum.push(Math.round(data[i]*.299+data[i+1]*.587+data[i+2]*.114));const avg=lum.reduce((a,b)=>a+b,0)/lum.length;return lum.map(v=>v>=avg?"1":"0").join("")}
@@ -33,8 +34,8 @@ function words(v:unknown){return new Set(norm(v).split(" ").filter(x=>x.length>2
 function overlap(a:Set<string>,b:Set<string>){if(!a.size||!b.size)return 0;let same=0;for(const x of a)if(b.has(x))same++;return same/Math.min(a.size,b.size)}
 const genericWords=new Set(["barbie","poupee","doll","jouet","toy","enfant","children","kids","girl","fille","garcon","boy","produit","product"]);
 function usefulWords(v:unknown){return new Set([...words(v)].filter(x=>!genericWords.has(x)))}
-function catalogMatch(s:Row,products:Row[]){
- let best:Row|undefined,score=0;
+function catalogMatches(s:Row,products:Row[]){
+ const found:Match[]=[];
  const sn=words(`${s.name_fr||""} ${s.name_en||""}`),sd=words(`${s.description_fr||""} ${s.description_en||""}`),su=usefulWords(`${s.name_fr||""} ${s.name_en||""} ${s.description_fr||""} ${s.description_en||""}`);
  for(const p of products){
   const pn=words(`${p.name_fr||""} ${p.name_en||""}`),pd=words(`${p.description_fr||""} ${p.description_en||""}`),pu=usefulWords(`${p.name_fr||""} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""}`);
@@ -44,16 +45,16 @@ function catalogMatch(s:Row,products:Row[]){
   let n=article?1:(distinctive*.50+name*.22+desc*.18+brand*.06+category*.04);
   if(!su.size||!pu.size)n=Math.min(n,.64);
   if(distinctive===0)n*=.62;
-  if(n>score){score=n;best=p}
+  if(n>=.38)found.push({product:p,score:Math.min(n,1)});
  }
- return best&&score>=.56?{product:best,score:Math.min(score,1)}:null
+ return found.sort((a,b)=>b.score-a.score).slice(0,12)
 }
 
 export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Market;busy:boolean;onDone:()=>Promise<void>;catalogProducts:Row[]}){
  const[items,setItems]=useState<Item[]>([]);const[working,setWorking]=useState(false);const[standby,setStandby]=useState(true);const[zoomImage,setZoomImage]=useState<string|null>(null);const unique=useMemo(()=>items.filter(i=>!i.duplicate),[items]);
  async function choose(files:FileList|null){const selected=Array.from(files||[]).filter(f=>f.type.startsWith("image/"));const seen=new Set<string>();const visual:string[]=[];const next:Item[]=[];
   for(const file of selected){const hash=await sha256(file),vh=await visualHash(file);const exact=seen.has(hash);const near=!exact&&visual.some(x=>distance(x,vh)<=18);seen.add(hash);if(!exact&&!near)visual.push(vh);next.push({id:crypto.randomUUID(),file,preview:URL.createObjectURL(file),hash,visualHash:vh,duplicate:exact||near,duplicateKind:exact?"exact":near?"visual":undefined,state:"ready"})}setItems(next)}
- async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));const result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});const suggestion=result.suggestion as Row;const match=catalogMatch(suggestion,catalogProducts);const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
+ async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));const result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});const suggestion=result.suggestion as Row;const matches=catalogMatches(suggestion,catalogProducts);const match=matches[0];const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,catalogMatches:matches,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
  function removeItem(id:string){setItems(a=>{const item=a.find(x=>x.id===id);if(item?.preview)URL.revokeObjectURL(item.preview);return a.filter(x=>x.id!==id)})}
  function cancelBatch(){if(!window.confirm("Annuler cette analyse et retirer toutes les photos sélectionnées ?"))return;items.forEach(item=>URL.revokeObjectURL(item.preview));setItems([])}
@@ -77,7 +78,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
             <input value={String(item.suggestion.name_fr||"")} onChange={e=>update(item.id,"name_fr",e.target.value)}/>
             <select value={String(item.suggestion.category||"eveil")} onChange={e=>update(item.id,"category",e.target.value)}>{Object.entries(categories).map(([v,l])=><option value={v} key={v}>{l}</option>)}</select>
             <textarea value={String(item.suggestion.description_fr||"")} onChange={e=>update(item.id,"description_fr",e.target.value)}/>
-            {item.catalogMatch?<section style={{display:"grid",gridTemplateColumns:"300px minmax(0,1fr)",gap:24,alignItems:"start",padding:20,marginTop:6,border:"3px solid #5b9fc7",borderRadius:12,background:"#eef7fc"}}>
+            {item.catalogMatch?<><section style={{display:"grid",gridTemplateColumns:"300px minmax(0,1fr)",gap:24,alignItems:"start",padding:20,marginTop:6,border:"3px solid #5b9fc7",borderRadius:12,background:"#eef7fc"}}>
               <button type="button" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))} style={{width:300,height:300,padding:0,border:"1px solid #bdd5e3",borderRadius:10,background:"#fff",overflow:"hidden",cursor:"zoom-in"}}>
                 {item.catalogMatch.image_url?<img src={String(item.catalogMatch.image_url)} alt="Produit déjà présent" style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}}/>:<span>Aucune image existante</span>}
               </button>
@@ -97,7 +98,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 {item.matchRejected&&<strong style={{color:"#a33"}}>Correspondance refusée — cette photo pourra être créée comme nouveau produit.</strong>}
                 {item.matchAccepted&&<strong>Correspondance confirmée manuellement.</strong>}
               </div>
-            </section>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
+            </section>{(item.catalogMatches?.length||0)>1&&<div style={{marginTop:14}}><strong>Autres correspondances possibles ({(item.catalogMatches?.length||0)-1})</strong><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:12,marginTop:10}}>{item.catalogMatches!.slice(1).map((m,i)=><button type="button" key={String(m.product.id||i)} onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:m.product,catalogScore:m.score,matchRejected:false,matchAccepted:false}:x))} style={{display:"grid",gap:7,padding:10,textAlign:"left",border:"1px solid #cbdbe4",borderRadius:10,background:"#fff",cursor:"pointer"}}>{m.product.image_url&&<img src={String(m.product.image_url)} alt="" style={{width:"100%",height:150,objectFit:"contain"}}/><b>{String(m.product.name_fr||m.product.article_number||"Produit")}</b><span>{Math.round(m.score*100)} % · {String(m.product.article_number||"—")}</span></button>)}</div></div>}</>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
             <span>EN : {String(item.suggestion.description_en||"")}</span>
           </>:<span>{item.state==="error"?item.error:item.state==="ready"?"Prête à analyser":"Analyse en cours…"}</span>}
           <button type="button" className="cms-danger" disabled={working} onClick={()=>removeItem(item.id)}>Supprimer</button>
