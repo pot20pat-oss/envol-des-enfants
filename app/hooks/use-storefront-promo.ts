@@ -41,17 +41,27 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
   }
 
   async function requestDiscount() {
-    if (!consent) return;
-    await fetch("/api/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, language, region: market, consent: true }),
-    }).catch(() => {});
-    const message = language === "en"
-      ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the ${welcomeDiscount}% welcome discount on my first order.`
-      : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de ${welcomeDiscount} % sur ma première commande.`;
-    if (whatsappNumber) window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    setRequested(true);
+    if (!consent || !email.trim() || submitting) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), language, region: market, consent: true }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || say("Inscription impossible.", "Unable to subscribe."));
+      const message = language === "en"
+        ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the ${welcomeDiscount}% welcome discount on my first order.`
+        : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de ${welcomeDiscount} % sur ma première commande.`;
+      if (whatsappNumber) window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      setRequested(true);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : say("Inscription impossible.", "Unable to subscribe."));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return { promoOpen, email, requested, consent, error, submitting, openPromo, closePromo, setEmail, setConsent, requestDiscount, say };
