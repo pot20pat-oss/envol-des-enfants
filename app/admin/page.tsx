@@ -117,7 +117,12 @@ export default function Administration() {
 
       {section === "stock" && (<StockSection products={lowStock} movements={movements} market={market} adjustStock={(product) => void adjustStock(product)} />)}
 
-      {section === "orders" && (<OrdersSection orders={filteredOrders} market={market} search={search} setSearch={setSearch} status={orderStatus} setStatus={setOrderStatus} date={orderDate} setDate={setOrderDate} exportOrders={() => exportOrders(filteredOrders)} add={addOrder} edit={editOrder} />)}
+      {section === "orders" && (<OrdersSection orders={filteredOrders} market={market} search={search} setSearch={setSearch} status={orderStatus} setStatus={setOrderStatus} date={orderDate} setDate={setOrderDate} exportOrders={() => exportOrders(filteredOrders)} add={addOrder} edit={editOrder} remove={(order) => {
+        if (!window.confirm("Supprimer définitivement cette commande annulée ?")) return;
+        void request(`/api/admin/orders?id=${encodeURIComponent(String(order.id))}`, { method: "DELETE" })
+          .then(() => load())
+          .catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression impossible."));
+      }} />)}
 
       {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} />}
 
