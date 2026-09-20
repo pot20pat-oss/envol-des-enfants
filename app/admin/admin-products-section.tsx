@@ -11,7 +11,7 @@ export function ProductsSection({ products, market, busy, search, setSearch, cat
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
   return <section className="cms-panel">
     <AiBatchImport market={market} busy={busy} onDone={reload} />
-    <div className="cms-panel-title"><input className="cms-search" placeholder="Nom, marque ou numéro d’article…" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="cms-product-actions"><button className="cms-secondary" disabled={busy} onClick={synchronize}>↻ Synchroniser la boutique</button><button className="cms-primary" onClick={add}>+ Ajouter un produit</button></div></div>
+    <div className="cms-panel-title"><input className="cms-search" placeholder="Nom, marque ou numéro d’article…" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="cms-product-actions"><button className="cms-secondary" disabled={busy} onClick={synchronize}>↻ Synchroniser la boutique</button><button className="cms-primary" onClick={add}>+ Ajouter manuellement</button></div></div>
     <div className="cms-product-filters">
       <label>Catégorie<select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">Toutes les catégories</option>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
       <label>Visibilité<select value={visibility} onChange={(event) => setVisibility(event.target.value)}><option value="all">Tous</option><option value="visible">Visibles</option><option value="hidden">Masqués</option></select></label>
