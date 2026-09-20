@@ -15,7 +15,8 @@ export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
 
   const database = cmsEnv().DB;
-  await ensureArchiveProducts(database);
+  const initialized = await database.prepare("SELECT value FROM settings WHERE key=?").bind("catalog_initialized").first<{ value: string }>();
+  if (!initialized) await ensureArchiveProducts(database);
 
   const missing = await database
     .prepare("SELECT id,category FROM products WHERE article_number IS NULL OR TRIM(article_number) = '' ORDER BY created_at,id")
@@ -99,6 +100,13 @@ export async function DELETE(request: Request) {
     return Response.json({ error: "Produit manquant." }, { status: 400 });
   }
 
-  await cmsEnv().DB.prepare("DELETE FROM products WHERE id = ?").bind(id).run();
+  const database = cmsEnv().DB;
+  const product = await database.prepare("SELECT name_fr,name_en FROM products WHERE id=?").bind(id).first<{name_fr:string;name_en:string}>();
+  await database.prepare("DELETE FROM products WHERE id = ?").bind(id).run();
+  if (product) {
+    const key = `deleted_product:${id}`;
+    await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at")
+      .bind(key, JSON.stringify({ name_fr: product.name_fr, name_en: product.name_en }), new Date().toISOString()).run();
+  }
   return Response.json({ success: true });
 }
