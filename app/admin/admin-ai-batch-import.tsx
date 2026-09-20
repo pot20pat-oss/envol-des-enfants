@@ -87,15 +87,16 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
  function removeItem(id:string){setItems(a=>{const item=a.find(x=>x.id===id);if(item?.preview)URL.revokeObjectURL(item.preview);return a.filter(x=>x.id!==id)})}
  function cancelBatch(){if(!window.confirm("Annuler cette analyse et retirer toutes les photos sélectionnées ?"))return;items.forEach(item=>URL.revokeObjectURL(item.preview));setItems([])}
+ function removeCatalogProductsFromReview(ids:Set<string>){setItems(a=>a.map(x=>{const removedCurrent=!!x.catalogMatch&&ids.has(String(x.catalogMatch.id));return {...x,catalogMatches:(x.catalogMatches||[]).filter(m=>!ids.has(String(m.product.id))),...(removedCurrent?{catalogMatch:undefined,catalogScore:undefined,matchAccepted:false,matchRejected:false}:{})}}))}
  async function deleteSelectedDuplicates(){
   const ids=[...selectedDuplicates];if(!ids.length)return;
   if(!window.confirm(`Supprimer définitivement ${ids.length} doublon(s) sélectionné(s) du catalogue ?`))return;
-  setWorking(true);try{for(const id of ids)await request(`/api/admin/products?id=${encodeURIComponent(id)}`,{method:"DELETE"});await onDone();setItems(a=>a.map(x=>({...x,catalogMatches:(x.catalogMatches||[]).filter(m=>!selectedDuplicates.has(String(m.product.id))),...(x.catalogMatch&&selectedDuplicates.has(String(x.catalogMatch.id))?{catalogMatch:undefined,catalogScore:undefined,matchAccepted:false,matchRejected:false}:{})})));setSelectedDuplicates(new Set())}finally{setWorking(false)}
+  setWorking(true);try{for(const id of ids)await request(`/api/admin/products?id=${encodeURIComponent(id)}`,{method:"DELETE"});const removed=new Set(ids);removeCatalogProductsFromReview(removed);setSelectedDuplicates(new Set());await onDone()}finally{setWorking(false)}
  }
  async function deleteMatchedProduct(item:Item){
   const p=item.catalogMatch;if(!p?.id)return;
   if(!window.confirm(`Supprimer définitivement « ${String(p.name_fr||p.article_number||"ce produit")} » du catalogue ?`))return;
-  setWorking(true);try{await request(`/api/admin/products?id=${encodeURIComponent(String(p.id))}`,{method:"DELETE"});await onDone();setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:undefined,catalogScore:undefined,catalogMatches:(x.catalogMatches||[]).filter(m=>String(m.product.id)!==String(p.id)),matchAccepted:false,matchRejected:false}:x))}finally{setWorking(false)}
+  setWorking(true);try{await request(`/api/admin/products?id=${encodeURIComponent(String(p.id))}`,{method:"DELETE"});removeCatalogProductsFromReview(new Set([String(p.id)]));setSelectedDuplicates(prev=>{const next=new Set(prev);next.delete(String(p.id));return next});await onDone()}finally{setWorking(false)}
  }
  async function replaceMatchedImage(item:Item){
   const p=item.catalogMatch;if(!p?.id||!item.url)return;
