@@ -51,14 +51,15 @@ export function useAdminData({ market, admin, setAdmin, setNotice, setError }: O
     const loadedProducts = results[0].status === "fulfilled" ? (results[0].value.products as Row[]) : null;
     if (loadedProducts) setProducts(loadedProducts);
     if (results[1].status === "fulfilled") setOrders(results[1].value.orders as Row[]);
-    if (results[2].status === "fulfilled") setPromotions(results[2].value.promotions as Row[]);
-    if (results[3].status === "fulfilled") setSubscribers(results[3].value.subscribers as Row[]);
-    if (results[5].status === "fulfilled") setMovements(results[5].value.movements as Row[]);
-    if (results[6].status === "fulfilled") setVersions(results[6].value.versions as Row[]);
+    if (results[2].status === "fulfilled") setCustomers(results[2].value.customers as Row[]);
+    if (results[3].status === "fulfilled") setPromotions(results[3].value.promotions as Row[]);
+    if (results[4].status === "fulfilled") setSubscribers(results[4].value.subscribers as Row[]);
+    if (results[6].status === "fulfilled") setMovements(results[6].value.movements as Row[]);
+    if (results[7].status === "fulfilled") setVersions(results[7].value.versions as Row[]);
 
-    if (results[4].status !== "fulfilled") return;
+    if (results[5].status !== "fulfilled") return;
 
-    const loadedSettings = results[4].value.settings as Record<string, string>;
+    const loadedSettings = results[5].value.settings as Record<string, string>;
     setSettings(loadedSettings);
     setSiteSections(readSiteSections(loadedSettings[`${market}_site_sections`] || (market === "conakry" ? loadedSettings.site_sections : undefined)));
     setSiteTexts(readSiteTexts(loadedSettings[`${market}_site_texts`] || (market === "conakry" ? loadedSettings.site_texts : undefined)));
@@ -88,6 +89,7 @@ export function useAdminData({ market, admin, setAdmin, setNotice, setError }: O
     checking,
     products,
     orders,
+    customers,
     promotions,
     subscribers,
     movements,
@@ -98,6 +100,7 @@ export function useAdminData({ market, admin, setAdmin, setNotice, setError }: O
     load,
     setProducts,
     setOrders,
+    setCustomers,
     setPromotions,
     setSubscribers,
     setMovements,
