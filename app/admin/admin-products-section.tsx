@@ -21,14 +21,27 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       <label>Stock<select value={stock} onChange={(event) => setStock(event.target.value)}><option value="all">Tous</option><option value="available">En stock</option><option value="low">Stock faible</option><option value="empty">Épuisés</option></select></label>
       <span className="cms-filter-count">{products.length} résultat(s)</span><button type="button" className="cms-secondary" onClick={reset}>Réinitialiser</button>
     </div>
-    <div className="cms-table-wrap"><table><thead><tr><th>Produit</th><th>No d’article</th><th>Catégorie</th><th>Prix · {markets[market].label}</th><th>Stock</th><th>Visibilité</th><th></th></tr></thead><tbody>
-      {products.map((product) => <tr key={String(product.id)}>
-        <td><div className="cms-product-cell">{product.image_url ? <button type="button" className="cms-list-image-button" style={{width:420,height:420,minWidth:420,padding:0}} onClick={() => setZoomImage(String(product.image_url))} title="Agrandir"><img src={String(product.image_url)} alt="" style={{width:"100%",height:"100%",objectFit:"contain"}} /></button> : <span className="cms-product-placeholder">□</span>}<div><strong>{String(product.name_fr)}</strong><small>{String(product.name_en || "")}{product.featured ? " · ★ Vedette" : ""}</small></div></div></td>
-        <td><strong className="cms-article-number">{String(product.article_number || "—")}</strong></td><td>{categories[String(product.category)] || String(product.category)}</td><td>{marketPrice(product[`price_${market}`], market)}</td>
-        <td><span className={Number(product[`stock_${market}`] || 0) <= Number(product.alert_threshold || 2) ? "cms-stock-alert" : ""}>{String(product[`stock_${market}`] || 0)}</span>{" "}<button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster</button></td>
-        <td><span className={`cms-status ${product[`visible_${market}`] ? "available" : "sold"}`}>{product[`visible_${market}`] ? "Visible" : "Masqué"}</span><small>{product.visible_conakry ? "GN " : ""}{product.visible_qc ? "QC" : ""}</small></td>
-        <td><button className="cms-inline" onClick={() => edit(product)}>Modifier</button><button className="cms-inline danger" onClick={() => remove(String(product.id))}>Supprimer</button></td>
-      </tr>)}
-    </tbody></table></div>{!products.length && <p className="cms-empty">Aucun produit trouvé.</p>}{zoomImage && createPortal(<div className="cms-image-lightbox" style={{position:"fixed",inset:0,zIndex:99999,display:"grid",placeItems:"center",background:"rgba(11,23,36,.92)"}} role="dialog" aria-modal="true" onClick={() => setZoomImage(null)}><button type="button" className="cms-image-lightbox-close" onClick={() => setZoomImage(null)}>×</button><img src={zoomImage} alt="Aperçu agrandi" style={{maxWidth:"96vw",maxHeight:"94vh",width:"auto",height:"auto",objectFit:"contain",background:"#fff"}} onClick={(event) => event.stopPropagation()} /></div>, document.body)}
+    <div style={{display:"grid",gap:18,marginTop:20}}>
+      {products.map((product) => <article key={String(product.id)} style={{display:"grid",gridTemplateColumns:"360px minmax(300px,1fr) auto",gap:24,alignItems:"center",padding:18,border:"1px solid #dce6eb",borderRadius:14,background:"#fff"}}>
+        <button type="button" onClick={() => product.image_url && setZoomImage(String(product.image_url))} title="Agrandir l’image" style={{width:360,height:360,padding:0,border:"1px solid #dfe7ea",borderRadius:12,background:"#fff",overflow:"hidden",cursor:product.image_url?"zoom-in":"default"}}>
+          {product.image_url ? <img src={String(product.image_url)} alt={String(product.name_fr||"")} style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}} /> : <span style={{fontSize:48,color:"#9aa8ae"}}>□</span>}
+        </button>
+        <div style={{display:"grid",gap:10,alignContent:"center"}}>
+          <strong style={{fontSize:20}}>{String(product.name_fr)}</strong>
+          <span>{String(product.name_en || "")}</span>
+          <span><b>No d’article :</b> {String(product.article_number || "—")}</span>
+          <span><b>Catégorie :</b> {categories[String(product.category)] || String(product.category)}</span>
+          <span><b>Prix · {markets[market].label} :</b> {marketPrice(product[`price_${market}`], market)}</span>
+          <span><b>Stock :</b> {String(product[`stock_${market}`] || 0)} <button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster</button></span>
+          <span><b>Visibilité :</b> {product[`visible_${market}`] ? "Visible" : "Masqué"} · {product.visible_conakry ? "GN " : ""}{product.visible_qc ? "QC" : ""}</span>
+        </div>
+        <div style={{display:"grid",gap:10,minWidth:120}}>
+          <button className="cms-primary" onClick={() => edit(product)}>Modifier</button>
+          <button className="cms-danger" onClick={() => remove(String(product.id))}>Supprimer</button>
+        </div>
+      </article>)}
+    </div>
+    {!products.length && <p className="cms-empty">Aucun produit trouvé.</p>}
+    {zoomImage && createPortal(<div style={{position:"fixed",inset:0,zIndex:99999,display:"grid",placeItems:"center",padding:20,background:"rgba(11,23,36,.94)"}} role="dialog" aria-modal="true" onClick={() => setZoomImage(null)}><button type="button" onClick={() => setZoomImage(null)} style={{position:"fixed",top:20,right:24,width:52,height:52,border:0,borderRadius:"50%",background:"#fff",fontSize:32,cursor:"pointer"}}>×</button><img src={zoomImage} alt="Aperçu agrandi" style={{maxWidth:"96vw",maxHeight:"94vh",width:"auto",height:"auto",objectFit:"contain",background:"#fff"}} onClick={(event) => event.stopPropagation()} /></div>, document.body)}
   </section>;
 }
