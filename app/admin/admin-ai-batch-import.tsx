@@ -8,7 +8,20 @@ type Item={id:string;file:File;preview:string;hash:string;visualHash:string;dupl
 
 async function sha256(file:File){const d=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 async function visualHash(file:File){const bitmap=await createImageBitmap(file);const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;const ctx=canvas.getContext("2d")!;ctx.drawImage(bitmap,0,0,16,16);bitmap.close();const data=ctx.getImageData(0,0,16,16).data;const lum:number[]=[];for(let i=0;i<data.length;i+=4)lum.push(Math.round(data[i]*.299+data[i+1]*.587+data[i+2]*.114));const avg=lum.reduce((a,b)=>a+b,0)/lum.length;return lum.map(v=>v>=avg?"1":"0").join("")}
-async function prepareUpload(file:File){const limit=3.5*1024*1024;if(file.size<=limit)return file;const bitmap=await createImageBitmap(file);const max=2200,scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext("2d");if(!ctx){bitmap.close();throw new Error("Impossible de préparer cette image.")}ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();let quality=.84;let blob:Blob|null=null;do{blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",quality));quality-=.1}while(blob&&blob.size>limit&&quality>=.44);if(!blob)throw new Error("Impossible de compresser cette image.");if(blob.size>limit)throw new Error("Cette image reste trop volumineuse après compression.");return new File([blob],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg",lastModified:Date.now()})}
+async function prepareUpload(file:File){
+ const target=900*1024,max=1600;
+ const bitmap=await createImageBitmap(file);
+ const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+ const canvas=document.createElement("canvas");
+ canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+ const ctx=canvas.getContext("2d");if(!ctx){bitmap.close();throw new Error("Impossible de préparer cette image.")}
+ ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+ let quality=.82,blob:Blob|null=null;
+ do{blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",quality));quality-=.08}while(blob&&blob.size>target&&quality>=.42);
+ if(!blob)throw new Error("Impossible de compresser cette image.");
+ if(blob.size>target)throw new Error("Cette image reste trop volumineuse après compression.");
+ return new File([blob],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg",lastModified:Date.now()});
+}
 function distance(a:string,b:string){let n=0;for(let i=0;i<Math.min(a.length,b.length);i++)if(a[i]!==b[i])n++;return n+Math.abs(a.length-b.length)}
 function norm(v:unknown){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim()}
 function groupKey(s:Row){const brand=norm(s.brand);const name=norm(s.name_fr).split(" ").filter(x=>x.length>2).slice(0,5).join("-");return `${norm(s.category)}|${brand}|${name}`}
