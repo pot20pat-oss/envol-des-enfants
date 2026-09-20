@@ -1,11 +1,11 @@
 import * as v from "valibot";
 
 export const textInput = v.string();
-export const optionalTextInput = v.optional(v.string());
+export const optionalTextInput = v.optional(v.nullable(v.string()));
 export const numericInput = v.union([v.number(), v.string()]);
-export const optionalNumericInput = v.optional(numericInput);
+export const optionalNumericInput = v.optional(v.nullable(numericInput));
 export const booleanInput = v.union([v.boolean(), v.number()]);
-export const optionalBooleanInput = v.optional(booleanInput);
+export const optionalBooleanInput = v.optional(v.nullable(booleanInput));
 
 export async function validateJsonBody<TSchema extends v.GenericSchema>(
   request: Request,
