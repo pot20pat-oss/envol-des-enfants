@@ -62,31 +62,40 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
   for(const file of selected){const hash=await sha256(file),vh=await visualHash(file);const exact=seen.has(hash);const near=!exact&&visual.some(x=>distance(x,vh)<=18);seen.add(hash);if(!exact&&!near)visual.push(vh);next.push({id:crypto.randomUUID(),file,preview:URL.createObjectURL(file),hash,visualHash:vh,duplicate:exact||near,duplicateKind:exact?"exact":near?"visual":undefined,state:"ready"})}setItems(next)}
  async function rankCatalogVisually(item:Item,suggestion:Row){
   const textMatches=catalogMatches(suggestion,catalogProducts);
+  const textById=new Map(textMatches.map(m=>[String(m.product.id),m.score]));
   const scored:Match[]=[];
+  const sourceBrand=norm(suggestion.brand);
   const batchSize=12;
   for(let i=0;i<catalogProducts.length;i+=batchSize){
    const batch=catalogProducts.slice(i,i+batchSize);
    const rows=await Promise.all(batch.map(async p=>{
-    const url=String(p.image_url||"");if(!url)return null;
-    try{
-     let vh=visualHashCache.current.get(url);
-     if(!vh){vh=await visualHashUrl(url);visualHashCache.current.set(url,vh)}
-     const visual=visualSimilarity(item.visualHash,vh);
-     const text=textMatches.find(m=>String(m.product.id)===String(p.id))?.score||0;
-     // Visual evidence dominates. Text helps separate visually similar packaging.
-     const sourceBrand=norm(suggestion.brand),productBrand=norm(p.brand); const sameBrand=!!(sourceBrand&&productBrand&&sourceBrand===productBrand),brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand);
-     let score=visual*.68+text*.32;
-     if(sameBrand)score=Math.min(1,score+.10);
-     if(brandConflict)score*=.45;
-     if(visual>=.965&&(!brandConflict||!sourceBrand||!productBrand))score=1;
-     else if(visual>=.90)score=Math.max(score,.90);
-     else if(visual>=.82)score=Math.max(score,.76);
-     return {product:p,score,visual,text};
-    }catch{return null}
+    const text=textById.get(String(p.id))||0;
+    const productBrand=norm(p.brand);
+    const sameBrand=!!(sourceBrand&&productBrand&&sourceBrand===productBrand);
+    const brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand);
+    let visual=0;
+    const url=String(p.image_url||"");
+    if(url)try{
+      let vh=visualHashCache.current.get(url);
+      if(!vh){vh=await visualHashUrl(url);visualHashCache.current.set(url,vh)}
+      visual=visualSimilarity(item.visualHash,vh)
+    }catch{}
+    // Keep candidates even when browser/CORS prevents reading catalog images.
+    let score=visual>0?visual*.62+text*.38:text;
+    if(sameBrand)score=Math.min(1,score+.12);
+    if(brandConflict&&visual<.90)score*=.55;
+    if(visual>=.96)score=Math.max(score,.98);
+    else if(visual>=.88)score=Math.max(score,.86);
+    else if(visual>=.78)score=Math.max(score,.72);
+    if(visual>=.52||text>=.18||sameBrand)scored.push({product:p,score:Math.min(score,1)})
    }));
-   for(const row of rows)if(row&&(row.visual>=.58||row.text>=.38))scored.push({product:row.product,score:row.score});
+   void rows;
   }
-  return scored.sort((a,b)=>b.score-a.score).slice(0,40)
+  // Also force all text/brand candidates into the review list if visual hashing failed.
+  for(const m of textMatches){
+    if(!scored.some(x=>String(x.product.id)===String(m.product.id)))scored.push(m)
+  }
+  return scored.sort((a,b)=>b.score-a.score).slice(0,60)
  }
  async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));const result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});const suggestion=result.suggestion as Row;const matches=await rankCatalogVisually(item,suggestion);const match=matches[0];const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,catalogMatches:matches,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
