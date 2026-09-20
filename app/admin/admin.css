@@ -71,3 +71,19 @@
 .cms-product-images-empty,.cms-ai-summary{font-size:13px}.cms-product-analysis p{font-size:12px}
 .cms-ai-batch-head h3{font-size:17px}.cms-ai-batch-head p{font-size:12px}
 .cms-ai-grid strong,.cms-ai-grid span,.cms-ai-grid small,.cms-ai-grid input,.cms-ai-grid select,.cms-ai-grid textarea{font-size:12px}
+
+
+/* Conseiller commercial IA */
+.cms-ai-advisor{display:grid;gap:20px}
+.cms-ai-advisor .cms-panel-title p{margin:7px 0 0;color:#71818a;line-height:1.55}
+.cms-ai-advisor-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.cms-ai-advisor-message{margin:14px 0 0;padding:10px 12px;border-radius:8px;background:#f3f7f9;color:#536671}
+.cms-ai-price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.cms-ai-price-grid article{padding:16px;border:1px solid #e1e8eb;border-radius:11px;background:#f9fbfc}
+.cms-ai-price-grid h3{margin:4px 0 12px;font-size:16px}.cms-ai-price-grid small{color:#71818a}
+.cms-ai-price-grid p{color:#536671;line-height:1.55}
+.cms-ai-price-values{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:9px}
+.cms-ai-price-values span{display:grid;gap:4px;color:#71818a}.cms-ai-price-values strong{color:#17364a;font-size:17px}
+.cms-ai-price-values b{padding:6px 8px;border-radius:999px;background:#edf4fa;color:#397fb0}
+.cms-ai-price-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+@media(max-width:640px){.cms-ai-advisor-actions,.cms-ai-price-actions{flex-direction:column}.cms-ai-advisor-actions button,.cms-ai-price-actions button{width:100%}.cms-ai-price-values{grid-template-columns:1fr 1fr}}
