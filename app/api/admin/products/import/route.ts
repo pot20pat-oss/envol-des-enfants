@@ -75,10 +75,12 @@ export async function POST(request: Request) {
 
     const current = productsByName.get(normalizedName);
     if (current) {
-      const articleNumber = current.article_number?.trim() ? current.article_number.trim() : nextArticleNumber(category);
-      statements.push(database.prepare("UPDATE products SET category=?,image_url=?,brand=?,article_number=?,updated_at=? WHERE id=?")
-        .bind(category, stringValue(product.imageUrl) || null, stringValue(product.brand) || null, articleNumber, now, current.id));
-      updated += 1;
+      // Existing D1 rows are CMS-managed and are the source of truth. Import only fills a missing article number.
+      if (!current.article_number?.trim()) {
+        statements.push(database.prepare("UPDATE products SET article_number=? WHERE id=? AND (article_number IS NULL OR TRIM(article_number)=\'\')")
+          .bind(nextArticleNumber(current.category || category), current.id));
+        updated += 1;
+      }
       continue;
     }
     productsByName.set(normalizedName, { id: "", name_fr: frenchName, category });
