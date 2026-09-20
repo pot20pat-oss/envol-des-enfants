@@ -15,6 +15,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const [backgroundFilter, setBackgroundFilter] = useState<"all" | "nonwhite">("all");
   const [nonWhiteBackgroundIds, setNonWhiteBackgroundIds] = useState<Set<string>>(new Set());
   const [backgroundScanBusy, setBackgroundScanBusy] = useState(false);
+  const [validatedBackgroundIds, setValidatedBackgroundIds] = useState<Set<string>>(new Set());
   const setProductBoutique = async (product: Row, availability: string) => { const id=String(product.id||""); if(!id)return; setVisibilityBusy(id); try { const visible_qc=availability==="qc"||availability==="both"; const visible_conakry=availability==="conakry"||availability==="both"; await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...product,visible_qc,visible_conakry,visible:visible_qc||visible_conakry})}); await reload(); } finally { setVisibilityBusy(null); } };
   useEffect(() => {
     if (backgroundFilter !== "nonwhite") return;
@@ -80,6 +81,20 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   }, [backgroundFilter, catalogProducts]);
 
   const visibleProducts = backgroundFilter === "nonwhite" ? products.filter((product) => nonWhiteBackgroundIds.has(String(product.id))) : products;
+  const validateBackground = (id: string, valid: boolean) => {
+    setValidatedBackgroundIds((current) => {
+      const next = new Set(current);
+      if (valid) next.add(id); else next.delete(id);
+      return next;
+    });
+    if (!valid) {
+      setNonWhiteBackgroundIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); setBackgroundFilter("all"); };
   return <section className="cms-panel">
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} />
@@ -105,12 +120,23 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
           <span><b>Stock :</b> {String(product[`stock_${market}`] || 0)} <button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster</button></span>
           <span style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}><b>Visibilité :</b><select aria-label="Boutique où afficher le produit" disabled={visibilityBusy===String(product.id)} value={product.visible_qc&&product.visible_conakry?"both":product.visible_qc?"qc":product.visible_conakry?"conakry":"hidden"} onChange={e=>void setProductBoutique(product,e.target.value)} style={{padding:"7px 10px",border:"1px solid #b9cbd5",borderRadius:8,fontWeight:700}}><option value="hidden">🔒 Masqué partout</option><option value="qc">🇨🇦 Québec seulement</option><option value="conakry">🇬🇳 Conakry seulement</option><option value="both">👁 Québec + Conakry</option></select>{visibilityBusy===String(product.id)&&<span>Enregistrement…</span>}</span>
         </div>
-        <div style={{display:"grid",gap:10,minWidth:120}}>
+        <div style={{display:"grid",gap:10,minWidth:150}}>
+          {backgroundFilter === "nonwhite" && (
+            validatedBackgroundIds.has(String(product.id)) ? (
+              <div style={{padding:"9px 10px",borderRadius:8,background:"#edf8f1",fontWeight:700,textAlign:"center"}}>✓ Fond validé</div>
+            ) : (
+              <>
+                <button type="button" className="cms-primary" onClick={() => validateBackground(String(product.id), true)}>✓ Oui, fond à corriger</button>
+                <button type="button" className="cms-secondary" onClick={() => validateBackground(String(product.id), false)}>✕ Faux positif</button>
+              </>
+            )
+          )}
           <button className="cms-primary" onClick={() => edit(product)}>Modifier</button>
           <button className="cms-danger" onClick={() => remove(String(product.id))}>Supprimer</button>
         </div>
       </article>)}
     </div>
+    {backgroundFilter === "nonwhite" && !backgroundScanBusy && visibleProducts.length > 0 && <div style={{position:"sticky",bottom:16,zIndex:10,marginTop:18,padding:"14px 16px",border:"1px solid #cbdbe4",borderRadius:12,background:"rgba(255,255,255,.96)",boxShadow:"0 8px 24px rgba(20,50,70,.12)",display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><strong>{validatedBackgroundIds.size} photo(s) validée(s) pour correction</strong><span>La création du fond blanc sera disponible uniquement pour les photos que vous avez confirmées.</span></div>}
     {!visibleProducts.length && !backgroundScanBusy && <p className="cms-empty">Aucun produit trouvé.</p>}
     {zoomImage && createPortal(<div style={{position:"fixed",inset:0,zIndex:99999,display:"grid",placeItems:"center",padding:20,background:"rgba(11,23,36,.94)"}} role="dialog" aria-modal="true" onClick={() => setZoomImage(null)}><button type="button" onClick={() => setZoomImage(null)} style={{position:"fixed",top:20,right:24,width:52,height:52,border:0,borderRadius:"50%",background:"#fff",fontSize:32,cursor:"pointer"}}>×</button><img src={zoomImage} alt="Aperçu agrandi" style={{maxWidth:"96vw",maxHeight:"94vh",width:"auto",height:"auto",objectFit:"contain",background:"#fff"}} onClick={(event) => event.stopPropagation()} /></div>, document.body)}
   </section>;
