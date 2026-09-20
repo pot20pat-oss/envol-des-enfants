@@ -34,12 +34,26 @@ export async function POST(request: Request) {
   const region = normalizeMarket(data.region);
   const statuses = new Set(["new", "confirmed", "preparing", "ready", "delivered", "cancelled"]);
   const status = statuses.has(stringValue(data.status)) ? stringValue(data.status) : "new";
-  const existing = await cmsEnv().DB.prepare("SELECT id FROM orders WHERE id = ?").bind(id).first();
+  const database = cmsEnv().DB;
+  const existing = await database.prepare("SELECT id,status,region,items_json FROM orders WHERE id = ?").bind(id).first<Record<string, unknown>>();
   if (existing) {
-    await cmsEnv().DB.prepare("UPDATE orders SET customer_name=?,customer_phone=?,product_name=?,quantity=?,total=?,status=?,notes=?,region=?,currency=?,delivery_zone=?,updated_at=? WHERE id=?")
+    const previousStatus = stringValue(existing.status);
+    if (previousStatus !== "cancelled" && status === "cancelled" && existing.items_json) {
+      try {
+        const items = JSON.parse(String(existing.items_json)) as Array<{ product_id?: string; quantity?: number }>;
+        const existingRegion = normalizeMarket(existing.region);
+        const stockColumn = existingRegion === "qc" ? "stock_qc" : "stock_conakry";
+        const restocks = items
+          .filter((item) => item.product_id && Number(item.quantity) > 0)
+          .map((item) => database.prepare(`UPDATE products SET ${stockColumn} = ${stockColumn} + ?, updated_at=? WHERE id=?`)
+            .bind(Number(item.quantity), now, String(item.product_id)));
+        if (restocks.length) await database.batch(restocks);
+      } catch {}
+    }
+    await database.prepare("UPDATE orders SET customer_name=?,customer_phone=?,product_name=?,quantity=?,total=?,status=?,notes=?,region=?,currency=?,delivery_zone=?,updated_at=? WHERE id=?")
       .bind(stringValue(data.customer_name), stringValue(data.customer_phone), stringValue(data.product_name), numberValue(data.quantity, 1), numberValue(data.total), status, stringValue(data.notes), region, region === "qc" ? "CAD" : "GNF", stringValue(data.delivery_zone) || null, now, id).run();
   } else {
-    await cmsEnv().DB.prepare("INSERT INTO orders (id,customer_name,customer_phone,product_name,quantity,total,status,notes,region,currency,delivery_zone,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
+    await database.prepare("INSERT INTO orders (id,customer_name,customer_phone,product_name,quantity,total,status,notes,region,currency,delivery_zone,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
       .bind(id, stringValue(data.customer_name), stringValue(data.customer_phone), stringValue(data.product_name), numberValue(data.quantity, 1), numberValue(data.total), status, stringValue(data.notes), region, region === "qc" ? "CAD" : "GNF", stringValue(data.delivery_zone) || null, now, now).run();
   }
   return Response.json({ id });
