@@ -60,6 +60,16 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
  function removeItem(id:string){setItems(a=>{const item=a.find(x=>x.id===id);if(item?.preview)URL.revokeObjectURL(item.preview);return a.filter(x=>x.id!==id)})}
  function cancelBatch(){if(!window.confirm("Annuler cette analyse et retirer toutes les photos sélectionnées ?"))return;items.forEach(item=>URL.revokeObjectURL(item.preview));setItems([])}
+ async function deleteMatchedProduct(item:Item){
+  const p=item.catalogMatch;if(!p?.id)return;
+  if(!window.confirm(`Supprimer définitivement « ${String(p.name_fr||p.article_number||"ce produit")} » du catalogue ?`))return;
+  setWorking(true);try{await request(`/api/admin/products?id=${encodeURIComponent(String(p.id))}`,{method:"DELETE"});await onDone();setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:undefined,catalogScore:undefined,catalogMatches:(x.catalogMatches||[]).filter(m=>String(m.product.id)!==String(p.id)),matchAccepted:false,matchRejected:false}:x))}finally{setWorking(false)}
+ }
+ async function replaceMatchedImage(item:Item){
+  const p=item.catalogMatch;if(!p?.id||!item.url)return;
+  if(!window.confirm(`Remplacer l’image principale de « ${String(p.name_fr||p.article_number||"ce produit")} » par la photo analysée ?`))return;
+  setWorking(true);try{await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...p,image_url:item.url})});await onDone();setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:{...p,image_url:item.url},matchAccepted:true,matchRejected:false}:x))}finally{setWorking(false)}
+ }
  async function createAll(){setWorking(true);try{const done=items.filter(x=>!x.duplicate&&(!x.catalogMatch||x.matchRejected)&&x.state==="done"&&x.suggestion&&x.url);const groups=new Map<string,Item[]>();for(const item of done){const key=item.group||item.id;groups.set(key,[...(groups.get(key)||[]),item])}for(const group of groups.values()){const first=group[0];const existing=group.find(x=>x.catalogMatch&&!x.matchRejected)?.catalogMatch;const urls=group.map(x=>x.url!).filter(Boolean);if(existing){continue}await request("/api/admin/products",{method:"POST",body:JSON.stringify({...first.suggestion,image_url:urls[0],images_json:JSON.stringify(urls.slice(1)),price_qc:0,price_conakry:0,stock_qc:0,stock_conakry:0,visible_qc:!standby&&market==="qc",visible_conakry:!standby&&market==="conakry",status:"available"})})}await onDone();setItems([])}finally{setWorking(false)}}
  const duplicates=items.filter(i=>i.duplicate).length,ready=items.filter(i=>!i.duplicate&&i.state==="done").length,groups=new Set(items.filter(i=>i.group).map(i=>i.group)).size;
  return <section className="cms-ai-batch">
@@ -96,6 +106,8 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                   <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir en grand</button>
                   <button type="button" className="cms-secondary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchAccepted:true,matchRejected:false}:x))}>✓ C’est le même produit</button>
                   <button type="button" className="cms-danger" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchRejected:true,matchAccepted:false}:x))}>✕ Ce n’est PAS le même produit</button>
+                  <button type="button" className="cms-secondary" disabled={working||!item.url} onClick={()=>void replaceMatchedImage(item)}>↻ Remplacer l’image du doublon</button>
+                  <button type="button" className="cms-danger" disabled={working} onClick={()=>void deleteMatchedProduct(item)}>🗑 Supprimer le doublon du catalogue</button>
                 </div>
                 {item.matchRejected&&<strong style={{color:"#a33"}}>Correspondance refusée — cette photo pourra être créée comme nouveau produit.</strong>}
                 {item.matchAccepted&&<strong>Correspondance confirmée manuellement.</strong>}
