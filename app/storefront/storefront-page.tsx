@@ -146,6 +146,8 @@ export default function Home() {
         requested={promo.requested}
         consent={promo.consent}
         discount={welcomeDiscount}
+        error={promo.error}
+        submitting={promo.submitting}
         say={say}
         onClose={promo.closePromo}
         onEmailChange={promo.setEmail}
