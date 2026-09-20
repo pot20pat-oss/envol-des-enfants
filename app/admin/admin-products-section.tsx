@@ -48,11 +48,14 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
             if (alpha < 32) continue;
             const r = data[i], g = data[i + 1], b = data[i + 2];
             tested++;
-            const brightness = (r + g + b) / 3;
-            const colorSpread = Math.max(r, g, b) - Math.min(r, g, b);
-            if (brightness < 245 || colorSpread > 12) suspicious++;
+            // Un fond est considéré blanc seulement si ses trois canaux
+            // restent très élevés. On tolère les ombres JPEG légères.
+            const isWhite = r >= 232 && g >= 232 && b >= 232;
+            if (!isWhite) suspicious++;
           }
-          return resolve(tested > 0 && suspicious / tested > 0.08 ? String(product.id) : null);
+          // Un objet peut toucher un bord; on ne classe donc la photo comme
+          // "fond pas blanc" que si une part importante de la bordure ne l'est pas.
+          return resolve(tested > 0 && suspicious / tested >= 0.35 ? String(product.id) : null);
         } catch {
           return resolve(null);
         }
