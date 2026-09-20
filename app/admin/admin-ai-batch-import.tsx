@@ -45,9 +45,11 @@ function catalogMatches(s:Row,products:Row[]){
   let n=article?1:(distinctive*.50+name*.22+desc*.18+brand*.06+category*.04);
   if(!su.size||!pu.size)n=Math.min(n,.64);
   if(distinctive===0)n*=.62;
-  if(n>=.38)found.push({product:p,score:Math.min(n,1)});
+  // Keep every catalog candidate with at least one meaningful signal.
+  // The reviewer needs the full visual shortlist, not only candidates above an arbitrary score.
+  if(article||name>0||desc>0||distinctive>0||brand||category)found.push({product:p,score:Math.min(n,1)});
  }
- return found.sort((a,b)=>b.score-a.score).slice(0,12)
+ return found.sort((a,b)=>b.score-a.score).slice(0,40)
 }
 
 export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Market;busy:boolean;onDone:()=>Promise<void>;catalogProducts:Row[]}){
@@ -98,7 +100,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 {item.matchRejected&&<strong style={{color:"#a33"}}>Correspondance refusée — cette photo pourra être créée comme nouveau produit.</strong>}
                 {item.matchAccepted&&<strong>Correspondance confirmée manuellement.</strong>}
               </div>
-            </section>{(item.catalogMatches?.length||0)>1&&<div style={{marginTop:14}}><strong>Autres correspondances possibles ({(item.catalogMatches?.length||0)-1})</strong><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:12,marginTop:10}}>{item.catalogMatches!.slice(1).map((m,i)=><button type="button" key={String(m.product.id||i)} onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:m.product,catalogScore:m.score,matchRejected:false,matchAccepted:false}:x))} style={{display:"grid",gap:7,padding:10,textAlign:"left",border:"1px solid #cbdbe4",borderRadius:10,background:"#fff",cursor:"pointer"}}>{m.product.image_url&&<img src={String(m.product.image_url)} alt="" style={{width:"100%",height:150,objectFit:"contain"}}/><b>{String(m.product.name_fr||m.product.article_number||"Produit")}</b><span>{Math.round(m.score*100)} % · {String(m.product.article_number||"—")}</span></button>)}</div></div>}</>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
+            </section>{(item.catalogMatches?.length||0)>1&&<div style={{marginTop:18,padding:16,border:"2px solid #cbdbe4",borderRadius:12,background:"#f8fbfd"}}><strong style={{fontSize:18}}>Toutes les correspondances possibles ({item.catalogMatches!.length})</strong><p style={{margin:"5px 0 12px"}}>Clique sur une image pour la comparer en grand avec la photo importée.</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:14}}>{item.catalogMatches!.map((m,i)=><button type="button" key={String(m.product.id||i)} onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:m.product,catalogScore:m.score,matchRejected:false,matchAccepted:false}:x))} style={{display:"grid",gap:8,padding:10,textAlign:"left",border:m.product.id===item.catalogMatch?.id?"3px solid #2676a8":"1px solid #cbdbe4",borderRadius:10,background:"#fff",cursor:"pointer"}}>{m.product.image_url?<img src={String(m.product.image_url)} alt={String(m.product.name_fr||"")} style={{width:"100%",height:210,objectFit:"contain",background:"#fff"}}/>:<div style={{height:210,display:"grid",placeItems:"center"}}>Aucune image</div>}<b>{String(m.product.name_fr||m.product.article_number||"Produit")}</b><span>No {String(m.product.article_number||"—")}</span><span>Score texte : {Math.round(m.score*100)} %</span></button>)}</div></div>}</>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
             <span>EN : {String(item.suggestion.description_en||"")}</span>
           </>:<span>{item.state==="error"?item.error:item.state==="ready"?"Prête à analyser":"Analyse en cours…"}</span>}
           <button type="button" className="cms-danger" disabled={working} onClick={()=>removeItem(item.id)}>Supprimer</button>
