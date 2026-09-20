@@ -43,10 +43,10 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
                   ×
                 </button>
               </div>
-              {editingType === "product" && <ProductEditor editing={editing} setEditing={setEditing} update={update} upload={upload} />}
-              {editingType === "promotion" && <PromotionEditor editing={editing} market={market} update={update} />}
-              {editingType === "order" && <OrderEditor editing={editing} market={market} products={products} update={update} />}
-              <div className="cms-editor-actions">
+              <div
+                className="cms-editor-actions"
+                style={{position:"sticky",top:0,zIndex:20,display:"flex",justifyContent:"flex-end",gap:10,padding:"12px 0",background:"rgba(255,255,255,.96)",backdropFilter:"blur(8px)",borderBottom:"1px solid #dbe5ea"}}
+              >
                 <button
                   type="button"
                   className="cms-secondary"
@@ -58,6 +58,9 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
                   {busy ? "Enregistrement…" : "Enregistrer"}
                 </button>
               </div>
+              {editingType === "product" && <ProductEditor editing={editing} setEditing={setEditing} update={update} upload={upload} />}
+              {editingType === "promotion" && <PromotionEditor editing={editing} market={market} update={update} />}
+              {editingType === "order" && <OrderEditor editing={editing} market={market} products={products} update={update} />}
             </form>
           </div>
   );
