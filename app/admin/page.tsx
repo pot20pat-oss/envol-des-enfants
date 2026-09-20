@@ -8,6 +8,7 @@ import { OrdersSection } from "./admin-orders-section";
 import { PromotionsSection } from "./admin-promotions-section";
 import { SiteEditor } from "./admin-site-editor";
 import { AiAdvisorSection } from "./admin-ai-advisor";
+import { NotificationsSection } from "./admin-notifications";
 import { AdminEditModal } from "./admin-edit-modal";
 import { AdminLayout, AdminLogin } from "./admin-layout";
 import { deriveAdminLists } from "./admin-derived";
@@ -113,6 +114,8 @@ export default function Administration() {
       {section === "subscribers" && <SubscribersSection subscribers={subscribers} />}
 
       {section === "advisor" && <AiAdvisorSection market={market} products={products} settings={settings} setSettings={setSettings} reload={load} />}
+
+      {section === "notifications" && <NotificationsSection products={products} market={market} onEdit={editProduct} />}
 
       {section === "settings" && (
         <SettingsSection market={market} settings={settings} setSettings={setSettings} passwords={passwords} setPasswords={setPasswords} busy={busy} saveSettings={(event) => void saveSettings(event, settings)} changePassword={(event) => void changePassword(event)} />
