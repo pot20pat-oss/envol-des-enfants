@@ -20,37 +20,60 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     if (backgroundFilter !== "nonwhite") return;
     let cancelled = false;
     setBackgroundScanBusy(true);
+
+    const scanImage = (product: Row) => new Promise<string | null>((resolve) => {
+      const image = new Image();
+      image.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          const size = 64;
+          canvas.width = size;
+          canvas.height = size;
+          const context = canvas.getContext("2d", { willReadFrequently: true });
+          if (!context) return resolve(null);
+          context.drawImage(image, 0, 0, size, size);
+          const data = context.getImageData(0, 0, size, size).data;
+
+          // Mesure plusieurs bandes près des quatre bords. Un vrai fond blanc
+          // reste clair et neutre; les fonds gris, crème, colorés ou décorés
+          // sont signalés même si les coins seuls sont blancs.
+          let tested = 0;
+          let suspicious = 0;
+          const edge = 12;
+          for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+            if (x >= edge && x < size - edge && y >= edge && y < size - edge) continue;
+            const i = (y * size + x) * 4;
+            const alpha = data[i + 3];
+            if (alpha < 32) continue;
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            tested++;
+            const brightness = (r + g + b) / 3;
+            const colorSpread = Math.max(r, g, b) - Math.min(r, g, b);
+            if (brightness < 245 || colorSpread > 12) suspicious++;
+          }
+          return resolve(tested > 0 && suspicious / tested > 0.08 ? String(product.id) : null);
+        } catch {
+          return resolve(null);
+        }
+      };
+      image.onerror = () => resolve(null);
+      // Les images du site et de R2 passent par /api/images : pas besoin de
+      // crossOrigin, qui pouvait faire échouer silencieusement le canvas.
+      image.src = String(product.image_url);
+    });
+
     const scan = async () => {
       const detected = new Set<string>();
       const candidates = catalogProducts.filter((product) => product.image_url);
-      await Promise.all(candidates.map((product) => new Promise<void>((resolve) => {
-        const image = new Image();
-        image.crossOrigin = "anonymous";
-        image.onload = () => {
-          try {
-            const canvas = document.createElement("canvas");
-            const size = 48;
-            canvas.width = size; canvas.height = size;
-            const context = canvas.getContext("2d", { willReadFrequently: true });
-            if (!context) return resolve();
-            context.drawImage(image, 0, 0, size, size);
-            const data = context.getImageData(0, 0, size, size).data;
-            let tested = 0, nonWhite = 0;
-            for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-              if (x > 7 && x < size - 8 && y > 7 && y < size - 8) continue;
-              const i = (y * size + x) * 4;
-              if (data[i + 3] < 20) continue;
-              tested++;
-              if (data[i] < 238 || data[i + 1] < 238 || data[i + 2] < 238) nonWhite++;
-            }
-            if (tested && nonWhite / tested > 0.12) detected.add(String(product.id));
-          } catch {}
-          resolve();
-        };
-        image.onerror = () => resolve();
-        image.src = String(product.image_url);
-      })));
-      if (!cancelled) { setNonWhiteBackgroundIds(detected); setBackgroundScanBusy(false); }
+      for (let i = 0; i < candidates.length; i += 12) {
+        const results = await Promise.all(candidates.slice(i, i + 12).map(scanImage));
+        results.forEach((id) => { if (id) detected.add(id); });
+        if (cancelled) return;
+      }
+      if (!cancelled) {
+        setNonWhiteBackgroundIds(detected);
+        setBackgroundScanBusy(false);
+      }
     };
     void scan();
     return () => { cancelled = true; };
