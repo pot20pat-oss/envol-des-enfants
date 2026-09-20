@@ -6,7 +6,7 @@ export function deriveAdminLists({ products, orders, subscribers, market, search
   const filteredProducts = products.filter((item) => {
     const matchesSearch = `${item.article_number || ""} ${item.name_fr} ${item.name_en} ${item.category} ${item.brand || ""}`.toLowerCase().includes(search.trim().toLowerCase());
     const matchesCategory = productCategory === "all" || item.category === productCategory;
-    const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : !Boolean(item[`visible_${market}`]));
+    const qc=Boolean(item.visible_qc),conakry=Boolean(item.visible_conakry); const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : productVisibility === "hidden" ? !qc&&!conakry : productVisibility === "qc" ? qc&&!conakry : productVisibility === "conakry" ? conakry&&!qc : productVisibility === "both" ? qc&&conakry : true);
     const stock = Number(item[`stock_${market}`] || 0);
     const matchesStock = productStock === "all" || (productStock === "available" ? stock > 0 : productStock === "low" ? stock > 0 && stock <= Number(item.alert_threshold || 2) : stock <= 0);
     return matchesSearch && matchesCategory && matchesVisibility && matchesStock;
