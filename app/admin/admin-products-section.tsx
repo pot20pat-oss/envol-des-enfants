@@ -12,7 +12,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
 }) {
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [visibilityBusy, setVisibilityBusy] = useState<string | null>(null);
-  const showProduct = async (product: Row) => { const id=String(product.id||""); if(!id)return; setVisibilityBusy(id); try { await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...product,[`visible_${market}`]:true,visible:true})}); await reload(); } finally { setVisibilityBusy(null); } };
+  const setProductBoutique = async (product: Row, availability: string) => { const id=String(product.id||""); if(!id)return; setVisibilityBusy(id); try { const visible_qc=availability==="qc"||availability==="both"; const visible_conakry=availability==="conakry"||availability==="both"; await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...product,visible_qc,visible_conakry,visible:visible_qc||visible_conakry})}); await reload(); } finally { setVisibilityBusy(null); } };
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
   return <section className="cms-panel">
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} />
@@ -35,7 +35,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
           <span><b>Catégorie :</b> {categories[String(product.category)] || String(product.category)}</span>
           <span><b>Prix · {markets[market].label} :</b> {marketPrice(product[`price_${market}`], market)}</span>
           <span><b>Stock :</b> {String(product[`stock_${market}`] || 0)} <button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster</button></span>
-          <span style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}><b>Visibilité :</b> {product[`visible_${market}`] ? "Visible" : "Masqué"} · {product.visible_conakry ? "GN " : ""}{product.visible_qc ? "QC" : ""} {!product[`visible_${market}`]&&<button type="button" className="cms-primary" disabled={visibilityBusy===String(product.id)} onClick={()=>void showProduct(product)} style={{fontWeight:800,padding:"7px 14px"}}>{visibilityBusy===String(product.id)?"Affichage…":"👁 AFFICHER"}</button>}</span>
+          <span style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}><b>Visibilité :</b><select aria-label="Boutique où afficher le produit" disabled={visibilityBusy===String(product.id)} value={product.visible_qc&&product.visible_conakry?"both":product.visible_qc?"qc":product.visible_conakry?"conakry":"hidden"} onChange={e=>void setProductBoutique(product,e.target.value)} style={{padding:"7px 10px",border:"1px solid #b9cbd5",borderRadius:8,fontWeight:700}}><option value="hidden">🔒 Masqué partout</option><option value="qc">🇨🇦 Québec seulement</option><option value="conakry">🇬🇳 Conakry seulement</option><option value="both">👁 Québec + Conakry</option></select>{visibilityBusy===String(product.id)&&<span>Enregistrement…</span>}</span>
         </div>
         <div style={{display:"grid",gap:10,minWidth:120}}>
           <button className="cms-primary" onClick={() => edit(product)}>Modifier</button>
