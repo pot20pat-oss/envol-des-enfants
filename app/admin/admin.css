@@ -87,3 +87,5 @@
 .cms-ai-price-values b{padding:6px 8px;border-radius:999px;background:#edf4fa;color:#397fb0}
 .cms-ai-price-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 @media(max-width:640px){.cms-ai-advisor-actions,.cms-ai-price-actions{flex-direction:column}.cms-ai-advisor-actions button,.cms-ai-price-actions button{width:100%}.cms-ai-price-values{grid-template-columns:1fr 1fr}}
+
+.cms-ai-standby{display:flex;align-items:flex-start;gap:12px;margin:18px 0;padding:15px;border:1px solid #dce6ea;border-radius:10px;background:#f8fbfc}.cms-ai-standby input{width:19px;height:19px;margin-top:2px}.cms-ai-standby span{display:grid;gap:4px}.cms-ai-standby strong{color:#17364a}.cms-ai-standby small{color:#667982;line-height:1.45}
