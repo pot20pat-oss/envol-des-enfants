@@ -38,6 +38,33 @@ export function ProductIdentityFields({ editing, setEditing, update }: Omit<Prod
       </label>
     )}
 
+    {editing.id && (
+      <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",padding:"12px 14px",border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
+        <button
+          type="button"
+          className="cms-primary"
+          onClick={() => {
+            if (!window.confirm("Créer une nouvelle fiche à partir de cet article ? L’article actuel ne sera pas modifié tant que la nouvelle fiche n’est pas enregistrée.")) return;
+            setEditing((current) => current ? {
+              ...current,
+              id: undefined,
+              article_number: undefined,
+              name_fr: `${String(current.name_fr || "")} — nouveau produit`,
+              stock_qc: 0,
+              stock_conakry: 0,
+              visible_qc: false,
+              visible_conakry: false,
+              visible: false,
+              featured: false,
+            } : current);
+          }}
+        >
+          ＋ Ceci est un nouveau produit
+        </button>
+        <span>Crée une fiche indépendante à partir de celle-ci, sans écraser l’article existant.</span>
+      </div>
+    )}
+
     <div className="cms-form-grid">
       <label>
         Nom du produit · FR
