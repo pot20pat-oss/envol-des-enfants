@@ -2,7 +2,6 @@ import { cmsEnv } from "@/lib/cms";
 import { marketSettings, normalizeMarket, type Market } from "@/lib/markets";
 import { categorizedMamaProduct } from "@/lib/doll-category";
 import { withVerifiedConakryPrice } from "@/lib/reference-prices";
-import { ensureArchiveProducts } from "@/lib/archive-products";
 
 export async function GET(request: Request) {
   try {
