@@ -16,6 +16,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const [nonWhiteBackgroundIds, setNonWhiteBackgroundIds] = useState<Set<string>>(new Set());
   const [backgroundScanBusy, setBackgroundScanBusy] = useState(false);
   const [validatedBackgroundIds, setValidatedBackgroundIds] = useState<Set<string>>(new Set());
+  const [backgroundActionBusy, setBackgroundActionBusy] = useState<string | null>(null);
   const setProductBoutique = async (product: Row, availability: string) => { const id=String(product.id||""); if(!id)return; setVisibilityBusy(id); try { const visible_qc=availability==="qc"||availability==="both"; const visible_conakry=availability==="conakry"||availability==="both"; await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...product,visible_qc,visible_conakry,visible:visible_qc||visible_conakry})}); await reload(); } finally { setVisibilityBusy(null); } };
   useEffect(() => {
     if (backgroundFilter !== "nonwhite") return;
@@ -53,9 +54,10 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
             const isWhite = r >= 232 && g >= 232 && b >= 232;
             if (!isWhite) suspicious++;
           }
-          // Un objet peut toucher un bord; on ne classe donc la photo comme
-          // "fond pas blanc" que si une part importante de la bordure ne l'est pas.
-          return resolve(tested > 0 && suspicious / tested >= 0.35 ? String(product.id) : null);
+          // Un fond blanc réel doit dominer très largement la périphérie.
+          // Les photos prises sur une table, un plancher ou devant un décor
+          // ont normalement beaucoup plus de pixels non blancs.
+          return resolve(tested > 0 && suspicious / tested >= 0.18 ? String(product.id) : null);
         } catch {
           return resolve(null);
         }
@@ -98,7 +100,30 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       });
     }
   };
-  const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); setBackgroundFilter("all"); };
+  const makeBackgroundWhite = async (product: Row) => {
+    const id = String(product.id || "");
+    if (!id || !validatedBackgroundIds.has(id)) return;
+    setBackgroundActionBusy(id);
+    try {
+      const result = await request("/api/admin/products/white-background", {
+        method: "POST",
+        body: JSON.stringify({ id, image_url: String(product.image_url || "") }),
+      }) as { url?: string };
+      if (!result.url) throw new Error("La nouvelle image n’a pas été créée.");
+      await request("/api/admin/products", {
+        method: "PUT",
+        body: JSON.stringify({ ...product, image_url: result.url }),
+      });
+      setNonWhiteBackgroundIds((current) => { const next = new Set(current); next.delete(id); return next; });
+      setValidatedBackgroundIds((current) => { const next = new Set(current); next.delete(id); return next; });
+      await reload();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Impossible de créer le fond blanc.");
+    } finally {
+      setBackgroundActionBusy(null);
+    }
+  };
+    const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); setBackgroundFilter("all"); };
   return <section className="cms-panel">
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} />
     <div className="cms-panel-title"><input className="cms-search" placeholder="Nom, marque ou numéro d’article…" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="cms-product-actions"><button className="cms-secondary" disabled={busy} onClick={synchronize}>↻ Synchroniser la boutique</button><button className="cms-primary" onClick={add}>+ Ajouter manuellement</button></div></div>
@@ -126,7 +151,10 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         <div style={{display:"grid",gap:10,minWidth:150}}>
           {backgroundFilter === "nonwhite" && (
             validatedBackgroundIds.has(String(product.id)) ? (
-              <div style={{padding:"9px 10px",borderRadius:8,background:"#edf8f1",fontWeight:700,textAlign:"center"}}>✓ Fond validé</div>
+              <>
+                <div style={{padding:"9px 10px",borderRadius:8,background:"#edf8f1",fontWeight:700,textAlign:"center"}}>✓ Fond validé</div>
+                <button type="button" className="cms-primary" disabled={backgroundActionBusy === String(product.id)} onClick={() => void makeBackgroundWhite(product)}>{backgroundActionBusy === String(product.id) ? "Création…" : "✨ Créer le fond blanc"}</button>
+              </>
             ) : (
               <>
                 <button type="button" className="cms-primary" onClick={() => validateBackground(String(product.id), true)}>✓ Oui, fond à corriger</button>
