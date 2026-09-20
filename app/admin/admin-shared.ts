@@ -8,6 +8,7 @@ export type Section =
   | "customers"
   | "promotions"
   | "subscribers"
+  | "advisor"
   | "editor"
   | "settings";
 
@@ -156,6 +157,7 @@ export const labels: Record<Section, string> = {
   customers: "Clients",
   promotions: "Promotions",
   subscribers: "Abonnés",
+  advisor: "Conseiller IA",
   editor: "Éditeur du site",
   settings: "Réglages",
 };
