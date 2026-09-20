@@ -70,6 +70,7 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
     if (!editing) return;
     setBusy(true);
     setError("");
+    const scrollPosition = window.scrollY;
     try {
       const paths = {
         product: "/api/admin/products",
@@ -82,6 +83,11 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
       });
       setEditing(null);
       await load();
+      // Le rechargement de la liste peut replacer la page en haut. Remettre
+      // l'administrateur exactement où il était pour poursuivre les articles.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => window.scrollTo({ top: scrollPosition, behavior: "instant" }));
+      });
       flash("Modifications enregistrées.");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Enregistrement impossible.");
