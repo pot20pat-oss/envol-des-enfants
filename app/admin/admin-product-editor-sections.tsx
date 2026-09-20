@@ -269,20 +269,27 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
   };
 
   return <>
-    <label>
-      Ajouter une ou plusieurs photos
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={(event) => {
-          void upload(event.target.files || undefined);
-          event.target.value = "";
-        }}
-      />
-    </label>
-
     <section className="cms-product-images-manager" aria-labelledby="cms-product-images-title">
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",marginBottom:16,padding:"14px 16px",border:"1px solid #cbdbe4",borderRadius:12,background:"#f8fbfd"}}>
+        <div>
+          <strong style={{display:"block",fontSize:"1rem"}}>Photo du produit</strong>
+          <span style={{fontSize:".9rem",opacity:.75}}>Remplacer la photo principale ou ajouter plusieurs photos.</span>
+        </div>
+        <label className="cms-primary" style={{cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",margin:0}}>
+          📷 Changer la photo
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            style={{display:"none"}}
+            onChange={(event) => {
+              void upload(event.target.files || undefined);
+              event.target.value = "";
+            }}
+          />
+        </label>
+      </div>
+
       <div className="cms-product-images-heading">
         <div>
           <h3 id="cms-product-images-title">Photos du produit</h3>
