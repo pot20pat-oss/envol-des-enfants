@@ -17,7 +17,9 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
   const [promoOpen, setPromoOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [requested, setRequested] = useState(false);
-  const [consent, setConsent] = useState(false);\n  const [error, setError] = useState("");\n  const [submitting, setSubmitting] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (window.sessionStorage.getItem("envol-promo-dismissed") === "yes") return;
@@ -55,7 +57,10 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
       const message = language === "en"
         ? `Hello Envol des Enfants! I would like to subscribe with ${email} and receive the ${welcomeDiscount}% welcome discount on my first order.`
         : `Bonjour Envol des Enfants! Je souhaite m’abonner avec ${email} et profiter de l’offre de bienvenue de ${welcomeDiscount} % sur ma première commande.`;
-      if (whatsappNumber) window.open(`${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      if (whatsappNumber) {
+        window.location.href = `${whatsappUrl}?text=${encodeURIComponent(message)}`;
+        return;
+      }
       setRequested(true);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : say("Inscription impossible.", "Unable to subscribe."));
