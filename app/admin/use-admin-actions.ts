@@ -16,6 +16,30 @@ type Options = {
   setNotice: Dispatch<SetStateAction<string>>;
 };
 
+async function prepareImageForUpload(file: File): Promise<File> {
+  const limit = 3.5 * 1024 * 1024;
+  if (file.size <= limit) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const maxDimension = 2200;
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) {
+    bitmap.close();
+    throw new Error("Impossible de préparer cette image.");
+  }
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.84));
+  if (!blob) throw new Error("Impossible de compresser cette image.");
+  const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
+  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+}
+
 export function useAdminActions({ market, load, setError, setNotice }: Options) {
   const [busy, setBusy] = useState(false);
   const [passwords, setPasswords] = useState<Passwords>({
@@ -80,7 +104,8 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
     setError("");
     try {
       const uploadedImages: string[] = [];
-      for (const file of selectedFiles) {
+      for (const originalFile of selectedFiles) {
+        const file = await prepareImageForUpload(originalFile);
         const data = new FormData();
         data.append("file", file);
         const result = await request("/api/admin/upload", { method: "POST", body: data });
