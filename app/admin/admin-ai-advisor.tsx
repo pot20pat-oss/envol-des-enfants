@@ -16,12 +16,12 @@ export function AiAdvisorSection({ market, products, settings, setSettings, relo
   const [suggestions,setSuggestions]=useState<Suggestion[]>([]);
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState("");
-  const prefix=`${market}_ai_`;
+  const prefix="ai_";
   const visibleCount=useMemo(()=>products.filter((p)=>Boolean(p[`visible_${market}`])).length,[products,market]);
 
   const saveRules=async()=>{
     setBusy(true); setMessage("");
-    try { await request("/api/admin/settings",{method:"POST",body:JSON.stringify(settings)}); setMessage("Paramètres du conseiller enregistrés."); }
+    try { await request("/api/admin/settings",{method:"POST",body:JSON.stringify(settings)}); setMessage("Paramètres généraux des prix enregistrés."); }
     catch(e){ setMessage(e instanceof Error?e.message:"Enregistrement impossible."); } finally{setBusy(false);}
   };
   const audit=async()=>{
@@ -39,12 +39,12 @@ export function AiAdvisorSection({ market, products, settings, setSettings, relo
 
   return <div className="cms-ai-advisor">
     <section className="cms-panel cms-form">
-      <div className="cms-panel-title"><div><h2>Conseiller commercial IA · {markets[market].label}</h2><p>{visibleCount} produit(s) visible(s) peuvent être audités. L’IA conseille; aucun prix n’est modifié sans confirmation.</p></div></div>
+      <div className="cms-panel-title"><div><h2>Paramètres généraux des prix</h2><p>Ces règles sont indépendantes des boutiques Québec et Conakry. Elles servent de cadre commercial commun; l’audit applique ensuite le prix et la devise propres à la boutique sélectionnée.</p></div></div>
       <div className="cms-form-grid">
         <label>Marge cible (%)<input type="number" min="0" max="90" value={settings[prefix+"target_margin"]||"40"} onChange={e=>setSettings(x=>({...x,[prefix+"target_margin"]:e.target.value}))}/></label>
         <label>Ajustement commercial souhaité (%)<input type="number" min="-100" max="100" value={settings[prefix+"adjustment"]||"0"} onChange={e=>setSettings(x=>({...x,[prefix+"adjustment"]:e.target.value}))}/></label>
         <label>Variation maximale autorisée (%)<input type="number" min="1" max="100" value={settings[prefix+"max_change"]||"20"} onChange={e=>setSettings(x=>({...x,[prefix+"max_change"]:e.target.value}))}/></label>
-        <label>Style de prix<input value={market==="qc"?"Arrondi psychologique · x,99 $":"Arrondi commercial · milliers GNF"} readOnly/></label>
+        <label>Produits actuellement auditables<input value={`${visibleCount} · ${markets[market].label}`} readOnly/></label>
       </div>
       <div className="cms-ai-advisor-actions"><button type="button" className="cms-secondary" disabled={busy} onClick={()=>void saveRules()}>Enregistrer les paramètres</button><button type="button" className="cms-primary" disabled={busy} onClick={()=>void audit()}>{busy?"Analyse…":"Audit IA des prix"}</button></div>
       {message&&<p className="cms-ai-advisor-message">{message}</p>}
