@@ -5,6 +5,7 @@ export type Section =
   | "products"
   | "stock"
   | "orders"
+  | "customers"
   | "promotions"
   | "subscribers"
   | "editor"
@@ -152,6 +153,7 @@ export const labels: Record<Section, string> = {
   products: "Produits",
   stock: "Stocks",
   orders: "Commandes",
+  customers: "Clients",
   promotions: "Promotions",
   subscribers: "Abonnés",
   editor: "Éditeur du site",
