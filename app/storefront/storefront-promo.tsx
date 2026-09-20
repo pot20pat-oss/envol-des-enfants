@@ -9,7 +9,9 @@ type Props = {
   email: string;
   requested: boolean;
   consent: boolean;
-  discount: number;\n  error: string;\n  submitting: boolean;
+  discount: number;
+  error: string;
+  submitting: boolean;
   say: Say;
   onClose: () => void;
   onEmailChange: (value: string) => void;
@@ -69,7 +71,8 @@ export default function StorefrontPromo({ open, email, requested, consent, disco
                 <button className="promo-submit promo-submit-new" type="submit" disabled={submitting}>{submitting ? say("Inscription…", "Subscribing…") : say("Je m’abonne", "Subscribe")}</button>
               </div>
 
-              {error && <p className="promo-error">{error}</p>}\n              <label className="promo-consent">
+              {error && <p className="promo-error">{error}</p>}
+              <label className="promo-consent">
                 <input type="checkbox" checked={consent} onChange={(event) => onConsentChange(event.target.checked)} required />
                 <span>{say("J’accepte de recevoir des nouvelles et des offres d’Envol des Enfants.", "I agree to receive news and offers from Envol des Enfants.")}</span>
               </label>
