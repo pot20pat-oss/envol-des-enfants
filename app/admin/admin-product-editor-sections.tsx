@@ -201,6 +201,7 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
   const images = productImages(editing);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisNotice, setAnalysisNotice] = useState("");
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   const moveImage = (index: number, direction: -1 | 1) => {
     const destination = index + direction;
@@ -267,7 +268,10 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
         <div className="cms-product-images-list">
           {images.map((image, index) => (
             <article className="cms-product-image-item" key={image}>
-              <img src={image} alt={index === 0 ? "Photo principale du produit" : `Photo ${index + 1} du produit`} />
+              <button type="button" className="cms-product-image-preview-button" onClick={() => setZoomImage(image)} title="Agrandir la photo">
+                <img src={image} alt={index === 0 ? "Photo principale du produit" : `Photo ${index + 1} du produit`} />
+                <span>Agrandir</span>
+              </button>
               <div className="cms-product-image-meta">
                 <strong>{index === 0 ? "Photo principale" : `Photo ${index + 1}`}</strong>
                 <span>Position {index + 1}</span>
@@ -321,6 +325,11 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
         <p>{analysisNotice || "NVIDIA proposera le nom, la catégorie, la marque, l’âge et les descriptions. Rien ne sera enregistré sans votre confirmation."}</p>
       </div>
     </section>
+
+    {zoomImage && <div className="cms-image-lightbox" role="dialog" aria-modal="true" aria-label="Aperçu agrandi" onClick={() => setZoomImage(null)}>
+      <button type="button" className="cms-image-lightbox-close" onClick={() => setZoomImage(null)} aria-label="Fermer">×</button>
+      <img src={zoomImage} alt="Aperçu agrandi du produit" onClick={(event) => event.stopPropagation()} />
+    </div>}
 
     <label>
       Conditions d’échange · FR
