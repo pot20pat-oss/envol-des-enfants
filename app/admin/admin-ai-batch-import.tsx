@@ -42,9 +42,11 @@ function catalogMatches(s:Row,products:Row[]){
  for(const p of products){
   const pn=words(`${p.name_fr||""} ${p.name_en||""}`),pd=words(`${p.description_fr||""} ${p.description_en||""}`),pu=usefulWords(`${p.name_fr||""} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""}`);
   const name=overlap(sn,pn),desc=overlap(sd,pd),distinctive=overlap(su,pu);
-  const brand=norm(s.brand)&&norm(s.brand)===norm(p.brand)?1:0,category=norm(s.category)&&norm(s.category)===norm(p.category)?1:0;
+  const sourceBrand=norm(s.brand),productBrand=norm(p.brand); const brand=sourceBrand&&productBrand&&sourceBrand===productBrand?1:0,brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand),category=norm(s.category)&&norm(s.category)===norm(p.category)?1:0;
   const article=norm(s.article_number)&&norm(s.article_number)===norm(p.article_number);
-  let n=article?1:(distinctive*.50+name*.22+desc*.18+brand*.06+category*.04);
+  let n=article?1:(distinctive*.38+name*.18+desc*.14+brand*.26+category*.04);
+  if(brandConflict&&!article)n*=.35;
+  if(brand&&!article)n=Math.min(1,n+.10);
   if(!su.size||!pu.size)n=Math.min(n,.64);
   if(distinctive===0)n*=.62;
   // Keep every catalog candidate with at least one meaningful signal.
@@ -72,8 +74,11 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
      const visual=visualSimilarity(item.visualHash,vh);
      const text=textMatches.find(m=>String(m.product.id)===String(p.id))?.score||0;
      // Visual evidence dominates. Text helps separate visually similar packaging.
-     let score=visual*.78+text*.22;
-     if(visual>=.965)score=1;
+     const sourceBrand=norm(suggestion.brand),productBrand=norm(p.brand); const sameBrand=!!(sourceBrand&&productBrand&&sourceBrand===productBrand),brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand);
+     let score=visual*.68+text*.32;
+     if(sameBrand)score=Math.min(1,score+.10);
+     if(brandConflict)score*=.45;
+     if(visual>=.965&&(!brandConflict||!sourceBrand||!productBrand))score=1;
      else if(visual>=.90)score=Math.max(score,.90);
      else if(visual>=.82)score=Math.max(score,.76);
      return {product:p,score,visual,text};
