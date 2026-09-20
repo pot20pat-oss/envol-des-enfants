@@ -41,10 +41,10 @@ export function useAdminData({ market, admin, setAdmin, setNotice, setError }: O
   const load = useCallback(async () => {
     const results = await Promise.allSettled([
       request("/api/admin/products"),
-      request(`/api/admin/orders?region=${market}`),
+      request("/api/admin/orders?region=all"),
       request(`/api/admin/customers?region=${market}`),
       request(`/api/admin/promotions?region=${market}`),
-      request(`/api/admin/subscribers?region=${market}`),
+      request("/api/admin/subscribers"),
       request("/api/admin/settings"),
       request(`/api/admin/stock?region=${market}`),
       request(`/api/admin/site-versions?region=${market}`),
