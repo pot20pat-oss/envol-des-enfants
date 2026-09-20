@@ -31,7 +31,23 @@ function productSimilarity(a:Row,b:Row){const aw=words(`${a.name_fr||""} ${a.nam
 function regroup(items:Item[]){const done=items.filter(x=>x.state==="done"&&x.suggestion&&!x.duplicate);const assigned=new Set<string>();const groups=new Map<string,string>();for(const a of done){if(assigned.has(a.id))continue;const gid=a.id;groups.set(a.id,gid);assigned.add(a.id);for(const b of done){if(assigned.has(b.id)||a.id===b.id)continue;const score=productSimilarity(a.suggestion!,b.suggestion!);if(score>=.62){groups.set(b.id,gid);assigned.add(b.id)}}}return items.map(x=>groups.has(x.id)?{...x,group:groups.get(x.id)}:x)}
 function words(v:unknown){return new Set(norm(v).split(" ").filter(x=>x.length>2))}
 function overlap(a:Set<string>,b:Set<string>){if(!a.size||!b.size)return 0;let same=0;for(const x of a)if(b.has(x))same++;return same/Math.min(a.size,b.size)}
-function catalogMatch(s:Row,products:Row[]){let best:Row|undefined,score=0;const sn=words(`${s.name_fr||""} ${s.name_en||""}`),sd=words(`${s.description_fr||""} ${s.description_en||""}`);for(const p of products){const pn=words(`${p.name_fr||""} ${p.name_en||""}`),pd=words(`${p.description_fr||""} ${p.description_en||""}`);const name=overlap(sn,pn),desc=overlap(sd,pd);const brand=norm(s.brand)&&norm(s.brand)===norm(p.brand)?1:0;const category=norm(s.category)&&norm(s.category)===norm(p.category)?1:0;const article=norm(s.article_number)&&norm(s.article_number)===norm(p.article_number);let n=article?1:(name*.48+desc*.37+brand*.1+category*.05);if(desc<.28&&name<.8)n*=.72;if(n>score){score=n;best=p}}return best&&score>=.68?{product:best,score:Math.min(score,1)}:null}
+const genericWords=new Set(["barbie","poupee","doll","jouet","toy","enfant","children","kids","girl","fille","garcon","boy","produit","product"]);
+function usefulWords(v:unknown){return new Set([...words(v)].filter(x=>!genericWords.has(x)))}
+function catalogMatch(s:Row,products:Row[]){
+ let best:Row|undefined,score=0;
+ const sn=words(`${s.name_fr||""} ${s.name_en||""}`),sd=words(`${s.description_fr||""} ${s.description_en||""}`),su=usefulWords(`${s.name_fr||""} ${s.name_en||""} ${s.description_fr||""} ${s.description_en||""}`);
+ for(const p of products){
+  const pn=words(`${p.name_fr||""} ${p.name_en||""}`),pd=words(`${p.description_fr||""} ${p.description_en||""}`),pu=usefulWords(`${p.name_fr||""} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""}`);
+  const name=overlap(sn,pn),desc=overlap(sd,pd),distinctive=overlap(su,pu);
+  const brand=norm(s.brand)&&norm(s.brand)===norm(p.brand)?1:0,category=norm(s.category)&&norm(s.category)===norm(p.category)?1:0;
+  const article=norm(s.article_number)&&norm(s.article_number)===norm(p.article_number);
+  let n=article?1:(distinctive*.50+name*.22+desc*.18+brand*.06+category*.04);
+  if(!su.size||!pu.size)n=Math.min(n,.64);
+  if(distinctive===0)n*=.62;
+  if(n>score){score=n;best=p}
+ }
+ return best&&score>=.56?{product:best,score:Math.min(score,1)}:null
+}
 
 export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Market;busy:boolean;onDone:()=>Promise<void>;catalogProducts:Row[]}){
  const[items,setItems]=useState<Item[]>([]);const[working,setWorking]=useState(false);const[standby,setStandby]=useState(true);const[zoomImage,setZoomImage]=useState<string|null>(null);const unique=useMemo(()=>items.filter(i=>!i.duplicate),[items]);
