@@ -42,7 +42,7 @@ export function useAdminData({ market, admin, setAdmin, setNotice, setError }: O
     const results = await Promise.allSettled([
       request("/api/admin/products"),
       request("/api/admin/orders?region=all"),
-      request(`/api/admin/customers?region=${market}`),
+      request("/api/admin/customers"),
       request(`/api/admin/promotions?region=${market}`),
       request("/api/admin/subscribers"),
       request("/api/admin/settings"),
