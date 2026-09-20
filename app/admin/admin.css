@@ -42,3 +42,32 @@
 @media(max-width:620px){.cms-product-image-item{grid-template-columns:72px 1fr}.cms-product-image-item>img{width:72px;height:72px}.cms-product-image-controls{grid-column:1/-1;justify-content:flex-end}.cms-image-remove-button{margin-left:auto}}
 
 .cms-ai-batch{margin:0 0 22px;padding:18px;border:1px solid #dfe8ec;border-radius:12px;background:#f8fbfc}.cms-ai-batch-head{display:flex;align-items:center;justify-content:space-between;gap:18px}.cms-ai-batch-head h3{margin:0 0 6px;font-size:14px}.cms-ai-batch-head p{margin:0;color:#71818a;font-size:10px;line-height:1.5}.cms-ai-file{display:inline-block;white-space:nowrap}.cms-ai-file input{display:none}.cms-ai-summary{margin-top:15px;padding:10px 12px;border-radius:8px;background:#fff;color:#536671;font-size:11px}.cms-ai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:12px}.cms-ai-grid article{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:10px;border:1px solid #e2e9ec;border-radius:9px;background:#fff}.cms-ai-grid article.is-duplicate{opacity:.5}.cms-ai-grid img{width:90px;height:90px;border-radius:7px;object-fit:contain;background:#f5f7f8}.cms-ai-grid article>div{display:grid;gap:6px;min-width:0}.cms-ai-grid strong,.cms-ai-grid span,.cms-ai-grid small{font-size:9px}.cms-ai-grid span,.cms-ai-grid small{color:#71818a}.cms-ai-grid input,.cms-ai-grid select,.cms-ai-grid textarea{width:100%;padding:7px;border:1px solid #dfe6e9;border-radius:6px;font:inherit;font-size:9px}.cms-ai-grid textarea{min-height:58px;resize:vertical}.cms-ai-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:14px}@media(max-width:640px){.cms-ai-batch-head{align-items:stretch;flex-direction:column}.cms-ai-file{text-align:center}.cms-ai-actions{flex-direction:column}.cms-ai-actions button{width:100%}}
+
+
+/* Lisibilite CMS : taille de caracteres augmentee sans modifier la mise en page. */
+.cms-app{font-size:16px}
+.cms-eyebrow{font-size:13px}
+.cms-sidebar nav button{font-size:15px}
+.cms-sidebar nav button>span{font-size:18px}
+.cms-account strong{font-size:15px}.cms-account small{font-size:13px}.cms-account>button{font-size:14px}
+.cms-topbar h1{font-size:30px}.cms-top-actions>a{font-size:14px}.cms-market-switch button{font-size:13px}
+.cms-stat>span{font-size:14px}.cms-stat>strong{font-size:38px}
+.cms-panel h2,.cms-panel-title h2{font-size:19px}.cms-panel-title>button:not(.cms-primary):not(.cms-close){font-size:14px}
+.cms-list-item{font-size:14px}.cms-empty{font-size:14px}
+.cms-table-wrap table{font-size:14px}.cms-table-wrap th{font-size:13px}.cms-table-wrap td small{font-size:12px}
+.cms-status{font-size:12px}.cms-inline{font-size:13px}
+.cms-form>p,.cms-editor-toolbar p,.cms-editor-help{font-size:14px}
+.cms-login-card label,.cms-form label{font-size:14px}
+.cms-login-card>button,.cms-primary,.cms-secondary{font-size:14px}
+.cms-product-actions .cms-secondary{font-size:14px}
+.cms-order-filters select,.cms-order-filters input[type=date]{font-size:14px}
+.cms-product-filters label{font-size:12px}.cms-product-filters select,.cms-product-filters .cms-secondary,.cms-filter-count{font-size:13px}
+.cms-product-tree summary strong,.cms-section-row>strong{font-size:14px}
+.cms-product-tree summary>span:last-child,.cms-section-number,.cms-language-hint,.cms-visibility-toggle{font-size:12px}
+.cms-tree-products article strong{font-size:14px}.cms-tree-products article small{font-size:12px}
+.cms-article-number{font-size:13px}
+.cms-product-images-heading h3{font-size:16px}.cms-product-images-heading p,.cms-product-images-heading>strong{font-size:12px}
+.cms-product-image-meta strong{font-size:14px}.cms-product-image-meta span{font-size:12px}.cms-image-remove-button{font-size:12px}
+.cms-product-images-empty,.cms-ai-summary{font-size:13px}.cms-product-analysis p{font-size:12px}
+.cms-ai-batch-head h3{font-size:17px}.cms-ai-batch-head p{font-size:12px}
+.cms-ai-grid strong,.cms-ai-grid span,.cms-ai-grid small,.cms-ai-grid input,.cms-ai-grid select,.cms-ai-grid textarea{font-size:12px}
