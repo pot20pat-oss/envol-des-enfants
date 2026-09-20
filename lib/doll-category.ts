@@ -11,9 +11,9 @@ export function categorizedMamaProduct<T extends DollProduct>(product: T): T {
 
   const category = String(product.category || "");
   const brand = String(product.brand || "");
-  const correctedImage = String(product.id) === "mama-16"
-    ? "/products/poupees-mama/mama-16.jpg"
-    : product.image_url;
+  // L'image enregistrée dans le CMS est la source de vérité.
+  // Ne jamais la remplacer ici par une ancienne image statique du dépôt.
+  const correctedImage = product.image_url;
 
   if (category === "disney" || category === "barbie") return { ...product, image_url: correctedImage };
 
