@@ -123,7 +123,12 @@ export default function Administration() {
 
       {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
 
-      {section === "subscribers" && <SubscribersSection subscribers={subscribers} />}
+      {section === "subscribers" && <SubscribersSection subscribers={subscribers} remove={(id) => {
+        if (!window.confirm("Supprimer définitivement cet abonné ?")) return;
+        void request(`/api/admin/subscribers?id=${encodeURIComponent(id)}`, { method: "DELETE" })
+          .then(() => load())
+          .catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression impossible."));
+      }} />}
 
       {section === "advisor" && <AiAdvisorSection market={market} products={products} settings={settings} setSettings={setSettings} reload={load} />}
 
