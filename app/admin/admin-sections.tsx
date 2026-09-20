@@ -24,6 +24,27 @@ export function DashboardSection({ stats, products, orders, market, goTo }: {
   </>;
 }
 
+
+export function CustomersSection({ customers, orders, market }: { customers: Row[]; orders: Row[]; market: Market }) {
+  return <section className="cms-panel">
+    <div className="cms-panel-title"><h2>Clients · {markets[market].label}</h2><span>{customers.length} compte{customers.length === 1 ? "" : "s"}</span></div>
+    <div className="cms-table-wrap"><table><thead><tr><th>Client</th><th>Coordonnées</th><th>Adresse</th><th>Commandes</th><th>Inscription</th></tr></thead><tbody>
+      {customers.map((customer) => {
+        const email = String(customer.email || "").toLowerCase();
+        const customerOrders = orders.filter((order) => String(order.customer_email || "").toLowerCase() === email);
+        return <tr key={String(customer.id)}>
+          <td><strong>{String(customer.name || "Sans nom")}</strong><br/><small>{String(customer.email || "")}</small></td>
+          <td>{String(customer.phone || "—")}</td>
+          <td>{String(customer.address || "—")}</td>
+          <td><strong>{Number(customer.order_count || customerOrders.length)}</strong>{customerOrders.length > 0 && <><br/><small>{customerOrders.slice(0, 3).map((order) => String(order.product_name)).join(" · ")}</small></>}</td>
+          <td>{customer.created_at ? new Date(String(customer.created_at)).toLocaleDateString("fr-CA") : "—"}</td>
+        </tr>;
+      })}
+    </tbody></table></div>
+    {!customers.length && <p className="cms-empty">Aucun compte client enregistré pour cette boutique.</p>}
+  </section>;
+}
+
 export function SubscribersSection({ subscribers }: { subscribers: Row[] }) {
   return <section className="cms-panel">
     <div className="cms-panel-title"><h2>Abonnés à l’offre de bienvenue</h2><span>{subscribers.length} inscription{subscribers.length > 1 ? "s" : ""}</span></div>
