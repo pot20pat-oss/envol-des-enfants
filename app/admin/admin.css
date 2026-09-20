@@ -131,3 +131,9 @@
 .cms-ai-existing-match>div{display:grid;gap:5px}.cms-ai-existing-match b{font-size:14px;color:#17364a}.cms-ai-existing-match span{font-size:12px;color:#536671}
 .cms-ai-existing-match .cms-secondary{justify-self:start;margin-top:4px}
 .cms-ai-existing-noimage{display:grid!important;place-items:center;width:150px;height:150px;border-radius:9px;background:#fff;color:#71818a!important}
+
+.cms-ai-match-result{display:block!important;width:100%;min-width:0;margin-top:8px;font-size:14px!important;color:#17364a!important}
+.cms-ai-match-result>strong{display:block!important;margin-bottom:8px;font-size:15px!important;color:#17364a!important}
+.cms-ai-match-result .cms-ai-existing-match{display:grid!important;width:100%!important;min-width:560px!important;grid-template-columns:260px minmax(240px,1fr)!important;opacity:1!important;visibility:visible!important}
+.cms-ai-match-result .cms-ai-existing-match img{display:block!important;width:260px!important;height:260px!important;opacity:1!important;visibility:visible!important}
+.cms-ai-english{display:block!important;margin-top:8px;color:#536671!important}
