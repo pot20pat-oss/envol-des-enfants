@@ -17,7 +17,7 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
   const [promoOpen, setPromoOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [requested, setRequested] = useState(false);
-  const [consent, setConsent] = useState(false);
+  const [consent, setConsent] = useState(false);\n  const [error, setError] = useState("");\n  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (window.sessionStorage.getItem("envol-promo-dismissed") === "yes") return;
@@ -54,5 +54,5 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
     setRequested(true);
   }
 
-  return { promoOpen, email, requested, consent, openPromo, closePromo, setEmail, setConsent, requestDiscount, say };
+  return { promoOpen, email, requested, consent, error, submitting, openPromo, closePromo, setEmail, setConsent, requestDiscount, say };
 }
