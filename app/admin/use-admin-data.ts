@@ -19,7 +19,7 @@ type Options = {
 export function useAdminData({ market, admin, setAdmin, setNotice, setError }: Options) {
   const [checking, setChecking] = useState(true);
   const [products, setProducts] = useState<Row[]>([]);
-  const [orders, setOrders] = useState<Row[]>([]);
+  const [orders, setOrders] = useState<Row[]>([]);\n  const [customers, setCustomers] = useState<Row[]>([]);
   const [promotions, setPromotions] = useState<Row[]>([]);
   const [subscribers, setSubscribers] = useState<Row[]>([]);
   const [movements, setMovements] = useState<Row[]>([]);
@@ -40,7 +40,7 @@ export function useAdminData({ market, admin, setAdmin, setNotice, setError }: O
   const load = useCallback(async () => {
     const results = await Promise.allSettled([
       request("/api/admin/products"),
-      request(`/api/admin/orders?region=${market}`),
+      request(`/api/admin/orders?region=${market}`),\n      request(`/api/admin/customers?region=${market}`),
       request(`/api/admin/promotions?region=${market}`),
       request(`/api/admin/subscribers?region=${market}`),
       request("/api/admin/settings"),
