@@ -54,7 +54,17 @@ export async function POST(request: Request) {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const productName = items.map((item) => `${item.quantity}× ${item.name}`).join(" · ");
-  await database.prepare("INSERT INTO orders (id,customer_name,customer_phone,product_name,quantity,total,status,notes,region,currency,delivery_zone,customer_email,delivery_address,items_json,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-    .bind(id, data.customer_name, data.customer_phone, productName, items.reduce((sum, item) => sum + item.quantity, 0), total, "new", stringValue(data.notes), region, region === "qc" ? "CAD" : "GNF", data.delivery_address, stringValue(data.customer_email) || null, data.delivery_address, JSON.stringify(items), "storefront", now, now).run();
+  const stockColumn = region === "qc" ? "stock_qc" : "stock_conakry";
+  const statements = [
+    database.prepare("INSERT INTO orders (id,customer_name,customer_phone,product_name,quantity,total,status,notes,region,currency,delivery_zone,customer_email,delivery_address,items_json,source,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+      .bind(id, data.customer_name, data.customer_phone, productName, items.reduce((sum, item) => sum + item.quantity, 0), total, "new", stringValue(data.notes), region, region === "qc" ? "CAD" : "GNF", data.delivery_address, stringValue(data.customer_email) || null, data.delivery_address, JSON.stringify(items), "storefront", now, now),
+    ...items.map((item) => database.prepare(`UPDATE products SET ${stockColumn} = ${stockColumn} - ?, updated_at=? WHERE id=? AND ${stockColumn} >= ?`)
+      .bind(item.quantity, now, item.product_id, item.quantity)),
+  ];
+  const batchResults = await database.batch(statements);
+  if (batchResults.slice(1).some((result) => Number(result.meta?.changes || 0) !== 1)) {
+    await database.prepare("DELETE FROM orders WHERE id=?").bind(id).run();
+    return Response.json({ error: "Le stock a changé pendant la commande. Veuillez vérifier le panier." }, { status: 409 });
+  }
   return Response.json({ id, total, status: "new" }, { status: 201 });
 }
