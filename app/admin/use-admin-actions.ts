@@ -88,7 +88,7 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => window.scrollTo({ top: scrollPosition, behavior: "instant" }));
       });
-      flash("Modifications enregistrées.");
+      flash(editingType === "product" ? "Produit enregistré et publié dans la boutique." : "Modifications enregistrées.");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Enregistrement impossible.");
     } finally {
