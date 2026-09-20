@@ -142,6 +142,8 @@ export const categories: Record<string, string> = {
   serre_tetes: "13.8 Serre-têtes",
   sacs_accessoires: "13.9 Sacs & accessoires",
 
+  masque: "Masqué — recherche seulement",
+
   soldes: "14. SOLDES",
   promotions_produits: "14.1 Tous les produits en promotion",
   reduction: "14.2 Pourcentage de réduction",
