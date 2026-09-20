@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { categories, request, type Row } from "./admin-shared";
 import type { Market } from "@/lib/markets";
 
-type Item={id:string;file:File;preview:string;hash:string;visualHash:string;duplicate:boolean;duplicateKind?:"exact"|"visual";url?:string;suggestion?:Row;group?:string;catalogMatch?:Row;catalogScore?:number;state:"ready"|"uploading"|"analyzing"|"done"|"error";error?:string};
+type Item={id:string;file:File;preview:string;hash:string;visualHash:string;duplicate:boolean;duplicateKind?:"exact"|"visual";url?:string;suggestion?:Row;group?:string;catalogMatch?:Row;catalogScore?:number;matchRejected?:boolean;matchAccepted?:boolean;state:"ready"|"uploading"|"analyzing"|"done"|"error";error?:string};
 
 async function sha256(file:File){const d=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 async function visualHash(file:File){const bitmap=await createImageBitmap(file);const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;const ctx=canvas.getContext("2d")!;ctx.drawImage(bitmap,0,0,16,16);bitmap.close();const data=ctx.getImageData(0,0,16,16).data;const lum:number[]=[];for(let i=0;i<data.length;i+=4)lum.push(Math.round(data[i]*.299+data[i+1]*.587+data[i+2]*.114));const avg=lum.reduce((a,b)=>a+b,0)/lum.length;return lum.map(v=>v>=avg?"1":"0").join("")}
@@ -31,7 +31,7 @@ function productSimilarity(a:Row,b:Row){const aw=words(`${a.name_fr||""} ${a.nam
 function regroup(items:Item[]){const done=items.filter(x=>x.state==="done"&&x.suggestion&&!x.duplicate);const assigned=new Set<string>();const groups=new Map<string,string>();for(const a of done){if(assigned.has(a.id))continue;const gid=a.id;groups.set(a.id,gid);assigned.add(a.id);for(const b of done){if(assigned.has(b.id)||a.id===b.id)continue;const score=productSimilarity(a.suggestion!,b.suggestion!);if(score>=.62){groups.set(b.id,gid);assigned.add(b.id)}}}return items.map(x=>groups.has(x.id)?{...x,group:groups.get(x.id)}:x)}
 function words(v:unknown){return new Set(norm(v).split(" ").filter(x=>x.length>2))}
 function overlap(a:Set<string>,b:Set<string>){if(!a.size||!b.size)return 0;let same=0;for(const x of a)if(b.has(x))same++;return same/Math.min(a.size,b.size)}
-function catalogMatch(s:Row,products:Row[]){let best:Row|undefined,score=0;const sw=words(`${s.name_fr||""} ${s.name_en||""} ${s.brand||""}`);for(const p of products){const pw=words(`${p.name_fr||""} ${p.name_en||""} ${p.brand||""}`);let n=overlap(sw,pw);if(norm(s.brand)&&norm(s.brand)===norm(p.brand))n+=.2;if(norm(s.category)&&norm(s.category)===norm(p.category))n+=.1;if(n>score){score=n;best=p}}return score>=.58?{product:best!,score:Math.min(score,1)}:null}
+function catalogMatch(s:Row,products:Row[]){let best:Row|undefined,score=0;const sn=words(`${s.name_fr||""} ${s.name_en||""}`),sd=words(`${s.description_fr||""} ${s.description_en||""}`);for(const p of products){const pn=words(`${p.name_fr||""} ${p.name_en||""}`),pd=words(`${p.description_fr||""} ${p.description_en||""}`);const name=overlap(sn,pn),desc=overlap(sd,pd);const brand=norm(s.brand)&&norm(s.brand)===norm(p.brand)?1:0;const category=norm(s.category)&&norm(s.category)===norm(p.category)?1:0;const article=norm(s.article_number)&&norm(s.article_number)===norm(p.article_number);let n=article?1:(name*.48+desc*.37+brand*.1+category*.05);if(desc<.28&&name<.8)n*=.72;if(n>score){score=n;best=p}}return best&&score>=.68?{product:best,score:Math.min(score,1)}:null}
 
 export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Market;busy:boolean;onDone:()=>Promise<void>;catalogProducts:Row[]}){
  const[items,setItems]=useState<Item[]>([]);const[working,setWorking]=useState(false);const[standby,setStandby]=useState(true);const[zoomImage,setZoomImage]=useState<string|null>(null);const unique=useMemo(()=>items.filter(i=>!i.duplicate),[items]);
@@ -41,7 +41,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
  function removeItem(id:string){setItems(a=>{const item=a.find(x=>x.id===id);if(item?.preview)URL.revokeObjectURL(item.preview);return a.filter(x=>x.id!==id)})}
  function cancelBatch(){if(!window.confirm("Annuler cette analyse et retirer toutes les photos sélectionnées ?"))return;items.forEach(item=>URL.revokeObjectURL(item.preview));setItems([])}
- async function createAll(){setWorking(true);try{const done=items.filter(x=>!x.duplicate&&!x.catalogMatch&&x.state==="done"&&x.suggestion&&x.url);const groups=new Map<string,Item[]>();for(const item of done){const key=item.group||item.id;groups.set(key,[...(groups.get(key)||[]),item])}for(const group of groups.values()){const first=group[0];const existing=group.find(x=>x.catalogMatch)?.catalogMatch;const urls=group.map(x=>x.url!).filter(Boolean);if(existing){continue}await request("/api/admin/products",{method:"POST",body:JSON.stringify({...first.suggestion,image_url:urls[0],images_json:JSON.stringify(urls.slice(1)),price_qc:0,price_conakry:0,stock_qc:0,stock_conakry:0,visible_qc:!standby&&market==="qc",visible_conakry:!standby&&market==="conakry",status:"available"})})}await onDone();setItems([])}finally{setWorking(false)}}
+ async function createAll(){setWorking(true);try{const done=items.filter(x=>!x.duplicate&&(!x.catalogMatch||x.matchRejected)&&x.state==="done"&&x.suggestion&&x.url);const groups=new Map<string,Item[]>();for(const item of done){const key=item.group||item.id;groups.set(key,[...(groups.get(key)||[]),item])}for(const group of groups.values()){const first=group[0];const existing=group.find(x=>x.catalogMatch&&!x.matchRejected)?.catalogMatch;const urls=group.map(x=>x.url!).filter(Boolean);if(existing){continue}await request("/api/admin/products",{method:"POST",body:JSON.stringify({...first.suggestion,image_url:urls[0],images_json:JSON.stringify(urls.slice(1)),price_qc:0,price_conakry:0,stock_qc:0,stock_conakry:0,visible_qc:!standby&&market==="qc",visible_conakry:!standby&&market==="conakry",status:"available"})})}await onDone();setItems([])}finally{setWorking(false)}}
  const duplicates=items.filter(i=>i.duplicate).length,ready=items.filter(i=>!i.duplicate&&i.state==="done").length,groups=new Set(items.filter(i=>i.group).map(i=>i.group)).size;
  return <section className="cms-ai-batch">
   <div className="cms-ai-batch-head">
@@ -61,8 +61,8 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
             <input value={String(item.suggestion.name_fr||"")} onChange={e=>update(item.id,"name_fr",e.target.value)}/>
             <select value={String(item.suggestion.category||"eveil")} onChange={e=>update(item.id,"category",e.target.value)}>{Object.entries(categories).map(([v,l])=><option value={v} key={v}>{l}</option>)}</select>
             <textarea value={String(item.suggestion.description_fr||"")} onChange={e=>update(item.id,"description_fr",e.target.value)}/>
-            {item.catalogMatch?<section style={{display:"grid",gridTemplateColumns:"320px minmax(0,1fr)",gap:20,padding:18,marginTop:6,border:"3px solid #5b9fc7",borderRadius:12,background:"#eef7fc"}}>
-              <button type="button" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))} style={{width:320,height:320,padding:0,border:"1px solid #bdd5e3",borderRadius:10,background:"#fff",overflow:"hidden",cursor:"zoom-in"}}>
+            {item.catalogMatch?<section style={{display:"grid",gridTemplateColumns:"300px minmax(0,1fr)",gap:24,alignItems:"start",padding:20,marginTop:6,border:"3px solid #5b9fc7",borderRadius:12,background:"#eef7fc"}}>
+              <button type="button" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))} style={{width:300,height:300,padding:0,border:"1px solid #bdd5e3",borderRadius:10,background:"#fff",overflow:"hidden",cursor:"zoom-in"}}>
                 {item.catalogMatch.image_url?<img src={String(item.catalogMatch.image_url)} alt="Produit déjà présent" style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}}/>:<span>Aucune image existante</span>}
               </button>
               <div style={{display:"grid",alignContent:"center",gap:10,fontSize:15,color:"#17364a"}}>
@@ -73,7 +73,13 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 <span>{categories[String(item.catalogMatch.category)]||String(item.catalogMatch.category||"")}</span>
                 <span>Boutique : {item.catalogMatch.visible_qc?"Québec ":""}{item.catalogMatch.visible_conakry?"Conakry":""}</span>
                 <span>Confiance : {Math.round((item.catalogScore||0)*100)} %</span>
-                <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir le produit existant en grand</button>
+                <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:8}}>
+                  <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir en grand</button>
+                  <button type="button" className="cms-secondary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchAccepted:true,matchRejected:false}:x))}>✓ C’est le même produit</button>
+                  <button type="button" className="cms-danger" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchRejected:true,matchAccepted:false}:x))}>✕ Ce n’est PAS le même produit</button>
+                </div>
+                {item.matchRejected&&<strong style={{color:"#a33"}}>Correspondance refusée — cette photo pourra être créée comme nouveau produit.</strong>}
+                {item.matchAccepted&&<strong>Correspondance confirmée manuellement.</strong>}
               </div>
             </section>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
             <span>EN : {String(item.suggestion.description_en||"")}</span>
