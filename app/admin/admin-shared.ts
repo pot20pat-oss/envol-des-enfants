@@ -181,7 +181,27 @@ export async function request(path: string, options: RequestInit = {}): Promise<
     ...options,
     headers: options.body instanceof FormData ? options.headers : { "Content-Type": "application/json", ...options.headers },
   });
-  const result = (await response.json()) as Record<string, unknown>;
-  if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "Une erreur est survenue.");
+  const raw = await response.text();
+  let result: Record<string, unknown> = {};
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) result = parsed as Record<string, unknown>;
+    } catch {
+      if (!response.ok) {
+        const friendly = response.status === 413
+          ? "Image trop volumineuse pour le serveur. Réduisez la taille du fichier puis réessayez."
+          : `Erreur du serveur (HTTP ${response.status}).`;
+        throw new Error(friendly);
+      }
+      throw new Error("Le serveur a retourné une réponse invalide.");
+    }
+  }
+  if (!response.ok) {
+    const friendly = response.status === 413
+      ? "Image trop volumineuse pour le serveur. Réduisez la taille du fichier puis réessayez."
+      : typeof result.error === "string" ? result.error : `Erreur du serveur (HTTP ${response.status}).`;
+    throw new Error(friendly);
+  }
   return result;
 }
