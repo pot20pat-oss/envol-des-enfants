@@ -58,3 +58,21 @@ export async function POST(request: Request) {
   }
   return Response.json({ id });
 }
+
+
+export async function DELETE(request: Request) {
+  if (!await currentAdmin(request)) return forbidden();
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) return Response.json({ error: "Commande invalide." }, { status: 400 });
+  const database = cmsEnv().DB;
+  const order = await database.prepare("SELECT id,status,region,items_json FROM orders WHERE id=?").bind(id).first<Record<string, unknown>>();
+  if (!order) return Response.json({ error: "Commande introuvable." }, { status: 404 });
+
+  // Une commande active doit d'abord être annulée afin que le stock soit restauré
+  // par le flux normal d'annulation avant sa suppression définitive.
+  if (stringValue(order.status) !== "cancelled") {
+    return Response.json({ error: "Annulez d’abord la commande avant de la supprimer afin de conserver un inventaire exact." }, { status: 409 });
+  }
+  await database.prepare("DELETE FROM orders WHERE id=?").bind(id).run();
+  return Response.json({ ok: true });
+}
