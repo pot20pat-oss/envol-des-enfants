@@ -31,7 +31,10 @@ export async function POST(request: Request) {
 
   const database = cmsEnv().DB;
   const nextArticleNumber = await createArticleNumberGenerator(database);
-  const existing = await database.prepare("SELECT id,name_fr,article_number,category FROM products").all<{ id: string; name_fr: string; article_number?: string; category: string }>();
+  const existing = await database.prepare("SELECT id,name_fr,name_en,article_number,category FROM products").all<{ id: string; name_fr: string; name_en: string; article_number?: string; category: string }>();
+  const deletedRows = await database.prepare("SELECT value FROM settings WHERE key LIKE 'deleted_product:%'").all<{value:string}>();
+  const deletedNames = new Set<string>();
+  for (const row of deletedRows.results) { try { const v=JSON.parse(row.value); if(v.name_fr)deletedNames.add(String(v.name_fr).trim().toLocaleLowerCase("fr")); if(v.name_en)deletedNames.add(String(v.name_en).trim().toLocaleLowerCase("en")); } catch {} }
   const productsByName = new Map(existing.results.map((product) => [product.name_fr.trim().toLocaleLowerCase("fr"), product]));
   const statements = [];
   let imported = 0;
@@ -57,6 +60,8 @@ export async function POST(request: Request) {
     const frenchName = stringValue(name.fr).trim();
     if (!frenchName) continue;
     const normalizedName = frenchName.toLocaleLowerCase("fr");
+    const englishName = stringValue(name.en).trim().toLocaleLowerCase("en");
+    if (deletedNames.has(normalizedName) || (englishName && deletedNames.has(englishName))) continue;
 
     const status = stringValue(product.status, "available");
     const defaultStock = status === "sold" ? 0 : 1;
