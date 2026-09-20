@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { DashboardSection, SettingsSection, SubscribersSection } from "./admin-sections";
+import { CustomersSection, DashboardSection, SettingsSection, SubscribersSection } from "./admin-sections";
 import { ProductsSection } from "./admin-products-section";
 import { StockSection } from "./admin-stock-section";
 import { OrdersSection } from "./admin-orders-section";
@@ -54,7 +54,7 @@ export default function Administration() {
   } = useAdminUiState();
 
   const {
-    checking, products, orders, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,
+    checking, products, orders, customers, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,
     setVersions, setSettings, setSiteSections, setSiteTexts,
   } = useAdminData({ market, admin, setAdmin, setNotice, setError });
 
@@ -105,7 +105,7 @@ export default function Administration() {
 
       {section === "orders" && (<OrdersSection orders={filteredOrders} market={market} search={search} setSearch={setSearch} status={orderStatus} setStatus={setOrderStatus} date={orderDate} setDate={setOrderDate} exportOrders={() => exportOrders(filteredOrders)} add={addOrder} edit={editOrder} />)}
 
-      {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
+      {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} />}\n\n      {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
 
       {section === "subscribers" && <SubscribersSection subscribers={subscribers} />}
 
