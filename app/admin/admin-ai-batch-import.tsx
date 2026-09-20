@@ -82,13 +82,13 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 {item.catalogMatch.image_url?<img src={String(item.catalogMatch.image_url)} alt="Produit déjà présent" style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}}/>:<span>Aucune image existante</span>}
               </button>
               <div style={{display:"grid",alignContent:"center",gap:10,fontSize:15,color:"#17364a"}}>
-                <strong style={{fontSize:20}}>DÉJÀ SUR LE SITE</strong>
+                <strong style={{fontSize:20}}>{(item.catalogScore||0)>=.85?"DOUBLON TRÈS PROBABLE":(item.catalogScore||0)>=.60?"PRODUIT SIMILAIRE TROUVÉ — À VÉRIFIER":"CORRESPONDANCE POSSIBLE — À VÉRIFIER"}</strong>
                 <b style={{fontSize:18}}>{String(item.catalogMatch.name_fr||"Produit existant")}</b>
                 <span>{String(item.catalogMatch.name_en||"")}</span>
                 <span><b>No {String(item.catalogMatch.article_number||"—")}</b></span>
                 <span>{categories[String(item.catalogMatch.category)]||String(item.catalogMatch.category||"")}</span>
                 <span>Boutique : {item.catalogMatch.visible_qc?"Québec ":""}{item.catalogMatch.visible_conakry?"Conakry":""}</span>
-                <span>Confiance : {Math.round((item.catalogScore||0)*100)} %</span>
+                <span>Confiance : {Math.round((item.catalogScore||0)*100)} % · {(item.catalogScore||0)>=.85?"forte":(item.catalogScore||0)>=.60?"moyenne":"faible"}</span>
                 <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:8}}>
                   <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir en grand</button>
                   <button type="button" className="cms-secondary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchAccepted:true,matchRejected:false}:x))}>✓ C’est le même produit</button>
