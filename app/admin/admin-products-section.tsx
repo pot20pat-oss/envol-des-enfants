@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { marketPrice, markets, type Market } from "@/lib/markets";
 import { categories, request, type Row } from "./admin-shared";
@@ -12,8 +12,52 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
 }) {
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [visibilityBusy, setVisibilityBusy] = useState<string | null>(null);
+  const [backgroundFilter, setBackgroundFilter] = useState<"all" | "nonwhite">("all");
+  const [nonWhiteBackgroundIds, setNonWhiteBackgroundIds] = useState<Set<string>>(new Set());
+  const [backgroundScanBusy, setBackgroundScanBusy] = useState(false);
   const setProductBoutique = async (product: Row, availability: string) => { const id=String(product.id||""); if(!id)return; setVisibilityBusy(id); try { const visible_qc=availability==="qc"||availability==="both"; const visible_conakry=availability==="conakry"||availability==="both"; await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...product,visible_qc,visible_conakry,visible:visible_qc||visible_conakry})}); await reload(); } finally { setVisibilityBusy(null); } };
-  const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
+  useEffect(() => {
+    if (backgroundFilter !== "nonwhite") return;
+    let cancelled = false;
+    setBackgroundScanBusy(true);
+    const scan = async () => {
+      const detected = new Set<string>();
+      const candidates = catalogProducts.filter((product) => product.image_url);
+      await Promise.all(candidates.map((product) => new Promise<void>((resolve) => {
+        const image = new Image();
+        image.crossOrigin = "anonymous";
+        image.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            const size = 48;
+            canvas.width = size; canvas.height = size;
+            const context = canvas.getContext("2d", { willReadFrequently: true });
+            if (!context) return resolve();
+            context.drawImage(image, 0, 0, size, size);
+            const data = context.getImageData(0, 0, size, size).data;
+            let tested = 0, nonWhite = 0;
+            for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+              if (x > 7 && x < size - 8 && y > 7 && y < size - 8) continue;
+              const i = (y * size + x) * 4;
+              if (data[i + 3] < 20) continue;
+              tested++;
+              if (data[i] < 238 || data[i + 1] < 238 || data[i + 2] < 238) nonWhite++;
+            }
+            if (tested && nonWhite / tested > 0.12) detected.add(String(product.id));
+          } catch {}
+          resolve();
+        };
+        image.onerror = () => resolve();
+        image.src = String(product.image_url);
+      })));
+      if (!cancelled) { setNonWhiteBackgroundIds(detected); setBackgroundScanBusy(false); }
+    };
+    void scan();
+    return () => { cancelled = true; };
+  }, [backgroundFilter, catalogProducts]);
+
+  const visibleProducts = backgroundFilter === "nonwhite" ? products.filter((product) => nonWhiteBackgroundIds.has(String(product.id))) : products;
+  const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); setBackgroundFilter("all"); };
   return <section className="cms-panel">
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} />
     <div className="cms-panel-title"><input className="cms-search" placeholder="Nom, marque ou numéro d’article…" value={search} onChange={(event) => setSearch(event.target.value)} /><div className="cms-product-actions"><button className="cms-secondary" disabled={busy} onClick={synchronize}>↻ Synchroniser la boutique</button><button className="cms-primary" onClick={add}>+ Ajouter manuellement</button></div></div>
@@ -21,10 +65,11 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       <label>Catégorie<select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">Toutes les catégories</option>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
       <label>Visibilité<select value={visibility} onChange={(event) => setVisibility(event.target.value)}><option value="all">Tous</option><option value="visible">Visibles</option><option value="hidden">Masqués</option><option value="qc">Québec seulement</option><option value="conakry">Conakry seulement</option><option value="both">Québec + Conakry</option></select></label>
       <label>Stock<select value={stock} onChange={(event) => setStock(event.target.value)}><option value="all">Tous</option><option value="available">En stock</option><option value="low">Stock faible</option><option value="empty">Épuisés</option></select></label>
-      <span className="cms-filter-count">{products.length} résultat(s)</span><button type="button" className="cms-secondary" onClick={reset}>Réinitialiser</button>
+      <label>Fond photo<select value={backgroundFilter} onChange={(event) => setBackgroundFilter(event.target.value as "all" | "nonwhite")}><option value="all">Tous les fonds</option><option value="nonwhite">⚠ Fond pas blanc</option></select></label>
+      <span className="cms-filter-count">{backgroundScanBusy ? "Analyse des fonds…" : `${visibleProducts.length} résultat(s)`}</span><button type="button" className="cms-secondary" onClick={reset}>Réinitialiser</button>
     </div>
     <div style={{display:"grid",gap:18,marginTop:20}}>
-      {products.map((product) => <article key={String(product.id)} style={{display:"grid",gridTemplateColumns:"360px minmax(300px,1fr) auto",gap:24,alignItems:"center",padding:18,border:"1px solid #dce6eb",borderRadius:14,background:"#fff"}}>
+      {visibleProducts.map((product) => <article key={String(product.id)} style={{display:"grid",gridTemplateColumns:"360px minmax(300px,1fr) auto",gap:24,alignItems:"center",padding:18,border:"1px solid #dce6eb",borderRadius:14,background:"#fff"}}>
         <button type="button" onClick={() => product.image_url && setZoomImage(String(product.image_url))} title="Agrandir l’image" style={{width:360,height:360,padding:0,border:"1px solid #dfe7ea",borderRadius:12,background:"#fff",overflow:"hidden",cursor:product.image_url?"zoom-in":"default"}}>
           {product.image_url ? <img src={String(product.image_url)} alt={String(product.name_fr||"")} style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}} /> : <span style={{fontSize:48,color:"#9aa8ae"}}>□</span>}
         </button>
@@ -43,7 +88,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         </div>
       </article>)}
     </div>
-    {!products.length && <p className="cms-empty">Aucun produit trouvé.</p>}
+    {!visibleProducts.length && !backgroundScanBusy && <p className="cms-empty">Aucun produit trouvé.</p>}
     {zoomImage && createPortal(<div style={{position:"fixed",inset:0,zIndex:99999,display:"grid",placeItems:"center",padding:20,background:"rgba(11,23,36,.94)"}} role="dialog" aria-modal="true" onClick={() => setZoomImage(null)}><button type="button" onClick={() => setZoomImage(null)} style={{position:"fixed",top:20,right:24,width:52,height:52,border:0,borderRadius:"50%",background:"#fff",fontSize:32,cursor:"pointer"}}>×</button><img src={zoomImage} alt="Aperçu agrandi" style={{maxWidth:"96vw",maxHeight:"94vh",width:"auto",height:"auto",objectFit:"contain",background:"#fff"}} onClick={(event) => event.stopPropagation()} /></div>, document.body)}
   </section>;
 }
