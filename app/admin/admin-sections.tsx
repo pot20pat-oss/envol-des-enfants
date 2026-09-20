@@ -28,7 +28,7 @@ export function DashboardSection({ stats, products, orders, market, goTo }: {
 export function CustomersSection({ customers, orders, market }: { customers: Row[]; orders: Row[]; market: Market }) {
   return <section className="cms-panel">
     <div className="cms-panel-title"><h2>Tous les clients</h2><span>{customers.length} compte{customers.length === 1 ? "" : "s"}</span></div>
-    <div className="cms-table-wrap"><table><thead><tr><th>Client</th><th>Boutique</th><th>Coordonnées</th><th>Adresse</th><th>Commandes</th><th>Inscription</th></tr></thead><tbody>
+    <div className="cms-table-wrap"><table><thead><tr><th>Client</th><th>Boutique</th><th>Coordonnées</th><th>Adresse</th><th>Commandes</th><th>Inscription</th><th>Action</th></tr></thead><tbody>
       {customers.map((customer) => {
         const email = String(customer.email || "").toLowerCase();
         const customerOrders = orders.filter((order) => String(order.customer_email || "").toLowerCase() === email);
@@ -45,11 +45,11 @@ export function CustomersSection({ customers, orders, market }: { customers: Row
   </section>;
 }
 
-export function SubscribersSection({ subscribers }: { subscribers: Row[] }) {
+export function SubscribersSection({ subscribers, remove }: { subscribers: Row[]; remove: (id: string) => void }) {
   return <section className="cms-panel">
     <div className="cms-panel-title"><h2>Abonnés à l’offre de bienvenue</h2><span>{subscribers.length} inscription{subscribers.length > 1 ? "s" : ""}</span></div>
     <div className="cms-table-wrap"><table><thead><tr><th>Adresse courriel</th><th>Langue</th><th>Consentement</th><th>Inscription</th></tr></thead><tbody>
-      {subscribers.map((subscriber) => <tr key={String(subscriber.id)}><td><strong>{String(subscriber.email)}</strong></td><td>{String(subscriber.language).toUpperCase()}</td><td>{subscriber.consent ? "✓ Confirmé" : "Non"}</td><td>{new Date(String(subscriber.created_at)).toLocaleDateString("fr-CA")}</td></tr>)}
+      {subscribers.map((subscriber) => <tr key={String(subscriber.id)}><td><strong>{String(subscriber.email)}</strong></td><td>{String(subscriber.language).toUpperCase()}</td><td>{subscriber.consent ? "✓ Confirmé" : "Non"}</td><td>{new Date(String(subscriber.created_at)).toLocaleDateString("fr-CA")}</td><td><button type="button" className="cms-danger" onClick={() => remove(String(subscriber.id))}>Supprimer</button></td></tr>)}
     </tbody></table></div>
     {!subscribers.length && <p className="cms-empty">Les nouvelles inscriptions apparaîtront ici.</p>}
   </section>;
