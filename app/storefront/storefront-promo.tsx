@@ -9,7 +9,7 @@ type Props = {
   email: string;
   requested: boolean;
   consent: boolean;
-  discount: number;
+  discount: number;\n  error: string;\n  submitting: boolean;
   say: Say;
   onClose: () => void;
   onEmailChange: (value: string) => void;
@@ -17,7 +17,7 @@ type Props = {
   onSubmit: () => Promise<void>;
 };
 
-export default function StorefrontPromo({ open, email, requested, consent, discount, say, onClose, onEmailChange, onConsentChange, onSubmit }: Props) {
+export default function StorefrontPromo({ open, email, requested, consent, discount, error, submitting, say, onClose, onEmailChange, onConsentChange, onSubmit }: Props) {
   if (!open) return null;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -66,10 +66,10 @@ export default function StorefrontPromo({ open, email, requested, consent, disco
                   onChange={(event) => onEmailChange(event.target.value)}
                   required
                 />
-                <button className="promo-submit promo-submit-new" type="submit">{say("Je m’abonne", "Subscribe")}</button>
+                <button className="promo-submit promo-submit-new" type="submit" disabled={submitting}>{submitting ? say("Inscription…", "Subscribing…") : say("Je m’abonne", "Subscribe")}</button>
               </div>
 
-              <label className="promo-consent">
+              {error && <p className="promo-error">{error}</p>}\n              <label className="promo-consent">
                 <input type="checkbox" checked={consent} onChange={(event) => onConsentChange(event.target.checked)} required />
                 <span>{say("J’accepte de recevoir des nouvelles et des offres d’Envol des Enfants.", "I agree to receive news and offers from Envol des Enfants.")}</span>
               </label>
