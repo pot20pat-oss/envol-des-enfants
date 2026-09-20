@@ -14,13 +14,6 @@ export async function GET(request: Request) {
     const visibility = region === "qc" ? "visible_qc" : "visible_conakry";
     const database = cmsEnv().DB;
 
-    // L'import automatique ne doit jamais empêcher l'affichage des produits déjà présents.
-    try {
-      await ensureArchiveProducts(database);
-    } catch (error) {
-      console.error("Automatic product import failed; serving existing catalog instead.", error);
-    }
-
     const { results } = await database.prepare(`SELECT * FROM products WHERE ${visibility}=1 ORDER BY featured DESC,updated_at DESC`).all<Record<string, unknown>>();
     const settings = await database.prepare("SELECT key,value FROM settings").all<{ key: string; value: string }>();
     const promotions = await database.prepare("SELECT * FROM promotions WHERE active=1 AND (region=? OR region='both') AND (starts_at IS NULL OR starts_at<=?) AND (ends_at IS NULL OR ends_at>=?) ORDER BY created_at DESC")
