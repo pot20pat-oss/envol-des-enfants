@@ -93,8 +93,20 @@ export default function Administration() {
 
   const { regionalProducts, filteredProducts: filtered, filteredOrders, lowStock, stats } = deriveAdminLists({ products, orders, subscribers, market, search, productCategory, productVisibility, productStock, orderStatus, orderDate });
 
+  const notificationCount = products.filter((product) => {
+    const visible = Boolean(product[`visible_${market}`]);
+    return Number(product[`price_${market}`] || 0) <= 0
+      || !String(product.description_fr || "").trim()
+      || !String(product.description_en || "").trim()
+      || !String(product.image_url || "").trim()
+      || !String(product.name_fr || "").trim()
+      || !String(product.name_en || "").trim()
+      || !String(product.category || "").trim()
+      || (visible && Number(product[`stock_${market}`] || 0) <= 0);
+  }).length;
+
   return (
-    <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} onSection={(next) => { changeSection(next); setError(""); }} onMarket={setMarket} signOut={() => void signOut()}>
+    <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} notificationCount={notificationCount} onSection={(next) => { changeSection(next); setError(""); }} onMarket={setMarket} signOut={() => void signOut()}>
       {section === "editor" && (<SiteEditor market={market} busy={busy} sections={siteSections} setSections={setSiteSections} texts={siteTexts} setTexts={setSiteTexts} draggedSection={draggedSection} setDraggedSection={setDraggedSection} moveSection={(id, nextIndex) => moveSection(setSiteSections, id, nextIndex)} versions={versions} restoreVersion={(version) => restoreVersion(version, setSiteSections, setSiteTexts)} save={(event) => void saveSiteEditor(event, siteSections, siteTexts, setSettings, setVersions)} />)}
 
       {section === "dashboard" && (
