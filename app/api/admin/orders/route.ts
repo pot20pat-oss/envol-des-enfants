@@ -20,7 +20,7 @@ const orderSchema = v.looseObject({
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   const region = new URL(request.url).searchParams.get("region");
-  const { results } = region ? await cmsEnv().DB.prepare("SELECT * FROM orders WHERE region=? ORDER BY created_at DESC").bind(normalizeMarket(region)).all() : await cmsEnv().DB.prepare("SELECT * FROM orders ORDER BY created_at DESC").all();
+  const { results } = region === "all" || !region ? await cmsEnv().DB.prepare("SELECT * FROM orders ORDER BY created_at DESC").all() : await cmsEnv().DB.prepare("SELECT * FROM orders WHERE region=? ORDER BY created_at DESC").bind(normalizeMarket(region)).all();
   return Response.json({ orders: results });
 }
 
