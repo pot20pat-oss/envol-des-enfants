@@ -105,7 +105,9 @@ export default function Administration() {
 
       {section === "orders" && (<OrdersSection orders={filteredOrders} market={market} search={search} setSearch={setSearch} status={orderStatus} setStatus={setOrderStatus} date={orderDate} setDate={setOrderDate} exportOrders={() => exportOrders(filteredOrders)} add={addOrder} edit={editOrder} />)}
 
-      {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} />}\n\n      {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
+      {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} />}
+
+      {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
 
       {section === "subscribers" && <SubscribersSection subscribers={subscribers} />}
 
