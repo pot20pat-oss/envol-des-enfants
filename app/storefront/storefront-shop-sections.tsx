@@ -1,13 +1,11 @@
 "use client";
 
-import type { Product } from "@/lib/default-catalog";
 import type { Market } from "@/lib/markets";
 
 type Props = {
   market: Market;
   say: (french: string, english: string) => string;
   mode?: "all" | "categories" | "content";
-  products?: Product[];
 };
 
 const categories = [
@@ -29,16 +27,15 @@ const worlds = [
   { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/products/barbie/barbie-08.webp", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
 ];
 
-export default function StorefrontShopSections({ market, say, mode = "all", products = [] }: Props) {
+export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
-  const productImage = (index: number, fallback: string) => products[index]?.imageUrl || fallback;
   const ageGroups = [
-    { fr: "0–12 mois", en: "0–12 months", image: productImage(0, "/products/mama3/mama3-01.jpg"), age: "0-12-mois", tone: "pink" },
-    { fr: "1–2 ans", en: "1–2 years", image: productImage(1, "/products/mama3/mama3-02.jpg"), age: "1-2-ans", tone: "lilac" },
-    { fr: "3–5 ans", en: "3–5 years", image: productImage(2, "/products/mama3/mama3-03.jpg"), age: "3-5-ans", tone: "yellow" },
-    { fr: "6–8 ans", en: "6–8 years", image: productImage(3, "/products/archive-complements/vtt-utv-rouge.webp"), age: "6-8-ans", tone: "blue" },
-    { fr: "9–12 ans", en: "9–12 years", image: productImage(4, "/products/barbie/barbie-08.webp"), age: "9-12-ans", tone: "green" },
-    { fr: "12 ans et +", en: "12 years +", image: productImage(5, "/category-buttons/scolaire.png"), age: "12-plus", tone: "rose" },
+    { fr: "0–12 mois", en: "0–12 months", image: "/age-buttons/0-12-mois.png", age: "0-12-mois", tone: "pink" },
+    { fr: "1–2 ans", en: "1–2 years", image: "/age-buttons/1-2-ans.png", age: "1-2-ans", tone: "lilac" },
+    { fr: "3–5 ans", en: "3–5 years", image: "/age-buttons/3-5-ans.png", age: "3-5-ans", tone: "yellow" },
+    { fr: "6–8 ans", en: "6–8 years", image: "/age-buttons/6-8-ans.png", age: "6-8-ans", tone: "blue" },
+    { fr: "9–12 ans", en: "9–12 years", image: "/age-buttons/9-12-ans.png", age: "9-12-ans", tone: "green" },
+    { fr: "12 ans et +", en: "12 years +", image: "/age-buttons/12-plus.png", age: "12-plus", tone: "rose" },
   ];
   const categorySection = (
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
