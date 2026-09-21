@@ -30,12 +30,12 @@ const worlds = [
 export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
   const ageGroups = [
-    { fr: "0–12 mois", en: "0–12 months", image: "/hero-client/05-nouveau-ne.webp", age: "0-12-mois", tone: "pink" },
-    { fr: "1–2 ans", en: "1–2 years", image: "/hero-client/06-bebe.webp", age: "1-2-ans", tone: "lilac" },
-    { fr: "3–5 ans", en: "3–5 years", image: "/hero-client/02-jouets.webp", age: "3-5-ans", tone: "yellow" },
-    { fr: "6–8 ans", en: "6–8 years", image: "/hero-client/04-sourires.webp", age: "6-8-ans", tone: "blue" },
-    { fr: "9–12 ans", en: "9–12 years", image: "/hero-client/03-complicite.webp", age: "9-12-ans", tone: "green" },
-    { fr: "12 ans et +", en: "12 years +", image: "/hero-client/01-costume.webp", age: "12-plus", tone: "rose" },
+    { fr: "0–12 mois", en: "0–12 months", image: "/age-buttons/0-12-mois-real.png", age: "0-12-mois", tone: "pink" },
+    { fr: "1–2 ans", en: "1–2 years", image: "/age-buttons/1-2-ans-real.png", age: "1-2-ans", tone: "lilac" },
+    { fr: "3–5 ans", en: "3–5 years", image: "/age-buttons/3-5-ans-real.png", age: "3-5-ans", tone: "yellow" },
+    { fr: "6–8 ans", en: "6–8 years", image: "/age-buttons/6-8-ans-real.png", age: "6-8-ans", tone: "blue" },
+    { fr: "9–12 ans", en: "9–12 years", image: "/age-buttons/9-12-ans-real.png", age: "9-12-ans", tone: "green" },
+    { fr: "12 ans et +", en: "12 years +", image: "/age-buttons/12-plus-real.png", age: "12-plus", tone: "rose" },
   ];
   const categorySection = (
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
@@ -64,7 +64,7 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
       <div className="shop-age-grid">
         {ageGroups.map((group) => (
           <a className={`shop-age-button shop-age-${group.tone}`} style={{height:145,overflow:"hidden",background:"#fff",border:"1px solid #eee8e5",borderRadius:8,boxShadow:"0 3px 12px rgba(16,47,72,.07)"}} href={`/catalogue?region=${market}&age=${group.age}`} key={group.fr}>
-            <span className="shop-age-photo" style={{height:116,overflow:"hidden",display:"block"}}><img src={group.image} alt="" style={{width:"100%",height:116,objectFit:"cover",objectPosition:"center 28%",display:"block"}} /></span>
+            <span className="shop-age-photo" style={{height:116,overflow:"hidden",display:"block"}}><img src={group.image} alt="" style={{width:"100%",height:116,objectFit:"contain",objectPosition:"center",display:"block"}} /></span>
             <strong>{say(group.fr, group.en)}</strong>
           </a>
         ))}

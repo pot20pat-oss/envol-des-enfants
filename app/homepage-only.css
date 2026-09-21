@@ -476,7 +476,7 @@ html,body{overflow-x:hidden!important}
   }
   .editable-storefront>.shop-home-sections>.shop-age .shop-age-photo{height:166px!important;padding:0!important;overflow:hidden!important}
   .editable-storefront>.shop-home-sections>.shop-age .shop-age-photo img{
-    width:100%!important;height:166px!important;object-fit:cover!important;object-position:center 30%!important
+    width:100%!important;height:166px!important;object-fit:contain!important;object-position:center!important
   }
   .editable-storefront>.shop-home-sections>.shop-age a>strong{
     height:39px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
