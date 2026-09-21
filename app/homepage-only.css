@@ -428,3 +428,18 @@ html,body{overflow-x:hidden!important}
     height:340px!important;
   }
 }
+
+/* Hero plus équilibré : le rose reste un accent, pas un grand aplat. */
+.editable-storefront>.hero-story .hero-story-copy,
+.editable-storefront>.hero-story .hero-story-copy-right{
+  background:#fffdfb!important;
+}
+.editable-storefront>.hero-story .hero-story-cta{
+  align-self:flex-start!important;
+  width:auto!important;
+  max-width:max-content!important;
+  min-height:38px!important;
+  padding:8px 20px!important;
+  background:#0b4168!important;
+  border-radius:999px!important;
+}
