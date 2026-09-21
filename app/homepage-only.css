@@ -438,8 +438,8 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-commerce button{display:flex;align-items:center;gap:6px;padding:0;color:#17364a}
 .ref-header .ref-commerce svg{width:20px;height:20px}
 .ref-header .ref-commerce small{font-size:12px}
-.ref-header .ref-head{height:140px;grid-template-columns:230px minmax(240px,1fr) 390px;gap:30px;padding-block:12px}
-.ref-header .ref-logo img{width:230px;height:116px;object-fit:contain}
+.ref-header .ref-head{height:180px;grid-template-columns:230px minmax(240px,1fr) 390px;gap:30px;padding-block:12px}
+.ref-header .ref-logo img{width:230px;height:156px;object-fit:contain}
 .ref-header .ref-search{height:50px;padding:0;border:1px solid #dce1e4;border-radius:7px;overflow:hidden;font-size:14px;text-decoration:none}
 .ref-header .ref-search>span{padding:0 16px}
 .ref-header .ref-search>b{display:grid;place-items:center;align-self:stretch;flex:0 0 50px;background:#ed3978;color:#fff}
@@ -464,7 +464,7 @@ html,body{overflow-x:hidden!important}
   .ref-header .ref-commerce{gap:12px}
   .ref-header .ref-commerce small{font-size:11px}
   .ref-header .ref-head{height:auto;grid-template-columns:140px minmax(0,1fr);gap:12px;padding-block:10px}
-  .ref-header .ref-logo img{width:140px;height:100px}
+  .ref-header .ref-logo img{width:140px;height:135px}
   .ref-header .ref-service{display:flex;flex-direction:column;gap:12px;grid-column:2;grid-row:1}
   .ref-header .ref-service>span,.ref-header .ref-service>a{grid-template-columns:32px auto}
   .ref-header .ref-service svg,.ref-header .ref-service>a>svg{width:30px;height:30px}
