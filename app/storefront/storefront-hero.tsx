@@ -113,7 +113,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
       style={heroStyle}
     >
       <div className="hero-story-stage">
-        <div className={`hero-story-slide is-active hero-story-slide-${active === 0 || active === 5 ? "landscape" : "portrait"}`} aria-hidden="false">
+        <div className="hero-story-slide is-active" aria-hidden="false">
           <img
             src={activeSlide.image}
             alt={activeSlide.alt}
@@ -125,7 +125,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
               if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
             }}
           />
-          <div className={`hero-story-copy hero-story-copy-${activeSlide.tone}${active === 0 ? " hero-story-copy-right" : ""}`}>
+          <div className={`hero-story-copy hero-story-copy-${activeSlide.tone}`}>
             <h2>{activeSlide.title}<br /><span>{activeSlide.accent}</span></h2>
             <p>{activeSlide.description}</p>
             <a className="hero-story-cta" href={activeSlide.href}>{activeSlide.label}<b aria-hidden="true">→</b></a>
