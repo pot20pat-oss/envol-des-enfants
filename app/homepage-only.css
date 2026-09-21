@@ -550,3 +550,64 @@ html,body{overflow-x:hidden!important}
 .editable-storefront>.shop-home-sections>.shop-world-grid>a>div{width:46%!important}
 .editable-storefront>.shop-home-sections>.shop-world-grid{margin-bottom:8px!important}
 .editable-storefront>.shop-home-sections>.shop-age{margin-top:0!important}
+
+
+/* 2026-09-21 — reconstruction ferme du bloc inférieur selon la référence. */
+@media(min-width:1000px){
+  .editable-storefront>.shop-home-sections>.shop-benefits,
+  .editable-storefront>.shop-home-sections>.shop-world-grid,
+  .editable-storefront>.shop-home-sections>.shop-age,
+  .editable-storefront>.shop-home-sections>.shop-seasonal,
+  .editable-storefront>.shop-home-sections>.shop-brands{
+    width:min(1480px,calc(100% - 64px))!important;max-width:1480px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-world-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 auto 18px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-world-grid>a{
+    height:300px!important;min-height:300px!important;border-radius:12px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-world-grid>a>div{
+    width:48%!important;padding:28px 10px 22px 22px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-world-grid h2{font-size:30px!important;line-height:.95!important}
+  .editable-storefront>.shop-home-sections>.shop-world-grid p{font-size:14px!important;line-height:1.3!important}
+  .editable-storefront>.shop-home-sections>.shop-world-grid div span{font-size:13px!important;padding:10px 16px!important}
+  .editable-storefront>.shop-home-sections>.shop-world-grid>a>img{
+    width:58%!important;height:100%!important;object-fit:cover!important;object-position:center!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-age{margin:0 auto 30px!important}
+  .editable-storefront>.shop-home-sections>.shop-age h2{font-size:36px!important;margin:0 0 16px!important}
+  .editable-storefront>.shop-home-sections>.shop-age>div{
+    display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:12px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-age a{
+    height:205px!important;border-radius:12px!important;overflow:hidden!important;background:#fff!important;
+    border:1px solid #eee8e5!important;box-shadow:0 4px 14px rgba(16,47,72,.08)!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-age .shop-age-photo{height:166px!important;padding:0!important;overflow:hidden!important}
+  .editable-storefront>.shop-home-sections>.shop-age .shop-age-photo img{
+    width:100%!important;height:166px!important;object-fit:cover!important;object-position:center 30%!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-age a>strong{
+    height:39px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
+    font-size:15px!important;background:#fff!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-seasonal{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:16px!important;margin:0 auto 26px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-seasonal>a{min-height:220px!important;border-radius:12px!important;padding:28px!important}
+  .editable-storefront>.shop-home-sections>.shop-brands{margin:0 auto 24px!important}
+  .editable-storefront>.shop-home-sections>.shop-brands h2{font-size:28px!important}
+  .editable-storefront>.shop-home-sections>.shop-brand-official-strip img{width:100%!important;height:auto!important;max-height:150px!important;object-fit:contain!important}
+  .editable-storefront>.shop-home-sections>.shop-bottom-benefits{
+    width:100%!important;max-width:none!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:24px!important;padding:28px max(32px,calc((100% - 1480px)/2))!important;box-sizing:border-box!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-bottom-benefits>div{
+    display:grid!important;grid-template-columns:42px 1fr!important;align-items:center!important;gap:10px!important
+  }
+  .editable-storefront>.shop-home-sections>.shop-bottom-benefits b{font-size:28px!important}
+  .editable-storefront>.shop-home-sections>.shop-bottom-benefits strong{display:block!important;font-size:14px!important}
+  .editable-storefront>.shop-home-sections>.shop-bottom-benefits span{font-size:11px!important}
+}
