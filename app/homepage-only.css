@@ -640,3 +640,18 @@ html,body{overflow-x:hidden!important}
  .editable-storefront>.shop-home-sections>.shop-seasonal h2{font-size:30px!important;line-height:1.02!important}
  .editable-storefront>.shop-home-sections>.shop-seasonal p{font-size:14px!important}
 }
+
+
+/* 2026-09-21 — Hero image unique: toujours visible, ratio conservé. */
+.editable-storefront>.hero-reference{
+  width:min(1480px,calc(100% - 40px))!important;max-width:1480px!important;margin:0 auto 22px!important;
+  padding:0!important;overflow:hidden!important;border-radius:12px!important;background:#fff!important
+}
+.editable-storefront>.hero-reference .hero-reference-link{display:block!important;width:100%!important;text-decoration:none!important}
+.editable-storefront>.hero-reference .hero-reference-link>img{
+  display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;
+  object-position:center!important;margin:0!important;background:#fff!important
+}
+@media(max-width:800px){
+ .editable-storefront>.hero-reference{width:calc(100% - 20px)!important;margin-bottom:14px!important}
+}
