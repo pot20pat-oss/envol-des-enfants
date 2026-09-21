@@ -429,6 +429,48 @@ html,body{overflow-x:hidden!important}
   }
 }
 
+/* Header de référence : services lisibles et actions dans le bandeau supérieur. */
+.ref-header{background:linear-gradient(#fff9f5 0 40px,#fff 40px)!important}
+.ref-header .wrap{width:calc(100% - 48px)!important;max-width:1240px!important;margin-inline:auto!important;box-sizing:border-box}
+.ref-header .ref-top{height:40px;gap:24px;font-size:12px}
+.ref-header .ref-top>b{position:static;transform:none;font-size:12px;white-space:normal}
+.ref-header .ref-commerce{position:static;gap:20px;flex-shrink:0}
+.ref-header .ref-commerce button{display:flex;align-items:center;gap:6px;padding:0;color:#17364a}
+.ref-header .ref-commerce svg{width:20px;height:20px}
+.ref-header .ref-commerce small{font-size:12px}
+.ref-header .ref-head{height:140px;grid-template-columns:230px minmax(240px,1fr) 390px;gap:30px;padding-block:12px}
+.ref-header .ref-logo img{width:230px;height:116px;object-fit:contain}
+.ref-header .ref-search{height:50px;padding:0;border:1px solid #dce1e4;border-radius:7px;overflow:hidden;font-size:14px;text-decoration:none}
+.ref-header .ref-search>span{padding:0 16px}
+.ref-header .ref-search>b{display:grid;place-items:center;align-self:stretch;flex:0 0 50px;background:#ed3978;color:#fff}
+.ref-header .ref-search svg{width:23px;height:23px}
+.ref-header .ref-service{gap:24px;justify-content:space-between}
+.ref-header .ref-service>span,.ref-header .ref-service>a{grid-template-columns:40px auto;align-content:center;align-items:center;column-gap:10px;text-decoration:none}
+.ref-header .ref-service svg{grid-row:1/3;width:36px;height:36px}
+.ref-header .ref-service b{font-size:14px;white-space:nowrap}
+.ref-header .ref-service small{font-size:12px;margin-top:4px}
+.ref-header .ref-service>a>svg{box-sizing:border-box;padding:8px;border-radius:50%;background:#25b965;color:#fff;width:40px;height:40px}
+@media(max-width:1100px){
+  .ref-header .ref-head{grid-template-columns:180px minmax(200px,1fr) 330px;gap:20px}
+  .ref-header .ref-logo img{width:180px}
+  .ref-header .ref-service{gap:14px}
+  .ref-header .ref-service b{font-size:12px}
+  .ref-header .ref-service small{font-size:10px}
+  .ref-header .ref-top>b{display:none}
+}
+@media(max-width:800px){
+  .ref-header .wrap{width:calc(100% - 28px)!important}
+  .ref-header .ref-top{height:auto;min-height:40px;flex-wrap:wrap;gap:8px;padding-block:8px}
+  .ref-header .ref-commerce{gap:12px}
+  .ref-header .ref-commerce small{font-size:11px}
+  .ref-header .ref-head{height:auto;grid-template-columns:140px minmax(0,1fr);gap:12px;padding-block:10px}
+  .ref-header .ref-logo img{width:140px;height:100px}
+  .ref-header .ref-service{display:flex;flex-direction:column;gap:12px;grid-column:2;grid-row:1}
+  .ref-header .ref-service>span,.ref-header .ref-service>a{grid-template-columns:32px auto}
+  .ref-header .ref-service svg,.ref-header .ref-service>a>svg{width:30px;height:30px}
+  .ref-header .ref-search{grid-column:1/-1;grid-row:2}
+}
+
 /* Hero plus équilibré : le rose reste un accent, pas un grand aplat. */
 .editable-storefront>.hero-story .hero-story-copy,
 .editable-storefront>.hero-story .hero-story-copy-right{
