@@ -522,3 +522,39 @@
  .shop-world-grid>a{min-height:210px!important}
  .shop-age-photo{height:130px!important}
 }
+
+
+/* Supplied homepage reference — structural pass */
+.reference-header{border-bottom:0!important}
+.reference-topbar{height:32px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#082f4e}
+.reference-topbar strong{margin:auto}
+.reference-main-nav{background:#fff0f4;border-top:1px solid #f7dfe7;border-bottom:1px solid #f7dfe7}
+.reference-main-nav>div{display:flex;align-items:stretch;justify-content:center;min-height:44px;overflow-x:auto}
+.reference-main-nav a{display:flex;align-items:center;padding:0 16px;white-space:nowrap;color:#092f4e;font-size:13px;font-weight:700}
+.reference-main-nav a:hover{background:#ffe2eb;color:#e62d70}
+.reference-main-nav .reference-sale{background:#ed3b78;color:#fff}
+.reference-home-cta{display:flex;justify-content:center;padding:18px 0 34px}
+.reference-home-shop-all{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 26px;border-radius:999px;background:#ed2e72;color:#fff;font-weight:900}
+.editable-storefront>.announcement{display:none!important}
+.header{min-height:104px!important;padding-top:10px!important;padding-bottom:10px!important;grid-template-columns:280px minmax(300px,1fr) 330px!important}
+.brand-logo-official{width:250px!important;max-height:88px!important}
+.store-search-box{height:46px!important;border-radius:8px!important}
+.header-service-links{grid-column:2/4!important;justify-content:flex-end!important;margin-top:-8px!important}
+.hero-story-stage{height:455px!important}
+.hero-story-copy h2{font-size:clamp(54px,6vw,82px)!important;line-height:.88!important}
+.hero-story-copy p{font-size:18px!important;max-width:360px!important}
+.hero-story-cta{min-height:48px!important;padding:0 25px!important;border-radius:999px!important}
+.shop-benefits{max-width:760px!important}
+.shop-category-strip{max-width:1180px!important}
+.shop-world-grid{max-width:1180px!important;grid-template-columns:repeat(4,1fr)!important}
+.shop-world-grid>a{min-height:285px!important}
+.shop-age-buttons,.shop-seasonal,.shop-brands{max-width:1180px!important}
+.shop-seasonal{grid-template-columns:1fr 1fr!important}
+.shop-bottom-benefits{padding:22px max(24px,calc((100vw - 1180px)/2))!important}
+@media(max-width:800px){
+ .reference-topbar strong{display:none}
+ .header{grid-template-columns:1fr!important}
+ .header-service-links{grid-column:auto!important;margin-top:0!important}
+ .reference-main-nav>div{justify-content:flex-start}
+ .shop-world-grid{grid-template-columns:1fr 1fr!important}
+}
