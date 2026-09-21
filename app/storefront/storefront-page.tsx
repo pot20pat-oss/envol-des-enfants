@@ -89,10 +89,6 @@ export default function Home() {
         chooseCategory={chooseCategory}
       />
 
-
-
-      <StorefrontShopSections market={market} say={say} mode="categories" />
-
       <StorefrontHero
         market={market}
         storePhone={storePhone}
@@ -104,7 +100,7 @@ export default function Home() {
         sectionStyle={sectionStyle}
       />
 
-      <StorefrontShopSections market={market} say={say} mode="content" products={storeProducts} />
+      <StorefrontShopSections market={market} say={say} mode="content" />
       <StorefrontCatalog products={storeProducts} availableCategories={availableCategories} dollCategories={dollCategories} language={language} market={market} active={active} query={query} status={status} showAll={showAll} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} style={sectionStyle("catalogue")} title={editable("catalogue_title", "Le catalogue", "A little shop")} accent={editable("catalogue_accent", "des petits bonheurs.", "full of joy.")} description={editable("catalogue_description", "Jouets éducatifs, vêtements, fournitures et idées-cadeaux : choisissez, puis commandez simplement sur WhatsApp.", "Educational toys, clothing, school essentials and thoughtful gifts. Pick your favourites and order through WhatsApp.")} onActiveChange={setActive} onQueryChange={setQuery} onStatusChange={setStatus} onShowAll={() => setShowAll(true)} onOpenProduct={setSelectedProduct} />
 
 
