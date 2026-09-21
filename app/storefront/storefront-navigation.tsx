@@ -32,7 +32,7 @@ export default function StorefrontNavigation({
 }: Props) {
   const commerce = useCommerce();
   return (
-    <div className="storefront-header-shell">
+    <div className="storefront-header-shell reference-header">\n      <div className="reference-topbar wrap"><span>🇨🇦 {say("Entreprise canadienne", "Canadian business")}</span><strong>{say("Des enfants heureux aujourd’hui, un meilleur demain !", "Happy children today, a better tomorrow!")}</strong></div>
       <header className="header wrap">
         <a className="brand" href={`/?region=${market}`} aria-label={say("Accueil — Envol des Enfants", "Home — Envol des Enfants")}>
           <img className="brand-logo-official" src="/envol-logo-officiel.svg" alt="Envol des Enfants" />
