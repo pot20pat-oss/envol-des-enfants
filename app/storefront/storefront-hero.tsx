@@ -125,7 +125,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
               if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
             }}
           />
-          <div className={`hero-story-copy hero-story-copy-${activeSlide.tone}`}>
+          <div className={`hero-story-copy hero-story-copy-${activeSlide.tone}${active === 0 ? " hero-story-copy-right" : ""}`}>
             <h2>{activeSlide.title}<br /><span>{activeSlide.accent}</span></h2>
             <p>{activeSlide.description}</p>
             <a className="hero-story-cta" href={activeSlide.href}>{activeSlide.label}<b aria-hidden="true">→</b></a>

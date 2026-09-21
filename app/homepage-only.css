@@ -182,3 +182,60 @@ html,body{overflow-x:hidden!important}
   height:100%!important;
   object-fit:cover!important;
 }
+
+/* Accueil final : boutons seuls, Hero, puis vrais produits. */
+.editable-storefront{display:block!important;background:#fff!important}
+.editable-storefront>.shop-category-strip{
+  width:min(1180px,calc(100% - 40px))!important;max-width:1180px!important;height:auto!important;
+  margin:10px auto 8px!important;padding:0!important;overflow:hidden!important;background:#fff!important
+}
+.editable-storefront>.shop-category-strip .shop-category-reference{
+  position:relative!important;width:100%!important;height:auto!important;overflow:hidden!important;background:#fff!important
+}
+.editable-storefront>.shop-category-strip .shop-category-reference-image{
+  display:block!important;width:100%!important;height:auto!important;margin:0!important;transform:none!important;object-fit:contain!important
+}
+.editable-storefront>.shop-category-strip .shop-category-reference-links{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  display:grid!important;grid-template-columns:repeat(9,1fr)!important;z-index:2!important
+}
+.editable-storefront>.hero-story{
+  display:block!important;position:relative!important;width:min(1180px,calc(100% - 40px))!important;
+  max-width:1180px!important;min-height:0!important;margin:0 auto 34px!important;overflow:hidden!important;
+  border-radius:18px!important;box-shadow:0 14px 36px rgba(19,54,78,.12)!important
+}
+.editable-storefront>.hero-story>.hero-story-stage{
+  position:relative!important;width:100%!important;height:auto!important;min-height:0!important;
+  aspect-ratio:1672/650!important;overflow:hidden!important;border-radius:18px!important;background:#f9eee8!important
+}
+.editable-storefront>.hero-story .hero-story-slide,.editable-storefront>.hero-story .hero-story-slide.is-active{
+  display:block!important;visibility:visible!important;opacity:1!important;position:absolute!important;
+  inset:0!important;width:100%!important;height:100%!important
+}
+.editable-storefront>.hero-story .hero-story-slide>img{
+  display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 58%!important
+}
+.editable-storefront>.hero-story .hero-story-copy{
+  left:max(34px,5vw)!important;right:auto!important;top:50%!important;max-width:390px!important;
+  transform:translateY(-50%)!important;padding:24px 28px!important;border-radius:18px!important;
+  background:rgba(255,255,255,.9)!important;box-shadow:0 10px 32px rgba(16,47,72,.12)!important;backdrop-filter:blur(7px)!important
+}
+.editable-storefront>.hero-story .hero-story-copy-right{left:auto!important;right:max(34px,5vw)!important}
+.editable-storefront>.hero-story .hero-story-copy h2{margin:0 0 14px!important;font-size:clamp(38px,4.3vw,60px)!important;line-height:.92!important}
+.editable-storefront>.hero-story .hero-story-copy p{margin:0 0 18px!important;font-size:15px!important;line-height:1.45!important}
+.editable-storefront>.featured-collection{width:min(1180px,calc(100% - 40px))!important;max-width:1180px!important;padding:36px 0!important}
+.editable-storefront>.reference-home-cta{padding:10px 0 48px!important}
+
+@media(max-width:800px){
+  .editable-storefront>.shop-category-strip{width:100%!important;margin:6px 0!important;overflow-x:auto!important}
+  .editable-storefront>.shop-category-strip .shop-category-reference{width:930px!important}
+  .editable-storefront>.hero-story{width:calc(100% - 24px)!important;margin-bottom:22px!important;border-radius:13px!important}
+  .editable-storefront>.hero-story>.hero-story-stage{aspect-ratio:4/5!important;border-radius:13px!important}
+  .editable-storefront>.hero-story .hero-story-slide>img{object-position:center!important}
+  .editable-storefront>.hero-story .hero-story-copy,.editable-storefront>.hero-story .hero-story-copy-right{
+    left:18px!important;right:18px!important;top:auto!important;bottom:28px!important;max-width:none!important;
+    transform:none!important;padding:18px 20px!important
+  }
+  .editable-storefront>.hero-story .hero-story-copy h2{font-size:38px!important}
+  .editable-storefront>.featured-collection{width:calc(100% - 24px)!important;padding:28px 0!important}
+}
