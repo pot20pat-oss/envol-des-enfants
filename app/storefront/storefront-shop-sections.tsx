@@ -10,13 +10,13 @@ type Props = {
 
 const categories = [
   { labelFr: "Éveil 0–3 ans", labelEn: "Early years", image: "/category-buttons/eveil.png", href: "/bebe-enfants" },
-  { labelFr: "Jouets éducatifs", labelEn: "Educational toys", image: "/category-buttons/educatifs.png", href: "/jouets" },
+  { labelFr: "Jouets éducatifs", labelEn: "Educational toys", image: "/hero-client/02-jouets.webp", href: "/jouets" },
   { labelFr: "Montessori", labelEn: "Montessori", image: "/category-buttons/montessori.png", href: "/catalogue?category=montessori" },
   { labelFr: "Jeux & Jouets", labelEn: "Games & Toys", image: "/category-buttons/jeux-jouets.png", href: "/jouets" },
-  { labelFr: "Mon Monde de Poupée", labelEn: "My Doll World", image: "/category-buttons/poupees.png", href: "/poupees" },
+  { labelFr: "Mon Monde de Poupée", labelEn: "My Doll World", image: "/products/poupees-mama/mama-16.webp", href: "/poupees" },
   { labelFr: "Vêtements", labelEn: "Clothing", image: "/category-buttons/vetements.png", href: "/catalogue?category=vetements" },
   { labelFr: "Chaussures", labelEn: "Shoes", image: "/category-buttons/chaussures.png", href: "/catalogue?category=chaussures" },
-  { labelFr: "Voitures électriques", labelEn: "Electric vehicles", image: "/category-buttons/voitures.png", href: "/catalogue?category=vehicules" },
+  { labelFr: "Voitures électriques", labelEn: "Electric vehicles", image: "/products/archive-complements/vtt-utv-rouge.webp", href: "/catalogue?category=vehicules" },
   { labelFr: "Scolaire", labelEn: "School", image: "/category-buttons/scolaire.png", href: "/articles-scolaires" },
 ];
 
@@ -30,7 +30,7 @@ const worlds = [
 export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
   const ageGroups = [
-    { fr: "0–12 mois", en: "0–12 months", image: "/hero-client/05-nouveau-ne.webp", age: "0-12-mois", tone: "pink" },
+    { fr: "0–12 mois", en: "0–12 months", image: "/hero-client/06-bebe.webp", age: "0-12-mois", tone: "pink" },
     { fr: "1–2 ans", en: "1–2 years", image: "/hero-client/06-bebe.webp", age: "1-2-ans", tone: "lilac" },
     { fr: "3–5 ans", en: "3–5 years", image: "/hero-client/02-jouets.webp", age: "3-5-ans", tone: "yellow" },
     { fr: "6–8 ans", en: "6–8 years", image: "/hero-client/04-sourires.webp", age: "6-8-ans", tone: "blue" },
