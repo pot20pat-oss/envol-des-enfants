@@ -49,13 +49,6 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
   );
   if (mode === "categories") return categorySection;
   return <div className="shop-home-sections">
-    <section className="shop-benefits wrap" aria-label={say("Nos engagements", "Our promises")}>
-      <div><b>✓</b><span><strong>{say("Produits choisis avec soin", "Carefully selected products")}</strong>{say("Pour accompagner chaque enfant", "Made for every child")}</span></div>
-      <div><b>♢</b><span><strong>{say("Paiement sécurisé", "Secure payment")}</strong>{say("Commandez en toute confiance", "Shop with confidence")}</span></div>
-      <div><b>🚚</b><span><strong>{say("Livraison rapide", "Fast delivery")}</strong>{say("Au Canada et ailleurs", "Across Canada and beyond")}</span></div>
-    </section>
-
-
 
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail shop-category-reference">
