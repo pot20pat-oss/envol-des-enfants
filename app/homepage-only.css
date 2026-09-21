@@ -438,8 +438,9 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-commerce button{display:flex;align-items:center;gap:6px;padding:0;color:#17364a}
 .ref-header .ref-commerce svg{width:20px;height:20px}
 .ref-header .ref-commerce small{font-size:12px}
-.ref-header .ref-head{height:180px;grid-template-columns:230px minmax(240px,1fr) 390px;gap:30px;padding-block:12px}
-.ref-header .ref-logo img{width:230px;height:156px;object-fit:contain}
+.ref-header .ref-head{height:234px;grid-template-columns:230px minmax(240px,1fr) 390px;gap:30px;padding-block:12px}
+.ref-header .ref-logo{display:flex;align-items:center;justify-content:center}
+.ref-header .ref-logo img{width:auto;height:210px;max-width:100%;object-fit:contain}
 .ref-header .ref-search{height:50px;padding:0;border:1px solid #dce1e4;border-radius:7px;overflow:hidden;font-size:14px;text-decoration:none}
 .ref-header .ref-search>span{padding:0 16px}
 .ref-header .ref-search>b{display:grid;place-items:center;align-self:stretch;flex:0 0 50px;background:#ed3978;color:#fff}
@@ -451,8 +452,7 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-service small{font-size:12px;margin-top:4px}
 .ref-header .ref-service>a>svg{box-sizing:border-box;padding:8px;border-radius:50%;background:#25b965;color:#fff;width:40px;height:40px}
 @media(max-width:1100px){
-  .ref-header .ref-head{grid-template-columns:180px minmax(200px,1fr) 330px;gap:20px}
-  .ref-header .ref-logo img{width:180px}
+  .ref-header .ref-head{grid-template-columns:200px minmax(200px,1fr) 330px;gap:20px}
   .ref-header .ref-service{gap:14px}
   .ref-header .ref-service b{font-size:12px}
   .ref-header .ref-service small{font-size:10px}
@@ -463,8 +463,8 @@ html,body{overflow-x:hidden!important}
   .ref-header .ref-top{height:auto;min-height:40px;flex-wrap:wrap;gap:8px;padding-block:8px}
   .ref-header .ref-commerce{gap:12px}
   .ref-header .ref-commerce small{font-size:11px}
-  .ref-header .ref-head{height:auto;grid-template-columns:140px minmax(0,1fr);gap:12px;padding-block:10px}
-  .ref-header .ref-logo img{width:140px;height:135px}
+  .ref-header .ref-head{height:auto;grid-template-columns:160px minmax(0,1fr);gap:12px;padding-block:10px}
+  .ref-header .ref-logo img{width:auto;height:170px}
   .ref-header .ref-service{display:flex;flex-direction:column;gap:12px;grid-column:2;grid-row:1}
   .ref-header .ref-service>span,.ref-header .ref-service>a{grid-template-columns:32px auto}
   .ref-header .ref-service svg,.ref-header .ref-service>a>svg{width:30px;height:30px}
