@@ -1,11 +1,13 @@
 "use client";
 
+import type { Product } from "@/lib/default-catalog";
 import type { Market } from "@/lib/markets";
 
 type Props = {
   market: Market;
   say: (french: string, english: string) => string;
   mode?: "all" | "categories" | "content";
+  products?: Product[];
 };
 
 const categories = [
@@ -27,8 +29,9 @@ const worlds = [
   { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/products/barbie/barbie-08.webp", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
 ];
 
-export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
+export default function StorefrontShopSections({ market, say, mode = "all", products = [] }: Props) {
   const region = `?region=${market}`;
+  const productImage = (index: number, fallback: string) => products[index]?.imageUrl || fallback;
   const categorySection = (
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail shop-category-reference">
@@ -68,8 +71,8 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
     <section className="shop-age wrap">
       <h2>{say("Magasiner par âge", "Shop by age")}</h2>
       <div>{[
-        ["0–12 mois", "0–12 months", "/products/mama3/mama3-01.jpg"], ["1–2 ans", "1–2 years", "/products/mama3/mama3-02.jpg"], ["3–5 ans", "3–5 years", "/products/mama3/mama3-03.jpg"],
-        ["6–8 ans", "6–8 years", "/products/archive-complements/vtt-utv-rouge.webp"], ["9–12 ans", "9–12 years", "/products/barbie/barbie-08.webp"], ["12 ans et +", "12 years +", "/category-buttons/scolaire.png"],
+        ["0–12 mois", "0–12 months", productImage(0, "/products/mama3/mama3-01.jpg")], ["1–2 ans", "1–2 years", productImage(1, "/products/mama3/mama3-02.jpg")], ["3–5 ans", "3–5 years", productImage(2, "/products/mama3/mama3-03.jpg")],
+        ["6–8 ans", "6–8 years", productImage(3, "/products/archive-complements/vtt-utv-rouge.webp")], ["9–12 ans", "9–12 years", productImage(4, "/products/barbie/barbie-08.webp")], ["12 ans et +", "12 years +", productImage(5, "/category-buttons/scolaire.png")],
       ].map(([fr,en,image]) => <a href={`/catalogue${region}`} key={fr}><img src={image} alt="" /><span>{say(fr,en)}</span></a>)}</div>
     </section>
 
