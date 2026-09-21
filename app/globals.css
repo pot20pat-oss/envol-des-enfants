@@ -483,3 +483,42 @@
   .hero-story-stage{height:330px!important}
   .hero-story-copy{left:22px!important;right:22px!important;max-width:360px!important}
 }
+
+
+/* Reference-homepage composition: dense storefront, hero first, then categories/content. */
+.editable-storefront{background:#fff}
+.storefront-header-shell{background:#fff}
+.header.wrap{max-width:1180px}
+.hero-story{
+  width:100%!important;
+  max-width:none!important;
+  margin:0 auto!important;
+  border-radius:0!important;
+}
+.hero-story-stage{
+  height:clamp(430px,48vw,570px)!important;
+  border-radius:0!important;
+}
+.hero-story-slide>img{object-fit:cover!important;object-position:center!important}
+.shop-home-sections{padding-top:0}
+.shop-benefits{margin-top:0!important;padding:12px 18px!important}
+.shop-category-strip{padding-top:8px!important;padding-bottom:10px!important}
+.shop-category-reference-image{display:block;width:100%;height:auto}
+.shop-world-grid{gap:8px!important;margin-top:4px!important;margin-bottom:8px!important}
+.shop-world-grid>a{min-height:270px!important;border-radius:10px!important}
+.shop-age-buttons{padding-block:8px 14px!important}
+.shop-age-buttons>h2{font-size:27px!important;margin:0 0 8px!important}
+.shop-age-grid{gap:10px!important}
+.shop-age-button{border-radius:11px!important;box-shadow:0 3px 10px rgba(28,61,82,.08)!important}
+.shop-age-photo{height:125px!important;padding:0!important}
+.shop-age-photo img{object-fit:cover!important;border-radius:10px 10px 0 0!important}
+.shop-age-button strong{min-height:34px!important;margin:0!important;border-radius:0 0 10px 10px!important;font-size:14px!important;box-shadow:none!important}
+.shop-seasonal{gap:10px!important;margin-top:0!important}
+.shop-brands{padding-top:12px!important;padding-bottom:14px!important}
+.shop-bottom-benefits{margin-top:0!important}
+@media(max-width:700px){
+ .hero-story-stage{height:390px!important}
+ .shop-world-grid{grid-template-columns:1fr 1fr!important}
+ .shop-world-grid>a{min-height:210px!important}
+ .shop-age-photo{height:130px!important}
+}
