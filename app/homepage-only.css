@@ -5,7 +5,6 @@ html,body{overflow-x:hidden!important}
 .editable-storefront{display:flex!important;flex-direction:column!important}
 .storefront-header-shell{order:0!important;width:100%;background:#fff;color:#102f48}
 .editable-storefront>.shop-home-sections{display:contents!important}
-.editable-storefront>.shop-category-strip{order:1!important}
 .editable-storefront>.hero-story{order:2!important}
 .editable-storefront>.shop-world-grid{order:3!important}
 .editable-storefront>.shop-age{order:4!important}
@@ -28,12 +27,6 @@ html,body{overflow-x:hidden!important}
 .storefront-header-shell .header-actions{grid-column:3!important;grid-row:1!important;min-width:0!important;width:100%!important;justify-self:stretch!important;align-self:center!important;margin:0!important;padding:0!important}
 .storefront-header-shell .commerce-actions{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:26px!important}.storefront-header-shell .commerce-action{border:0!important;background:none!important;color:#102f48!important;font-size:15px!important;font-weight:700!important;white-space:nowrap!important;padding:6px 0!important}
 .header-service-links{grid-column:3!important;grid-row:2!important;min-width:0!important;display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:40px!important}.header-service-links .store-fast-delivery,.header-service-links .store-whatsapp-link{display:flex!important;align-items:center!important;gap:8px!important;text-decoration:none!important;color:#102f48!important}.header-service-links .store-whatsapp-link{color:#18a765!important}.header-service-links strong{display:block!important;font-size:15px!important}.header-service-links small{display:block!important;font-size:12px!important;font-weight:400!important;color:#5d6c75!important}
-
-/* 9 BOUTONS EXACTS : on recadre seulement l'espace blanc de l'image source. */
-.editable-storefront>.shop-category-strip{box-sizing:border-box!important;width:min(1480px,calc(100% - 48px))!important;max-width:1480px!important;height:230px!important;margin:0 auto 6px!important;padding:0!important;overflow:hidden!important}
-.shop-category-rail.shop-category-reference{position:relative!important;display:block!important;width:100%!important;height:230px!important;overflow:hidden!important}
-.shop-category-reference-image{display:block!important;width:100%!important;height:auto!important;max-width:none!important;object-fit:initial!important;transform:translateY(-150px)!important;margin:0!important}
-.shop-category-reference-links{position:absolute!important;inset:0!important;display:grid!important;grid-template-columns:repeat(9,1fr)!important;z-index:2!important}.shop-category-reference-links a{display:block!important;width:100%!important;height:100%!important}
 
 /* HERO */
 .editable-storefront>.hero-story.wrap{box-sizing:border-box!important;width:min(1480px,calc(100% - 48px))!important;max-width:1480px!important;margin:0 auto 10px!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important}
@@ -67,79 +60,15 @@ html,body{overflow-x:hidden!important}
 .editable-storefront>.shop-bottom-benefits{box-sizing:border-box!important;width:100%!important;padding:22px max(24px,calc((100% - 1480px)/2))!important;display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:18px!important}.shop-bottom-benefits strong{font-size:13px!important}.shop-bottom-benefits span{font-size:11px!important}
 
 @media(max-width:1200px){.storefront-header-shell>.header.wrap{grid-template-columns:260px minmax(350px,1fr) 350px!important;column-gap:24px!important}.storefront-header-shell .brand{width:250px!important}.storefront-header-shell .brand-logo-official{width:245px!important}.storefront-header-shell .commerce-actions{gap:14px!important}.header-service-links{gap:20px!important}.editable-storefront>.shop-world-grid h2{font-size:23px!important}}
-@media(max-width:800px){.storefront-header-shell>.header.wrap{width:calc(100% - 24px)!important;height:auto!important;min-height:0!important;grid-template-columns:150px 1fr!important;grid-template-rows:72px 54px auto!important;gap:8px!important;padding:8px 0!important}.storefront-header-shell .brand{grid-column:1!important;grid-row:1!important;width:145px!important;height:68px!important}.storefront-header-shell .brand-logo-official{width:140px!important;height:66px!important}.storefront-header-shell .header-actions{grid-column:2!important;grid-row:1!important}.storefront-header-shell .commerce-action span{display:none!important}.storefront-header-shell .store-search-box{grid-column:1/3!important;grid-row:2!important}.header-service-links{grid-column:1/3!important;grid-row:3!important;justify-content:center!important}.editable-storefront>.shop-category-strip{width:100%!important;height:170px!important;overflow-x:auto!important}.shop-category-rail.shop-category-reference{width:1000px!important;height:170px!important}.shop-category-reference-image{width:1000px!important;transform:translateY(-100px)!important}.shop-category-reference-links{width:1000px!important}.editable-storefront>.hero-story.wrap{width:100%!important}.editable-storefront>.hero-story.wrap .hero-story-stage{aspect-ratio:4/5!important}.editable-storefront>.shop-world-grid{width:calc(100% - 16px)!important;grid-template-columns:1fr!important}.editable-storefront>.shop-age{width:calc(100% - 16px)!important}.editable-storefront>.shop-age>div{grid-template-columns:repeat(2,1fr)!important}.editable-storefront>.shop-seasonal{width:calc(100% - 16px)!important;grid-template-columns:1fr!important}.editable-storefront>.shop-bottom-benefits{grid-template-columns:1fr!important}}
-
-/* Correction ciblée 2026-09-19 : supprimer le grand vide sous les 9 boutons.
-   Aucun changement aux boutons eux-mêmes. */
-.editable-storefront>.shop-category-strip{
-  height:158px!important;
-  margin-bottom:4px!important;
-}
-.shop-category-rail.shop-category-reference{
-  height:158px!important;
-}
-.shop-category-reference-links{
-  height:158px!important;
-}
-
-/* Ajustement fin : rangée des catégories serrée sur son contenu visible. */
-.editable-storefront>.shop-category-strip{
-  height:146px!important;
-  margin-top:0!important;
-  margin-bottom:2px!important;
-}
-.shop-category-rail.shop-category-reference{
-  height:146px!important;
-}
-.shop-category-reference-links{
-  height:146px!important;
-}
+@media(max-width:800px){.storefront-header-shell>.header.wrap{width:calc(100% - 24px)!important;height:auto!important;min-height:0!important;grid-template-columns:150px 1fr!important;grid-template-rows:72px 54px auto!important;gap:8px!important;padding:8px 0!important}.storefront-header-shell .brand{grid-column:1!important;grid-row:1!important;width:145px!important;height:68px!important}.storefront-header-shell .brand-logo-official{width:140px!important;height:66px!important}.storefront-header-shell .header-actions{grid-column:2!important;grid-row:1!important}.storefront-header-shell .commerce-action span{display:none!important}.storefront-header-shell .store-search-box{grid-column:1/3!important;grid-row:2!important}.header-service-links{grid-column:1/3!important;grid-row:3!important;justify-content:center!important}.editable-storefront>.hero-story.wrap{width:100%!important}.editable-storefront>.hero-story.wrap .hero-story-stage{aspect-ratio:4/5!important}.editable-storefront>.shop-world-grid{width:calc(100% - 16px)!important;grid-template-columns:1fr!important}.editable-storefront>.shop-age{width:calc(100% - 16px)!important}.editable-storefront>.shop-age>div{grid-template-columns:repeat(2,1fr)!important}.editable-storefront>.shop-seasonal{width:calc(100% - 16px)!important;grid-template-columns:1fr!important}.editable-storefront>.shop-bottom-benefits{grid-template-columns:1fr!important}}
 
 /* 2026-09-19 : ordre réel et nouvelle barre PNG sans capsule. */
 .editable-storefront>.shop-home-sections{display:contents!important}
-.editable-storefront>.shop-category-strip{order:1!important}
 .editable-storefront>.hero-story{order:2!important}
-
-/* La nouvelle image n'a plus besoin du vieux recadrage vertical. */
-.editable-storefront>.shop-category-strip{
-  width:min(1480px,calc(100% - 48px))!important;
-  max-width:1480px!important;
-  height:auto!important;
-  margin:4px auto!important;
-  padding:0!important;
-  background:#fff!important;
-  overflow:hidden!important;
-}
-.shop-category-rail.shop-category-reference{
-  width:100%!important;
-  height:auto!important;
-  max-height:none!important;
-  overflow:visible!important;
-  background:#fff!important;
-}
-.shop-category-reference-image{
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  max-width:none!important;
-  transform:none!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  margin:0!important;
-  background:#fff!important;
-}
-.shop-category-reference-links{
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-}
 
 /* Hero/categories sont maintenant séparés dans le JSX : ne plus utiliser display:contents. */
 .editable-storefront>.shop-home-sections{display:block!important;order:auto!important}
-.editable-storefront>.shop-category-strip{order:auto!important}
 .editable-storefront>.hero-story{order:auto!important}
-.editable-storefront>.shop-home-sections>.shop-category-strip{display:none!important}
 
 /* Hero garanti visible entre catégories et contenu. */
 .editable-storefront>.hero-story{
@@ -185,20 +114,6 @@ html,body{overflow-x:hidden!important}
 
 /* Accueil final : boutons seuls, Hero, puis vrais produits. */
 .editable-storefront{display:block!important;background:#fff!important}
-.editable-storefront>.shop-category-strip{
-  width:min(1180px,calc(100% - 40px))!important;max-width:1180px!important;height:auto!important;
-  margin:10px auto 8px!important;padding:0!important;overflow:hidden!important;background:#fff!important
-}
-.editable-storefront>.shop-category-strip .shop-category-reference{
-  position:relative!important;width:100%!important;height:auto!important;overflow:hidden!important;background:#fff!important
-}
-.editable-storefront>.shop-category-strip .shop-category-reference-image{
-  display:block!important;width:100%!important;height:auto!important;margin:0!important;transform:none!important;object-fit:contain!important
-}
-.editable-storefront>.shop-category-strip .shop-category-reference-links{
-  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-  display:grid!important;grid-template-columns:repeat(9,1fr)!important;z-index:2!important
-}
 .editable-storefront>.hero-story{
   display:block!important;position:relative!important;width:min(1180px,calc(100% - 40px))!important;
   max-width:1180px!important;min-height:0!important;margin:0 auto 34px!important;overflow:hidden!important;
@@ -227,8 +142,6 @@ html,body{overflow-x:hidden!important}
 .editable-storefront>.reference-home-cta{padding:10px 0 48px!important}
 
 @media(max-width:800px){
-  .editable-storefront>.shop-category-strip{width:100%!important;margin:6px 0!important;overflow-x:auto!important}
-  .editable-storefront>.shop-category-strip .shop-category-reference{width:930px!important}
   .editable-storefront>.hero-story{width:calc(100% - 24px)!important;margin-bottom:22px!important;border-radius:13px!important}
   .editable-storefront>.hero-story>.hero-story-stage{aspect-ratio:4/5!important;border-radius:13px!important}
   .editable-storefront>.hero-story .hero-story-slide>img{object-position:center!important}
@@ -296,30 +209,6 @@ html,body{overflow-x:hidden!important}
 /* Retirer définitivement l'ancien menu rose, même sur un rendu mis en cache. */
 .ref-nav,.reference-main-nav,.store-category-nav{display:none!important}
 
-/* Recadrer la barre des 9 boutons : supprimer le blanc intégré au PNG. */
-.editable-storefront>.shop-category-strip{
-  height:170px!important;
-  margin:0 auto 4px!important;
-  overflow:hidden!important;
-}
-.editable-storefront>.shop-category-strip .shop-category-reference{
-  height:170px!important;
-  overflow:hidden!important;
-}
-.editable-storefront>.shop-category-strip .shop-category-reference-image{
-  width:100%!important;
-  height:auto!important;
-  transform:translateY(-108px)!important;
-}
-.editable-storefront>.shop-category-strip .shop-category-reference-links{
-  height:170px!important;
-}
-@media(max-width:800px){
-  .editable-storefront>.shop-category-strip{height:145px!important;margin:0!important}
-  .editable-storefront>.shop-category-strip .shop-category-reference{height:145px!important}
-  .editable-storefront>.shop-category-strip .shop-category-reference-image{transform:translateY(-78px)!important}
-  .editable-storefront>.shop-category-strip .shop-category-reference-links{height:145px!important}
-}
 
 /* Hero uniforme : photo et texte dans deux zones distinctes, jamais superposées. */
 @media(min-width:801px){
@@ -654,4 +543,63 @@ html,body{overflow-x:hidden!important}
 }
 @media(max-width:800px){
  .editable-storefront>.hero-reference{width:calc(100% - 20px)!important;margin-bottom:14px!important}
+}
+
+/* Catégories : proportions natives, sans recadrage ni capsule. */
+.editable-storefront .shop-category-strip{
+  box-sizing:border-box!important;
+  width:min(1480px,calc(100% - 40px))!important;
+  max-width:1480px!important;
+  height:auto!important;
+  margin:0 auto 18px!important;
+  padding:8px 0 0!important;
+  overflow:visible!important;
+  background:#fff!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.editable-storefront .shop-category-rail.shop-category-reference{
+  min-width:0!important;
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  background:#fff!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.editable-storefront .shop-category-reference-image{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:none!important;
+  margin:0!important;
+  transform:none!important;
+  object-fit:contain!important;
+}
+.editable-storefront .shop-category-reference-links{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-columns:repeat(9,minmax(0,1fr))!important;
+  z-index:2!important;
+}
+.editable-storefront .shop-category-reference-links a{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
 }
