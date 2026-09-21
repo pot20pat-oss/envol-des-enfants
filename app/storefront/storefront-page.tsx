@@ -102,7 +102,7 @@ export default function Home() {
         sectionStyle={sectionStyle}
       />
 
-      <StorefrontShopSections market={market} say={say} />
+      <StorefrontShopSections market={market} say={say} mode="content" />
       <section className="reference-home-cta wrap">
         <a href={`/catalogue?region=${market}`} className="reference-home-shop-all">{say("Voir tous les produits", "Shop all products")} →</a>
       </section>
