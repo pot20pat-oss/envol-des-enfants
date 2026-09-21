@@ -21,10 +21,10 @@ const categories = [
 ];
 
 const worlds = [
-  { className: "world-educational", titleFr: "Jouets éducatifs", titleEn: "Educational toys", textFr: "Stimuler leur curiosité dès le plus jeune âge", textEn: "Inspire curiosity from an early age", image: "/products/mama3/mama3-01.jpg", href: "/jouets", ctaFr: "Découvrir", ctaEn: "Discover" },
+  { className: "world-educational", titleFr: "Jouets éducatifs", titleEn: "Educational toys", textFr: "Stimuler leur curiosité dès le plus jeune âge", textEn: "Inspire curiosity from an early age", image: "/category-buttons/educatifs.png", href: "/jouets", ctaFr: "Découvrir", ctaEn: "Discover" },
   { className: "world-montessori", titleFr: "Montessori", titleEn: "Montessori", textFr: "Apprendre autrement", textEn: "Learn differently", image: "/category-buttons/montessori.png", href: "/catalogue?category=montessori", ctaFr: "Voir la collection", ctaEn: "See the collection" },
-  { className: "world-vehicles", titleFr: "Voitures électriques", titleEn: "Electric vehicles", textFr: "De grandes aventures les attendent!", textEn: "Big adventures are waiting!", image: "/products/archive-complements/vtt-utv-rouge.webp", href: "/catalogue?category=vehicules", ctaFr: "Voir les modèles", ctaEn: "See models" },
-  { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/products/barbie/barbie-08.webp", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
+  { className: "world-vehicles", titleFr: "Voitures électriques", titleEn: "Electric vehicles", textFr: "De grandes aventures les attendent!", textEn: "Big adventures are waiting!", image: "/category-buttons/voitures.png", href: "/catalogue?category=vehicules", ctaFr: "Voir les modèles", ctaEn: "See models" },
+  { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/category-buttons/poupees.png", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
 ];
 
 export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
