@@ -264,3 +264,31 @@ html,body{overflow-x:hidden!important}
   .editable-storefront>.hero-story{width:calc(100% - 20px)!important;margin:6px auto 18px!important}
   .editable-storefront>.hero-story>.hero-story-stage{height:420px!important;aspect-ratio:auto!important}
 }
+
+/* Séparer clairement le texte des photos verticales du Hero. */
+@media(min-width:801px){
+  .editable-storefront>.hero-story .hero-story-slide-portrait>img{
+    width:54%!important;
+    margin-left:auto!important;
+    object-position:center!important;
+  }
+  .editable-storefront>.hero-story .hero-story-slide-portrait .hero-story-copy{
+    left:36px!important;
+    right:auto!important;
+    width:calc(46% - 68px)!important;
+    max-width:390px!important;
+    padding:22px 24px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+  }
+}
+@media(max-width:800px){
+  .editable-storefront>.hero-story .hero-story-copy,
+  .editable-storefront>.hero-story .hero-story-copy-right{
+    bottom:18px!important;
+    left:16px!important;
+    right:16px!important;
+    padding:16px 18px!important;
+  }
+}

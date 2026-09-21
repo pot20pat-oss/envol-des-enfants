@@ -89,6 +89,8 @@ export default function Home() {
         chooseCategory={chooseCategory}
       />
 
+      <StorefrontShopSections market={market} say={say} mode="categories" />
+
       <StorefrontHero
         market={market}
         storePhone={storePhone}

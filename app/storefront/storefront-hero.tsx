@@ -113,7 +113,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
       style={heroStyle}
     >
       <div className="hero-story-stage">
-        <div className="hero-story-slide is-active" aria-hidden="false">
+        <div className={`hero-story-slide is-active hero-story-slide-${active === 0 || active === 5 ? "landscape" : "portrait"}`} aria-hidden="false">
           <img
             src={activeSlide.image}
             alt={activeSlide.alt}
