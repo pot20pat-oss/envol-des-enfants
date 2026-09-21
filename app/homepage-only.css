@@ -239,3 +239,28 @@ html,body{overflow-x:hidden!important}
   .editable-storefront>.hero-story .hero-story-copy h2{font-size:38px!important}
   .editable-storefront>.featured-collection{width:calc(100% - 24px)!important;padding:28px 0!important}
 }
+
+/* Cadrage final du Hero : aucune image agrandie, floutée ou coupée. */
+.editable-storefront>.hero-story{
+  width:min(1080px,calc(100% - 40px))!important;
+  margin:8px auto 26px!important;
+  background:#fff!important;
+}
+.editable-storefront>.hero-story>.hero-story-stage{
+  width:100%!important;
+  height:clamp(320px,34vw,460px)!important;
+  aspect-ratio:auto!important;
+  background:#fff!important;
+}
+.editable-storefront>.hero-story .hero-story-slide>img,
+.editable-storefront>.hero-story .hero-story-slide.is-active>img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  image-rendering:auto!important;
+}
+@media(max-width:800px){
+  .editable-storefront>.hero-story{width:calc(100% - 20px)!important;margin:6px auto 18px!important}
+  .editable-storefront>.hero-story>.hero-story-stage{height:420px!important;aspect-ratio:auto!important}
+}
