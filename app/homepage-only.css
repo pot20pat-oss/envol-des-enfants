@@ -611,3 +611,32 @@ html,body{overflow-x:hidden!important}
   .editable-storefront>.shop-home-sections>.shop-bottom-benefits strong{display:block!important;font-size:14px!important}
   .editable-storefront>.shop-home-sections>.shop-bottom-benefits span{font-size:11px!important}
 }
+
+
+/* 2026-09-21 — visuels dédiés, aucune capsule de navigation dans les cartes. */
+@media(min-width:1000px){
+ .editable-storefront>.shop-home-sections>.shop-world-grid>a{display:block!important}
+ .editable-storefront>.shop-home-sections>.shop-world-grid>a>img{
+   position:absolute!important;right:0!important;bottom:0!important;width:58%!important;height:100%!important;
+   object-fit:cover!important;object-position:center!important;border-radius:0!important
+ }
+ .editable-storefront>.shop-home-sections>.shop-world-grid>.world-montessori>img,
+ .editable-storefront>.shop-home-sections>.shop-world-grid>.world-vehicles>img,
+ .editable-storefront>.shop-home-sections>.shop-world-grid>.world-dolls>img{
+   object-fit:contain!important;padding:18px 8px 8px 0!important;box-sizing:border-box!important
+ }
+ .editable-storefront>.shop-home-sections>.shop-seasonal>a{
+   position:relative!important;overflow:hidden!important;display:block!important
+ }
+ .editable-storefront>.shop-home-sections>.shop-seasonal>a>div{
+   position:relative!important;z-index:2!important;width:55%!important
+ }
+ .editable-storefront>.shop-home-sections>.shop-seasonal>a>img{
+   position:absolute!important;z-index:1!important;right:18px!important;bottom:0!important;width:40%!important;height:92%!important;
+   object-fit:contain!important;object-position:center bottom!important
+ }
+ .editable-storefront>.shop-home-sections>.shop-seasonal .season-school{background:#fff0da!important}
+ .editable-storefront>.shop-home-sections>.shop-seasonal .season-gifts{background:#ffe9ec!important}
+ .editable-storefront>.shop-home-sections>.shop-seasonal h2{font-size:30px!important;line-height:1.02!important}
+ .editable-storefront>.shop-home-sections>.shop-seasonal p{font-size:14px!important}
+}
