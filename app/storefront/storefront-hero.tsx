@@ -32,7 +32,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
     <section className="hero-story hero-reference wrap" id="accueil" style={heroStyle}>
       <a className="hero-reference-link" href={`/catalogue?region=${market}`} aria-label={say("Découvrir nos produits", "Discover our products")}>
         <img
-          src="/hero-client/03-complicite.webp"
+          src="/hero-aimer-jouer-grandir.png"
           alt={say("Aimer, Jouer, Grandir — des jeux et des découvertes pour accompagner chaque enfant dans son envol.", "Love, Play, Grow")}
           loading="eager"
           fetchPriority="high"
