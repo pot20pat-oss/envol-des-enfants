@@ -292,3 +292,31 @@ html,body{overflow-x:hidden!important}
     padding:16px 18px!important;
   }
 }
+
+/* Retirer définitivement l'ancien menu rose, même sur un rendu mis en cache. */
+.ref-nav,.reference-main-nav,.store-category-nav{display:none!important}
+
+/* Recadrer la barre des 9 boutons : supprimer le blanc intégré au PNG. */
+.editable-storefront>.shop-category-strip{
+  height:170px!important;
+  margin:0 auto 4px!important;
+  overflow:hidden!important;
+}
+.editable-storefront>.shop-category-strip .shop-category-reference{
+  height:170px!important;
+  overflow:hidden!important;
+}
+.editable-storefront>.shop-category-strip .shop-category-reference-image{
+  width:100%!important;
+  height:auto!important;
+  transform:translateY(-108px)!important;
+}
+.editable-storefront>.shop-category-strip .shop-category-reference-links{
+  height:170px!important;
+}
+@media(max-width:800px){
+  .editable-storefront>.shop-category-strip{height:145px!important;margin:0!important}
+  .editable-storefront>.shop-category-strip .shop-category-reference{height:145px!important}
+  .editable-storefront>.shop-category-strip .shop-category-reference-image{transform:translateY(-78px)!important}
+  .editable-storefront>.shop-category-strip .shop-category-reference-links{height:145px!important}
+}
