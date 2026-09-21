@@ -320,3 +320,80 @@ html,body{overflow-x:hidden!important}
   .editable-storefront>.shop-category-strip .shop-category-reference-image{transform:translateY(-78px)!important}
   .editable-storefront>.shop-category-strip .shop-category-reference-links{height:145px!important}
 }
+
+/* Hero uniforme : photo et texte dans deux zones distinctes, jamais superposées. */
+@media(min-width:801px){
+  .editable-storefront>.hero-story .hero-story-slide,
+  .editable-storefront>.hero-story .hero-story-slide.is-active{
+    display:grid!important;
+    grid-template-columns:minmax(0,62%) minmax(0,38%)!important;
+    align-items:stretch!important;
+    background:#fff!important;
+  }
+  .editable-storefront>.hero-story .hero-story-slide>img,
+  .editable-storefront>.hero-story .hero-story-slide.is-active>img,
+  .editable-storefront>.hero-story .hero-story-slide-portrait>img{
+    grid-column:1!important;
+    width:100%!important;
+    height:100%!important;
+    margin:0!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    background:#faf9f7!important;
+  }
+  .editable-storefront>.hero-story .hero-story-copy,
+  .editable-storefront>.hero-story .hero-story-copy-right,
+  .editable-storefront>.hero-story .hero-story-slide-portrait .hero-story-copy{
+    position:static!important;
+    grid-column:2!important;
+    align-self:stretch!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:38px 42px!important;
+    transform:none!important;
+    border-radius:0!important;
+    background:#fff7f8!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+  }
+}
+@media(max-width:800px){
+  .editable-storefront>.hero-story>.hero-story-stage{height:560px!important}
+  .editable-storefront>.hero-story .hero-story-slide,
+  .editable-storefront>.hero-story .hero-story-slide.is-active{
+    display:grid!important;
+    grid-template-rows:340px 220px!important;
+    background:#fff!important;
+  }
+  .editable-storefront>.hero-story .hero-story-slide>img,
+  .editable-storefront>.hero-story .hero-story-slide.is-active>img,
+  .editable-storefront>.hero-story .hero-story-slide-portrait>img{
+    width:100%!important;
+    height:340px!important;
+    margin:0!important;
+    object-fit:contain!important;
+    background:#faf9f7!important;
+  }
+  .editable-storefront>.hero-story .hero-story-copy,
+  .editable-storefront>.hero-story .hero-story-copy-right,
+  .editable-storefront>.hero-story .hero-story-slide-portrait .hero-story-copy{
+    position:static!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:20px 24px!important;
+    transform:none!important;
+    border-radius:0!important;
+    background:#fff7f8!important;
+    box-shadow:none!important;
+  }
+  .editable-storefront>.hero-story .hero-story-copy h2{font-size:34px!important;margin-bottom:8px!important}
+  .editable-storefront>.hero-story .hero-story-copy p{font-size:13px!important;margin-bottom:10px!important}
+}
