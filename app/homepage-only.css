@@ -545,13 +545,15 @@ html,body{overflow-x:hidden!important}
  .editable-storefront>.hero-reference{width:calc(100% - 20px)!important;margin-bottom:14px!important}
 }
 
-/* Catégories : proportions natives, sans recadrage ni capsule. */
+/* Image source 2170 × 725 : afficher y=200 à 525 seulement.
+   Les cercles et les textes restent entiers, avec une marge blanche de sécurité.
+   Le recadrage suit la largeur : aucune hauteur fixe selon le viewport. */
 .editable-storefront .shop-category-strip{
   box-sizing:border-box!important;
   width:min(1480px,calc(100% - 40px))!important;
   max-width:1480px!important;
   height:auto!important;
-  margin:0 auto 18px!important;
+  margin:0 auto 8px!important;
   padding:8px 0 0!important;
   overflow:visible!important;
   background:#fff!important;
@@ -565,16 +567,20 @@ html,body{overflow-x:hidden!important}
   display:block!important;
   width:100%!important;
   height:auto!important;
+  aspect-ratio:2170 / 325!important;
   max-height:none!important;
   margin:0!important;
   padding:0!important;
-  overflow:visible!important;
+  overflow:hidden!important;
   background:#fff!important;
   border:0!important;
   border-radius:0!important;
   box-shadow:none!important;
 }
 .editable-storefront .shop-category-reference-image{
+  position:absolute!important;
+  top:-61.5384615385%!important;
+  left:0!important;
   display:block!important;
   width:100%!important;
   height:auto!important;
