@@ -21,16 +21,16 @@ const categories = [
 ];
 
 const worlds = [
-  { className: "world-educational", titleFr: "Jouets éducatifs", titleEn: "Educational toys", textFr: "Stimuler leur curiosité dès le plus jeune âge", textEn: "Inspire curiosity from an early age", image: "/category-buttons/educatifs.png", href: "/jouets", ctaFr: "Découvrir", ctaEn: "Discover" },
-  { className: "world-montessori", titleFr: "Montessori", titleEn: "Montessori", textFr: "Apprendre autrement", textEn: "Learn differently", image: "/category-buttons/montessori.png", href: "/catalogue?category=montessori", ctaFr: "Voir la collection", ctaEn: "See the collection" },
-  { className: "world-vehicles", titleFr: "Voitures électriques", titleEn: "Electric vehicles", textFr: "De grandes aventures les attendent!", textEn: "Big adventures are waiting!", image: "/category-buttons/voitures.png", href: "/catalogue?category=vehicules", ctaFr: "Voir les modèles", ctaEn: "See models" },
-  { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/category-buttons/poupees.png", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
+  { className: "world-educational", titleFr: "Jouets éducatifs", titleEn: "Educational toys", textFr: "Stimuler leur curiosité dès le plus jeune âge", textEn: "Inspire curiosity from an early age", image: "/hero-client/02-jouets.webp", href: "/jouets", ctaFr: "Découvrir", ctaEn: "Discover" },
+  { className: "world-montessori", titleFr: "Montessori", titleEn: "Montessori", textFr: "Apprendre autrement", textEn: "Learn differently", image: "/products/nouveautes/vaisselle.webp", href: "/catalogue?category=montessori", ctaFr: "Voir la collection", ctaEn: "See the collection" },
+  { className: "world-vehicles", titleFr: "Voitures électriques", titleEn: "Electric vehicles", textFr: "De grandes aventures les attendent!", textEn: "Big adventures are waiting!", image: "/products/archive-complements/vtt-utv-rouge.webp", href: "/catalogue?category=vehicules", ctaFr: "Voir les modèles", ctaEn: "See models" },
+  { className: "world-dolls", titleFr: "Mon monde de poupée", titleEn: "My doll world", textFr: "Des poupées qui célèbrent la diversité", textEn: "Dolls that celebrate diversity", image: "/products/poupees-mama/mama-16.webp", href: "/poupees", ctaFr: "Découvrir", ctaEn: "Discover" },
 ];
 
 export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
   const ageGroups = [
-    { fr: "0–12 mois", en: "0–12 months", image: "/hero-client/06-bebe.webp", age: "0-12-mois", tone: "pink" },
+    { fr: "0–12 mois", en: "0–12 months", image: "/hero-client/05-nouveau-ne.webp", age: "0-12-mois", tone: "pink" },
     { fr: "1–2 ans", en: "1–2 years", image: "/hero-client/06-bebe.webp", age: "1-2-ans", tone: "lilac" },
     { fr: "3–5 ans", en: "3–5 years", image: "/hero-client/02-jouets.webp", age: "3-5-ans", tone: "yellow" },
     { fr: "6–8 ans", en: "6–8 years", image: "/hero-client/04-sourires.webp", age: "6-8-ans", tone: "blue" },
@@ -86,8 +86,8 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
     </section>
 
     <section className="shop-seasonal wrap">
-      <a href={`/articles-scolaires${region}`}><div><h2>{say("Préparez la rentrée scolaire!", "Get ready for school!")}</h2><p>{say("Sacs, fournitures et plus encore", "Bags, supplies and more")}</p><span>{say("Voir la sélection", "See the selection")} →</span></div><span aria-hidden="true">🎒 ✏️ 📚</span></a>
-      <a href={`/promotions${region}`}><div><h2>{say("Idées cadeaux de Noël", "Christmas gift ideas")}</h2><p>{say("Des jouets pour des fêtes inoubliables!", "Toys for unforgettable holidays!")}</p><span>{say("Découvrir", "Discover")} →</span></div><span aria-hidden="true">🎁 🧸</span></a>
+      <a className="season-school" href={`/articles-scolaires${region}`}><div><h2>{say("Préparez la rentrée scolaire!", "Get ready for school!")}</h2><p>{say("Sacs, gourdes, papeterie et plus encore", "Bags, bottles, stationery and more")}</p><span>{say("Voir la sélection", "See the selection")} →</span></div><img src="/category-buttons/scolaire.png" alt="" /></a>
+      <a className="season-gifts" href={`/promotions${region}`}><div><h2>{say("Idées cadeaux de Noël", "Christmas gift ideas")}</h2><p>{say("Des jouets pour des fêtes inoubliables!", "Toys for unforgettable holidays!")}</p><span>{say("Découvrir", "Discover")} →</span></div><img src="/products/archive-complements/bebe-peluche-rose.webp" alt="" /></a>
     </section>
 
     <section className="shop-brands wrap"><h2>{say("Nos grandes marques", "Our favourite brands")}</h2><a className="shop-brand-official-strip" href={`/catalogue${region}`} aria-label={say("Voir toutes nos grandes marques", "See all our major brands")}><img src="/brand-logos-content.png" alt="VTech, LEGO, Fisher-Price, Playmobil, Barbie, Hasbro, Marina & Pau et plus encore"/></a></section>
