@@ -32,6 +32,14 @@ const worlds = [
 export default function StorefrontShopSections({ market, say, mode = "all", products = [] }: Props) {
   const region = `?region=${market}`;
   const productImage = (index: number, fallback: string) => products[index]?.imageUrl || fallback;
+  const ageGroups = [
+    { fr: "0–12 mois", en: "0–12 months", image: productImage(0, "/products/mama3/mama3-01.jpg"), age: "0-12-mois", tone: "pink" },
+    { fr: "1–2 ans", en: "1–2 years", image: productImage(1, "/products/mama3/mama3-02.jpg"), age: "1-2-ans", tone: "lilac" },
+    { fr: "3–5 ans", en: "3–5 years", image: productImage(2, "/products/mama3/mama3-03.jpg"), age: "3-5-ans", tone: "yellow" },
+    { fr: "6–8 ans", en: "6–8 years", image: productImage(3, "/products/archive-complements/vtt-utv-rouge.webp"), age: "6-8-ans", tone: "blue" },
+    { fr: "9–12 ans", en: "9–12 years", image: productImage(4, "/products/barbie/barbie-08.webp"), age: "9-12-ans", tone: "green" },
+    { fr: "12 ans et +", en: "12 years +", image: productImage(5, "/category-buttons/scolaire.png"), age: "12-plus", tone: "rose" },
+  ];
   const categorySection = (
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail shop-category-reference">
@@ -68,12 +76,16 @@ export default function StorefrontShopSections({ market, say, mode = "all", prod
       </a>)}
     </section>
 
-    <section className="shop-age wrap">
-      <h2>{say("Magasiner par âge", "Shop by age")}</h2>
-      <div>{[
-        ["0–12 mois", "0–12 months", productImage(0, "/products/mama3/mama3-01.jpg")], ["1–2 ans", "1–2 years", productImage(1, "/products/mama3/mama3-02.jpg")], ["3–5 ans", "3–5 years", productImage(2, "/products/mama3/mama3-03.jpg")],
-        ["6–8 ans", "6–8 years", productImage(3, "/products/archive-complements/vtt-utv-rouge.webp")], ["9–12 ans", "9–12 years", productImage(4, "/products/barbie/barbie-08.webp")], ["12 ans et +", "12 years +", productImage(5, "/category-buttons/scolaire.png")],
-      ].map(([fr,en,image]) => <a href={`/catalogue${region}`} key={fr}><img src={image} alt="" /><span>{say(fr,en)}</span></a>)}</div>
+    <section className="shop-age shop-age-buttons wrap">
+      <h2><i aria-hidden="true">✦</i>{say("Magasiner par âge", "Shop by age")}<i aria-hidden="true">✦</i></h2>
+      <div className="shop-age-grid">
+        {ageGroups.map((group) => (
+          <a className={`shop-age-button shop-age-${group.tone}`} href={`/catalogue?region=${market}&age=${group.age}`} key={group.fr}>
+            <span className="shop-age-photo"><img src={group.image} alt="" /></span>
+            <strong>{say(group.fr, group.en)}</strong>
+          </a>
+        ))}
+      </div>
     </section>
 
     <section className="shop-seasonal wrap">
