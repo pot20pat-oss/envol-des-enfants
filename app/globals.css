@@ -422,3 +422,20 @@
     padding:9px 13px;
   }
 }
+
+
+/* Hero storefront: ensure the carousel remains visible and prominent. */
+.hero-story{display:block!important;width:min(1240px,calc(100% - 104px));margin:18px auto 34px!important;padding:0!important;min-height:520px!important;visibility:visible!important;opacity:1!important}
+.hero-story-stage{position:relative;width:100%;height:clamp(520px,52vw,690px);overflow:hidden;border-radius:18px;background:#f7f7f5}
+.hero-story-slide{position:relative;width:100%;height:100%}
+.hero-story-slide>img{display:block;width:100%;height:100%;object-fit:cover}
+.hero-story-copy{position:absolute;left:clamp(28px,5vw,72px);top:50%;transform:translateY(-50%);z-index:2;max-width:470px}
+.hero-story-nav{position:absolute;z-index:4;top:50%;transform:translateY(-50%)}
+.hero-story-nav-left{left:18px}.hero-story-nav-right{right:18px}
+.hero-story-dots{position:absolute;z-index:4;left:50%;bottom:18px;transform:translateX(-50%)}
+
+/* Make product photography the visual focus of catalogue cards. */
+.product-visual{height:300px!important;background-size:contain!important;background-position:center!important;background-color:#fff!important}
+@media(max-width:1050px){.product-visual{height:270px!important}}
+@media(max-width:700px){.hero-story{width:min(100% - 24px,600px);min-height:390px!important;margin:10px auto 24px!important}.hero-story-stage{height:430px}.hero-story-copy{left:24px;right:24px}.product-visual{height:220px!important}}
+@media(max-width:410px){.hero-story-stage{height:390px}.product-visual{height:195px!important}}
