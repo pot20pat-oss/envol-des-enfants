@@ -30,12 +30,12 @@ const worlds = [
 export default function StorefrontShopSections({ market, say, mode = "all" }: Props) {
   const region = `?region=${market}`;
   const ageGroups = [
-    { fr: "0–12 mois", en: "0–12 months", image: "/age-buttons/0-12-mois.svg", age: "0-12-mois", tone: "pink" },
-    { fr: "1–2 ans", en: "1–2 years", image: "/age-buttons/1-2-ans.svg", age: "1-2-ans", tone: "lilac" },
-    { fr: "3–5 ans", en: "3–5 years", image: "/age-buttons/3-5-ans.svg", age: "3-5-ans", tone: "yellow" },
-    { fr: "6–8 ans", en: "6–8 years", image: "/age-buttons/6-8-ans.svg", age: "6-8-ans", tone: "blue" },
-    { fr: "9–12 ans", en: "9–12 years", image: "/age-buttons/9-12-ans.svg", age: "9-12-ans", tone: "green" },
-    { fr: "12 ans et +", en: "12 years +", image: "/age-buttons/12-plus.svg", age: "12-plus", tone: "rose" },
+    { fr: "0–12 mois", en: "0–12 months", image: "/hero-client/05-nouveau-ne.webp", age: "0-12-mois", tone: "pink" },
+    { fr: "1–2 ans", en: "1–2 years", image: "/hero-client/06-bebe.webp", age: "1-2-ans", tone: "lilac" },
+    { fr: "3–5 ans", en: "3–5 years", image: "/hero-client/02-jouets.webp", age: "3-5-ans", tone: "yellow" },
+    { fr: "6–8 ans", en: "6–8 years", image: "/hero-client/04-sourires.webp", age: "6-8-ans", tone: "blue" },
+    { fr: "9–12 ans", en: "9–12 years", image: "/hero-client/03-complicite.webp", age: "9-12-ans", tone: "green" },
+    { fr: "12 ans et +", en: "12 years +", image: "/hero-client/01-costume.webp", age: "12-plus", tone: "rose" },
   ];
   const categorySection = (
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
