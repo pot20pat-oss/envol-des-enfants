@@ -540,3 +540,13 @@ html,body{overflow-x:hidden!important}
   .editable-storefront>.shop-home-sections>.shop-world-grid>a{height:230px!important;min-height:230px!important}
   .editable-storefront>.shop-home-sections>.shop-age{width:calc(100% - 20px)!important}
 }
+
+
+/* 2026-09-21 — cartes de référence : visuel dominant, sans bloc blanc de produit. */
+.editable-storefront>.shop-home-sections>.shop-world-grid>a>img{
+  right:0!important;bottom:0!important;width:62%!important;height:100%!important;
+  object-fit:contain!important;object-position:center bottom!important;background:transparent!important
+}
+.editable-storefront>.shop-home-sections>.shop-world-grid>a>div{width:46%!important}
+.editable-storefront>.shop-home-sections>.shop-world-grid{margin-bottom:8px!important}
+.editable-storefront>.shop-home-sections>.shop-age{margin-top:0!important}
