@@ -77,8 +77,8 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
       <h2><i aria-hidden="true">✦</i>{say("Magasiner par âge", "Shop by age")}<i aria-hidden="true">✦</i></h2>
       <div className="shop-age-grid">
         {ageGroups.map((group) => (
-          <a className={`shop-age-button shop-age-${group.tone}`} href={`/catalogue?region=${market}&age=${group.age}`} key={group.fr}>
-            <span className="shop-age-photo"><img src={group.image} alt="" /></span>
+          <a className={`shop-age-button shop-age-${group.tone}`} style={{height:145,overflow:"hidden",background:"#fff",border:"1px solid #eee8e5",borderRadius:8,boxShadow:"0 3px 12px rgba(16,47,72,.07)"}} href={`/catalogue?region=${market}&age=${group.age}`} key={group.fr}>
+            <span className="shop-age-photo" style={{height:116,overflow:"hidden",display:"block"}}><img src={group.image} alt="" style={{width:"100%",height:116,objectFit:"cover",objectPosition:"center 28%",display:"block"}} /></span>
             <strong>{say(group.fr, group.en)}</strong>
           </a>
         ))}
