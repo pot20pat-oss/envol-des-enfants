@@ -397,3 +397,34 @@ html,body{overflow-x:hidden!important}
   .editable-storefront>.hero-story .hero-story-copy h2{font-size:34px!important;margin-bottom:8px!important}
   .editable-storefront>.hero-story .hero-story-copy p{font-size:13px!important;margin-bottom:10px!important}
 }
+
+/* Conteneur d'image isolé : aucune ancienne règle object-fit ne peut la couper. */
+.editable-storefront>.hero-story .hero-story-media{
+  grid-column:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  background:#faf9f7!important;
+}
+.editable-storefront>.hero-story .hero-story-media>img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:auto!important;
+}
+@media(max-width:800px){
+  .editable-storefront>.hero-story .hero-story-media{
+    grid-column:auto!important;
+    grid-row:1!important;
+    height:340px!important;
+  }
+}

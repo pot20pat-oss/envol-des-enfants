@@ -114,17 +114,19 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
     >
       <div className="hero-story-stage">
         <div className="hero-story-slide is-active" aria-hidden="false">
-          <img
-            src={activeSlide.image}
-            alt={activeSlide.alt}
-            loading="eager"
-            fetchPriority="high"
-            draggable={false}
-            onError={(event) => {
-              const fallback = market === "qc" ? "/hero-quebec-2026.png" : "/hero-client/01-costume.webp";
-              if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
-            }}
-          />
+          <div className="hero-story-media">
+            <img
+              src={activeSlide.image}
+              alt={activeSlide.alt}
+              loading="eager"
+              fetchPriority="high"
+              draggable={false}
+              onError={(event) => {
+                const fallback = market === "qc" ? "/hero-quebec-2026.png" : "/hero-client/01-costume.webp";
+                if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
+              }}
+            />
+          </div>
           <div className={`hero-story-copy hero-story-copy-${activeSlide.tone}`}>
             <h2>{activeSlide.title}<br /><span>{activeSlide.accent}</span></h2>
             <p>{activeSlide.description}</p>
