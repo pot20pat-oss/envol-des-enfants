@@ -454,3 +454,32 @@
 .shop-age-pink{background:#fff0f3}.shop-age-lilac{background:#f7efff}.shop-age-yellow{background:#fff8df}.shop-age-blue{background:#e9fbfc}.shop-age-green{background:#effbef}.shop-age-rose{background:#fff0f3}
 @media(max-width:1000px){.shop-age-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.shop-age-photo{height:210px}}
 @media(max-width:600px){.shop-age-buttons{padding-block:28px}.shop-age-buttons>h2{gap:9px;margin-bottom:20px;font-size:27px}.shop-age-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important}.shop-age-photo{height:160px}.shop-age-button strong{min-height:46px;font-size:14px}}
+
+
+/* Refine homepage hero: compact, centered, directly below navigation. */
+.hero-story{
+  width:min(1180px,calc(100% - 48px))!important;
+  min-height:0!important;
+  margin:8px auto 24px!important;
+  padding:0!important;
+}
+.hero-story-stage{
+  width:100%!important;
+  height:clamp(330px,34vw,460px)!important;
+  border-radius:16px!important;
+}
+.hero-story-slide>img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+.hero-story-copy{
+  left:clamp(34px,5vw,68px)!important;
+  max-width:430px!important;
+}
+@media(max-width:700px){
+  .hero-story{width:calc(100% - 24px)!important;margin:6px auto 18px!important}
+  .hero-story-stage{height:330px!important}
+  .hero-story-copy{left:22px!important;right:22px!important;max-width:360px!important}
+}
