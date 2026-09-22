@@ -25,7 +25,7 @@ export function DashboardSection({ stats, products, orders, market, goTo }: {
 }
 
 
-export function CustomersSection({ customers, orders, market }: { customers: Row[]; orders: Row[]; market: Market }) {
+export function CustomersSection({ customers, orders, market, remove }: { customers: Row[]; orders: Row[]; market: Market; remove: (id: string) => void }) {
   return <section className="cms-panel">
     <div className="cms-panel-title"><h2>Tous les clients</h2><span>{customers.length} compte{customers.length === 1 ? "" : "s"}</span></div>
     <div className="cms-table-wrap"><table><thead><tr><th>Client</th><th>Boutique</th><th>Coordonnées</th><th>Adresse</th><th>Commandes</th><th>Inscription</th><th>Action</th></tr></thead><tbody>
@@ -38,6 +38,7 @@ export function CustomersSection({ customers, orders, market }: { customers: Row
           <td>{String(customer.address || "—")}</td>
           <td><strong>{Number(customer.order_count || customerOrders.length)}</strong>{customerOrders.length > 0 && <><br/><small>{customerOrders.slice(0, 3).map((order) => String(order.product_name)).join(" · ")}</small></>}</td>
           <td>{customer.created_at ? new Date(String(customer.created_at)).toLocaleDateString("fr-CA") : "—"}</td>
+          <td><button type="button" className="cms-danger" onClick={() => remove(String(customer.id))}>Supprimer</button></td>
         </tr>;
       })}
     </tbody></table></div>
