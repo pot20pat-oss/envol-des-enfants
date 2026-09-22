@@ -719,3 +719,12 @@ html,body{overflow-x:hidden!important}
 .editable-storefront>.home-section-cards a{display:block!important;overflow:hidden!important;border-radius:12px!important}
 .editable-storefront>.home-section-cards img{display:block!important;width:100%!important;height:auto!important;object-fit:contain!important}
 @media(max-width:800px){.editable-storefront>.home-section-cards{width:calc(100% - 20px)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}}
+
+
+/* 2026-09-22 — taille finale logo + drapeau Canada visible. */
+.ref-header .ref-head{height:160px!important;grid-template-columns:170px minmax(240px,1fr) 390px!important}
+.ref-header .ref-logo{width:160px!important;height:145px!important}
+.ref-header .ref-logo img{width:150px!important;height:140px!important;max-width:150px!important;object-fit:contain!important}
+.ref-header .ref-canadian-business{display:inline-flex!important;align-items:center!important;gap:6px!important}
+.ref-header .ref-canada-flag{display:inline-block!important;font-size:18px!important;line-height:1!important;font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif!important}
+@media(max-width:900px){.ref-header .ref-head{height:auto!important;grid-template-columns:130px 1fr!important}.ref-header .ref-logo{width:125px!important;height:105px!important}.ref-header .ref-logo img{width:115px!important;height:100px!important}}
