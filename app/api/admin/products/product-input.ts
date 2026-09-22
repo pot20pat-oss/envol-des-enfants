@@ -63,8 +63,9 @@ export function createProductBindings(
   now: string,
 ) {
   const conakryPrice = numberValue(data.price_conakry ?? data.price);
-  const conakryStock = numberValue(data.stock_conakry ?? data.stock, 1);
-  const qcStock = numberValue(data.stock_qc ?? data.stock, 1);
+  // Un nouvel article entre toujours avec au moins 1 en stock. Seule une vente ou une modification manuelle peut ensuite le ramener à 0.
+  const conakryStock = Math.max(1, numberValue(data.stock_conakry ?? data.stock, 1));
+  const qcStock = Math.max(1, numberValue(data.stock_qc ?? data.stock, 1));
 
   return [
     id,
