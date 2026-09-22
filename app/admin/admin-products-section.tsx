@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { marketPrice, markets, type Market } from "@/lib/markets";
 import { categories, request, type Row } from "./admin-shared";
@@ -15,6 +15,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const [duplicateScan, setDuplicateScan] = useState<{groups: Row[][]; scanned: number} | null>(null);
   const [duplicateScanning, setDuplicateScanning] = useState(false);
   const [duplicateProgress, setDuplicateProgress] = useState({done:0,total:0});
+  const duplicateImageHashCache=useRef(new Map<string,string>());
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
   const normalizeDuplicate = (value: unknown) => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
   const duplicateWords = (value: unknown) => new Set(normalizeDuplicate(value).split(" ").filter(word => word.length > 2));
@@ -24,42 +25,47 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     let same = 0; for (const word of aw) if (bw.has(word)) same++;
     return same / Math.min(aw.size, bw.size);
   };
-  const scanDuplicates = () => {
+  const imageHash = async (url: string) => {
+    const cached=duplicateImageHashCache.current.get(url);if(cached)return cached;
+    const img=new Image();img.crossOrigin="anonymous";img.src=url;await img.decode();
+    const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;
+    const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");
+    ctx.drawImage(img,0,0,16,16);const data=ctx.getImageData(0,0,16,16).data;
+    const gray:number[]=[];for(let i=0;i<data.length;i+=4)gray.push(data[i]*.299+data[i+1]*.587+data[i+2]*.114);
+    const avg=gray.reduce((a,b)=>a+b,0)/gray.length;const hash=gray.map(v=>v>=avg?"1":"0").join("");
+    duplicateImageHashCache.current.set(url,hash);return hash;
+  };
+  const imageSimilarity = (a:string,b:string) => {
+    if(!a||!b||a.length!==b.length)return 0;let different=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])different++;
+    return 1-different/a.length;
+  };
+  const scanDuplicates = async () => {
     setDuplicateScanning(true);
     try {
-      const source = catalogProducts.length ? catalogProducts : products;
-      const pairs: Array<[Row, Row]> = [];
-      const total=Math.max(0,(source.length*(source.length-1))/2);let done=0;setDuplicateProgress({done:0,total});
-      for (let i = 0; i < source.length; i++) for (let j = i + 1; j < source.length; j++) {
-        const a = source[i], b = source[j];
-        const brandA = normalizeDuplicate(a.brand).replace(/\s+/g, ""), brandB = normalizeDuplicate(b.brand).replace(/\s+/g, "");
-        done++;if(done%250===0||done===total)setDuplicateProgress({done,total});
-        if (!brandA || brandA !== brandB) continue;
-        const articleA = normalizeDuplicate(a.article_number), articleB = normalizeDuplicate(b.article_number);
-        const name = wordSimilarity(`${a.name_fr || ""} ${a.name_en || ""}`, `${b.name_fr || ""} ${b.name_en || ""}`);
-        const desc = wordSimilarity(`${a.description_fr || ""} ${a.description_en || ""}`, `${b.description_fr || ""} ${b.description_en || ""}`);
-        // Scanner conservateur : un même numéro d'article est un signal fort.
-        // Sans numéro identique, on n'affiche une paire que si le nom ET la description
-        // sont presque identiques. La marque seule ou la gamme ne suffisent jamais.
+      const source=catalogProducts.length?catalogProducts:products;
+      const candidates:Array<{a:Row;b:Row;text:number;sameArticle:boolean}>=[];
+      for(let i=0;i<source.length;i++)for(let j=i+1;j<source.length;j++){
+        const a=source[i],b=source[j];
+        const brandA=normalizeDuplicate(a.brand).replace(/\s+/g,""),brandB=normalizeDuplicate(b.brand).replace(/\s+/g,"");
+        if(!brandA||brandA!==brandB)continue;
+        const articleA=normalizeDuplicate(a.article_number),articleB=normalizeDuplicate(b.article_number);
+        const name=wordSimilarity(`${a.name_fr||""} ${a.name_en||""}`,`${b.name_fr||""} ${b.name_en||""}`);
+        const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
         const sameArticle=!!(articleA&&articleA===articleB);
-        const nearSameText=name>=.97&&desc>=.92;
-        const exactName=normalizeDuplicate(`${a.name_fr||""} ${a.name_en||""}`)===normalizeDuplicate(`${b.name_fr||""} ${b.name_en||""}`);
-        if(sameArticle||(exactName&&desc>=.75)||nearSameText)pairs.push([a,b]);
+        // Le texte sert uniquement de présélection; l'image doit ensuite confirmer.
+        if(sameArticle||name>=.72||desc>=.72)candidates.push({a,b,text:name*.65+desc*.35,sameArticle});
       }
-      // Construire des composantes connexes de paires. Une paire A-B et une paire B-C
-      // deviennent un seul groupe A-B-C, mais un produit simplement de la même marque
-      // ne peut plus contaminer tout le groupe.
-      const adjacency = new Map<string, Set<string>>();
-      const byId = new Map(source.map(product => [String(product.id), product]));
-      for (const [a,b] of pairs) {
-        const aid=String(a.id),bid=String(b.id);
-        if(!adjacency.has(aid))adjacency.set(aid,new Set());
-        if(!adjacency.has(bid))adjacency.set(bid,new Set());
-        adjacency.get(aid)!.add(bid);adjacency.get(bid)!.add(aid);
+      setDuplicateProgress({done:0,total:candidates.length});
+      const pairs:Array<[Row,Row]>=[];let done=0;
+      for(const candidate of candidates){
+        let visual=0;
+        const au=String(candidate.a.image_url||""),bu=String(candidate.b.image_url||"");
+        if(au&&bu)try{const [ah,bh]=await Promise.all([imageHash(au),imageHash(bu)]);visual=imageSimilarity(ah,bh)}catch{}
+        // Hors numéro d'article identique, texte ET image doivent converger fortement.
+        if(candidate.sameArticle||(candidate.text>=.72&&visual>=.90)||(candidate.text>=.84&&visual>=.84))pairs.push([candidate.a,candidate.b]);
+        done++;if(done%5===0||done===candidates.length){setDuplicateProgress({done,total:candidates.length});await new Promise(resolve=>setTimeout(resolve,0))}
       }
-      // L'interface de révision travaille exclusivement par paires : jamais plus de 2
-      // produits dans un bloc, même lorsqu'un article participe à plusieurs correspondances.
-      const groups: Row[][] = pairs.map(([a,b]) => [a,b]);
+      const groups:Row[][]=pairs.map(([a,b])=>[a,b]);
       groups.sort((a,b)=>String(a[0].brand||"").localeCompare(String(b[0].brand||"")));
       setDuplicateScan({groups,scanned:source.length});
     } finally { setDuplicateScanning(false); }
