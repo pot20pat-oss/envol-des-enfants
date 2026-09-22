@@ -65,7 +65,7 @@ export async function DELETE(request: Request) {
   const id = new URL(request.url).searchParams.get("id");
   if (!id) return Response.json({ error: "Commande invalide." }, { status: 400 });
   const database = cmsEnv().DB;
-  const order = await database.prepare("SELECT id,status,region,items_json FROM orders WHERE id=?").bind(id).first<Record<string, unknown>>();
+  const order = await database.prepare("SELECT * FROM orders WHERE id=?").bind(id).first<Record<string, unknown>>();
   if (!order) return Response.json({ error: "Commande introuvable." }, { status: 404 });
 
   // Suppression directe autorisée. Si la commande est encore active, restaurer
@@ -81,5 +81,6 @@ export async function DELETE(request: Request) {
     } catch {}
   }
   await database.prepare("DELETE FROM orders WHERE id=?").bind(id).run();
+  const undoKey=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(undoKey,JSON.stringify({type:"order_delete",table:"orders",label:`Suppression commande · ${String(order.id)}`,before:order}),new Date().toISOString()).run();
   return Response.json({ ok: true });
 }
