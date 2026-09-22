@@ -103,7 +103,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,confidence:pair.confidence}));
-      groups.sort((a,b)=>rank[a.confidence]-rank[b.confidence]||b.visual-a.visual);
+      groups.sort((a,b)=>b.visual-a.visual||rank[a.confidence]-rank[b.confidence]);
       setDuplicateScan({groups,scanned:source.length});
     } finally { setDuplicateScanning(false); }
   };
