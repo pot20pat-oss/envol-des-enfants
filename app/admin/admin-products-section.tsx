@@ -46,30 +46,37 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     const aw=distinctiveWords(a),bw=distinctiveWords(b);if(!aw.size||!bw.size)return 0;
     let same=0;for(const word of aw)if(bw.has(word))same++;return same/Math.max(aw.size,bw.size);
   };
-  const imageFingerprint = async (url: string) => {
-    const cached=duplicateImageHashCache.current.get(url);if(cached)return cached;
+  type VisualFingerprint={shape:string;color:number[]};
+  const imageFingerprint = async (url: string):Promise<VisualFingerprint> => {
+    const cacheKey="v2:"+url;const cached=duplicateImageHashCache.current.get(cacheKey);
+    if(cached){const parsed=JSON.parse(cached) as VisualFingerprint;return parsed}
     const img=new Image();img.crossOrigin="anonymous";img.src=url;await img.decode();
-    const canvas=document.createElement("canvas");canvas.width=64;canvas.height=64;
-    const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");
-    ctx.fillStyle="#fff";ctx.fillRect(0,0,64,64);
-    const scale=Math.min(64/img.naturalWidth,64/img.naturalHeight);const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
-    ctx.drawImage(img,(64-w)/2,(64-h)/2,w,h);
-    const data=ctx.getImageData(0,0,64,64).data;const gray:number[]=[];
-    for(let i=0;i<data.length;i+=4)gray.push(data[i]*.299+data[i+1]*.587+data[i+2]*.114);
-    const avg=gray.reduce((a,b)=>a+b,0)/gray.length;
-    const bits=gray.map(v=>v>=avg?"1":"0").join("");
-    duplicateImageHashCache.current.set(url,bits);return bits;
+    const source=document.createElement("canvas");source.width=128;source.height=128;
+    const sctx=source.getContext("2d",{willReadFrequently:true});if(!sctx)throw new Error("Canvas indisponible");
+    sctx.fillStyle="#fff";sctx.fillRect(0,0,128,128);
+    const scale=Math.min(128/img.naturalWidth,128/img.naturalHeight);const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+    sctx.drawImage(img,(128-w)/2,(128-h)/2,w,h);
+    const pixels=sctx.getImageData(0,0,128,128).data;
+    let minX=127,minY=127,maxX=0,maxY=0,found=false;
+    for(let y=0;y<128;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4;const r=pixels[i],g=pixels[i+1],bl=pixels[i+2];const mx=Math.max(r,g,bl),mn=Math.min(r,g,bl);if(mx<242||(mx-mn)>18){found=true;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}}
+    if(!found){minX=0;minY=0;maxX=127;maxY=127}
+    const pad=4;minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);maxX=Math.min(127,maxX+pad);maxY=Math.min(127,maxY+pad);
+    const canvas=document.createElement("canvas");canvas.width=64;canvas.height=64;const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,64,64);ctx.drawImage(source,minX,minY,maxX-minX+1,maxY-minY+1,0,0,64,64);
+    const data=ctx.getImageData(0,0,64,64).data;const gray:number[]=[];const color=new Array(12).fill(0);let colored=0;
+    for(let i=0;i<data.length;i+=4){const r=data[i],g=data[i+1],bl=data[i+2];gray.push(r*.299+g*.587+bl*.114);if(Math.min(r,g,bl)<245){color[Math.min(3,Math.floor(r/64))]++;color[4+Math.min(3,Math.floor(g/64))]++;color[8+Math.min(3,Math.floor(bl/64))]++;colored++}}
+    const avg=gray.reduce((x,y)=>x+y,0)/gray.length;const shape=gray.map(v=>v>=avg?"1":"0").join("");const denom=Math.max(1,colored);const normalized=color.map(v=>v/denom);
+    const fp={shape,color:normalized};duplicateImageHashCache.current.set(cacheKey,JSON.stringify(fp));return fp;
   };
-  const imageSimilarity = (a:string,b:string) => {
-    if(!a||!b||a.length!==b.length)return 0;let different=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])different++;
-    return 1-different/a.length;
-  };
+  const bitSimilarity=(a:string,b:string)=>{if(!a||!b||a.length!==b.length)return 0;let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return 1-d/a.length};
+  const colorSimilarity=(a:number[],b:number[])=>{if(a.length!==b.length)return 0;let d=0;for(let i=0;i<a.length;i++)d+=Math.abs(a[i]-b[i]);return Math.max(0,1-d/(a.length/3))};
+  const imageSimilarity=(a:VisualFingerprint|undefined,b:VisualFingerprint|undefined)=>!a||!b?0:bitSimilarity(a.shape,b.shape)*.72+colorSimilarity(a.color,b.color)*.28;
   const scanDuplicates = async () => {
     setDuplicateScanning(true);
     try {
       const source=catalogProducts.length?catalogProducts:products;
       setDuplicateProgress({done:0,total:source.length});
-      const fingerprints=new Map<string,string>();
+      const fingerprints=new Map<string,VisualFingerprint>();
       for(let i=0;i<source.length;i++){
         const url=String(source[i].image_url||"");
         if(url)try{fingerprints.set(String(source[i].id),await imageFingerprint(url))}catch{}
@@ -78,8 +85,8 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       const pairs:Array<{a:Row;b:Row;visual:number;confidence:"certain"|"probable"|"review"}>=[];const seen=new Set<string>();
       for(let i=0;i<source.length;i++)for(let j=i+1;j<source.length;j++){
         const a=source[i],b=source[j],aid=String(a.id),bid=String(b.id);
-        const ah=fingerprints.get(aid)||"",bh=fingerprints.get(bid)||"";
-        const visual=ah&&bh?imageSimilarity(ah,bh):0;
+        const ah=fingerprints.get(aid),bh=fingerprints.get(bid);
+        const visual=imageSimilarity(ah,bh);
         const articleA=normalizeDuplicate(a.article_number),articleB=normalizeDuplicate(b.article_number);
         const sameArticle=!!(articleA&&articleA===articleB);
         const brandA=normalizeDuplicate(a.brand).replace(/\s+/g,""),brandB=normalizeDuplicate(b.brand).replace(/\s+/g,"");
