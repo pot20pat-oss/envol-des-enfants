@@ -104,7 +104,19 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
   }
   const rank={certain:3,probable:2,related:1}; return scored.filter(m=>m.kind!=="related").sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,5)
  }
- async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));const result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});const suggestion=result.suggestion as Row;const matches=await rankCatalogVisually(item,suggestion);const match=matches[0];const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,catalogMatches:matches,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
+ async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));let result:any;let lastError:unknown;
+for(let attempt=1;attempt<=3;attempt++){
+ try{
+  result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});
+  if(result?.suggestion)break;
+  throw new Error("Analyse IA incomplète");
+ }catch(error){
+  lastError=error;
+  if(attempt<3)await new Promise(resolve=>setTimeout(resolve,attempt*1000));
+ }
+}
+if(!result?.suggestion)throw(lastError instanceof Error?lastError:new Error("Analyse IA impossible après 3 tentatives"));
+const suggestion=result.suggestion as Row;const matches=await rankCatalogVisually(item,suggestion);const match=matches[0];const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,catalogMatches:matches,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
  function removeItem(id:string){setItems(a=>{const item=a.find(x=>x.id===id);if(item?.preview)URL.revokeObjectURL(item.preview);return a.filter(x=>x.id!==id)})}
  function cancelBatch(){if(!window.confirm("Annuler cette analyse et retirer toutes les photos sélectionnées ?"))return;items.forEach(item=>URL.revokeObjectURL(item.preview));setItems([])}
