@@ -166,7 +166,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:8}}>
                   <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir en grand</button>
                   <button type="button" className="cms-secondary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchAccepted:true,matchRejected:false}:x))}>✓ C’est le même produit</button>
-                  <button type="button" className="cms-danger" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchRejected:true,matchAccepted:false}:x))}>✕ Ce n’est PAS le même produit</button><button type="button" className="cms-primary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:undefined,catalogScore:undefined,catalogMatches:[],matchRejected:true,matchAccepted:false,group:x.id}:x))}>＋ Ceci est un nouveau produit</button>
+                  <button type="button" className="cms-danger" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchRejected:true,matchAccepted:false}:x))}>✕ Ce n’est PAS le même produit</button>
                   <button type="button" className="cms-secondary" disabled={working||!item.url} onClick={()=>void replaceMatchedImage(item)}>↻ Remplacer l’image du doublon</button>
                   <button type="button" className="cms-danger" disabled={working} onClick={()=>void deleteMatchedProduct(item)}>🗑 Supprimer le doublon du catalogue</button>
                 </div>
