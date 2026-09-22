@@ -533,7 +533,7 @@ html,body{overflow-x:hidden!important}
 
 /* 2026-09-21 — Hero image unique: toujours visible, ratio conservé. */
 .editable-storefront>.hero-reference{
-  width:min(1480px,calc(100% - 40px))!important;max-width:1480px!important;margin:0 auto 22px!important;
+  width:min(1000px,calc(100% - 40px))!important;max-width:1000px!important;margin:0 auto 22px!important;
   padding:0!important;overflow:hidden!important;border-radius:12px!important;background:#fff!important
 }
 .editable-storefront>.hero-reference .hero-reference-link{display:block!important;width:100%!important;text-decoration:none!important}
@@ -550,8 +550,8 @@ html,body{overflow-x:hidden!important}
    Le recadrage suit la largeur : aucune hauteur fixe selon le viewport. */
 .editable-storefront .shop-category-strip{
   box-sizing:border-box!important;
-  width:min(1480px,calc(100% - 40px))!important;
-  max-width:1480px!important;
+  width:min(1000px,calc(100% - 40px))!important;
+  max-width:1000px!important;
   height:auto!important;
   margin:0 auto 8px!important;
   padding:8px 0 0!important;
