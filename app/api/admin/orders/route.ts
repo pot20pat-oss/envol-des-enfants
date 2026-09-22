@@ -68,10 +68,17 @@ export async function DELETE(request: Request) {
   const order = await database.prepare("SELECT id,status,region,items_json FROM orders WHERE id=?").bind(id).first<Record<string, unknown>>();
   if (!order) return Response.json({ error: "Commande introuvable." }, { status: 404 });
 
-  // Une commande active doit d'abord être annulée afin que le stock soit restauré
-  // par le flux normal d'annulation avant sa suppression définitive.
-  if (stringValue(order.status) !== "cancelled") {
-    return Response.json({ error: "Annulez d’abord la commande avant de la supprimer afin de conserver un inventaire exact." }, { status: 409 });
+  // Suppression directe autorisée. Si la commande est encore active, restaurer
+  // d'abord son stock exactement comme lors d'une annulation.
+  if (stringValue(order.status) !== "cancelled" && order.items_json) {
+    try {
+      const items=JSON.parse(String(order.items_json)) as Array<{product_id?:string;quantity?:number}>;
+      const region=normalizeMarket(order.region);
+      const stockColumn=region==="qc"?"stock_qc":"stock_conakry";
+      const now=new Date().toISOString();
+      const restocks=items.filter(item=>item.product_id&&Number(item.quantity)>0).map(item=>database.prepare(`UPDATE products SET ${stockColumn} = ${stockColumn} + ?, updated_at=? WHERE id=?`).bind(Number(item.quantity),now,String(item.product_id)));
+      if(restocks.length)await database.batch(restocks);
+    } catch {}
   }
   await database.prepare("DELETE FROM orders WHERE id=?").bind(id).run();
   return Response.json({ ok: true });
