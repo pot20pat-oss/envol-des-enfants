@@ -21,11 +21,12 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   return (
           <div
             className="cms-overlay"
+            style={{position:"fixed",inset:0,zIndex:12000,display:"flex",alignItems:"stretch",justifyContent:"flex-end",padding:"18px",background:"rgba(11,23,36,.38)",overflow:"hidden"}}
             onClick={(event) => {
               if (event.target === event.currentTarget) setEditing(null);
             }}
           >
-            <form className="cms-editor cms-form" onSubmit={save}>
+            <form className="cms-editor cms-form" onSubmit={save} style={{position:"relative",width:"min(760px,calc(100vw - 36px))",maxWidth:"100%",height:"calc(100dvh - 36px)",maxHeight:"calc(100dvh - 36px)",overflowY:"auto",overflowX:"hidden",overscrollBehavior:"contain",padding:"20px 24px 96px",borderRadius:16,background:"#fff",boxShadow:"0 18px 60px rgba(0,0,0,.24)",boxSizing:"border-box"}}>
               <div className="cms-panel-title">
                 <h2>
                   {editing.id ? "Modifier" : "Ajouter"}{" "}
@@ -45,7 +46,7 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
               </div>
               <div
                 className="cms-editor-actions"
-                style={{position:"sticky",top:0,zIndex:20,display:"flex",justifyContent:"flex-end",gap:10,padding:"12px 0",background:"rgba(255,255,255,.96)",backdropFilter:"blur(8px)",borderBottom:"1px solid #dbe5ea"}}
+                style={{position:"sticky",top:-20,zIndex:50,display:"flex",justifyContent:"flex-end",gap:10,padding:"12px 4px",margin:"0 -4px 14px",background:"rgba(255,255,255,.98)",backdropFilter:"blur(8px)",borderBottom:"1px solid #dbe5ea",boxShadow:"0 5px 12px rgba(20,45,60,.06)"}}
               >
                 <button
                   type="button"
