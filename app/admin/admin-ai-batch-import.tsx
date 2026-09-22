@@ -91,12 +91,18 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     if(visual>=.96)score=Math.max(score,.98);
     else if(visual>=.88)score=Math.max(score,.86);
     else if(visual>=.78)score=Math.max(score,.72);
-    if(visual>=.80&&sameBrand&&text>=.24){
-      const base=textMatches.find(m=>String(m.product.id)===String(p.id));
-      let kind:Match["kind"]=base?.kind||"related",reason=base?.reason||(sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer");
-      if(visual>=.95&&sameBrand&&text>=.40){kind="certain";reason="Même marque + contenu compatible + image presque identique"}
-      else if(visual>=.80&&sameBrand&&text>=.24){kind="probable";reason="Même marque + contenu compatible + image ressemblante"}
-      else if(kind==="certain"&&visual<.70&&!base?.reason.includes("numéro")){kind="probable"}
+    // L'import utilise maintenant la même philosophie que le scanner CMS :
+    // même marque + forte identité textuelle + forte ressemblance visuelle.
+    // La couleur/forme commune des emballages d'une gamme ne suffit plus.
+    const sourceName=`${suggestion.name_fr||""} ${suggestion.name_en||""}`;
+    const productName=`${p.name_fr||""} ${p.name_en||""}`;
+    const sourceTokens=usefulWords(sourceName),productTokens=usefulWords(productName);
+    const distinctive=overlap(sourceTokens,productTokens);
+    const sameArticle=!!(norm(suggestion.article_number)&&norm(suggestion.article_number)===norm(p.article_number));
+    if(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55))){
+      let kind:Match["kind"]="probable",reason="Même marque + identité du produit compatible + image très ressemblante";
+      if(sameArticle){kind="certain";reason="Même marque + même numéro d’article"}
+      else if(visual>=.97&&text>=.84&&distinctive>=.70){kind="certain";reason="Même marque + nom/contenu très similaire + image presque identique"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
     }
    }));
