@@ -124,7 +124,7 @@ export default function Administration() {
           .catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression impossible."));
       }} />)}
 
-      {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} />}
+      {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} remove={(id) => { if (!window.confirm("Supprimer définitivement ce client ? Son historique de commandes sera conservé.")) return; void request(`/api/admin/customers?id=${encodeURIComponent(id)}`, { method: "DELETE" }).then(() => load()).catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression du client impossible.")); }} />}
 
       {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
 
