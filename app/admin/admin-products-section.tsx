@@ -12,9 +12,45 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
 }) {
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [visibilityBusy, setVisibilityBusy] = useState<string | null>(null);
+  const [duplicateScan, setDuplicateScan] = useState<{groups: Row[][]; scanned: number} | null>(null);
+  const [duplicateScanning, setDuplicateScanning] = useState(false);
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
+  const normalizeDuplicate = (value: unknown) => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const duplicateWords = (value: unknown) => new Set(normalizeDuplicate(value).split(" ").filter(word => word.length > 2));
+  const wordSimilarity = (a: unknown, b: unknown) => {
+    const aw = duplicateWords(a), bw = duplicateWords(b);
+    if (!aw.size || !bw.size) return 0;
+    let same = 0; for (const word of aw) if (bw.has(word)) same++;
+    return same / Math.min(aw.size, bw.size);
+  };
+  const scanDuplicates = () => {
+    setDuplicateScanning(true);
+    try {
+      const source = catalogProducts.length ? catalogProducts : products;
+      const pairs: Array<[Row, Row]> = [];
+      for (let i = 0; i < source.length; i++) for (let j = i + 1; j < source.length; j++) {
+        const a = source[i], b = source[j];
+        const brandA = normalizeDuplicate(a.brand).replace(/\s+/g, ""), brandB = normalizeDuplicate(b.brand).replace(/\s+/g, "");
+        if (!brandA || brandA !== brandB) continue;
+        const articleA = normalizeDuplicate(a.article_number), articleB = normalizeDuplicate(b.article_number);
+        const name = wordSimilarity(`${a.name_fr || ""} ${a.name_en || ""}`, `${b.name_fr || ""} ${b.name_en || ""}`);
+        const desc = wordSimilarity(`${a.description_fr || ""} ${a.description_en || ""}`, `${b.description_fr || ""} ${b.description_en || ""}`);
+        if ((articleA && articleA === articleB) || (name >= .72 && desc >= .45)) pairs.push([a,b]);
+      }
+      const groups: Row[][] = [];
+      for (const [a,b] of pairs) {
+        let group = groups.find(g => g.some(p => String(p.id) === String(a.id) || String(p.id) === String(b.id)));
+        if (!group) { group = []; groups.push(group); }
+        if (!group.some(p => String(p.id) === String(a.id))) group.push(a);
+        if (!group.some(p => String(p.id) === String(b.id))) group.push(b);
+      }
+      setDuplicateScan({groups,scanned:source.length});
+    } finally { setDuplicateScanning(false); }
+  };
   return <section className="cms-panel">
+    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:10}}><button type="button" className="cms-primary" disabled={duplicateScanning} onClick={scanDuplicates}>{duplicateScanning?"Analyse du catalogue…":"⌕ Scanner les doublons du CMS"}</button></div>
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} search={search} setSearch={setSearch} synchronize={synchronize} add={add} />
+    {duplicateScan&&<section style={{margin:"0 0 18px",padding:16,border:"1px solid #b9cbd5",borderRadius:12,background:"#f8fbfc"}}><div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center"}}><strong>Scanner de doublons · {duplicateScan.scanned} produits vérifiés · {duplicateScan.groups.length} groupe(s) suspect(s)</strong><button className="cms-secondary" onClick={()=>setDuplicateScan(null)}>Fermer</button></div>{duplicateScan.groups.length===0?<p>Aucun doublon potentiel détecté avec les critères actuels.</p>:<div style={{display:"grid",gap:10,marginTop:12}}>{duplicateScan.groups.map((group,index)=><div key={index} style={{display:"flex",gap:12,alignItems:"center",padding:10,border:"1px solid #dce6eb",borderRadius:10,background:"#fff"}}><b>Doublon potentiel</b>{group.map(product=><button key={String(product.id)} className="cms-secondary" onClick={()=>edit(product)}>{String(product.brand||"")} · {String(product.name_fr||product.article_number||"Produit")} · {String(product.article_number||"—")}</button>)}</div>)}</div>}</section>}
     <div className="cms-product-filters">
       <label>Catégorie<select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">Toutes les catégories</option>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
       <label>Visibilité<select value={visibility} onChange={(event) => setVisibility(event.target.value)}><option value="all">Tous</option><option value="visible">Visibles</option><option value="hidden">Masqués</option><option value="qc">Québec seulement</option><option value="conakry">Conakry seulement</option><option value="both">Québec + Conakry</option></select></label>
