@@ -27,3 +27,15 @@ export async function GET(request: Request) {
 
   return Response.json({ customers: results });
 }
+
+
+export async function DELETE(request: Request) {
+  if (!await currentAdmin(request)) return forbidden();
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) return Response.json({ error: "Client manquant." }, { status: 400 });
+  const database = cmsEnv().DB;
+  const customer = await database.prepare("SELECT id,email,region FROM customers WHERE id=?").bind(id).first();
+  if (!customer) return Response.json({ error: "Client introuvable." }, { status: 404 });
+  await database.prepare("DELETE FROM customers WHERE id=?").bind(id).run();
+  return Response.json({ ok: true });
+}
