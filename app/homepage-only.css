@@ -626,3 +626,43 @@ html,body{overflow-x:hidden!important}
 .editable-storefront > .hero-reference .hero-language-controls button:focus-visible {
   outline:3px solid #073b77; outline-offset:2px;
 }
+
+
+/* 2026-09-22 — hero compact, aucun scroll horizontal, cartes visibles. */
+.editable-storefront>.hero-reference{
+  width:min(900px,calc(100% - 40px))!important;
+  max-width:900px!important;
+  margin:0 auto 14px!important;
+  overflow:hidden!important;
+}
+.editable-storefront>.hero-reference .hero-reference-link,
+.editable-storefront>.hero-reference .hero-reference-link>img{
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.editable-storefront>.hero-reference .hero-language-controls{
+  overflow:hidden!important;
+  padding:5px!important;
+}
+.editable-storefront>.hero-reference .hero-language-controls button{
+  width:30px!important;height:30px!important;font-size:13px!important;
+}
+.editable-storefront>.shop-home-sections>.shop-world-grid{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.editable-storefront>.shop-home-sections>.shop-world-grid>a{
+  display:block!important;
+  position:relative!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.editable-storefront>.shop-home-sections>.shop-world-grid>a>img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+@media(max-width:800px){
+ .editable-storefront>.hero-reference{width:calc(100% - 20px)!important;margin-bottom:12px!important}
+}
