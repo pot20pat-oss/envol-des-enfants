@@ -87,6 +87,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const [minPrice,setMinPrice]=useState("");
   const [maxPrice,setMaxPrice]=useState("");
   const commerce=useCommerce();
+  const themeCategory = activeCategory !== "all" && activeCategory !== "new" ? activeCategory : (categories?.[0] || "all");
 
   useEffect(()=>{
     const saved=window.localStorage.getItem("envol-language");
@@ -152,7 +153,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     detail:{fr:product.description_fr||"",en:product.description_en||product.description_fr||""},
   });
 
-  return <main className={`category-page${isFullCatalog?" catalog-marketplace":""}`}>
+  return <main className={`category-page${isFullCatalog?" catalog-marketplace":""} theme-${themeCategory}`}>
     <header className="category-header wrap">
       <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
       <label className="category-header-search"><span className="sr-only">{label("Rechercher", "Search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={label("Que recherchez-vous? (ex. Barbie, LEGO, Montessori…)","What are you looking for? (e.g. Barbie, LEGO, Montessori…)")}/><b aria-hidden="true">⌕</b></label>
@@ -202,7 +203,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       {categoryTabs?.length?<div className="category-tabs" role="tablist"><button type="button" className={activeCategory==="all"?"active":""} onClick={()=>selectCategory("all")}>{label("Toutes","All")}</button>{categoryTabs.map(tab=><button type="button" className={activeCategory===tab.value?"active":""} key={tab.value} onClick={()=>selectCategory(tab.value)}>{label(tab.labelFr,tab.labelEn)}</button>)}</div>:null}
     </section>}
 
-    <section className="category-products wrap">
+    <div className="category-shop-layout wrap">\n      {!isFullCatalog&&<aside className="category-sidebar"><h3>{label("Catégories","Categories")}</h3><button className={activeCategory==="all"?"active":""} onClick={()=>selectCategory("all")}>{label("Tout voir","View all")}</button>{categoryTabs?.map(tab=><button key={tab.value} className={activeCategory===tab.value?"active":""} onClick={()=>selectCategory(tab.value)}>{label(tab.labelFr,tab.labelEn)}</button>)}<h3>{label("Disponibilité","Availability")}</h3><button className={availability==="all"?"active":""} onClick={()=>setAvailability("all")}>{label("Tous les articles","All items")}</button><button className={availability==="available"?"active":""} onClick={()=>setAvailability("available")}>{label("Disponible","Available")}</button><button className={availability==="reserved"?"active":""} onClick={()=>setAvailability("reserved")}>{label("Réservé","Reserved")}</button></aside>}\n    <section className="category-products">
       {loading?<p>{label("Chargement…","Loading…")}</p>:visible.length===0?<p>{label("Aucun article ne correspond à ces filtres.","No items match these filters.")}</p>:<div className="category-grid">{visible.map(p=><article className="category-card" key={p.id}>
         <button type="button" className="category-image-button" onClick={()=>openProduct(p)} aria-label={`${label("Agrandir l’image de","Enlarge image of")} ${language==="fr"?p.name_fr:(p.name_en||p.name_fr)}`}><div className="category-image">{p.image_url?<img src={p.image_url} alt={language==="fr"?p.name_fr:(p.name_en||p.name_fr)}/>:<span>Envol</span>}</div></button>
         <div className="category-copy" onClick={()=>openProduct(p)} role="button" tabIndex={0} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();openProduct(p);}}}>
