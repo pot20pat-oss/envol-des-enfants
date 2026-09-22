@@ -83,3 +83,11 @@
 .category-page .product-commerce-buttons{margin-top:auto!important;flex:0 0 46px!important;height:46px!important;padding-top:0!important;display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;gap:8px!important}
 .category-page .product-cart,.category-page .product-favorite{height:46px!important;min-height:46px!important;max-height:46px!important;line-height:1!important}
 @media(max-width:1200px) and (min-width:901px){.category-page .category-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+
+
+/* 2026-09-22 — hotfix CTA: ne jamais couper les boutons des cartes. */
+.category-page .category-card{height:auto!important;min-height:550px!important;max-height:none!important;overflow:visible!important;grid-template-rows:260px minmax(290px,1fr)!important}
+.category-page .category-copy{height:auto!important;min-height:290px!important;max-height:none!important;overflow:visible!important;padding-bottom:16px!important}
+.category-page .product-commerce-buttons{margin-top:auto!important;flex:0 0 auto!important;min-height:48px!important;height:48px!important;overflow:visible!important}
+.category-page .product-cart,.category-page .product-favorite{height:48px!important;min-height:48px!important;max-height:none!important;overflow:visible!important;box-sizing:border-box!important}
+.category-page .product-cart{white-space:normal!important;text-overflow:clip!important;line-height:1.1!important}
