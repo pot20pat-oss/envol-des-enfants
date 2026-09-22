@@ -89,7 +89,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
         // L'image est maintenant analysée pour TOUT le catalogue. Une forte ressemblance visuelle
         // suffit à signaler une paire, même si marque/titre/catégorie ont été saisis différemment.
-        const duplicate=sameArticle||visual>=.965||(visual>=.91&&(sameBrand||name>=.55||distinctive>=.45))||(sameBrand&&distinctive>=.60&&name>=.82&&desc>=.60);
+        const duplicate=sameArticle||visual>=.992||(visual>=.975&&(sameBrand||name>=.72||distinctive>=.65))||(visual>=.955&&sameBrand&&name>=.82&&distinctive>=.70)||(sameBrand&&distinctive>=.72&&name>=.90&&desc>=.72);
         if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);pairs.push([a,b])}}
       }
       const groups:Row[][]=pairs.map(([a,b])=>[a,b]);
