@@ -64,6 +64,7 @@ export function createProductBindings(
 ) {
   const conakryPrice = numberValue(data.price_conakry ?? data.price);
   const conakryStock = numberValue(data.stock_conakry ?? data.stock, 1);
+  const qcStock = numberValue(data.stock_qc ?? data.stock, 1);
 
   return [
     id,
@@ -89,7 +90,7 @@ export function createProductBindings(
     data.visible === false ? 0 : 1,
     numberValue(data.price_qc),
     conakryPrice,
-    numberValue(data.stock_qc),
+    qcStock,
     conakryStock,
     data.visible_qc ? 1 : 0,
     data.visible_conakry === false || data.visible_conakry === 0 ? 0 : 1,
