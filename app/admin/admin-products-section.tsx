@@ -28,9 +28,9 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const imageHash = async (url: string) => {
     const cached=duplicateImageHashCache.current.get(url);if(cached)return cached;
     const img=new Image();img.crossOrigin="anonymous";img.src=url;await img.decode();
-    const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;
+    const canvas=document.createElement("canvas");canvas.width=32;canvas.height=32;
     const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");
-    ctx.drawImage(img,0,0,16,16);const data=ctx.getImageData(0,0,16,16).data;
+    ctx.drawImage(img,0,0,32,32);const data=ctx.getImageData(0,0,32,32).data;
     const gray:number[]=[];for(let i=0;i<data.length;i+=4)gray.push(data[i]*.299+data[i+1]*.587+data[i+2]*.114);
     const avg=gray.reduce((a,b)=>a+b,0)/gray.length;const hash=gray.map(v=>v>=avg?"1":"0").join("");
     duplicateImageHashCache.current.set(url,hash);return hash;
@@ -53,7 +53,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
         const sameArticle=!!(articleA&&articleA===articleB);
         // Le texte sert uniquement de présélection; l'image doit ensuite confirmer.
-        if(sameArticle||name>=.72||desc>=.72)candidates.push({a,b,text:name*.65+desc*.35,sameArticle});
+        if(sameArticle||(name>=.82&&desc>=.70)||name>=.94)candidates.push({a,b,text:name*.70+desc*.30,sameArticle});
       }
       setDuplicateProgress({done:0,total:candidates.length});
       const pairs:Array<[Row,Row]>=[];let done=0;
@@ -62,7 +62,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const au=String(candidate.a.image_url||""),bu=String(candidate.b.image_url||"");
         if(au&&bu)try{const [ah,bh]=await Promise.all([imageHash(au),imageHash(bu)]);visual=imageSimilarity(ah,bh)}catch{}
         // Hors numéro d'article identique, texte ET image doivent converger fortement.
-        if(candidate.sameArticle||(candidate.text>=.72&&visual>=.90)||(candidate.text>=.84&&visual>=.84))pairs.push([candidate.a,candidate.b]);
+        if(candidate.sameArticle||(candidate.text>=.90&&visual>=.94)||(candidate.text>=.96&&visual>=.88))pairs.push([candidate.a,candidate.b]);
         done++;if(done%5===0||done===candidates.length){setDuplicateProgress({done,total:candidates.length});await new Promise(resolve=>setTimeout(resolve,0))}
       }
       const groups:Row[][]=pairs.map(([a,b])=>[a,b]);
