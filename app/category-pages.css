@@ -91,3 +91,9 @@
 .category-page .product-commerce-buttons{margin-top:auto!important;flex:0 0 auto!important;min-height:48px!important;height:48px!important;overflow:visible!important}
 .category-page .product-cart,.category-page .product-favorite{height:48px!important;min-height:48px!important;max-height:none!important;overflow:visible!important;box-sizing:border-box!important}
 .category-page .product-cart{white-space:normal!important;text-overflow:clip!important;line-height:1.1!important}
+
+
+/* 2026-09-22 — CTA lisible au complet, sans ellipse. */
+.category-page .product-commerce-buttons{grid-template-columns:minmax(150px,1fr) 48px!important;gap:10px!important}
+.category-page .product-cart{width:100%!important;min-width:0!important;padding:0 10px!important;font-size:14px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;letter-spacing:-.15px!important}
+.category-page .product-favorite{width:48px!important;min-width:48px!important;padding:0!important}
