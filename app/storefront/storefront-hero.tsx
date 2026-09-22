@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { type Market } from "@/lib/markets";
 
 type Say = (french: string, english: string) => string;
@@ -19,6 +19,15 @@ type Props = {
 };
 
 export default function StorefrontHero({ market, say, sectionStyle }: Props) {
+  const [active, setActive] = useState(0);
+  const slides = [
+    { name: "costume", alt: say("Son univers. Ses règles. Son aventure.", "His world. His rules. His adventure.") },
+    { name: "creativite", alt: say("Une idée. Un sourire. Tout un monde !", "One idea. One smile. A world of wonder!") },
+    { name: "nouveau-ne", alt: say("Tout petit. Déjà tout un monde.", "So little. A whole world of wonder.") },
+    { name: "bebe", alt: say("Petits gestes. Grandes découvertes.", "Little moves. Big discoveries.") },
+  ];
+  const slide = slides[active];
+  const move = (step: number) => setActive((current) => (current + step + slides.length) % slides.length);
   const heroStyle: CSSProperties = {
     ...sectionStyle("hero"),
     display: "block",
@@ -29,16 +38,27 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   };
 
   return (
-    <section className="hero-story hero-reference wrap" id="accueil" style={heroStyle}>
+    <section className="hero-story hero-reference wrap" id="accueil" style={heroStyle} aria-roledescription={say("carrousel", "carousel")} aria-label={say("À découvrir", "Discover")}>
       <a className="hero-reference-link" href={`/catalogue?region=${market}`} aria-label={say("Découvrir nos produits", "Discover our products")}>
         <img
-          src="/hero-aimer-jouer-grandir.png"
-          alt={say("Aimer, Jouer, Grandir — des jeux et des découvertes pour accompagner chaque enfant dans son envol.", "Love, Play, Grow")}
+          src={`/hero-client/${slide.name}-${say("fr", "en")}.webp`}
+          width={1916}
+          height={821}
+          alt={slide.alt}
           loading="eager"
           fetchPriority="high"
           draggable={false}
         />
       </a>
+      <nav className="hero-language-controls" aria-label={say("Choisir une bannière", "Choose a banner")}>
+        <button type="button" onClick={() => move(-1)} aria-label={say("Bannière précédente", "Previous banner")}>‹</button>
+        {slides.map((item, index) => (
+          <button key={item.name} type="button" onClick={() => setActive(index)} aria-current={index === active ? "true" : undefined} aria-label={item.alt}>
+            {index + 1}
+          </button>
+        ))}
+        <button type="button" onClick={() => move(1)} aria-label={say("Bannière suivante", "Next banner")}>›</button>
+      </nav>
     </section>
   );
 }

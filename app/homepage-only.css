@@ -609,3 +609,20 @@ html,body{overflow-x:hidden!important}
   border-radius:0!important;
   box-shadow:none!important;
 }
+
+/* Navigation outside the artwork keeps every translated caption visible. */
+.editable-storefront > .hero-reference .hero-language-controls {
+  display:flex; justify-content:center; align-items:center; gap:8px;
+  padding:8px; background:#fff;
+}
+.editable-storefront > .hero-reference .hero-language-controls button {
+  display:grid; place-items:center; width:36px; height:36px; padding:0;
+  border:1px solid #d8dfeb; border-radius:50%; background:#fff;
+  color:#073b77; font:600 16px/1 sans-serif; cursor:pointer;
+}
+.editable-storefront > .hero-reference .hero-language-controls button[aria-current="true"] {
+  color:#fff; background:#ff1266; border-color:#ff1266;
+}
+.editable-storefront > .hero-reference .hero-language-controls button:focus-visible {
+  outline:3px solid #073b77; outline-offset:2px;
+}
