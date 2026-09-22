@@ -55,13 +55,6 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
           draggable={false}
         />
       </a>
-      <nav className="hero-language-controls" aria-label={say("Choisir une bannière", "Choose a banner")}>
-        {slides.map((item, index) => (
-          <button key={item.name} type="button" onClick={() => setActive(index)} aria-current={index === active ? "true" : undefined} aria-label={item.alt}>
-            {index + 1}
-          </button>
-        ))}
-      </nav>
     </section>
   );
 }
