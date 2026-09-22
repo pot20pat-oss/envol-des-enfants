@@ -46,15 +46,19 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     const aw=distinctiveWords(a),bw=distinctiveWords(b);if(!aw.size||!bw.size)return 0;
     let same=0;for(const word of aw)if(bw.has(word))same++;return same/Math.max(aw.size,bw.size);
   };
-  const imageHash = async (url: string) => {
+  const imageFingerprint = async (url: string) => {
     const cached=duplicateImageHashCache.current.get(url);if(cached)return cached;
     const img=new Image();img.crossOrigin="anonymous";img.src=url;await img.decode();
-    const canvas=document.createElement("canvas");canvas.width=32;canvas.height=32;
+    const canvas=document.createElement("canvas");canvas.width=64;canvas.height=64;
     const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");
-    ctx.drawImage(img,0,0,32,32);const data=ctx.getImageData(0,0,32,32).data;
-    const gray:number[]=[];for(let i=0;i<data.length;i+=4)gray.push(data[i]*.299+data[i+1]*.587+data[i+2]*.114);
-    const avg=gray.reduce((a,b)=>a+b,0)/gray.length;const hash=gray.map(v=>v>=avg?"1":"0").join("");
-    duplicateImageHashCache.current.set(url,hash);return hash;
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,64,64);
+    const scale=Math.min(64/img.naturalWidth,64/img.naturalHeight);const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+    ctx.drawImage(img,(64-w)/2,(64-h)/2,w,h);
+    const data=ctx.getImageData(0,0,64,64).data;const gray:number[]=[];
+    for(let i=0;i<data.length;i+=4)gray.push(data[i]*.299+data[i+1]*.587+data[i+2]*.114);
+    const avg=gray.reduce((a,b)=>a+b,0)/gray.length;
+    const bits=gray.map(v=>v>=avg?"1":"0").join("");
+    duplicateImageHashCache.current.set(url,bits);return bits;
   };
   const imageSimilarity = (a:string,b:string) => {
     if(!a||!b||a.length!==b.length)return 0;let different=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])different++;
@@ -64,28 +68,29 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     setDuplicateScanning(true);
     try {
       const source=catalogProducts.length?catalogProducts:products;
-      const candidates:Array<{a:Row;b:Row;text:number;sameArticle:boolean}>=[];
-      for(let i=0;i<source.length;i++)for(let j=i+1;j<source.length;j++){
-        const a=source[i],b=source[j];
-        const brandA=normalizeDuplicate(a.brand).replace(/\s+/g,""),brandB=normalizeDuplicate(b.brand).replace(/\s+/g,"");
-        if(!brandA||brandA!==brandB)continue;
-        const articleA=normalizeDuplicate(a.article_number),articleB=normalizeDuplicate(b.article_number);
-        const nameTextA=`${a.name_fr||""} ${a.name_en||""}`,nameTextB=`${b.name_fr||""} ${b.name_en||""}`;
-        const name=wordSimilarity(nameTextA,nameTextB);const distinctive=distinctiveSimilarity(nameTextA,nameTextB);
-        const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
-        const sameArticle=!!(articleA&&articleA===articleB);
-        // Le texte sert uniquement de présélection; l'image doit ensuite confirmer.
-        if(sameArticle||(distinctive>=.60&&name>=.82&&desc>=.70)||(distinctive>=.80&&name>=.90))candidates.push({a,b,text:name*.55+desc*.20+distinctive*.25,sameArticle});
+      setDuplicateProgress({done:0,total:source.length});
+      const fingerprints=new Map<string,string>();
+      for(let i=0;i<source.length;i++){
+        const url=String(source[i].image_url||"");
+        if(url)try{fingerprints.set(String(source[i].id),await imageFingerprint(url))}catch{}
+        if(i%5===0||i===source.length-1){setDuplicateProgress({done:i+1,total:source.length});await new Promise(resolve=>setTimeout(resolve,0))}
       }
-      setDuplicateProgress({done:0,total:candidates.length});
-      const pairs:Array<[Row,Row]>=[];let done=0;
-      for(const candidate of candidates){
-        let visual=0;
-        const au=String(candidate.a.image_url||""),bu=String(candidate.b.image_url||"");
-        if(au&&bu)try{const [ah,bh]=await Promise.all([imageHash(au),imageHash(bu)]);visual=imageSimilarity(ah,bh)}catch{}
-        // Hors numéro d'article identique, texte ET image doivent converger fortement.
-        if(candidate.sameArticle||(candidate.text>=.88&&visual>=.95)||(candidate.text>=.94&&visual>=.91))pairs.push([candidate.a,candidate.b]);
-        done++;if(done%5===0||done===candidates.length){setDuplicateProgress({done,total:candidates.length});await new Promise(resolve=>setTimeout(resolve,0))}
+      const pairs:Array<[Row,Row]>=[];const seen=new Set<string>();
+      for(let i=0;i<source.length;i++)for(let j=i+1;j<source.length;j++){
+        const a=source[i],b=source[j],aid=String(a.id),bid=String(b.id);
+        const ah=fingerprints.get(aid)||"",bh=fingerprints.get(bid)||"";
+        const visual=ah&&bh?imageSimilarity(ah,bh):0;
+        const articleA=normalizeDuplicate(a.article_number),articleB=normalizeDuplicate(b.article_number);
+        const sameArticle=!!(articleA&&articleA===articleB);
+        const brandA=normalizeDuplicate(a.brand).replace(/\s+/g,""),brandB=normalizeDuplicate(b.brand).replace(/\s+/g,"");
+        const sameBrand=!!(brandA&&brandA===brandB);
+        const nameA=`${a.name_fr||""} ${a.name_en||""}`,nameB=`${b.name_fr||""} ${b.name_en||""}`;
+        const name=wordSimilarity(nameA,nameB),distinctive=distinctiveSimilarity(nameA,nameB);
+        const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
+        // L'image est maintenant analysée pour TOUT le catalogue. Une forte ressemblance visuelle
+        // suffit à signaler une paire, même si marque/titre/catégorie ont été saisis différemment.
+        const duplicate=sameArticle||visual>=.965||(visual>=.91&&(sameBrand||name>=.55||distinctive>=.45))||(sameBrand&&distinctive>=.60&&name>=.82&&desc>=.60);
+        if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);pairs.push([a,b])}}
       }
       const groups:Row[][]=pairs.map(([a,b])=>[a,b]);
       groups.sort((a,b)=>String(a[0].brand||"").localeCompare(String(b[0].brand||"")));
