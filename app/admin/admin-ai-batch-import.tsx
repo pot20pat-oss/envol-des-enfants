@@ -102,7 +102,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
    }));
    void rows;
   }
-  const rank={certain:3,probable:2,related:1}; return scored.filter(m=>m.kind!=="related").sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,12)
+  const rank={certain:3,probable:2,related:1}; return scored.filter(m=>m.kind!=="related").sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,5)
  }
  async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));const result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});const suggestion=result.suggestion as Row;const matches=await rankCatalogVisually(item,suggestion);const match=matches[0];const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,catalogMatches:matches,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
