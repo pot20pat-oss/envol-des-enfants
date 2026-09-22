@@ -64,11 +64,11 @@ export async function POST(request: Request) {
     if (deletedNames.has(normalizedName) || (englishName && deletedNames.has(englishName))) continue;
 
     const status = stringValue(product.status, "available");
-    const defaultStock = status === "sold" ? 0 : 1;
+    const defaultStock = 1;
     const priceConakry = numberValue(product.priceConakry ?? product.price);
     const priceQc = numberValue(product.priceQc);
-    const stockConakry = numberValue(product.stockConakry, defaultStock);
-    const stockQc = numberValue(product.stockQc, defaultStock);
+    const stockConakry = Math.max(1, numberValue(product.stockConakry, defaultStock));
+    const stockQc = Math.max(1, numberValue(product.stockQc, defaultStock));
     const visibleConakry = product.visibleConakry === false ? 0 : 1;
     const visibleQc = product.visibleQc ? 1 : 0;
     const category = stringValue(product.category, "eveil");
