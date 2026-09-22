@@ -98,12 +98,12 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
         // L'image est maintenant analysée pour TOUT le catalogue. Une forte ressemblance visuelle
         // suffit à signaler une paire, même si marque/titre/catégorie ont été saisis différemment.
-        const metadata=Math.max(name*.55+distinctive*.30+(sameBrand?.15:0),sameBrand&&desc>=.72?Math.min(1,name*.65+desc*.20+.15):0);const visualEvidence=Math.max(scores.cropped,scores.legacy*.94);const match=sameArticle||scores.exact?1:Math.min(1,visualEvidence*.78+metadata*.22);const duplicate=sameArticle||scores.exact||match>=.84||(visualEvidence>=.955&&metadata>=.38);
-        if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);const confidence:"certain"|"probable"|"review"=sameArticle||scores.exact||match>=.94?"certain":match>=.88?"probable":"review";pairs.push({a,b,visual,match,confidence})}}
+        const metadata=Math.max(name*.55+distinctive*.30+(sameBrand?.15:0),sameBrand&&desc>=.72?Math.min(1,name*.65+desc*.20+.15):0);const visualEvidence=Math.max(scores.cropped,scores.legacy*.94);const match=sameArticle||scores.exact?1:Math.min(1,visualEvidence*.78+metadata*.22);const legacyStrong=scores.legacy>=.975;const croppedStrong=scores.cropped>=.985;const metadataStrong=sameBrand||name>=.62||distinctive>=.55;const duplicate=sameArticle||scores.exact||legacyStrong||croppedStrong||(scores.cropped>=.955&&metadataStrong)||(sameBrand&&distinctive>=.72&&name>=.90&&desc>=.72);
+        if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);const confidence:"certain"|"probable"|"review"=sameArticle||scores.exact||scores.legacy>=.985||scores.cropped>=.992?"certain":legacyStrong||(scores.cropped>=.975&&metadataStrong)?"probable":"review";pairs.push({a,b,visual,match,confidence})}}
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,confidence:pair.confidence}));
-      groups.sort((a,b)=>rank[a.confidence]-rank[b.confidence]||b.match-a.match||b.visual-a.visual);
+      groups.sort((a,b)=>rank[a.confidence]-rank[b.confidence]||b.visual-a.visual||b.match-a.match);
       setDuplicateScan({groups,scanned:source.length});
     } finally { setDuplicateScanning(false); }
   };
