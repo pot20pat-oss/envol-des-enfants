@@ -87,10 +87,26 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }
       const semanticVectors=new Map<string,number[]>();
       let semanticError="";
-      try{
-        const candidates=source.filter(p=>String(p.image_url||"").startsWith("/api/images/"));
-        for(let start=0;start<candidates.length;start+=8){const batch=candidates.slice(start,start+8);const response=await fetch("/api/admin/image-embeddings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image_urls:batch.map(p=>String(p.image_url))})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {error?:string};throw new Error(problem.error||`NVIDIA HTTP ${response.status}`)}const data=await response.json() as {vectors:number[][]};batch.forEach((p,i)=>{if(Array.isArray(data.vectors?.[i]))semanticVectors.set(String(p.id),data.vectors[i])})}
-      }catch(error){semanticError=error instanceof Error?error.message:"Analyse sémantique indisponible";}
+      const candidates=source.filter(p=>String(p.image_url||"").startsWith("/api/images/"));
+      // Le scan classique doit toujours terminer. NVIDIA est un enrichissement optionnel
+      // et ne peut plus laisser le bouton bloqué à 100 %.
+      for(let start=0;start<candidates.length;start+=8){
+        const batch=candidates.slice(start,start+8);
+        try{
+          const controller=new AbortController();
+          const timeout=setTimeout(()=>controller.abort(),12000);
+          let response:Response;
+          try{response=await fetch("/api/admin/image-embeddings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image_urls:batch.map(p=>String(p.image_url))}),signal:controller.signal})}
+          finally{clearTimeout(timeout)}
+          if(!response.ok){const problem=await response.json().catch(()=>({})) as {error?:string};throw new Error(problem.error||`NVIDIA HTTP ${response.status}`)}
+          const data=await response.json() as {vectors:number[][]};
+          batch.forEach((p,i)=>{if(Array.isArray(data.vectors?.[i]))semanticVectors.set(String(p.id),data.vectors[i])});
+        }catch(error){
+          semanticError=error instanceof DOMException&&error.name==="AbortError"?"NVIDIA a dépassé 12 s; scan classique conservé.":error instanceof Error?error.message:"Analyse sémantique indisponible";
+          break;
+        }
+        await new Promise(resolve=>setTimeout(resolve,0));
+      }
       const cosine=(a:number[]|undefined,b:number[]|undefined)=>{if(!a||!b||a.length!==b.length)return 0;let dot=0,aa=0,bb=0;for(let i=0;i<a.length;i++){dot+=a[i]*b[i];aa+=a[i]*a[i];bb+=b[i]*b[i]}return aa&&bb?dot/Math.sqrt(aa*bb):0};
       const pairs:Array<{a:Row;b:Row;visual:number;match:number;semantic:number;legacy:number;cropped:number;name:number;distinctive:number;sameBrand:boolean;confidence:"certain"|"probable"|"review"}>=[];const seen=new Set<string>();
       for(let i=0;i<source.length;i++)for(let j=i+1;j<source.length;j++){
