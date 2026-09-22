@@ -14,6 +14,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const [visibilityBusy, setVisibilityBusy] = useState<string | null>(null);
   const [duplicateScan, setDuplicateScan] = useState<{groups: Row[][]; scanned: number} | null>(null);
   const [duplicateScanning, setDuplicateScanning] = useState(false);
+  const [duplicateProgress, setDuplicateProgress] = useState({done:0,total:0});
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
   const normalizeDuplicate = (value: unknown) => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
   const duplicateWords = (value: unknown) => new Set(normalizeDuplicate(value).split(" ").filter(word => word.length > 2));
@@ -28,9 +29,11 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     try {
       const source = catalogProducts.length ? catalogProducts : products;
       const pairs: Array<[Row, Row]> = [];
+      const total=Math.max(0,(source.length*(source.length-1))/2);let done=0;setDuplicateProgress({done:0,total});
       for (let i = 0; i < source.length; i++) for (let j = i + 1; j < source.length; j++) {
         const a = source[i], b = source[j];
         const brandA = normalizeDuplicate(a.brand).replace(/\s+/g, ""), brandB = normalizeDuplicate(b.brand).replace(/\s+/g, "");
+        done++;if(done%250===0||done===total)setDuplicateProgress({done,total});
         if (!brandA || brandA !== brandB) continue;
         const articleA = normalizeDuplicate(a.article_number), articleB = normalizeDuplicate(b.article_number);
         const name = wordSimilarity(`${a.name_fr || ""} ${a.name_en || ""}`, `${b.name_fr || ""} ${b.name_en || ""}`);
@@ -48,7 +51,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     } finally { setDuplicateScanning(false); }
   };
   return <section className="cms-panel">
-    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:10}}><button type="button" className="cms-primary" disabled={duplicateScanning} onClick={scanDuplicates}>{duplicateScanning?"Analyse du catalogue…":"⌕ Scanner les doublons du CMS"}</button></div>
+    <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:12,marginBottom:10}}>{duplicateScanning&&<div style={{display:"flex",alignItems:"center",gap:8,minWidth:300}}><span style={{fontSize:22,animation:"cmsHourglass 1s linear infinite"}}>⌛</span><div style={{flex:1}}><div style={{fontSize:12,fontWeight:800,marginBottom:4}}>Analyse des doublons… {duplicateProgress.total?Math.round(duplicateProgress.done/duplicateProgress.total*100):0}%</div><div style={{height:8,borderRadius:999,background:"#dce6eb",overflow:"hidden"}}><div style={{height:"100%",width:`${duplicateProgress.total?duplicateProgress.done/duplicateProgress.total*100:0}%`,background:"#123f61",transition:"width .2s"}} /></div></div></div>}<button type="button" className="cms-primary" disabled={duplicateScanning} onClick={scanDuplicates}>{duplicateScanning?"⌛ Analyse en cours…":"⌕ Scanner les doublons du CMS"}</button></div>
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} search={search} setSearch={setSearch} synchronize={synchronize} add={add} />
     {duplicateScan&&<section style={{margin:"0 0 18px",padding:16,border:"1px solid #b9cbd5",borderRadius:12,background:"#f8fbfc"}}><div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center"}}><strong>Scanner de doublons · {duplicateScan.scanned} produits vérifiés · {duplicateScan.groups.length} groupe(s) suspect(s)</strong><button className="cms-secondary" onClick={()=>setDuplicateScan(null)}>Fermer</button></div>{duplicateScan.groups.length===0?<p>Aucun doublon potentiel détecté avec les critères actuels.</p>:<div style={{display:"grid",gap:10,marginTop:12}}>{duplicateScan.groups.map((group,index)=><div key={index} style={{display:"flex",gap:12,alignItems:"center",padding:10,border:"1px solid #dce6eb",borderRadius:10,background:"#fff"}}><b>Doublon potentiel</b>{group.map(product=><button key={String(product.id)} className="cms-secondary" onClick={()=>edit(product)}>{String(product.brand||"")} · {String(product.name_fr||product.article_number||"Produit")} · {String(product.article_number||"—")}</button>)}</div>)}</div>}</section>}
     <div className="cms-product-filters">
