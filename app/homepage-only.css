@@ -728,3 +728,7 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-canadian-business{display:inline-flex!important;align-items:center!important;gap:6px!important}
 .ref-header .ref-canada-flag{display:inline-block!important;font-size:18px!important;line-height:1!important;font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif!important}
 @media(max-width:900px){.ref-header .ref-head{height:auto!important;grid-template-columns:130px 1fr!important}.ref-header .ref-logo{width:125px!important;height:105px!important}.ref-header .ref-logo img{width:115px!important;height:100px!important}}
+
+/* Drapeau Canada CSS: ne dépend pas du rendu emoji du navigateur. */
+.ref-header .ref-canada-flag{position:relative!important;display:inline-block!important;width:24px!important;height:15px!important;background:linear-gradient(90deg,#d80621 0 25%,#fff 25% 75%,#d80621 75% 100%)!important;border:1px solid #ddd!important;border-radius:1px!important;font-size:0!important;flex:0 0 24px!important}
+.ref-header .ref-canada-flag .maple-leaf{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%) rotate(45deg)!important;width:7px!important;height:7px!important;background:#d80621!important;color:transparent!important;font-size:0!important}
