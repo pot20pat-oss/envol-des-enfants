@@ -42,8 +42,9 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         // Sans numéro identique, on n'affiche une paire que si le nom ET la description
         // sont presque identiques. La marque seule ou la gamme ne suffisent jamais.
         const sameArticle=!!(articleA&&articleA===articleB);
-        const nearSameText=name>=.90&&desc>=.82;
-        if(sameArticle||nearSameText)pairs.push([a,b]);
+        const nearSameText=name>=.97&&desc>=.92;
+        const exactName=normalizeDuplicate(`${a.name_fr||""} ${a.name_en||""}`)===normalizeDuplicate(`${b.name_fr||""} ${b.name_en||""}`);
+        if(sameArticle||(exactName&&desc>=.75)||nearSameText)pairs.push([a,b]);
       }
       // Construire des composantes connexes de paires. Une paire A-B et une paire B-C
       // deviennent un seul groupe A-B-C, mais un produit simplement de la même marque
