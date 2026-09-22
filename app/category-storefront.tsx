@@ -164,9 +164,8 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     </nav>
 
     <section className="category-hero wrap">
-      <p className="eyebrow">Envol des Enfants</p>
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
+      <div className="category-hero-copy"><p className="eyebrow">Envol des Enfants</p><h1>{title}</h1><p>{subtitle}</p></div>
+      {!isFullCatalog&&visible.slice(0,3).some(p=>p.image_url)&&<div className="category-hero-products" aria-hidden="true">{visible.slice(0,3).filter(p=>p.image_url).map(p=><img key={p.id} src={p.image_url} alt=""/>)}</div>}
     </section>
 
     {isFullCatalog&&<section className="catalog-command wrap" aria-label={label("Navigation et filtres du catalogue","Catalog navigation and filters")}>
