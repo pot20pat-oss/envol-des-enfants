@@ -698,3 +698,14 @@ html,body{overflow-x:hidden!important}
    object-fit:contain!important;object-position:center bottom!important;padding:8px!important;box-sizing:border-box!important;
  }
 }
+
+
+/* 2026-09-22 — logo accueil réduit. */
+.storefront-header-shell .ref-logo,
+.storefront-header-shell .brand{width:220px!important;height:92px!important}
+.storefront-header-shell .ref-logo img,
+.storefront-header-shell .brand-logo-official{width:210px!important;height:90px!important;max-width:210px!important;object-fit:contain!important}
+@media(max-width:800px){
+ .storefront-header-shell .ref-logo,.storefront-header-shell .brand{width:135px!important;height:64px!important}
+ .storefront-header-shell .ref-logo img,.storefront-header-shell .brand-logo-official{width:130px!important;height:62px!important}
+}
