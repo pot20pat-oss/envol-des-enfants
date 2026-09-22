@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { type Market } from "@/lib/markets";
 
 type Say = (french: string, english: string) => string;
@@ -27,7 +27,12 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
     { name: "bebe", alt: say("Petits gestes. Grandes découvertes.", "Little moves. Big discoveries.") },
   ];
   const slide = slides[active];
-  const move = (step: number) => setActive((current) => (current + step + slides.length) % slides.length);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActive((current) => (current + 1) % slides.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [slides.length]);
   const heroStyle: CSSProperties = {
     ...sectionStyle("hero"),
     display: "block",
@@ -51,13 +56,11 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
         />
       </a>
       <nav className="hero-language-controls" aria-label={say("Choisir une bannière", "Choose a banner")}>
-        <button type="button" onClick={() => move(-1)} aria-label={say("Bannière précédente", "Previous banner")}>‹</button>
         {slides.map((item, index) => (
           <button key={item.name} type="button" onClick={() => setActive(index)} aria-current={index === active ? "true" : undefined} aria-label={item.alt}>
             {index + 1}
           </button>
         ))}
-        <button type="button" onClick={() => move(1)} aria-label={say("Bannière suivante", "Next banner")}>›</button>
       </nav>
     </section>
   );
