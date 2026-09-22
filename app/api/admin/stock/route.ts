@@ -35,3 +35,17 @@ export async function POST(request: Request) {
   await cmsEnv().DB.batch([update, cmsEnv().DB.prepare("INSERT INTO stock_movements (id,product_id,region,previous_stock,new_stock,delta,reason,admin_id,created_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), product.id, region, previous, next, next - previous, stringValue(data.reason, "Ajustement manuel"), admin.id, now)]);
   return Response.json({ success: true, stock: next });
 }
+
+
+export async function PATCH(request: Request) {
+  const admin=await currentAdmin(request);if(!admin)return forbidden();
+  const db=cmsEnv().DB;const now=new Date().toISOString();
+  const {results}=await db.prepare("SELECT id,stock_qc,stock_conakry FROM products WHERE COALESCE(stock_qc,0)<=0 OR COALESCE(stock_conakry,0)<=0").all<{id:string;stock_qc:number;stock_conakry:number}>();
+  const statements=[];
+  for(const product of results){
+    if(Number(product.stock_qc||0)<=0){statements.push(db.prepare("UPDATE products SET stock_qc=1,updated_at=? WHERE id=?").bind(now,product.id));statements.push(db.prepare("INSERT INTO stock_movements (id,product_id,region,previous_stock,new_stock,delta,reason,admin_id,created_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(),product.id,"qc",Number(product.stock_qc||0),1,1-Number(product.stock_qc||0),"Correction globale stock initial",admin.id,now))}
+    if(Number(product.stock_conakry||0)<=0){statements.push(db.prepare("UPDATE products SET stock_conakry=1,stock=1,updated_at=? WHERE id=?").bind(now,product.id));statements.push(db.prepare("INSERT INTO stock_movements (id,product_id,region,previous_stock,new_stock,delta,reason,admin_id,created_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(),product.id,"conakry",Number(product.stock_conakry||0),1,1-Number(product.stock_conakry||0),"Correction globale stock initial",admin.id,now))}
+  }
+  if(statements.length)await db.batch(statements);
+  return Response.json({success:true,products:results.length,updates:statements.length/2});
+}
