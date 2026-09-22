@@ -84,11 +84,14 @@ export async function PUT(request: Request) {
     return Response.json({ error: "Produit incomplet." }, { status: 400 });
   }
 
-  await cmsEnv().DB
+  const database=cmsEnv().DB;
+  const before=await database.prepare("SELECT * FROM products WHERE id=?").bind(id).first<Record<string,unknown>>();
+  await database
     .prepare("UPDATE products SET name_fr=?,name_en=?,description_fr=?,description_en=?,category=?,price=?,stock=?,status=?,badge=?,ages=?,image_url=?,image_sheet=?,image_position=?,brand=?,material=?,dimensions=?,exchange_terms_fr=?,exchange_terms_en=?,visible=?,price_qc=?,price_conakry=?,stock_qc=?,stock_conakry=?,visible_qc=?,visible_conakry=?,alert_threshold=?,featured=?,promo_price_qc=?,promo_price_conakry=?,variants_json=?,images_json=?,updated_at=? WHERE id=?")
     .bind(...updateProductBindings(data, id, new Date().toISOString()))
     .run();
 
+  if(before){const key=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(key,JSON.stringify({type:"product_update",label:`Modification · ${String(before.name_fr||before.article_number||"Produit")}`,before}),new Date().toISOString()).run();}
   return Response.json({ success: true });
 }
 
@@ -101,12 +104,14 @@ export async function DELETE(request: Request) {
   }
 
   const database = cmsEnv().DB;
-  const product = await database.prepare("SELECT name_fr,name_en FROM products WHERE id=?").bind(id).first<{name_fr:string;name_en:string}>();
+  const product = await database.prepare("SELECT * FROM products WHERE id=?").bind(id).first<Record<string,unknown>>();
   await database.prepare("DELETE FROM products WHERE id = ?").bind(id).run();
   if (product) {
     const key = `deleted_product:${id}`;
     await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at")
-      .bind(key, JSON.stringify({ name_fr: product.name_fr, name_en: product.name_en }), new Date().toISOString()).run();
+      .bind(key, JSON.stringify({ name_fr: product.name_fr, name_en: product.name_en, product }), new Date().toISOString()).run();
+    const undoKey=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;
+    await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(undoKey,JSON.stringify({type:"product_delete",label:`Suppression · ${String(product.name_fr||product.article_number||"Produit")}`,before:product}),new Date().toISOString()).run();
   }
   return Response.json({ success: true });
 }
