@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { categories, request, type Row } from "./admin-shared";
 import type { Market } from "@/lib/markets";
 
-type Match={product:Row;score:number};
+type Match={product:Row;score:number;kind:"certain"|"probable"|"related";reason:string};
 type Item={id:string;file:File;preview:string;hash:string;visualHash:string;duplicate:boolean;duplicateKind?:"exact"|"visual";url?:string;suggestion?:Row;group?:string;catalogMatch?:Row;catalogScore?:number;catalogMatches?:Match[];matchRejected?:boolean;matchAccepted?:boolean;state:"ready"|"uploading"|"analyzing"|"done"|"error";error?:string};
 
 async function sha256(file:File){const d=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
@@ -42,18 +42,24 @@ function catalogMatches(s:Row,products:Row[]){
  for(const p of products){
   const pn=words(`${p.name_fr||""} ${p.name_en||""}`),pd=words(`${p.description_fr||""} ${p.description_en||""}`),pu=usefulWords(`${p.name_fr||""} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""}`);
   const name=overlap(sn,pn),desc=overlap(sd,pd),distinctive=overlap(su,pu);
-  const sourceBrand=norm(s.brand),productBrand=norm(p.brand); const brand=sourceBrand&&productBrand&&sourceBrand===productBrand?1:0,brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand),category=norm(s.category)&&norm(s.category)===norm(p.category)?1:0;
-  const article=norm(s.article_number)&&norm(s.article_number)===norm(p.article_number);
-  let n=article?1:(distinctive*.38+name*.18+desc*.14+brand*.26+category*.04);
-  if(brandConflict&&!article)n*=.35;
-  if(brand&&!article)n=Math.min(1,n+.10);
-  if(!su.size||!pu.size)n=Math.min(n,.64);
-  if(distinctive===0)n*=.62;
-  // Keep every catalog candidate with at least one meaningful signal.
-  // The reviewer needs the full visual shortlist, not only candidates above an arbitrary score.
-  if(article||name>0||desc>0||distinctive>0||brand||category)found.push({product:p,score:Math.min(n,1)});
+  const sourceBrand=norm(s.brand),productBrand=norm(p.brand);
+  const sameBrand=!!(sourceBrand&&productBrand&&sourceBrand===productBrand);
+  const brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand);
+  const sameCategory=!!(norm(s.category)&&norm(s.category)===norm(p.category));
+  const article=!!(norm(s.article_number)&&norm(s.article_number)===norm(p.article_number));
+  // La marque sert à trouver la famille, jamais à déclarer un doublon à elle seule.
+  let score=article?1:(distinctive*.55+name*.25+desc*.12+(sameCategory?.08:0));
+  if(brandConflict&&!article)score*=.25;
+  if(!su.size||!pu.size)score=Math.min(score,.48);
+  if(distinctive===0&&!article)score=Math.min(score,.32);
+  let kind:Match["kind"]="related",reason=sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer";
+  if(article){kind="certain";reason="Même numéro d’article"}
+  else if(sameBrand&&distinctive>=.72&&name>=.62){kind="probable";reason="Même marque + nom/modèle distinctif"}
+  else if(distinctive>=.82&&name>=.72){kind="probable";reason="Nom/modèle très proche"}
+  if(article||distinctive>=.18||name>=.22||(sameBrand&&sameCategory))found.push({product:p,score:Math.min(score,1),kind,reason});
  }
- return found.sort((a,b)=>b.score-a.score).slice(0,40)
+ const rank={certain:3,probable:2,related:1};
+ return found.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,60)
 }
 
 export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Market;busy:boolean;onDone:()=>Promise<void>;catalogProducts:Row[]}){
@@ -87,7 +93,14 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
     if(visual>=.96)score=Math.max(score,.98);
     else if(visual>=.88)score=Math.max(score,.86);
     else if(visual>=.78)score=Math.max(score,.72);
-    if(visual>=.52||text>=.18||sameBrand)scored.push({product:p,score:Math.min(score,1)})
+    if(visual>=.52||text>=.18||sameBrand){
+      const base=textMatches.find(m=>String(m.product.id)===String(p.id));
+      let kind:Match["kind"]=base?.kind||"related",reason=base?.reason||(sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer");
+      if(visual>=.97&&(!brandConflict||sameBrand)){kind="certain";reason="Image presque identique"}
+      else if(visual>=.90&&sameBrand&&text>=.45){kind="probable";reason="Image très proche + même marque/modèle"}
+      else if(kind==="certain"&&visual<.70&&!base?.reason.includes("numéro")){kind="probable"}
+      scored.push({product:p,score:Math.min(score,1),kind,reason})
+    }
    }));
    void rows;
   }
@@ -95,7 +108,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
   for(const m of textMatches){
     if(!scored.some(x=>String(x.product.id)===String(m.product.id)))scored.push(m)
   }
-  return scored.sort((a,b)=>b.score-a.score).slice(0,60)
+  const rank={certain:3,probable:2,related:1}; return scored.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,60)
  }
  async function analyzeAll(){setWorking(true);for(const item of unique){try{setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));const result=await request("/api/admin/analyze-product",{method:"POST",body:JSON.stringify({image_url:url})});const suggestion=result.suggestion as Row;const matches=await rankCatalogVisually(item,suggestion);const match=matches[0];const done={...item,url,suggestion,group:groupKey(suggestion),catalogMatch:match?.product,catalogScore:match?.score,catalogMatches:matches,state:"done" as const};setItems(a=>regroup(a.map(x=>x.id===item.id?done:x)))}catch(error){setItems(a=>a.map(x=>x.id===item.id?{...x,state:"error",error:error instanceof Error?error.message:"Erreur"}:x))}}setWorking(false)}
  function update(id:string,field:string,value:string){setItems(a=>a.map(i=>i.id===id&&i.suggestion?{...i,suggestion:{...i.suggestion,[field]:value},group:groupKey({...i.suggestion,[field]:value})}:i))}
@@ -143,13 +156,13 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 {item.catalogMatch.image_url?<img src={String(item.catalogMatch.image_url)} alt="Produit déjà présent" style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}}/>:<span>Aucune image existante</span>}
               </button>
               <div style={{display:"grid",alignContent:"center",gap:10,fontSize:15,color:"#17364a"}}>
-                <strong style={{fontSize:20}}>{(item.catalogScore||0)>=.85?"DOUBLON TRÈS PROBABLE":(item.catalogScore||0)>=.60?"PRODUIT SIMILAIRE TROUVÉ — À VÉRIFIER":"CORRESPONDANCE POSSIBLE — À VÉRIFIER"}</strong>
+                <strong style={{fontSize:20}}>{item.catalogMatches?.find(m=>String(m.product.id)===String(item.catalogMatch?.id))?.kind==="certain"?"DOUBLON CERTAIN":item.catalogMatches?.find(m=>String(m.product.id)===String(item.catalogMatch?.id))?.kind==="probable"?"DOUBLON PROBABLE — À VÉRIFIER":"PRODUIT ASSOCIÉ — PAS UN DOUBLON"}</strong>
                 <b style={{fontSize:18}}>{String(item.catalogMatch.name_fr||"Produit existant")}</b>
                 <span>{String(item.catalogMatch.name_en||"")}</span>
                 <span><b>No {String(item.catalogMatch.article_number||"—")}</b></span>
                 <span>{categories[String(item.catalogMatch.category)]||String(item.catalogMatch.category||"")}</span>
                 <span>Boutique : {item.catalogMatch.visible_qc?"Québec ":""}{item.catalogMatch.visible_conakry?"Conakry":""}</span>
-                <span>Confiance : {Math.round((item.catalogScore||0)*100)} % · {(item.catalogScore||0)>=.85?"forte":(item.catalogScore||0)>=.60?"moyenne":"faible"}</span>
+                <span>Confiance : {Math.round((item.catalogScore||0)*100)} %</span><span><b>Pourquoi :</b> {item.catalogMatches?.find(m=>String(m.product.id)===String(item.catalogMatch?.id))?.reason||"Comparaison catalogue"}</span>
                 <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:8}}>
                   <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir en grand</button>
                   <button type="button" className="cms-secondary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchAccepted:true,matchRejected:false}:x))}>✓ C’est le même produit</button>
@@ -160,7 +173,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
                 {item.matchRejected&&<strong style={{color:"#a33"}}>Correspondance refusée — cette photo pourra être créée comme nouveau produit.</strong>}
                 {item.matchAccepted&&<strong>Correspondance confirmée manuellement.</strong>}
               </div>
-            </section>{(item.catalogMatches?.length||0)>1&&<div style={{marginTop:18,padding:16,border:"2px solid #cbdbe4",borderRadius:12,background:"#f8fbfd"}}><div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",flexWrap:"wrap"}}><strong style={{fontSize:18}}>Toutes les correspondances possibles ({item.catalogMatches!.length})</strong>{selectedDuplicates.size>0&&<button type="button" className="cms-danger" disabled={working} onClick={()=>void deleteSelectedDuplicates()}>🗑 Supprimer les doublons sélectionnés ({selectedDuplicates.size})</button>}</div><div style={{display:"flex",gap:10,alignItems:"center",margin:"10px 0 12px",flexWrap:"wrap"}}><input type="search" value={matchSearch} onChange={e=>setMatchSearch(e.target.value)} placeholder="Rechercher dans TOUT le catalogue : nom, article, marque, catégorie…" style={{minWidth:360,maxWidth:620,width:"100%",padding:"11px 13px",border:"1px solid #b9cbd5",borderRadius:9,fontSize:15}}/>{matchSearch&&<button type="button" className="cms-secondary" onClick={()=>setMatchSearch("")}>Effacer</button>}</div><p style={{margin:"5px 0 12px"}}>Clique sur une image pour la comparer en grand avec la photo importée.</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:14}}>{(matchSearch.trim()?catalogProducts.map(product=>({product,score:item.catalogMatches?.find(m=>String(m.product.id)===String(product.id))?.score||0})).filter(m=>{const q=norm(matchSearch);return norm(String(m.product.name_fr||"")+" "+String(m.product.name_en||"")+" "+String(m.product.article_number||"")+" "+String(m.product.brand||"")+" "+String(m.product.category||"")+" "+String(m.product.description_fr||"")+" "+String(m.product.description_en||"")).includes(q)}).sort((a,b)=>b.score-a.score):item.catalogMatches!).map((m,i)=><div key={String(m.product.id||i)} style={{position:"relative"}}><label style={{position:"absolute",zIndex:2,left:10,top:10,display:"flex",alignItems:"center",gap:6,padding:"6px 8px",borderRadius:8,background:"rgba(255,255,255,.94)",fontWeight:700,cursor:"pointer"}}><input type="checkbox" checked={selectedDuplicates.has(String(m.product.id))} onChange={e=>setSelectedDuplicates(prev=>{const next=new Set(prev);const id=String(m.product.id);e.target.checked?next.add(id):next.delete(id);return next})}/> Sélectionner</label><button type="button" title="Supprimer ce doublon" aria-label="Supprimer ce doublon" disabled={working} onClick={e=>{e.stopPropagation();void deleteMatchedProduct({...item,catalogMatch:m.product,catalogScore:m.score})}} style={{position:"absolute",zIndex:3,right:10,top:10,width:38,height:38,padding:0,border:"1px solid #d8b3b3",borderRadius:9,background:"#fff",fontSize:20,lineHeight:1,cursor:"pointer"}}>🗑</button><button type="button" key={String(m.product.id||i)} onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:m.product,catalogScore:m.score,matchRejected:false,matchAccepted:false}:x))} style={{display:"grid",gap:8,padding:10,textAlign:"left",border:m.product.id===item.catalogMatch?.id?"3px solid #2676a8":"1px solid #cbdbe4",borderRadius:10,background:"#fff",cursor:"pointer"}}>{m.product.image_url?<img src={String(m.product.image_url)} alt={String(m.product.name_fr||"")} style={{width:"100%",height:210,objectFit:"contain",background:"#fff"}}/>:<div style={{height:210,display:"grid",placeItems:"center"}}>Aucune image</div>}<b>{String(m.product.name_fr||m.product.article_number||"Produit")}</b><span>No {String(m.product.article_number||"—")}</span><span>Correspondance : {Math.round(m.score*100)} %</span></button></div>)}</div></div>}</>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
+            </section>{(item.catalogMatches?.length||0)>1&&<div style={{marginTop:18,padding:16,border:"2px solid #cbdbe4",borderRadius:12,background:"#f8fbfd"}}><div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",flexWrap:"wrap"}}><strong style={{fontSize:18}}>Toutes les correspondances possibles ({item.catalogMatches!.length})</strong>{selectedDuplicates.size>0&&<button type="button" className="cms-danger" disabled={working} onClick={()=>void deleteSelectedDuplicates()}>🗑 Supprimer les doublons sélectionnés ({selectedDuplicates.size})</button>}</div><div style={{display:"flex",gap:10,alignItems:"center",margin:"10px 0 12px",flexWrap:"wrap"}}><input type="search" value={matchSearch} onChange={e=>setMatchSearch(e.target.value)} placeholder="Rechercher dans TOUT le catalogue : nom, article, marque, catégorie…" style={{minWidth:360,maxWidth:620,width:"100%",padding:"11px 13px",border:"1px solid #b9cbd5",borderRadius:9,fontSize:15}}/>{matchSearch&&<button type="button" className="cms-secondary" onClick={()=>setMatchSearch("")}>Effacer</button>}</div><p style={{margin:"5px 0 12px"}}>Clique sur une image pour la comparer en grand avec la photo importée.</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:14}}>{(matchSearch.trim()?catalogProducts.map(product=>({product,score:item.catalogMatches?.find(m=>String(m.product.id)===String(product.id))?.score||0})).filter(m=>{const q=norm(matchSearch);return norm(String(m.product.name_fr||"")+" "+String(m.product.name_en||"")+" "+String(m.product.article_number||"")+" "+String(m.product.brand||"")+" "+String(m.product.category||"")+" "+String(m.product.description_fr||"")+" "+String(m.product.description_en||"")).includes(q)}).sort((a,b)=>b.score-a.score):item.catalogMatches!).map((m,i)=><div key={String(m.product.id||i)} style={{position:"relative"}}><label style={{position:"absolute",zIndex:2,left:10,top:10,display:"flex",alignItems:"center",gap:6,padding:"6px 8px",borderRadius:8,background:"rgba(255,255,255,.94)",fontWeight:700,cursor:"pointer"}}><input type="checkbox" checked={selectedDuplicates.has(String(m.product.id))} onChange={e=>setSelectedDuplicates(prev=>{const next=new Set(prev);const id=String(m.product.id);e.target.checked?next.add(id):next.delete(id);return next})}/> Sélectionner</label><button type="button" title="Supprimer ce doublon" aria-label="Supprimer ce doublon" disabled={working} onClick={e=>{e.stopPropagation();void deleteMatchedProduct({...item,catalogMatch:m.product,catalogScore:m.score})}} style={{position:"absolute",zIndex:3,right:10,top:10,width:38,height:38,padding:0,border:"1px solid #d8b3b3",borderRadius:9,background:"#fff",fontSize:20,lineHeight:1,cursor:"pointer"}}>🗑</button><button type="button" key={String(m.product.id||i)} onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,catalogMatch:m.product,catalogScore:m.score,matchRejected:false,matchAccepted:false}:x))} style={{display:"grid",gap:8,padding:10,textAlign:"left",border:m.product.id===item.catalogMatch?.id?"3px solid #2676a8":"1px solid #cbdbe4",borderRadius:10,background:"#fff",cursor:"pointer"}}>{m.product.image_url?<img src={String(m.product.image_url)} alt={String(m.product.name_fr||"")} style={{width:"100%",height:210,objectFit:"contain",background:"#fff"}}/>:<div style={{height:210,display:"grid",placeItems:"center"}}>Aucune image</div>}<b>{String(m.product.name_fr||m.product.article_number||"Produit")}</b><span>No {String(m.product.article_number||"—")}</span><span>{m.kind==="certain"?"Doublon certain":m.kind==="probable"?"Doublon probable":"Produit associé"} · {Math.round(m.score*100)} %</span><small>{m.reason}</small></button></div>)}</div></div>}</>:<span>{item.group&&items.filter(x=>x.group===item.group).length>1?`Même produit : ${items.filter(x=>x.group===item.group).length} photos`:"Produit unique"}</span>}
             
           </>:<span>{item.state==="error"?item.error:item.state==="ready"?"Prête à analyser":"Analyse en cours…"}</span>}
           <button type="button" className="cms-danger" disabled={working} onClick={()=>removeItem(item.id)}>Supprimer</button>
