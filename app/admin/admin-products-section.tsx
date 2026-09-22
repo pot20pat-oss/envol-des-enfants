@@ -110,7 +110,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,semantic:pair.semantic,legacy:pair.legacy,cropped:pair.cropped,name:pair.name,distinctive:pair.distinctive,sameBrand:pair.sameBrand,confidence:pair.confidence}));
-      groups.sort((a,b)=>b.match-a.match||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual||b.legacy-a.legacy);
+      groups.sort((a,b)=>{const byScore=b.match-a.match;if(Math.abs(byScore)>1e-12)return byScore;const byConfidence=rank[a.confidence]-rank[b.confidence];if(byConfidence)return byConfidence;const byVisual=b.visual-a.visual;if(Math.abs(byVisual)>1e-12)return byVisual;const byLegacy=b.legacy-a.legacy;if(Math.abs(byLegacy)>1e-12)return byLegacy;const aKey=[String(a.products[0]?.id||""),String(a.products[1]?.id||"")].sort().join("|");const bKey=[String(b.products[0]?.id||""),String(b.products[1]?.id||"")].sort().join("|");return aKey.localeCompare(bKey)});
       setDuplicateScan({groups,scanned:source.length});
       if(semanticError) setNotice(`Scanner classique utilisé : ${semanticError}`); else if(semanticVectors.size) setNotice(`Analyse sémantique NVIDIA active sur ${semanticVectors.size} produit(s).`);
     } finally { setDuplicateScanning(false); }
