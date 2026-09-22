@@ -46,7 +46,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     const aw=distinctiveWords(a),bw=distinctiveWords(b);if(!aw.size||!bw.size)return 0;
     let same=0;for(const word of aw)if(bw.has(word))same++;return same/Math.max(aw.size,bw.size);
   };
-  type VisualFingerprint={shape:string;color:number[];legacy:string};
+  type VisualFingerprint={shape:string;color:number[];legacy:string;url:string};
   const imageFingerprint = async (url: string):Promise<VisualFingerprint> => {
     const cacheKey="v2:"+url;const cached=duplicateImageHashCache.current.get(cacheKey);
     if(cached){const parsed=JSON.parse(cached) as VisualFingerprint;return parsed}
@@ -67,11 +67,11 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     const data=ctx.getImageData(0,0,64,64).data;const gray:number[]=[];const color=new Array(12).fill(0);let colored=0;
     for(let i=0;i<data.length;i+=4){const r=data[i],g=data[i+1],bl=data[i+2];gray.push(r*.299+g*.587+bl*.114);if(Math.min(r,g,bl)<245){color[Math.min(3,Math.floor(r/64))]++;color[4+Math.min(3,Math.floor(g/64))]++;color[8+Math.min(3,Math.floor(bl/64))]++;colored++}}
     const avg=gray.reduce((x,y)=>x+y,0)/gray.length;const shape=gray.map(v=>v>=avg?"1":"0").join("");const denom=Math.max(1,colored);const normalized=color.map(v=>v/denom);
-    const fp={shape,color:normalized,legacy};duplicateImageHashCache.current.set(cacheKey,JSON.stringify(fp));return fp;
+    const fp={shape,color:normalized,legacy,url};duplicateImageHashCache.current.set(cacheKey,JSON.stringify(fp));return fp;
   };
   const bitSimilarity=(a:string,b:string)=>{if(!a||!b||a.length!==b.length)return 0;let d=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])d++;return 1-d/a.length};
   const colorSimilarity=(a:number[],b:number[])=>{if(a.length!==b.length)return 0;let d=0;for(let i=0;i<a.length;i++)d+=Math.abs(a[i]-b[i]);return Math.max(0,1-d/(a.length/3))};
-  const imageScores=(a:VisualFingerprint|undefined,b:VisualFingerprint|undefined)=>{if(!a||!b)return {visual:0,legacy:0,cropped:0};const legacy=bitSimilarity(a.legacy,b.legacy);const cropped=bitSimilarity(a.shape,b.shape)*.72+colorSimilarity(a.color,b.color)*.28;return {visual:Math.max(legacy,cropped),legacy,cropped}};
+  const imageScores=(a:VisualFingerprint|undefined,b:VisualFingerprint|undefined)=>{if(!a||!b)return {visual:0,legacy:0,cropped:0,exact:false};const exact=a.url===b.url;const legacy=bitSimilarity(a.legacy,b.legacy);const cropped=bitSimilarity(a.shape,b.shape)*.72+colorSimilarity(a.color,b.color)*.28;return {visual:exact?1:Math.max(legacy,cropped),legacy,cropped,exact}};
   const scanDuplicates = async () => {
     setDuplicateScanning(true);
     try {
@@ -97,8 +97,8 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
         // L'image est maintenant analysée pour TOUT le catalogue. Une forte ressemblance visuelle
         // suffit à signaler une paire, même si marque/titre/catégorie ont été saisis différemment.
-        const duplicate=sameArticle||visual>=.992||(visual>=.975&&(sameBrand||name>=.72||distinctive>=.65))||(visual>=.955&&sameBrand&&name>=.82&&distinctive>=.70)||(sameBrand&&distinctive>=.72&&name>=.90&&desc>=.72);
-        if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);const confidence:"certain"|"probable"|"review"=sameArticle||visual>=.992?"certain":visual>=.975&&(sameBrand||name>=.72||distinctive>=.65)?"probable":"review";pairs.push({a,b,visual,confidence})}}
+        const duplicate=sameArticle||scores.exact||scores.legacy>=.965||scores.cropped>=.985||(scores.cropped>=.955&&(sameBrand||name>=.62||distinctive>=.55))||(sameBrand&&distinctive>=.72&&name>=.90&&desc>=.72);
+        if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);const confidence:"certain"|"probable"|"review"=sameArticle||scores.exact||scores.legacy>=.985||scores.cropped>=.992?"certain":scores.legacy>=.965||scores.cropped>=.97?"probable":"review";pairs.push({a,b,visual,confidence})}}
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,confidence:pair.confidence}));
