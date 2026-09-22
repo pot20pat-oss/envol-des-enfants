@@ -54,7 +54,7 @@ function catalogMatches(s:Row,products:Row[]){
   if(distinctive===0&&!article)score=Math.min(score,.32);
   let kind:Match["kind"]="related",reason=sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer";
   if(article&&sameBrand){kind="probable";reason="Même marque + même numéro d’article — image à confirmer"}
-  if(article||distinctive>=.18||name>=.22||(sameBrand&&sameCategory))found.push({product:p,score:Math.min(score,1),kind,reason});
+  if(sameBrand&&distinctive>=.42&&name>=.30)found.push({product:p,score:Math.min(score,1),kind,reason});
  }
  const rank={certain:3,probable:2,related:1};
  return found.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,60)
@@ -91,7 +91,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
     if(visual>=.96)score=Math.max(score,.98);
     else if(visual>=.88)score=Math.max(score,.86);
     else if(visual>=.78)score=Math.max(score,.72);
-    if(visual>=.52||text>=.18||sameBrand){
+    if(visual>=.86&&sameBrand&&text>=.42){
       const base=textMatches.find(m=>String(m.product.id)===String(p.id));
       let kind:Match["kind"]=base?.kind||"related",reason=base?.reason||(sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer");
       if(visual>=.97&&sameBrand&&text>=.55){kind="certain";reason="Même marque + description similaire + image presque identique"}
@@ -101,10 +101,6 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
     }
    }));
    void rows;
-  }
-  // Also force all text/brand candidates into the review list if visual hashing failed.
-  for(const m of textMatches){
-    if(!scored.some(x=>String(x.product.id)===String(m.product.id)))scored.push(m)
   }
   const rank={certain:3,probable:2,related:1}; return scored.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,60)
  }
