@@ -54,7 +54,7 @@ function catalogMatches(s:Row,products:Row[]){
   if(distinctive===0&&!article)score=Math.min(score,.32);
   let kind:Match["kind"]="related",reason=sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer";
   if(article&&sameBrand){kind="probable";reason="Même marque + même numéro d’article — image à confirmer"}
-  if(sameBrand&&(distinctive>=.20||name>=.18||sameCategory))found.push({product:p,score:Math.min(score,1),kind,reason});
+  if(sameBrand)found.push({product:p,score:Math.min(score,1),kind,reason});
  }
  const rank={certain:3,probable:2,related:1};
  return found.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,60)
@@ -68,13 +68,13 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
   const textMatches=catalogMatches(suggestion,catalogProducts);
   const textById=new Map(textMatches.map(m=>[String(m.product.id),m.score]));
   const scored:Match[]=[];
-  const sourceBrand=norm(suggestion.brand);
+  const sourceBrand=norm(suggestion.brand).replace(/\s+/g,"");
   const batchSize=12;
   for(let i=0;i<catalogProducts.length;i+=batchSize){
    const batch=catalogProducts.slice(i,i+batchSize);
    const rows=await Promise.all(batch.map(async p=>{
-    const text=textById.get(String(p.id))||0;
-    const productBrand=norm(p.brand);
+    let text=textById.get(String(p.id))||0;const rawText=productSimilarity(suggestion,p);text=Math.max(text,rawText);
+    const productBrand=norm(p.brand).replace(/\s+/g,"");
     const sameBrand=!!(sourceBrand&&productBrand&&sourceBrand===productBrand);
     const brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand);
     let visual=0;
@@ -91,11 +91,11 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     if(visual>=.96)score=Math.max(score,.98);
     else if(visual>=.88)score=Math.max(score,.86);
     else if(visual>=.78)score=Math.max(score,.72);
-    if(visual>=.82&&sameBrand&&text>=.28){
+    if(visual>=.80&&sameBrand&&text>=.24){
       const base=textMatches.find(m=>String(m.product.id)===String(p.id));
       let kind:Match["kind"]=base?.kind||"related",reason=base?.reason||(sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer");
-      if(visual>=.97&&sameBrand&&text>=.55){kind="certain";reason="Même marque + description similaire + image presque identique"}
-      else if(visual>=.84&&sameBrand&&text>=.30){kind="probable";reason="Même marque + description compatible + image ressemblante"}
+      if(visual>=.95&&sameBrand&&text>=.40){kind="certain";reason="Même marque + contenu compatible + image presque identique"}
+      else if(visual>=.80&&sameBrand&&text>=.24){kind="probable";reason="Même marque + contenu compatible + image ressemblante"}
       else if(kind==="certain"&&visual<.70&&!base?.reason.includes("numéro")){kind="probable"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
     }
