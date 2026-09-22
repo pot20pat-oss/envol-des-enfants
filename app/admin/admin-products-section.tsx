@@ -110,7 +110,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,semantic:pair.semantic,legacy:pair.legacy,cropped:pair.cropped,name:pair.name,distinctive:pair.distinctive,sameBrand:pair.sameBrand,confidence:pair.confidence}));
-      groups.sort((a,b)=>{const evidence=(x:typeof a)=>x.legacy*.38+x.name*.28+(x.legacy*x.name)*.22+Math.min(x.legacy,x.cropped)*.08+(x.sameBrand?.04:0);const tier=(x:typeof a)=>x.legacy>=.975&&x.name>=.92?0:x.legacy>=.965&&x.name>=.80?1:x.legacy>=.99?2:3;return tier(a)-tier(b)||evidence(b)-evidence(a)||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual});
+      groups.sort((a,b)=>b.match-a.match||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual||b.legacy-a.legacy);
       setDuplicateScan({groups,scanned:source.length});
       if(semanticError) setNotice(`Scanner classique utilisé : ${semanticError}`); else if(semanticVectors.size) setNotice(`Analyse sémantique NVIDIA active sur ${semanticVectors.size} produit(s).`);
     } finally { setDuplicateScanning(false); }
