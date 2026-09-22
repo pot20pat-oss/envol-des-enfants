@@ -53,6 +53,8 @@ export async function DELETE(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   const id = new URL(request.url).searchParams.get("id");
   if (!id) return Response.json({ error: "Promotion manquante." }, { status: 400 });
-  await cmsEnv().DB.prepare("DELETE FROM promotions WHERE id = ?").bind(id).run();
+  const database=cmsEnv().DB;const promotion=await database.prepare("SELECT * FROM promotions WHERE id=?").bind(id).first<Record<string,unknown>>();if(!promotion)return Response.json({error:"Promotion introuvable."},{status:404});
+  await database.prepare("DELETE FROM promotions WHERE id = ?").bind(id).run();
+  const undoKey=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(undoKey,JSON.stringify({type:"row_delete",table:"promotions",label:`Suppression promotion · ${String(promotion.title_fr||id)}`,before:promotion}),new Date().toISOString()).run();
   return Response.json({ success: true });
 }
