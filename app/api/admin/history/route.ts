@@ -1,7 +1,7 @@
 import { cmsEnv,currentAdmin,forbidden } from "@/lib/cms";
 import { updateProductBindings } from "../products/product-input";
 
-type Action={key:string;type:string;label:string;before:Record<string,unknown>};
+type Action={key:string;type:string;label:string;before:Record<string,unknown>;table?:string};
 async function latest():Promise<Action|null>{
  const row=await cmsEnv().DB.prepare("SELECT key,value FROM settings WHERE key LIKE 'cms_undo:%' ORDER BY updated_at DESC,key DESC LIMIT 1").first<{key:string;value:string}>();
  if(!row)return null;try{return {key:row.key,...JSON.parse(row.value)} as Action}catch{return null}
@@ -14,8 +14,10 @@ export async function POST(request:Request){
   const current=await db.prepare("SELECT * FROM products WHERE id=?").bind(id).first<Record<string,unknown>>();if(!current)return Response.json({error:"Produit introuvable."},{status:404});
   await db.prepare("UPDATE products SET name_fr=?,name_en=?,description_fr=?,description_en=?,category=?,price=?,stock=?,status=?,badge=?,ages=?,image_url=?,image_sheet=?,image_position=?,brand=?,material=?,dimensions=?,exchange_terms_fr=?,exchange_terms_en=?,visible=?,price_qc=?,price_conakry=?,stock_qc=?,stock_conakry=?,visible_qc=?,visible_conakry=?,alert_threshold=?,featured=?,promo_price_qc=?,promo_price_conakry=?,variants_json=?,images_json=?,updated_at=? WHERE id=?").bind(...updateProductBindings(before,id,new Date().toISOString())).run();
   const redoKey=`cms_redo:${Date.now()}:${crypto.randomUUID()}`;await db.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(redoKey,JSON.stringify({type:"product_update",label:action.label,before:current}),new Date().toISOString()).run();
- }else if(action.type==="product_delete"){
-  const cols=Object.keys(before);const values=cols.map(k=>before[k]);await db.prepare(`INSERT INTO products (${cols.join(",")}) VALUES (${cols.map(()=>"?").join(",")})`).bind(...values).run();
+ }else if(action.type==="product_delete"||action.type==="row_delete"||action.type==="order_delete"){
+  const table=action.type==="product_delete"?"products":String((action as Action & {table?:string}).table||"");const allowed=new Set(["products","customers","subscribers","promotions","orders"]);if(!allowed.has(table))return Response.json({error:"Type de restauration invalide."},{status:400});
+  const cols=Object.keys(before);const values=cols.map(k=>before[k]);await db.prepare(`INSERT INTO ${table} (${cols.join(",")}) VALUES (${cols.map(()=>"?").join(",")})`).bind(...values).run();
+  if(action.type==="order_delete"&&String(before.status)!=="cancelled"&&before.items_json){try{const items=JSON.parse(String(before.items_json)) as Array<{product_id?:string;quantity?:number}>;const stockColumn=String(before.region)==="qc"?"stock_qc":"stock_conakry";const now=new Date().toISOString();const statements=items.filter(i=>i.product_id&&Number(i.quantity)>0).map(i=>db.prepare(`UPDATE products SET ${stockColumn}=MAX(0,${stockColumn}-?),updated_at=? WHERE id=?`).bind(Number(i.quantity),now,String(i.product_id)));if(statements.length)await db.batch(statements)}catch{}}
  }else return Response.json({error:"Cette action ne peut pas encore être annulée."},{status:400});
  await db.prepare("DELETE FROM settings WHERE key=?").bind(action.key).run();return Response.json({success:true,label:action.label});
 }
