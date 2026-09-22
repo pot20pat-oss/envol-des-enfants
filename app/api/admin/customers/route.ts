@@ -34,8 +34,9 @@ export async function DELETE(request: Request) {
   const id = new URL(request.url).searchParams.get("id");
   if (!id) return Response.json({ error: "Client manquant." }, { status: 400 });
   const database = cmsEnv().DB;
-  const customer = await database.prepare("SELECT id,email,region FROM customers WHERE id=?").bind(id).first();
+  const customer = await database.prepare("SELECT * FROM customers WHERE id=?").bind(id).first<Record<string,unknown>>();
   if (!customer) return Response.json({ error: "Client introuvable." }, { status: 404 });
   await database.prepare("DELETE FROM customers WHERE id=?").bind(id).run();
+  const undoKey=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(undoKey,JSON.stringify({type:"row_delete",table:"customers",label:`Suppression client · ${String(customer.email||customer.name||id)}`,before:customer}),new Date().toISOString()).run();
   return Response.json({ ok: true });
 }
