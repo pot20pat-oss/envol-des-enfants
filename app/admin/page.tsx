@@ -137,7 +137,7 @@ export default function Administration() {
 
       {section === "advisor" && <AiAdvisorSection market={market} products={products} settings={settings} setSettings={setSettings} reload={load} />}
 
-      {section === "notifications" && <NotificationsSection products={products} market={market} onEdit={editProduct} />}
+      {section === "notifications" && <NotificationsSection products={products} market={market} onEdit={editProduct} reload={load} />}
 
       {section === "settings" && (
         <SettingsSection market={market} settings={settings} setSettings={setSettings} passwords={passwords} setPasswords={setPasswords} busy={busy} saveSettings={(event) => void saveSettings(event, settings)} changePassword={(event) => void changePassword(event)} />
