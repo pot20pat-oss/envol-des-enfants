@@ -27,7 +27,7 @@ type Props = {
 export default function StorefrontNavigation({ market, whatsappUrl, say }: Props) {
   const commerce = useCommerce();
   return <div className="ref-header">
-    <div className="ref-top wrap"><span className="ref-canadian-business"><span aria-hidden="true" className="ref-canada-flag"><span className="maple-leaf">◆</span></span> {say("Entreprise canadienne","Canadian business")}</span><b>{say("Des enfants heureux aujourd’hui, un meilleur demain !","Happy children today, a better tomorrow!")}</b>
+    <div className="ref-top wrap"><span className="ref-canadian-business"><svg className="ref-canada-flag" viewBox="0 0 36 24" aria-hidden="true"><rect width="36" height="24" fill="#fff"/><rect width="9" height="24" fill="#d80621"/><rect x="27" width="9" height="24" fill="#d80621"/><path fill="#d80621" d="M18 4l1.6 3.3 2.8-1.4-.8 3.2 2.6.5-3 2.5 1.1 2.2-3.1-.5.4 5.2h-3.2l.4-5.2-3.1.5 1.1-2.2-3-2.5 2.6-.5-.8-3.2 2.8 1.4z"/></svg> {say("Entreprise canadienne","Canadian business")}</span><b>{say("Des enfants heureux aujourd’hui, un meilleur demain !","Happy children today, a better tomorrow!")}</b>
       <div className="ref-commerce"><button type="button" onClick={()=>commerce.open("account")}><HeaderIcon kind="account"/><small>{say("Mon compte","Account")}</small></button><button type="button" onClick={()=>commerce.open("favorites")}><HeaderIcon kind="heart"/><small>{say("Mes favoris","Favorites")}</small></button><button type="button" onClick={()=>commerce.open("cart")}><HeaderIcon kind="cart"/><small>{say("Mon panier","Cart")}</small></button></div>
     </div>
     <header className="ref-head wrap">
