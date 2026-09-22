@@ -25,6 +25,12 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     let same = 0; for (const word of aw) if (bw.has(word)) same++;
     return same / Math.min(aw.size, bw.size);
   };
+  const genericDuplicateWords=new Set(["barbie","mattel","ken","poupee","poupees","figurine","figurines","jouet","jouets","disney","princess","princesse","dc","marvel","batman","aquaman","nerf","blaster","xshot","shot"]);
+  const distinctiveWords=(value:unknown)=>new Set([...duplicateWords(value)].filter(word=>!genericDuplicateWords.has(word)));
+  const distinctiveSimilarity=(a:unknown,b:unknown)=>{
+    const aw=distinctiveWords(a),bw=distinctiveWords(b);if(!aw.size||!bw.size)return 0;
+    let same=0;for(const word of aw)if(bw.has(word))same++;return same/Math.max(aw.size,bw.size);
+  };
   const imageHash = async (url: string) => {
     const cached=duplicateImageHashCache.current.get(url);if(cached)return cached;
     const img=new Image();img.crossOrigin="anonymous";img.src=url;await img.decode();
@@ -49,11 +55,12 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const brandA=normalizeDuplicate(a.brand).replace(/\s+/g,""),brandB=normalizeDuplicate(b.brand).replace(/\s+/g,"");
         if(!brandA||brandA!==brandB)continue;
         const articleA=normalizeDuplicate(a.article_number),articleB=normalizeDuplicate(b.article_number);
-        const name=wordSimilarity(`${a.name_fr||""} ${a.name_en||""}`,`${b.name_fr||""} ${b.name_en||""}`);
+        const nameTextA=`${a.name_fr||""} ${a.name_en||""}`,nameTextB=`${b.name_fr||""} ${b.name_en||""}`;
+        const name=wordSimilarity(nameTextA,nameTextB);const distinctive=distinctiveSimilarity(nameTextA,nameTextB);
         const desc=wordSimilarity(`${a.description_fr||""} ${a.description_en||""}`,`${b.description_fr||""} ${b.description_en||""}`);
         const sameArticle=!!(articleA&&articleA===articleB);
         // Le texte sert uniquement de présélection; l'image doit ensuite confirmer.
-        if(sameArticle||(name>=.82&&desc>=.70)||name>=.94)candidates.push({a,b,text:name*.70+desc*.30,sameArticle});
+        if(sameArticle||(distinctive>=.60&&name>=.82&&desc>=.70)||(distinctive>=.80&&name>=.90))candidates.push({a,b,text:name*.55+desc*.20+distinctive*.25,sameArticle});
       }
       setDuplicateProgress({done:0,total:candidates.length});
       const pairs:Array<[Row,Row]>=[];let done=0;
@@ -62,7 +69,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const au=String(candidate.a.image_url||""),bu=String(candidate.b.image_url||"");
         if(au&&bu)try{const [ah,bh]=await Promise.all([imageHash(au),imageHash(bu)]);visual=imageSimilarity(ah,bh)}catch{}
         // Hors numéro d'article identique, texte ET image doivent converger fortement.
-        if(candidate.sameArticle||(candidate.text>=.90&&visual>=.94)||(candidate.text>=.96&&visual>=.88))pairs.push([candidate.a,candidate.b]);
+        if(candidate.sameArticle||(candidate.text>=.88&&visual>=.95)||(candidate.text>=.94&&visual>=.91))pairs.push([candidate.a,candidate.b]);
         done++;if(done%5===0||done===candidates.length){setDuplicateProgress({done,total:candidates.length});await new Promise(resolve=>setTimeout(resolve,0))}
       }
       const groups:Row[][]=pairs.map(([a,b])=>[a,b]);
