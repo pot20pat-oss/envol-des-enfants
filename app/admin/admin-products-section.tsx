@@ -112,39 +112,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,semantic:pair.semantic,legacy:pair.legacy,cropped:pair.cropped,name:pair.name,distinctive:pair.distinctive,sameBrand:pair.sameBrand,confidence:pair.confidence}));
       groups.sort((a,b)=>{const evidence=(x:typeof a)=>x.legacy*.38+x.name*.28+(x.legacy*x.name)*.22+Math.min(x.legacy,x.cropped)*.08+(x.sameBrand?.04:0);const tier=(x:typeof a)=>x.legacy>=.975&&x.name>=.92?0:x.legacy>=.965&&x.name>=.80?1:x.legacy>=.99?2:3;return tier(a)-tier(b)||evidence(b)-evidence(a)||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual});
       setDuplicateScan({groups,scanned:source.length});
-      // Affiche immédiatement le classement classique éprouvé, puis enrichit seulement
-      // les 20 premiers suspects avec NVIDIA sans bloquer le scanner.
-      setDuplicateScanning(false);
-      const top=groups.slice(0,20);
-      const candidateProducts=Array.from(new Map(top.flatMap(g=>g.products).filter(p=>String(p.image_url||"").startsWith("/api/images/")).map(p=>[String(p.id),p])).values());
-      if(candidateProducts.length){
-        void (async()=>{
-          const vectors=new Map<string,number[]>();
-          try{
-            for(let start=0;start<candidateProducts.length;start+=8){
-              const batch=candidateProducts.slice(start,start+8);
-              const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
-              let response:Response;
-              try{response=await fetch("/api/admin/image-embeddings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image_urls:batch.map(p=>String(p.image_url))}),signal:controller.signal})}finally{clearTimeout(timeout)}
-              if(!response.ok)throw new Error(`NVIDIA HTTP ${response.status}`);
-              const data=await response.json() as {vectors:number[][]};
-              batch.forEach((p,i)=>{if(Array.isArray(data.vectors?.[i]))vectors.set(String(p.id),data.vectors[i])});
-            }
-            const enriched=groups.map((g,index)=>{
-              if(index>=20)return g;
-              const semantic=cosine(vectors.get(String(g.products[0].id)),vectors.get(String(g.products[1].id)));
-              return {...g,semantic};
-            });
-            enriched.sort((a,b)=>{
-              const classic=(x:typeof a)=>x.legacy*.38+x.name*.28+(x.legacy*x.name)*.22+Math.min(x.legacy,x.cropped)*.08+(x.sameBrand?.04:0);
-              const score=(x:typeof a)=>x.semantic>0?x.semantic*.55+classic(x)*.45:classic(x);
-              return score(b)-score(a);
-            });
-            setDuplicateScan({groups:enriched,scanned:source.length});
-            setNotice(`Classement classique affiché; NVIDIA a ensuite analysé ${candidateProducts.length} produit(s) des 20 premiers suspects.`);
-          }catch{setNotice("Classement classique conservé; NVIDIA n’a pas répondu assez vite.");}
-        })();
-      }
+      if(semanticError) setNotice(`Scanner classique utilisé : ${semanticError}`); else if(semanticVectors.size) setNotice(`Analyse sémantique NVIDIA active sur ${semanticVectors.size} produit(s).`);
     } finally { setDuplicateScanning(false); }
   };
   return <section className="cms-panel">
