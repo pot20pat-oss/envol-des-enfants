@@ -104,7 +104,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,legacy:pair.legacy,cropped:pair.cropped,name:pair.name,distinctive:pair.distinctive,sameBrand:pair.sameBrand,confidence:pair.confidence}));
-      groups.sort((a,b)=>{const evidence=(x:typeof a)=>x.legacy*.58+x.name*.30+x.cropped*.08+(x.sameBrand?.04:0);return rank[a.confidence]-rank[b.confidence]||evidence(b)-evidence(a)||b.visual-a.visual});
+      groups.sort((a,b)=>{const evidence=(x:typeof a)=>x.legacy*.58+x.name*.30+x.cropped*.08+(x.sameBrand?.04:0);const proven=(x:typeof a)=>x.legacy>=.975&&x.name>=.92?0:x.legacy>=.99?1:2;return proven(a)-proven(b)||rank[a.confidence]-rank[b.confidence]||evidence(b)-evidence(a)||b.visual-a.visual});
       setDuplicateScan({groups,scanned:source.length});
     } finally { setDuplicateScanning(false); }
   };
