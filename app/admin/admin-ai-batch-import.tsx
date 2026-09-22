@@ -53,9 +53,7 @@ function catalogMatches(s:Row,products:Row[]){
   if(!su.size||!pu.size)score=Math.min(score,.48);
   if(distinctive===0&&!article)score=Math.min(score,.32);
   let kind:Match["kind"]="related",reason=sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer";
-  if(article){kind="certain";reason="Même numéro d’article"}
-  else if(sameBrand&&distinctive>=.72&&name>=.62){kind="probable";reason="Même marque + nom/modèle distinctif"}
-  else if(distinctive>=.82&&name>=.72){kind="probable";reason="Nom/modèle très proche"}
+  if(article&&sameBrand){kind="probable";reason="Même marque + même numéro d’article — image à confirmer"}
   if(article||distinctive>=.18||name>=.22||(sameBrand&&sameCategory))found.push({product:p,score:Math.min(score,1),kind,reason});
  }
  const rank={certain:3,probable:2,related:1};
@@ -96,8 +94,8 @@ export function AiBatchImport({market,busy,onDone,catalogProducts}:{market:Marke
     if(visual>=.52||text>=.18||sameBrand){
       const base=textMatches.find(m=>String(m.product.id)===String(p.id));
       let kind:Match["kind"]=base?.kind||"related",reason=base?.reason||(sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer");
-      if(visual>=.97&&(!brandConflict||sameBrand)){kind="certain";reason="Image presque identique"}
-      else if(visual>=.90&&sameBrand&&text>=.45){kind="probable";reason="Image très proche + même marque/modèle"}
+      if(visual>=.97&&sameBrand&&text>=.55){kind="certain";reason="Même marque + description similaire + image presque identique"}
+      else if(visual>=.86&&sameBrand&&text>=.42){kind="probable";reason="Même marque + description similaire + image ressemblante"}
       else if(kind==="certain"&&visual<.70&&!base?.reason.includes("numéro")){kind="probable"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
     }
