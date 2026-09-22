@@ -104,7 +104,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,legacy:pair.legacy,cropped:pair.cropped,name:pair.name,distinctive:pair.distinctive,sameBrand:pair.sameBrand,confidence:pair.confidence}));
-      groups.sort((a,b)=>{const evidence=(x:typeof a)=>{const nameVisual=x.legacy*x.name;const agreement=Math.min(x.legacy,x.cropped);const nameBonus=x.name>=.95?.12:x.name>=.85?.06:0;const falsePositivePenalty=x.name<.45&&!x.sameBrand?.16:0;return x.legacy*.30+x.name*.30+nameVisual*.25+agreement*.07+(x.sameBrand?.08:0)+nameBonus-falsePositivePenalty};const tier=(x:typeof a)=>x.legacy>=.97&&x.name>=.95?0:x.legacy>=.965&&x.name>=.85?1:x.legacy>=.975&&x.name>=.70?2:x.legacy>=.99&&x.name<.45&&!x.sameBrand?4:3;return tier(a)-tier(b)||evidence(b)-evidence(a)||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual});
+      groups.sort((a,b)=>{const evidence=(x:typeof a)=>{const nameVisual=x.legacy*x.name;const agreement=Math.min(x.legacy,x.cropped);return x.legacy*.38+x.name*.28+nameVisual*.22+agreement*.08+(x.sameBrand?.04:0)};const tier=(x:typeof a)=>x.legacy>=.975&&x.name>=.92?0:x.legacy>=.965&&x.name>=.80?1:x.legacy>=.99?2:3;return tier(a)-tier(b)||evidence(b)-evidence(a)||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual});
       setDuplicateScan({groups,scanned:source.length});
     } finally { setDuplicateScanning(false); }
   };
