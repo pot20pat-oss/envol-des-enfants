@@ -7,7 +7,7 @@ import type { Row } from "./admin-shared";
 
 export type EditingType = "product" | "promotion" | "order";
 
-export function AdminEditModal({ editing, editingType, setEditing, save, update, upload, busy, market, products }: {
+export function AdminEditModal({ editing, editingType, setEditing, save, update, upload, busy, market, products, deleteOrder }: {
   editing: Row;
   editingType: EditingType;
   setEditing: Dispatch<SetStateAction<Row | null>>;
@@ -17,6 +17,7 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   busy: boolean;
   market: Market;
   products: Row[];
+  deleteOrder?: (order: Row) => void | Promise<void>;
 }) {
   return (
           <div
@@ -48,6 +49,7 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
                 className="cms-editor-actions"
                 style={{position:"sticky",top:-20,zIndex:50,display:"flex",justifyContent:"flex-end",gap:10,padding:"12px 4px",margin:"0 -4px 14px",background:"rgba(255,255,255,.98)",backdropFilter:"blur(8px)",borderBottom:"1px solid #dbe5ea",boxShadow:"0 5px 12px rgba(20,45,60,.06)"}}
               >
+                {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
                 <button
                   type="button"
                   className="cms-secondary"
