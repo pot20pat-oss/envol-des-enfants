@@ -55,6 +55,16 @@ assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdict_events").fetchone(
 db.execute("DELETE FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',))
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] == 0
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdict_events").fetchone()[0] == 1
+# Annuler un verdict supprime l'état courant, mais pas l'historique.
+db.execute(
+    "INSERT INTO cms_duplicate_verdict_events(id,pair_key,product_a,product_b,previous_verdict,next_verdict,decided_by,created_at) VALUES (?,?,?,?,?,?,?,?)",
+    ("undo-event", '["a","b"]', "a", "b", "rejected", None, "admin", "after"),
+)
+db.commit()
+db.close()
+db = sqlite3.connect(database_path)
+assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] == 0
+assert db.execute("SELECT previous_verdict,next_verdict FROM cms_duplicate_verdict_events ORDER BY created_at DESC LIMIT 1").fetchone() == ("rejected", None)
 db.close()
 temporary_directory.cleanup()
-print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture, filtrage des produits supprimés et historique OK")
+print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture, filtrage des produits supprimés, annulation et historique OK")
