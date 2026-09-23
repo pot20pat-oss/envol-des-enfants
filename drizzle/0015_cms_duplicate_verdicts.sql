@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS cms_duplicate_verdicts (
   pair_key TEXT PRIMARY KEY NOT NULL,
   product_a TEXT NOT NULL,
   product_b TEXT NOT NULL,
-  verdict TEXT NOT NULL CHECK (verdict IN ('confirmed','rejected')),
+  verdict TEXT NOT NULL CHECK (verdict IN ('confirmed','rejected','variant')),
   decided_by TEXT NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
