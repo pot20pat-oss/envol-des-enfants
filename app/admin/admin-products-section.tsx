@@ -82,7 +82,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     const productEvidence=g.name>=.72||g.distinctive>=.65||g.sameBrand;
     if(pass===2)return visualStrong&&productEvidence;
     // Confirmation plus stricte: visuel quasi identique ET titre ou marque cohérents.
-    return g.legacy>=.99&&(g.name>=.80||g.distinctive>=.80||g.sameBrand);
+    return (g.legacy>=.975&&g.name>=.80)||(g.legacy>=.995)||(g.cropped>=.985&&g.name>=.80);
   };
   const visibleDuplicateGroups=duplicateScan?.groups.filter(g=>passesDuplicate(g,duplicatePass)&&(showReviewDuplicates||g.confidence!=="review"))||[];
   const scanDuplicates = async () => {
