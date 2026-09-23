@@ -37,7 +37,6 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const [duplicateReviewOnlyDifferentArticles,setDuplicateReviewOnlyDifferentArticles]=useState(false);
   const [duplicateReviewOnlyCrossBrand,setDuplicateReviewOnlyCrossBrand]=useState(false);
   const resetDuplicateReviewFilters=()=>{setDuplicateReviewFilter("unreviewed");setDuplicateReviewSearch("");setDuplicateReviewOnlySameBrand(false);setDuplicateReviewOnlySameCategory(false);setDuplicateReviewOnlyDifferentArticles(false);setDuplicateReviewOnlyCrossBrand(false);setDuplicateReviewIndex(0)};
-  const advanceDuplicateReview=()=>setDuplicateReviewIndex(i=>i+1);
   const duplicatePairKey=(items:Row[])=>JSON.stringify(items.map(p=>String(p.id)).sort());
   const duplicateVerdictLabel=(verdict:"confirmed"|"rejected"|"variant"|undefined)=>verdict==="confirmed"?"Vrai doublon":verdict==="rejected"?"Pas un doublon":verdict==="variant"?"Variante distincte":"Non révisé";
   const duplicateReviewStats=duplicateScan?{total:duplicateScan.groups.length,unreviewed:duplicateScan.groups.filter(g=>!duplicateVerdicts[duplicatePairKey(g.products)]).length,confirmed:duplicateScan.groups.filter(g=>duplicateVerdicts[duplicatePairKey(g.products)]==="confirmed").length,rejected:duplicateScan.groups.filter(g=>duplicateVerdicts[duplicatePairKey(g.products)]==="rejected").length,variant:duplicateScan.groups.filter(g=>duplicateVerdicts[duplicatePairKey(g.products)]==="variant").length}:null;
@@ -47,7 +46,7 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
     setSavingDuplicatePairs(previous=>new Set(previous).add(key));
     try {
       await request("/api/admin/duplicate-verdicts",{method:"PUT",body:JSON.stringify({productA:String(items[0].id),productB:String(items[1].id),verdict})});
-      setDuplicateVerdicts(previous=>{const next={...previous};if(verdict)next[key]=verdict;else delete next[key];return next}); if(verdict&&duplicateReviewFilter==="unreviewed")advanceDuplicateReview();
+      setDuplicateVerdicts(previous=>{const next={...previous};if(verdict)next[key]=verdict;else delete next[key];return next});
     } catch(error) {
       window.alert(error instanceof Error?error.message:"Impossible d’enregistrer le verdict.");
     } finally {
