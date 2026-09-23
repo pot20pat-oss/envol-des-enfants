@@ -55,6 +55,19 @@ assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdict_events").fetchone(
 db.execute("DELETE FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',))
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] == 0
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdict_events").fetchone()[0] == 1
+# Une variante distincte est persistée sans supprimer les deux produits.
+db.execute("INSERT INTO products(id) VALUES (?)", ("b",))
+db.execute(
+    "INSERT INTO cms_duplicate_verdicts(pair_key,product_a,product_b,verdict,decided_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?)",
+    ('["a","b"]', "a", "b", "variant", "admin", "variant-time", "variant-time"),
+)
+db.commit()
+db.close()
+db = sqlite3.connect(database_path)
+assert db.execute("SELECT verdict FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',)).fetchone()[0] == "variant"
+assert db.execute("SELECT COUNT(*) FROM products WHERE id IN (?,?)", ("a","b")).fetchone()[0] == 2
+db.execute("DELETE FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',))
+
 # Annuler un verdict supprime l'état courant, mais pas l'historique.
 db.execute(
     "INSERT INTO cms_duplicate_verdict_events(id,pair_key,product_a,product_b,previous_verdict,next_verdict,decided_by,created_at) VALUES (?,?,?,?,?,?,?,?)",
@@ -67,4 +80,4 @@ assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] =
 assert db.execute("SELECT previous_verdict,next_verdict FROM cms_duplicate_verdict_events WHERE id=?", ("undo-event",)).fetchone() == ("rejected", None)
 db.close()
 temporary_directory.cleanup()
-print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture, filtrage des produits supprimés, annulation et historique OK")
+print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture, filtrage des produits supprimés, variantes, annulation et historique OK")
