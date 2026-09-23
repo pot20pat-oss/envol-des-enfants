@@ -1,9 +1,12 @@
 """Vérifie la migration des verdicts sans toucher à la base D1 distante."""
 import pathlib
 import sqlite3
+import tempfile
 
 migration = pathlib.Path("drizzle/0015_cms_duplicate_verdicts.sql").read_text(encoding="utf-8")
-db = sqlite3.connect(":memory:")
+with tempfile.TemporaryDirectory() as directory:
+    database_path = pathlib.Path(directory) / "duplicate-verdicts.sqlite3"
+    db = sqlite3.connect(database_path)
 db.execute("CREATE TABLE products (id TEXT PRIMARY KEY)")
 db.executemany("INSERT INTO products(id) VALUES (?)", [("a",), ("b",)])
 db.executescript(migration)
@@ -36,7 +39,13 @@ for invalid in [
         pass
     else:
         raise AssertionError(f"Contrainte non appliquée : {invalid}")
+# Vérifier la persistance réelle après fermeture et réouverture de la base.
+db.commit()
+db.close()
+db = sqlite3.connect(database_path)
+assert db.execute("SELECT verdict FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',)).fetchone()[0] == "rejected"
+assert db.execute("SELECT previous_verdict,next_verdict FROM cms_duplicate_verdict_events").fetchone() == ("confirmed", "rejected")
 db.execute("DELETE FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',))
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] == 0
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdict_events").fetchone()[0] == 1
-print("Migration SQLite : création, réexécution, verdicts, contraintes et historique OK")
+print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture et historique OK")
