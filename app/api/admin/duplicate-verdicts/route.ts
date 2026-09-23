@@ -1,7 +1,7 @@
 import { canonicalDuplicatePair } from "@/lib/duplicate-verdict-pair";
 import { cmsEnv, currentAdmin, forbidden } from "@/lib/cms";
 
-type Verdict = "confirmed" | "rejected";
+type Verdict = "confirmed" | "rejected" | "variant";
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   const rows = await cmsEnv().DB.prepare("SELECT v.pair_key,v.verdict FROM cms_duplicate_verdicts v INNER JOIN products a ON a.id=v.product_a INNER JOIN products b ON b.id=v.product_b").all<{pair_key:string;verdict:Verdict}>();
@@ -16,7 +16,7 @@ export async function PUT(request: Request) {
   if (!payload || typeof payload !== "object") return Response.json({error:"Données invalides."},{status:400});
   const data = payload as Record<string,unknown>;
   const pair = canonicalDuplicatePair(data.productA,data.productB);
-  if (!pair || (data.verdict !== "confirmed" && data.verdict !== "rejected" && data.verdict !== null)) return Response.json({error:"Paire ou verdict invalide."},{status:400});
+  if (!pair || (data.verdict !== "confirmed" && data.verdict !== "rejected" && data.verdict !== "variant" && data.verdict !== null)) return Response.json({error:"Paire ou verdict invalide."},{status:400});
   const db = cmsEnv().DB;
   const existing = await db.prepare("SELECT id FROM products WHERE id IN (?,?)").bind(pair.first,pair.second).all<{id:string}>();
   if (existing.results.length !== 2) return Response.json({error:"Un produit n’existe plus."},{status:404});
