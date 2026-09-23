@@ -2,14 +2,16 @@ import { cmsEnv, currentAdmin, forbidden } from "@/lib/cms";
 
 type Verdict = "confirmed" | "rejected";
 function canonicalPair(a: unknown, b: unknown) {
-  if (typeof a !== "string" || typeof b !== "string" || !a.trim() || !b.trim() || a === b || a.length > 128 || b.length > 128) return null;
-  const [first, second] = [a, b].sort();
+  if (typeof a !== "string" || typeof b !== "string") return null;
+  const left = a.trim(), right = b.trim();
+  if (!left || !right || left === right || left.length > 128 || right.length > 128) return null;
+  const [first, second] = [left, right].sort();
   return { first, second, key: JSON.stringify([first, second]) };
 }
 
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  const rows = await cmsEnv().DB.prepare("SELECT pair_key,verdict FROM cms_duplicate_verdicts").all<{pair_key:string;verdict:Verdict}>();
+  const rows = await cmsEnv().DB.prepare("SELECT v.pair_key,v.verdict FROM cms_duplicate_verdicts v INNER JOIN products a ON a.id=v.product_a INNER JOIN products b ON b.id=v.product_b").all<{pair_key:string;verdict:Verdict}>();
   return Response.json({ verdicts: Object.fromEntries(rows.results.map(row => [row.pair_key,row.verdict])) });
 }
 
