@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { categories, request, type Row } from "./admin-shared";
 import type { Market } from "@/lib/markets";
+import { sharedHierarchyDepth } from "@/lib/product-duplicate-hierarchy";
 
 type Match={product:Row;score:number;kind:"certain"|"probable"|"related";reason:string};
 type Item={id:string;file:File;preview:string;hash:string;visualHash:string;duplicate:boolean;imageOrder?:number;isPrimary?:boolean;duplicateKind?:"exact"|"visual";url?:string;suggestion?:Row;group?:string;catalogMatch?:Row;catalogScore?:number;catalogMatches?:Match[];matchRejected?:boolean;matchAccepted?:boolean;state:"ready"|"uploading"|"analyzing"|"done"|"error";error?:string};
@@ -52,15 +53,17 @@ function catalogMatches(s:Row,products:Row[]){
   const article=!!(norm(s.article_number)&&norm(s.article_number)===norm(p.article_number));
   // La marque sert à trouver la famille, jamais à déclarer un doublon à elle seule.
   let score=article?1:(distinctive*.55+name*.25+desc*.12+(sameCategory?.08:0));
-  if(brandConflict&&!article)score*=.25;
+  // Une marque erronée ne doit pas éliminer une correspondance textuelle forte.
+  if(brandConflict&&!article)score*=.85;
   if(!su.size||!pu.size)score=Math.min(score,.48);
   if(distinctive===0&&!article)score=Math.min(score,.32);
   let kind:Match["kind"]="related",reason=sameBrand?"Même marque / gamme à comparer":"Produit associé à comparer";
   if(article&&sameBrand){kind="probable";reason="Même marque + même numéro d’article — image à confirmer"}
-  if(sameBrand)found.push({product:p,score:Math.min(score,1),kind,reason});
+  // Ne jamais filtrer par marque : le scanner visuel est indépendant du classement.
+  if(article||distinctive>=.42||(name>=.72&&desc>=.5))found.push({product:p,score:Math.min(score,1),kind,reason});
  }
  const rank={certain:3,probable:2,related:1};
- return found.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,60)
+ return found.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score||sharedHierarchyDepth(s,b.product)-sharedHierarchyDepth(s,a.product)).slice(0,60)
 }
 
 export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSearch,synchronize,add,scanDuplicates,duplicateScanning,duplicateProgress}:{market:Market;busy:boolean;onDone:()=>Promise<void>;catalogProducts:Row[];search:string;setSearch:(value:string)=>void;synchronize:()=>void;add:()=>void;scanDuplicates:()=>void|Promise<void>;duplicateScanning:boolean;duplicateProgress:{done:number;total:number}}){
