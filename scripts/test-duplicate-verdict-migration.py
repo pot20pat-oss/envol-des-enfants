@@ -64,7 +64,7 @@ db.commit()
 db.close()
 db = sqlite3.connect(database_path)
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] == 0
-assert db.execute("SELECT previous_verdict,next_verdict FROM cms_duplicate_verdict_events ORDER BY created_at DESC LIMIT 1").fetchone() == ("rejected", None)
+assert db.execute("SELECT previous_verdict,next_verdict FROM cms_duplicate_verdict_events WHERE id=?", ("undo-event",)).fetchone() == ("rejected", None)
 db.close()
 temporary_directory.cleanup()
 print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture, filtrage des produits supprimés, annulation et historique OK")
