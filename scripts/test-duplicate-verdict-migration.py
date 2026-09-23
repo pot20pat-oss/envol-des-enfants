@@ -4,9 +4,9 @@ import sqlite3
 import tempfile
 
 migration = pathlib.Path("drizzle/0015_cms_duplicate_verdicts.sql").read_text(encoding="utf-8")
-with tempfile.TemporaryDirectory() as directory:
-    database_path = pathlib.Path(directory) / "duplicate-verdicts.sqlite3"
-    db = sqlite3.connect(database_path)
+temporary_directory = tempfile.TemporaryDirectory()
+database_path = pathlib.Path(temporary_directory.name) / "duplicate-verdicts.sqlite3"
+db = sqlite3.connect(database_path)
 db.execute("CREATE TABLE products (id TEXT PRIMARY KEY)")
 db.executemany("INSERT INTO products(id) VALUES (?)", [("a",), ("b",)])
 db.executescript(migration)
@@ -48,4 +48,6 @@ assert db.execute("SELECT previous_verdict,next_verdict FROM cms_duplicate_verdi
 db.execute("DELETE FROM cms_duplicate_verdicts WHERE pair_key=?", ('["a","b"]',))
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdicts").fetchone()[0] == 0
 assert db.execute("SELECT COUNT(*) FROM cms_duplicate_verdict_events").fetchone()[0] == 1
+db.close()
+temporary_directory.cleanup()
 print("Migration SQLite : création, réexécution, verdicts, contraintes, persistance après réouverture et historique OK")
