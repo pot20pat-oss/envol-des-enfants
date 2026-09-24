@@ -158,7 +158,7 @@ export async function createArticleNumberGenerator(database: D1Database) {
     // Le numéro d'article est UNIQUE globalement. Des fiches historiques peuvent avoir
     // changé de catégorie tout en conservant leur ancien préfixe (ex. EVE-0061 devenu Barbie).
     // On réserve donc chaque numéro d'après son préfixe réel, indépendamment de la catégorie actuelle.
-    const match = String(product.article_number || "").trim().toUpperCase().match(/^([A-Z0-9]{3})(-?)(\\d{1,6})$/);
+    const match = String(product.article_number || "").trim().toUpperCase().match(/^([A-Z0-9]{3})(-?)(\d{1,6})$/);
     if (!match) continue;
 
     const prefix = match[1];
