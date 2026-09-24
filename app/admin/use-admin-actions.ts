@@ -34,10 +34,10 @@ async function prepareImageForUpload(file: File): Promise<File> {
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.84));
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.86));
   if (!blob) throw new Error("Impossible de compresser cette image.");
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
-  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+  return new File([blob], `${baseName}.webp`, { type: "image/webp", lastModified: Date.now() });
 }
 
 export function useAdminActions({ market, load, setError, setNotice }: Options) {
