@@ -230,11 +230,67 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const [analysisNotice, setAnalysisNotice] = useState("");
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [moveTargetId, setMoveTargetId] = useState("");
+  const [moveTargets, setMoveTargets] = useState<Row[]>([]);
+  const [movingImages, setMovingImages] = useState(false);
 
   const toggleImageSelection = (image: string) => {
     setSelectedImages((current) => current.includes(image)
       ? current.filter((item) => item !== image)
       : [...current, image]);
+  };
+
+  const loadMoveTargets = async () => {
+    try {
+      const result = await request("/api/admin/products");
+      const products = Array.isArray(result.products) ? result.products as Row[] : [];
+      setMoveTargets(products.filter((product) => String(product.id || "") !== String(editing.id || "")));
+    } catch {
+      setAnalysisNotice("Impossible de charger la liste des produits.");
+    }
+  };
+
+  const moveSelectedToExistingProduct = async () => {
+    if (!selectedImages.length || !moveTargetId || !editing.id) return;
+    const target = moveTargets.find((product) => String(product.id) === moveTargetId);
+    if (!target) return;
+    if (!window.confirm(`Déplacer ${selectedImages.length} photo(s) vers « ${String(target.name_fr || target.article_number || "ce produit")} » ?`)) return;
+    setMovingImages(true);
+    setAnalysisNotice("");
+    try {
+      const targetImages = productImages(target);
+      const mergedTargetImages = [...targetImages];
+      selectedImages.forEach((image) => {
+        if (!mergedTargetImages.includes(image)) mergedTargetImages.push(image);
+      });
+      const sourceImages = images.filter((image) => !selectedImages.includes(image));
+
+      await request("/api/admin/products", {
+        method: "PUT",
+        body: JSON.stringify({
+          ...target,
+          image_url: mergedTargetImages[0] || "",
+          images_json: JSON.stringify(mergedTargetImages.slice(1)),
+        }),
+      });
+      await request("/api/admin/products", {
+        method: "PUT",
+        body: JSON.stringify({
+          ...editing,
+          image_url: sourceImages[0] || "",
+          images_json: JSON.stringify(sourceImages.slice(1)),
+        }),
+      });
+
+      saveProductImages(sourceImages, update);
+      setSelectedImages([]);
+      setMoveTargetId("");
+      setAnalysisNotice("Photos déplacées vers l’autre produit et enregistrées.");
+    } catch (failure) {
+      setAnalysisNotice(failure instanceof Error ? failure.message : "Déplacement des photos impossible.");
+    } finally {
+      setMovingImages(false);
+    }
   };
 
   const detachSelectedImages = () => {
@@ -408,7 +464,25 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
           <button type="button" className="cms-primary" onClick={makeNewProductFromSelected}>
             ＋ En faire un nouveau produit
           </button>
-          <span style={{fontSize:".9rem",opacity:.75}}>Pour les déplacer vers un produit existant, retirez-les ici puis réutilisez leurs images dans la fiche cible.</span>
+          <button type="button" className="cms-secondary" onClick={() => void loadMoveTargets()}>
+            ⇄ Déplacer vers un produit existant
+          </button>
+          {moveTargets.length > 0 && (
+            <>
+              <select value={moveTargetId} onChange={(event) => setMoveTargetId(event.target.value)} style={{minWidth:260}}>
+                <option value="">Choisir le produit cible…</option>
+                {moveTargets.map((product) => (
+                  <option key={String(product.id)} value={String(product.id)}>
+                    {String(product.article_number || "")} · {String(product.name_fr || "Produit sans nom")}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className="cms-primary" disabled={!moveTargetId || movingImages} onClick={() => void moveSelectedToExistingProduct()}>
+                {movingImages ? "Déplacement…" : "Confirmer le déplacement"}
+              </button>
+            </>
+          )}
+          <span style={{fontSize:".9rem",opacity:.75}}>Le déplacement retire les photos de cette fiche et les ajoute à la fiche choisie sans supprimer les fichiers.</span>
         </div>
       )}
 
