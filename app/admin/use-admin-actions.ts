@@ -18,7 +18,8 @@ type Options = {
 
 async function prepareImageForUpload(file: File): Promise<File> {
   const limit = 3.5 * 1024 * 1024;
-  if (file.size <= limit) return file;
+  const safeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+  if (file.size <= limit && safeTypes.has(file.type)) return file;
 
   const bitmap = await createImageBitmap(file);
   const maxDimension = 2200;
@@ -34,10 +35,10 @@ async function prepareImageForUpload(file: File): Promise<File> {
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.86));
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.88));
   if (!blob) throw new Error("Impossible de compresser cette image.");
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
-  return new File([blob], `${baseName}.webp`, { type: "image/webp", lastModified: Date.now() });
+  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
 }
 
 export function useAdminActions({ market, load, setError, setNotice }: Options) {
