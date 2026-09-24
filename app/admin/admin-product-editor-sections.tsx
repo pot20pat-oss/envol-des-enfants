@@ -5,7 +5,7 @@ type ProductEditorProps = {
   editing: Row;
   setEditing: Dispatch<SetStateAction<Row | null>>;
   update: (field: string, value: string | number | boolean) => void;
-  upload: (files?: FileList | File[]) => void | Promise<void>;
+  upload: (files?: FileList | File[]) => Promise<string[]>;
 };
 
 export function ProductIdentityFields({ editing, setEditing, update }: Omit<ProductEditorProps, "upload">) {
@@ -282,9 +282,16 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
             accept="image/*"
             multiple
             style={{display:"none"}}
-            onChange={(event) => {
-              void upload(event.target.files || undefined);
-              event.target.value = "";
+            onChange={async (event) => {
+              const input = event.currentTarget;
+              const selected = Array.from(input.files || []);
+              input.value = "";
+              if (!selected.length) return;
+              const uploaded = await upload(selected);
+              if (!uploaded.length) return;
+              const merged = [...images];
+              for (const image of uploaded) if (image && !merged.includes(image)) merged.push(image);
+              saveProductImages(merged, update);
             }}
           />
         </label>
