@@ -293,10 +293,29 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
     }
   };
 
-  const detachSelectedImages = () => {
-    if (!selectedImages.length) return;
-    saveProductImages(images.filter((image) => !selectedImages.includes(image)), update);
-    setSelectedImages([]);
+  const detachSelectedImages = async () => {
+    if (!selectedImages.length || !editing.id) return;
+    const sourceImages = images.filter((image) => !selectedImages.includes(image));
+    if (!window.confirm(`Retirer définitivement ${selectedImages.length} photo(s) de cet article ?`)) return;
+    setMovingImages(true);
+    setAnalysisNotice("");
+    try {
+      await request("/api/admin/products", {
+        method: "PUT",
+        body: JSON.stringify({
+          ...editing,
+          image_url: sourceImages[0] || "",
+          images_json: JSON.stringify(sourceImages.slice(1)),
+        }),
+      });
+      saveProductImages(sourceImages, update);
+      setSelectedImages([]);
+      setAnalysisNotice("Photos retirées et suppression enregistrée sur l’article d’origine.");
+    } catch (failure) {
+      setAnalysisNotice(failure instanceof Error ? failure.message : "Impossible de retirer les photos de l’article.");
+    } finally {
+      setMovingImages(false);
+    }
   };
 
   const makeNewProductFromSelected = () => {
@@ -458,7 +477,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
       {selectedImages.length > 0 && (
         <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",padding:"12px 14px",marginTop:14,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
           <strong>{selectedImages.length} photo{selectedImages.length === 1 ? "" : "s"} sélectionnée{selectedImages.length === 1 ? "" : "s"}</strong>
-          <button type="button" className="cms-secondary" onClick={detachSelectedImages}>
+          <button type="button" className="cms-secondary" disabled={movingImages} onClick={() => void detachSelectedImages()}>
             ↗ Retirer de ce produit
           </button>
           <button type="button" className="cms-primary" onClick={makeNewProductFromSelected}>
