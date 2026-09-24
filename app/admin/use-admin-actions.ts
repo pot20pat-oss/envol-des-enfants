@@ -22,7 +22,7 @@ async function prepareImageForUpload(file: File): Promise<File> {
   if (file.size <= limit && safeTypes.has(file.type)) return file;
 
   const bitmap = await createImageBitmap(file);
-  const maxDimension = 2200;
+  const maxDimension = 1800;
   const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -35,7 +35,12 @@ async function prepareImageForUpload(file: File): Promise<File> {
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.88));
+  let quality = 0.88;
+  let blob: Blob | null = null;
+  do {
+    blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+    quality -= 0.08;
+  } while (blob && blob.size > 2.5 * 1024 * 1024 && quality >= 0.44);
   if (!blob) throw new Error("Impossible de compresser cette image.");
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
   return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
