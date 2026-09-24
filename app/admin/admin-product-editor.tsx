@@ -17,7 +17,7 @@ type ProductEditorProps = {
 export function ProductEditor({ editing, setEditing, update, upload }: ProductEditorProps) {
   return (
     <>
-      <ProductMediaAndTermsFields editing={editing} update={update} upload={upload} />
+      <ProductMediaAndTermsFields editing={editing} setEditing={setEditing} update={update} upload={upload} />
       <ProductIdentityFields editing={editing} setEditing={setEditing} update={update} />
       <ProductMarketFields editing={editing} update={update} />
       <ProductDetailsFields editing={editing} update={update} />
