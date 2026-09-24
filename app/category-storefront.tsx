@@ -213,7 +213,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
           <strong>{marketPrice(p.price,market,language)}</strong>
           <p>{language==="fr"?(p.description_fr||""):(p.description_en||p.description_fr||"")}</p>
           {p.article_number&&<small>No {p.article_number}</small>}
-          {p.status!=="sold"&&<div className="product-commerce-buttons"><button type="button" className="product-cart" onClick={(event)=>{event.stopPropagation();commerce.addToCart(commerceProduct(p));}}>{label("Ajouter au panier","Add to cart")}</button><button type="button" className="product-favorite" onClick={(event)=>{event.stopPropagation();commerce.toggleFavorite(commerceProduct(p));}}>{commerce.isFavorite(commerceProduct(p))?"♥":"♡"}</button></div>}
+          {p.status!=="sold"&&Number(p.price||0)>0&&<div className="product-commerce-buttons"><button type="button" className="product-cart" onClick={(event)=>{event.stopPropagation();commerce.addToCart(commerceProduct(p));}}>{label("Ajouter au panier","Add to cart")}</button><button type="button" className="product-favorite" onClick={(event)=>{event.stopPropagation();commerce.toggleFavorite(commerceProduct(p));}}>{commerce.isFavorite(commerceProduct(p))?"♥":"♡"}</button></div>}
         </div>
       </article>)}</div>}
     </section>
