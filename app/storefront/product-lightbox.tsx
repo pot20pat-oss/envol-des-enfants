@@ -62,7 +62,7 @@ export default function ProductLightbox({ product, language, market, whatsappNum
           <p className="product-lightbox-price">{marketPrice(product.price, market, language)}</p>
           <p className="product-lightbox-description">{product.detail[language]}</p>
 
-          {whatsappNumber && product.status !== "sold" && (
+          {whatsappNumber && product.status !== "sold" && Number(product.price || 0) > 0 && (
             <a
               className="button button-dark product-lightbox-order"
               href={`${whatsappUrl}?text=${encodeURIComponent(
