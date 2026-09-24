@@ -27,7 +27,8 @@ async function prepareUpload(file:File){
 }
 // Comparaison des pixels normalisés : indépendante du nom, de la marque et du format JPEG/PNG.
 async function imagePixels(blob:Blob){const bitmap=await createImageBitmap(blob);try{const canvas=document.createElement("canvas");canvas.width=64;canvas.height=64;const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");ctx.fillStyle="#fff";ctx.fillRect(0,0,64,64);const scale=Math.min(64/bitmap.width,64/bitmap.height);const w=bitmap.width*scale,h=bitmap.height*scale;ctx.drawImage(bitmap,(64-w)/2,(64-h)/2,w,h);const data=ctx.getImageData(0,0,64,64).data;const rgb=new Uint8Array(64*64*3);for(let i=0,j=0;i<data.length;i+=4){const alpha=data[i+3]/255;rgb[j++]=Math.round(data[i]*alpha+255*(1-alpha));rgb[j++]=Math.round(data[i+1]*alpha+255*(1-alpha));rgb[j++]=Math.round(data[i+2]*alpha+255*(1-alpha))}return {rgb,ratio:bitmap.width/bitmap.height}}finally{bitmap.close()}}
-function sameImagePixels(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){if(Math.abs(a.ratio-b.ratio)>0.012)return false;let difference=0;for(let i=0;i<a.rgb.length;i++){difference+=Math.abs(a.rgb[i]-b.rgb[i]);if(difference>3*a.rgb.length)return false}return difference/a.rgb.length<=3}
+function pixelSimilarity(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){if(Math.abs(a.ratio-b.ratio)>.06)return 0;let difference=0;for(let i=0;i<a.rgb.length;i++)difference+=Math.abs(a.rgb[i]-b.rgb[i]);return Math.max(0,1-difference/(255*a.rgb.length))}
+function sameImagePixels(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){return Math.abs(a.ratio-b.ratio)<=.012&&pixelSimilarity(a,b)>=1-3/255}
 function distance(a:string,b:string){let n=0;for(let i=0;i<Math.min(a.length,b.length);i++)if(a[i]!==b[i])n++;return n+Math.abs(a.length-b.length)}
 function visualSimilarity(a:string,b:string){if(!a||!b)return 0;return Math.max(0,1-distance(a,b)/Math.max(a.length,b.length))}
 async function visualHashUrl(url:string){const res=await fetch(url);if(!res.ok)throw new Error("image");const blob=await res.blob();return visualHash(new File([blob],"catalog-image",{type:blob.type||"image/jpeg"}))}
@@ -127,9 +128,18 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     // Un score textuel élevé peut venir d'une description générique de gamme (Barbie, Titan Hero, etc.).
     // Pour une copie visuelle, exiger un identifiant exact ou des mots réellement distinctifs communs.
     const semanticIdentity=sameArticle||distinctive>=.55;
-    const visualCopy=visual>=.965&&semanticIdentity;
+    let pixel=0;
+    if(url&&visual>=.90)try{
+      const incoming=await imagePixels(item.file);
+      let cached=catalogPixelCache.current.get(url);
+      if(!cached){cached=fetch(url).then(r=>{if(!r.ok)throw new Error("Image du catalogue inaccessible");return r.blob()}).then(imagePixels).catch(()=>null);catalogPixelCache.current.set(url,cached)}
+      const target=await cached;if(target)pixel=pixelSimilarity(incoming,target)
+    }catch{}
+    const strongPixelCopy=pixel>=.91&&visual>=.94;
+    const visualCopy=(visual>=.965&&semanticIdentity)||strongPixelCopy;
     if(visualCopy||(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55)))){
-      let kind:Match["kind"]="probable",reason=visualCopy?"Image très ressemblante + identité du produit compatible":"Même marque + identité du produit compatible + image très ressemblante";
+      if(strongPixelCopy)score=Math.max(score,pixel);
+      let kind:Match["kind"]="probable",reason=strongPixelCopy?"Image du produit presque identique (pixels + structure visuelle)":visualCopy?"Image très ressemblante + identité du produit compatible":"Même marque + identité du produit compatible + image très ressemblante";
       if(sameArticle){kind="certain";reason="Même numéro d’article + correspondance catalogue"}
       else if(visual>=.985&&distinctive>=.70&&text>=.84){kind="certain";reason="Image presque identique + nom/contenu très similaire"}
       else if(sameBrand&&visual>=.97&&text>=.84&&distinctive>=.70){kind="certain";reason="Même marque + nom/contenu très similaire + image presque identique"}
