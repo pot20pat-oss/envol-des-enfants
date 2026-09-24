@@ -17,12 +17,23 @@ type Options = {
 };
 
 async function prepareImageForUpload(file: File): Promise<File> {
-  const limit = 3.5 * 1024 * 1024;
+  const maxUpload = 25 * 1024 * 1024;
+  const optimizeAbove = 3.5 * 1024 * 1024;
   const safeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
-  if (file.size <= limit && safeTypes.has(file.type)) return file;
+
+  if (!safeTypes.has(file.type)) {
+    throw new Error("Format non pris en charge. Utilisez PNG, JPG ou WebP.");
+  }
+  if (file.size > maxUpload) {
+    throw new Error("Image trop volumineuse : maximum 25 Mo.");
+  }
+
+  // Conserver les PNG tels quels : une conversion JPEG détruirait leur transparence.
+  // R2 accepte l'original; les JPG/WebP volumineux sont optimisés dans le navigateur.
+  if (file.type === "image/png" || file.size <= optimizeAbove) return file;
 
   const bitmap = await createImageBitmap(file);
-  const maxDimension = 1800;
+  const maxDimension = 2200;
   const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -35,15 +46,18 @@ async function prepareImageForUpload(file: File): Promise<File> {
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
+  const outputType = file.type === "image/webp" ? "image/webp" : "image/jpeg";
   let quality = 0.88;
   let blob: Blob | null = null;
   do {
-    blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+    blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, outputType, quality));
     quality -= 0.08;
-  } while (blob && blob.size > 2.5 * 1024 * 1024 && quality >= 0.44);
+  } while (blob && blob.size > 3.5 * 1024 * 1024 && quality >= 0.52);
   if (!blob) throw new Error("Impossible de compresser cette image.");
+
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
-  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+  const extension = outputType === "image/webp" ? "webp" : "jpg";
+  return new File([blob], `${baseName}.${extension}`, { type: outputType, lastModified: Date.now() });
 }
 
 export function useAdminActions({ market, load, setError, setNotice }: Options) {
