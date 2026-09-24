@@ -28,6 +28,7 @@ async function prepareUpload(file:File){
 // Comparaison des pixels normalisés : indépendante du nom, de la marque et du format JPEG/PNG.
 async function imagePixels(blob:Blob){const bitmap=await createImageBitmap(blob);try{const canvas=document.createElement("canvas");canvas.width=64;canvas.height=64;const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");ctx.fillStyle="#fff";ctx.fillRect(0,0,64,64);const scale=Math.min(64/bitmap.width,64/bitmap.height);const w=bitmap.width*scale,h=bitmap.height*scale;ctx.drawImage(bitmap,(64-w)/2,(64-h)/2,w,h);const data=ctx.getImageData(0,0,64,64).data;const rgb=new Uint8Array(64*64*3);for(let i=0,j=0;i<data.length;i+=4){const alpha=data[i+3]/255;rgb[j++]=Math.round(data[i]*alpha+255*(1-alpha));rgb[j++]=Math.round(data[i+1]*alpha+255*(1-alpha));rgb[j++]=Math.round(data[i+2]*alpha+255*(1-alpha))}return {rgb,ratio:bitmap.width/bitmap.height}}finally{bitmap.close()}}
 function pixelSimilarity(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){if(Math.abs(a.ratio-b.ratio)>.06)return 0;let difference=0;for(let i=0;i<a.rgb.length;i++)difference+=Math.abs(a.rgb[i]-b.rgb[i]);return Math.max(0,1-difference/(255*a.rgb.length))}
+function pixelColorSimilarity(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){if(Math.abs(a.ratio-b.ratio)>.10)return 0;let same=0,total=0;for(let i=0;i<a.rgb.length;i+=3){const aw=Math.max(a.rgb[i],a.rgb[i+1],a.rgb[i+2])<242,bw=Math.max(b.rgb[i],b.rgb[i+1],b.rgb[i+2])<242;if(!aw&&!bw)continue;total++;const d=(Math.abs(a.rgb[i]-b.rgb[i])+Math.abs(a.rgb[i+1]-b.rgb[i+1])+Math.abs(a.rgb[i+2]-b.rgb[i+2]))/3;if(d<=34)same++}return total?same/total:0}
 function sameImagePixels(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){return Math.abs(a.ratio-b.ratio)<=.012&&pixelSimilarity(a,b)>=1-3/255}
 function distance(a:string,b:string){let n=0;for(let i=0;i<Math.min(a.length,b.length);i++)if(a[i]!==b[i])n++;return n+Math.abs(a.length-b.length)}
 function visualSimilarity(a:string,b:string){if(!a||!b)return 0;return Math.max(0,1-distance(a,b)/Math.max(a.length,b.length))}
@@ -101,7 +102,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     const productBrand=norm(p.brand).replace(/\s+/g,"");
     const sameBrand=!!(sourceBrand&&productBrand&&sourceBrand===productBrand);
     const brandConflict=!!(sourceBrand&&productBrand&&sourceBrand!==productBrand);
-    let visual=0,pixel=0;
+    let visual=0,pixel=0,colorPixel=0;
     const urls=[String(p.image_url||"")];try{const additional=JSON.parse(String(p.images_json||"[]"));if(Array.isArray(additional))urls.push(...additional.filter((u:unknown)=>typeof u==="string"))}catch{}
     const productUrls=urls.filter(Boolean).filter((u,i,a)=>a.indexOf(u)===i);
     for(const url of productUrls)try{
@@ -113,7 +114,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
         const incoming=await imagePixels(item.file);
         let cached=catalogPixelCache.current.get(url);
         if(!cached){cached=fetch(url).then(r=>{if(!r.ok)throw new Error("Image du catalogue inaccessible");return r.blob()}).then(imagePixels).catch(()=>null);catalogPixelCache.current.set(url,cached)}
-        const target=await cached;if(target)pixel=Math.max(pixel,pixelSimilarity(incoming,target));
+        const target=await cached;if(target){pixel=Math.max(pixel,pixelSimilarity(incoming,target));colorPixel=Math.max(colorPixel,pixelColorSimilarity(incoming,target));}
       }
     }catch{}
     // Keep candidates even when browser/CORS prevents reading catalog images.
@@ -143,7 +144,8 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     // prouver seul qu'il s'agit du même produit.
     const strongPixelCopy=pixel>=.985&&visual>=.98;
     const visualCopy=semanticIdentity&&((visual>=.975&&pixel>=.94)||strongPixelCopy);
-    const duplicateEvidence=sameArticle||visualCopy||(sameBrand&&visual>=.96&&text>=.78&&distinctive>=.65);
+    const imageClone=visual>=.90&&pixel>=.88&&colorPixel>=.70;
+    const duplicateEvidence=sameArticle||visualCopy||imageClone||(sameBrand&&visual>=.96&&text>=.78&&distinctive>=.65);
     // Toujours conserver les meilleurs candidats plausibles. Ainsi, si l'IA sait qu'une photo
     // ressemble à un article mais n'a pas assez de preuves pour déclarer un doublon, l'utilisateur
     // voit quand même la concordance possible au lieu d'un panneau vide.
@@ -159,7 +161,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
         const visualSignal=Math.max(visual*.58,pixel*.62);
         score=Math.min(.79,identitySignal*.62+visualSignal*.38);
       }else if(!sameArticle)score=Math.min(score,.94);
-      let reason=duplicateEvidence?(visualCopy?"Image très ressemblante + détails distinctifs concordants":"Même marque + détails distinctifs concordants + image très ressemblante"):(pixel>=.72?"Image du catalogue visuellement proche — identité non confirmée":visual>=.68?"Ressemblance visuelle — identité non confirmée":"Nom / marque proches — identité non confirmée");
+      let reason=duplicateEvidence?(imageClone?"Clone visuel détecté : structure + couleurs du produit concordantes":visualCopy?"Image très ressemblante + détails distinctifs concordants":"Même marque + détails distinctifs concordants + image très ressemblante"):(pixel>=.72?"Image du catalogue visuellement proche — identité non confirmée":visual>=.68?"Ressemblance visuelle — identité non confirmée":"Nom / marque proches — identité non confirmée");
       if(sameArticle){kind="certain";score=1;reason="Même numéro d’article + correspondance catalogue"}
       else if(visual>=.99&&pixel>=.975&&distinctive>=.80&&text>=.88){kind="certain";reason="Image quasi identique + plusieurs détails distinctifs concordants"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
