@@ -28,39 +28,18 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
             }}
           >
             <form className="cms-editor cms-form" onSubmit={save} style={{position:"relative",width:"min(760px,calc(100vw - 36px))",maxWidth:"100%",height:"calc(100dvh - 36px)",maxHeight:"calc(100dvh - 36px)",overflowY:"auto",overflowX:"hidden",overscrollBehavior:"contain",padding:"20px 24px 96px",borderRadius:16,background:"#fff",boxShadow:"0 18px 60px rgba(0,0,0,.24)",boxSizing:"border-box"}}>
-              <div className="cms-panel-title">
-                <h2>
-                  {editing.id ? "Modifier" : "Ajouter"}{" "}
-                  {editingType === "product"
-                    ? "un produit"
-                    : editingType === "promotion"
-                      ? "une promotion"
-                      : "une commande"}
-                </h2>
-                <button
-                  type="button"
-                  className="cms-close"
-                  onClick={() => setEditing(null)}
-                >
-                  ×
-                </button>
-              </div>
               <div
                 className="cms-editor-actions"
-                style={{position:"sticky",top:0,zIndex:100,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,padding:"12px 14px",margin:"0 0 16px",background:"#fff",border:"2px solid #b9cbd5",borderRadius:12,boxShadow:"0 6px 18px rgba(20,45,60,.16)"}}
+                style={{position:"sticky",top:0,zIndex:100,display:"flex",alignItems:"center",gap:10,padding:"12px 14px",margin:"-20px -24px 18px",background:"#fff",borderBottom:"2px solid #b9cbd5",boxShadow:"0 6px 16px rgba(20,45,60,.14)"}}
               >
-                {editingType==="product"&&<strong style={{marginRight:"auto"}}>{editing.id?"Modification de l’article":"Nouvel article"}</strong>}
+                <h2 style={{margin:0,fontSize:18,flex:1}}>
+                  {editing.id ? "Modifier" : "Ajouter"}{" "}
+                  {editingType === "product" ? "un produit" : editingType === "promotion" ? "une promotion" : "une commande"}
+                </h2>
                 {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
-                <button
-                  type="button"
-                  className="cms-secondary"
-                  onClick={() => setEditing(null)}
-                >
-                  Annuler
-                </button>
-                <button className="cms-primary" disabled={busy}>
-                  {busy ? "Enregistrement…" : "Enregistrer"}
-                </button>
+                <button type="button" className="cms-secondary" onClick={() => setEditing(null)}>Annuler</button>
+                <button className="cms-primary" disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</button>
+                <button type="button" className="cms-close" aria-label="Fermer" onClick={() => setEditing(null)} style={{position:"static",flex:"0 0 auto"}}>×</button>
               </div>
               {editingType === "product" && <ProductEditor editing={editing} setEditing={setEditing} update={update} upload={upload} />}
               {editingType === "promotion" && <PromotionEditor editing={editing} market={market} update={update} />}
