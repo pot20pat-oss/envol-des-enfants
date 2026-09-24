@@ -105,7 +105,7 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
 
   async function upload(files: FileList | File[] | undefined, setEditing: Dispatch<SetStateAction<Row | null>>) {
     const selectedFiles = Array.from(files || []);
-    if (selectedFiles.length === 0) return;
+    if (selectedFiles.length === 0) return [];
     setBusy(true);
     setError("");
     try {
@@ -143,8 +143,10 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
         };
       });
       flash(`${uploadedImages.length} photo${uploadedImages.length === 1 ? "" : "s"} téléversée${uploadedImages.length === 1 ? "" : "s"}.`);
+      return uploadedImages;
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Téléversement impossible.");
+      return [];
     } finally {
       setBusy(false);
     }
