@@ -279,12 +279,11 @@ async function createAll(){const exactDuplicates=items.filter(x=>!x.duplicate&&x
                 <span>Boutique : {item.catalogMatch.visible_qc?"Québec ":""}{item.catalogMatch.visible_conakry?"Conakry":""}</span>
                 <span>Confiance : {Math.round((item.catalogScore||0)*100)} %</span><span><b>Pourquoi :</b> {item.catalogMatches?.find(m=>String(m.product.id)===String(item.catalogMatch?.id))?.reason||"Comparaison catalogue"}</span>
                 <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:8}}>
-                  <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir en grand</button>
-                  <button type="button" className="cms-secondary" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchAccepted:true,matchRejected:false}:x))}>✓ C’est le même produit</button>
-                  <button type="button" className="cms-danger" onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchRejected:true,matchAccepted:false}:x))}>✕ Ce n’est PAS le même produit</button>
-                  <button type="button" className="cms-secondary" disabled={working||!item.url} onClick={()=>void replaceMatchedImage(item)}>↻ Remplacer l’image du doublon</button>
-                  <button type="button" className="cms-danger" disabled={working} onClick={()=>void deleteMatchedProduct(item)}>🗑 Supprimer le doublon du catalogue</button>
+                  <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir l’image existante en grand</button>
+                  <button type="button" className="cms-secondary" disabled={working||!item.url} title="Conserve ce produit dans le catalogue et remplace son image actuelle par la photo que tu es en train d’importer." onClick={()=>void replaceMatchedImage(item)}>↻ Remplacer par la nouvelle image</button>
+                  <button type="button" className="cms-danger" disabled={working} title="Supprime du catalogue le produit correspondant à l’image affichée juste au-dessus." onClick={()=>void deleteMatchedProduct(item)}>🗑 Supprimer ce doublon</button>
                 </div>
+                <small style={{color:"#536b7a"}}>Les deux actions concernent le produit affiché ci-dessus. « Remplacer » garde sa fiche et change seulement son image; « Supprimer » retire cette fiche du catalogue.</small>
                 {item.matchRejected&&<strong style={{color:"#a33"}}>Correspondance refusée — cette photo pourra être créée comme nouveau produit.</strong>}
                 {item.matchAccepted&&<strong>Correspondance confirmée manuellement.</strong>}
               </div>
