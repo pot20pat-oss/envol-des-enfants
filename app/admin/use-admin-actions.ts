@@ -17,21 +17,16 @@ type Options = {
 };
 
 async function prepareImageForUpload(file: File): Promise<File> {
-  const maxUpload = 25 * 1024 * 1024;
   const optimizeAbove = 3.5 * 1024 * 1024;
   const safeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
   if (!safeTypes.has(file.type)) {
     throw new Error("Format non pris en charge. Utilisez PNG, JPG ou WebP.");
   }
-  if (file.size > maxUpload) {
-    throw new Error("Image trop volumineuse : maximum 25 Mo.");
-  }
+  if (file.size <= optimizeAbove) return file;
 
-  // Conserver les PNG tels quels : une conversion JPEG détruirait leur transparence.
-  // R2 accepte l'original; les JPG/WebP volumineux sont optimisés dans le navigateur.
-  if (file.type === "image/png" || file.size <= optimizeAbove) return file;
-
+  // Les grosses images sont réduites AVANT l'envoi. WebP conserve la
+  // transparence des PNG, contrairement au JPEG, et évite la limite HTTP.
   const bitmap = await createImageBitmap(file);
   const maxDimension = 2200;
   const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
@@ -46,14 +41,18 @@ async function prepareImageForUpload(file: File): Promise<File> {
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
-  const outputType = file.type === "image/webp" ? "image/webp" : "image/jpeg";
-  let quality = 0.88;
+  const outputType = file.type === "image/jpeg" ? "image/jpeg" : "image/webp";
+  let quality = 0.9;
   let blob: Blob | null = null;
   do {
     blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, outputType, quality));
-    quality -= 0.08;
-  } while (blob && blob.size > 3.5 * 1024 * 1024 && quality >= 0.52);
+    quality -= 0.07;
+  } while (blob && blob.size > 3.5 * 1024 * 1024 && quality >= 0.48);
+
   if (!blob) throw new Error("Impossible de compresser cette image.");
+  if (blob.size > 8 * 1024 * 1024) {
+    throw new Error("Cette image reste trop volumineuse après optimisation.");
+  }
 
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
   const extension = outputType === "image/webp" ? "webp" : "jpg";
