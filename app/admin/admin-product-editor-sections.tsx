@@ -493,9 +493,9 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
           disabled={!images[0] || analyzing}
           onClick={() => void analyzeImage()}
         >
-          {analyzing ? "Analyse en cours…" : "Analyser avec NVIDIA"}
+          {analyzing ? "Analyse en cours…" : editing.id ? "✨ Corriger la fiche avec l’IA" : "✨ Analyser avec l’IA"}
         </button>
-        <p>{analysisNotice || "NVIDIA proposera le nom, la catégorie, la marque, l’âge et les descriptions. Rien ne sera enregistré sans votre confirmation."}</p>
+        <p>{analysisNotice || "L’IA réanalyse la photo et propose de corriger le nom, la catégorie, la marque, l’âge et les descriptions. Rien n’est enregistré sans votre confirmation."}</p>
       </div>
     </section>
 
