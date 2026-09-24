@@ -158,11 +158,16 @@ export async function createArticleNumberGenerator(database: D1Database) {
     // Le numéro d'article est UNIQUE globalement. Des fiches historiques peuvent avoir
     // changé de catégorie tout en conservant leur ancien préfixe (ex. EVE-0061 devenu Barbie).
     // On réserve donc chaque numéro d'après son préfixe réel, indépendamment de la catégorie actuelle.
-    const match = String(product.article_number || "").trim().toUpperCase().match(/^([A-Z0-9]{3})-?(\d{1,6})$/);
+    const match = String(product.article_number || "").trim().toUpperCase().match(/^([A-Z0-9]{3})(-?)(\\d{1,6})$/);
     if (!match) continue;
 
     const prefix = match[1];
-    const number = Number(match[2]);
+    // Les anciens numéros sans tiret sont limités au format historique sur 4 chiffres.
+    // Cela évite qu’une valeur ambiguë comme DIS9999 portée par une autre catégorie
+    // fasse bondir artificiellement la séquence DIS actuelle.
+    if (!match[2] && match[3].length > 4) continue;
+    if (articlePrefix(product.category) !== prefix && !match[2]) continue;
+    const number = Number(match[3]);
     if (!Number.isFinite(number)) continue;
     maxByPrefix.set(prefix, Math.max(maxByPrefix.get(prefix) || 0, number));
   }
