@@ -107,14 +107,31 @@ export async function POST(request: Request) {
     },
     body: JSON.stringify({
       model: runtime.NVIDIA_VISION_MODEL || "meta/llama-3.2-11b-vision-instruct",
-      temperature: 0.1,
+      temperature: 0,
       max_tokens: 900,
       messages: [{
         role: "user",
         content: [
           {
             type: "text",
-            text: `Analyse cette photo de produit pour une boutique de jouets et d'articles pour enfants. Choisis obligatoirement une seule clé de catégorie dans la liste ci-dessous. N'invente pas une marque qui n'est pas visible. Réponds uniquement avec un objet JSON valide contenant exactement: name_fr, name_en, description_fr, description_en, category, brand, ages, confidence. confidence doit être entre 0 et 1. Les descriptions doivent être sobres, commerciales et ne contenir aucune caractéristique incertaine.\n\nCATÉGORIES AUTORISÉES:\n${categoryList}`,
+            text: `Tu es un expert en identification VISUELLE de jouets. Travaille uniquement à partir des pixels de l'image jointe.
+
+IMPORTANT:
+- Ignore tout nom, description, catégorie ou métadonnée qui pourrait être associé au fichier ou au produit.
+- Identifie d'abord ce que l'objet EST visuellement. Ne déduis pas son usage à partir d'une ressemblance approximative.
+- Distingue la forme du jouet de sa fonction. Exemple: un jouet d'éveil en forme de camion n'est pas automatiquement un camion à ordures, un camion-benne ou un véhicule de chantier.
+- N'affirme jamais une fonction (ramassage des déchets, benne basculante, musique, électronique, etc.) si elle n'est pas clairement démontrée par l'image.
+- Décris les éléments réellement visibles: forme, couleurs, boutons, balles, pièces manipulables, personnages, roues, etc.
+- Si le sous-type exact est incertain, utilise un nom générique exact plutôt qu'une identification spécifique inventée.
+- N'invente pas de marque si elle n'est pas lisible.
+- Les descriptions doivent être factuelles, sobres et commerciales, sans caractéristiques incertaines.
+
+Choisis obligatoirement une seule clé de catégorie dans la liste ci-dessous.
+Réponds uniquement avec un objet JSON valide contenant exactement: name_fr, name_en, description_fr, description_en, category, brand, ages, confidence.
+confidence doit être entre 0 et 1 et doit refléter la certitude VISUELLE de l'identification.
+
+CATÉGORIES AUTORISÉES:
+${categoryList}`,
           },
           { type: "image_url", image_url: { url: image } },
         ],
