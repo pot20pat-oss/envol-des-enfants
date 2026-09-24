@@ -11,7 +11,7 @@ type ProductEditorProps = {
   editing: Row;
   setEditing: Dispatch<SetStateAction<Row | null>>;
   update: (field: string, value: string | number | boolean) => void;
-  upload: (files?: FileList | File[]) => void | Promise<void>;
+  upload: (files?: FileList | File[]) => Promise<string[]>;
 };
 
 export function ProductEditor({ editing, setEditing, update, upload }: ProductEditorProps) {
