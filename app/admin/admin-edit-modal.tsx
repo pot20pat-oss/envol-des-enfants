@@ -47,8 +47,9 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
               </div>
               <div
                 className="cms-editor-actions"
-                style={{position:"sticky",top:-20,zIndex:50,display:"flex",justifyContent:"flex-end",gap:10,padding:"12px 4px",margin:"0 -4px 14px",background:"rgba(255,255,255,.98)",backdropFilter:"blur(8px)",borderBottom:"1px solid #dbe5ea",boxShadow:"0 5px 12px rgba(20,45,60,.06)"}}
+                style={{position:"sticky",top:0,zIndex:100,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,padding:"12px 14px",margin:"0 0 16px",background:"#fff",border:"2px solid #b9cbd5",borderRadius:12,boxShadow:"0 6px 18px rgba(20,45,60,.16)"}}
               >
+                {editingType==="product"&&<strong style={{marginRight:"auto"}}>{editing.id?"Modification de l’article":"Nouvel article"}</strong>}
                 {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
                 <button
                   type="button"
