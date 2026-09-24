@@ -108,7 +108,8 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       model: runtime.NVIDIA_VISION_MODEL || "meta/llama-3.2-11b-vision-instruct",
       temperature: 0,
-      max_tokens: 900,
+      max_tokens: 520,
+      response_format: { type: "json_object" },
       messages: [{
         role: "user",
         content: [
@@ -145,15 +146,8 @@ ${categoryList}`,
     return Response.json({ error: detail }, { status: 502 });
   }
 
-  let suggestion = parseSuggestion(responseText(result.choices?.[0]?.message?.content));
-  if (!suggestion) {
-    const raw=responseText(result.choices?.[0]?.message?.content);
-    if(raw){
-      const repair=await fetch("https://integrate.api.nvidia.com/v1/chat/completions",{method:"POST",headers:{Authorization:`Bearer ${runtime.NVIDIA_API_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({model:runtime.NVIDIA_VISION_MODEL||"meta/llama-3.2-11b-vision-instruct",temperature:0,max_tokens:700,messages:[{role:"user",content:`Convertis strictement le contenu suivant en UN objet JSON valide avec exactement les clés name_fr, name_en, description_fr, description_en, category, brand, ages, confidence. Aucun markdown, aucune explication. category doit être une de ces clés: ${Object.keys(categories).join(", ")}.\n\n${raw}`}]})});
-      if(repair.ok){const repaired=await repair.json() as NvidiaResponse;suggestion=parseSuggestion(responseText(repaired.choices?.[0]?.message?.content))}
-    }
-  }
-  if (!suggestion) return Response.json({ error: "NVIDIA n’a pas retourné une fiche produit exploitable après correction automatique." }, { status: 502 });
+  const suggestion = parseSuggestion(responseText(result.choices?.[0]?.message?.content));
+  if (!suggestion) return Response.json({ error: "NVIDIA n’a pas retourné une fiche produit JSON exploitable. Réessayez l’analyse." }, { status: 502 });
 
   return Response.json({ suggestion });
 }
