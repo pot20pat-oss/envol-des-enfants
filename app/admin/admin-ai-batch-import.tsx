@@ -110,11 +110,13 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     }catch{}
     // Keep candidates even when browser/CORS prevents reading catalog images.
     let score=visual>0?visual*.62+text*.38:text;
-    if(sameBrand)score=Math.min(1,score+.12);
+    if(sameBrand)score=Math.min(.94,score+.08);
     if(brandConflict&&visual<.90)score*=.55;
-    if(visual>=.96)score=Math.max(score,.98);
-    else if(visual>=.88)score=Math.max(score,.86);
-    else if(visual>=.78)score=Math.max(score,.72);
+    // Le hash 16x16 mesure surtout la structure globale de l'emballage. Il ne doit plus
+    // transformer à lui seul une Barbie ressemblante en doublon à 98-100 %.
+    if(visual>=.96)score=Math.max(score,.82);
+    else if(visual>=.88)score=Math.max(score,.74);
+    else if(visual>=.78)score=Math.max(score,.64);
     // L'import utilise maintenant la même philosophie que le scanner CMS :
     // même marque + forte identité textuelle + forte ressemblance visuelle.
     // La couleur/forme commune des emballages d'une gamme ne suffit plus.
@@ -135,14 +137,20 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
       if(!cached){cached=fetch(url).then(r=>{if(!r.ok)throw new Error("Image du catalogue inaccessible");return r.blob()}).then(imagePixels).catch(()=>null);catalogPixelCache.current.set(url,cached)}
       const target=await cached;if(target)pixel=pixelSimilarity(incoming,target)
     }catch{}
-    const strongPixelCopy=pixel>=.91&&visual>=.94;
-    const visualCopy=(visual>=.965&&semanticIdentity)||strongPixelCopy;
-    if(visualCopy||(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55)))){
-      if(strongPixelCopy)score=Math.max(score,pixel);
-      let kind:Match["kind"]="probable",reason=strongPixelCopy?"Image du produit presque identique (pixels + structure visuelle)":visualCopy?"Image très ressemblante + identité du produit compatible":"Même marque + identité du produit compatible + image très ressemblante";
-      if(sameArticle){kind="certain";reason="Même numéro d’article + correspondance catalogue"}
-      else if(visual>=.985&&distinctive>=.70&&text>=.84){kind="certain";reason="Image presque identique + nom/contenu très similaire"}
-      else if(sameBrand&&visual>=.97&&text>=.84&&distinctive>=.70){kind="certain";reason="Même marque + nom/contenu très similaire + image presque identique"}
+    // Une boîte blanche/rose ou une silhouette de poupée peut produire un score pixel/hash très
+    // élevé entre deux SKU différents. Le visuel sert donc à TROUVER des candidats, jamais à
+    // prouver seul qu'il s'agit du même produit.
+    const strongPixelCopy=pixel>=.985&&visual>=.98;
+    const visualCopy=semanticIdentity&&((visual>=.975&&pixel>=.94)||strongPixelCopy);
+    const duplicateEvidence=sameArticle||visualCopy||(sameBrand&&visual>=.96&&text>=.78&&distinctive>=.65);
+    if(duplicateEvidence){
+      if(strongPixelCopy&&semanticIdentity)score=Math.max(score,pixel);
+      // Sans identifiant article exact, ne jamais afficher 100 % : c'est une probabilité de
+      // correspondance, pas une preuve. Les différences de modèle doivent rester visibles.
+      if(!sameArticle)score=Math.min(score,.94);
+      let kind:Match["kind"]="probable",reason=visualCopy?"Image très ressemblante + détails distinctifs concordants":"Même marque + détails distinctifs concordants + image très ressemblante";
+      if(sameArticle){kind="certain";score=1;reason="Même numéro d’article + correspondance catalogue"}
+      else if(visual>=.99&&pixel>=.975&&distinctive>=.80&&text>=.88){kind="certain";reason="Image quasi identique + plusieurs détails distinctifs concordants"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
     }
    }));
