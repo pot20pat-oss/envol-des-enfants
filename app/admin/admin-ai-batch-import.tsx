@@ -12,10 +12,10 @@ type Item={id:string;file:File;preview:string;hash:string;visualHash:string;dupl
 async function sha256(file:File){const d=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 async function visualHash(file:File){const bitmap=await createImageBitmap(file);const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;const ctx=canvas.getContext("2d")!;ctx.drawImage(bitmap,0,0,16,16);bitmap.close();const data=ctx.getImageData(0,0,16,16).data;const lum:number[]=[];for(let i=0;i<data.length;i+=4)lum.push(Math.round(data[i]*.299+data[i+1]*.587+data[i+2]*.114));const avg=lum.reduce((a,b)=>a+b,0)/lum.length;return lum.map(v=>v>=avg?"1":"0").join("")}
 async function prepareUpload(file:File){
- const target=2.5*1024*1024;
+ const target=650*1024;
  let bitmap:ImageBitmap;
  try{bitmap=await createImageBitmap(file)}catch{throw new Error(`Impossible d’ouvrir « ${file.name} ». Utilisez JPG, PNG ou WebP.`)}
- let max=2200,quality=.88,blob:Blob|null=null;
+ let max=1600,quality=.82,blob:Blob|null=null;
  try{
   // Les très grandes photos sont réduites par paliers jusqu'à obtenir un fichier
   // assez léger pour Cloudflare, sans refuser arbitrairement l'original.
@@ -27,11 +27,11 @@ async function prepareUpload(file:File){
    ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
    blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",quality));
    if(blob&&blob.size<=target)break;
-   max=Math.max(900,Math.round(max*.78));quality=Math.max(.58,quality-.08);
+   max=Math.max(700,Math.round(max*.72));quality=Math.max(.48,quality-.09);
   }
  }finally{bitmap.close()}
  if(!blob)throw new Error("Impossible de compresser cette image.");
- if(blob.size>4*1024*1024)throw new Error(`« ${file.name} » reste trop volumineuse après optimisation.`);
+ if(blob.size>900*1024)throw new Error(`« ${file.name} » reste trop volumineuse après optimisation.`);
  return new File([blob],file.name.replace(/\.[^.]+$/,"")+".webp",{type:"image/webp",lastModified:Date.now()});
 }
 // Comparaison des pixels normalisés : indépendante du nom, de la marque et du format JPEG/PNG.
