@@ -143,12 +143,15 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     const strongPixelCopy=pixel>=.985&&visual>=.98;
     const visualCopy=semanticIdentity&&((visual>=.975&&pixel>=.94)||strongPixelCopy);
     const duplicateEvidence=sameArticle||visualCopy||(sameBrand&&visual>=.96&&text>=.78&&distinctive>=.65);
-    if(duplicateEvidence){
+    // Toujours conserver les meilleurs candidats plausibles. Ainsi, si l'IA sait qu'une photo
+    // ressemble à un article mais n'a pas assez de preuves pour déclarer un doublon, l'utilisateur
+    // voit quand même la concordance possible au lieu d'un panneau vide.
+    const candidateEvidence=duplicateEvidence||visual>=.78||text>=.58||(sameBrand&&visual>=.68);
+    if(candidateEvidence){
       if(strongPixelCopy&&semanticIdentity)score=Math.max(score,pixel);
-      // Sans identifiant article exact, ne jamais afficher 100 % : c'est une probabilité de
-      // correspondance, pas une preuve. Les différences de modèle doivent rester visibles.
       if(!sameArticle)score=Math.min(score,.94);
-      let kind:Match["kind"]="probable",reason=visualCopy?"Image très ressemblante + détails distinctifs concordants":"Même marque + détails distinctifs concordants + image très ressemblante";
+      let kind:Match["kind"]=duplicateEvidence?"probable":"related";
+      let reason=duplicateEvidence?(visualCopy?"Image très ressemblante + détails distinctifs concordants":"Même marque + détails distinctifs concordants + image très ressemblante"):(visual>=.78?"Ressemblance visuelle à vérifier":"Nom / marque proches — à vérifier");
       if(sameArticle){kind="certain";score=1;reason="Même numéro d’article + correspondance catalogue"}
       else if(visual>=.99&&pixel>=.975&&distinctive>=.80&&text>=.88){kind="certain";reason="Image quasi identique + plusieurs détails distinctifs concordants"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
@@ -156,7 +159,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
    }));
    void rows;
   }
-  const rank={certain:3,probable:2,related:1}; return scored.filter(m=>m.kind!=="related").sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,5)
+  const rank={certain:3,probable:2,related:1}; return scored.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,8)
  }
  async function analyzeAll(){setWorking(true);const queue=unique.filter(i=>i.state!=="done");setAiProgress({done:0,total:queue.length,current:"Préparation…"});let completed=0;for(const item of queue){try{setAiProgress({done:completed,total:queue.length,current:item.file.name});setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));let result:any;let lastError:unknown;
 for(let attempt=1;attempt<=3;attempt++){
