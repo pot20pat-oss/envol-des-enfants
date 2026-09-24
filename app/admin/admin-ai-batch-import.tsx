@@ -12,18 +12,27 @@ type Item={id:string;file:File;preview:string;hash:string;visualHash:string;dupl
 async function sha256(file:File){const d=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
 async function visualHash(file:File){const bitmap=await createImageBitmap(file);const canvas=document.createElement("canvas");canvas.width=16;canvas.height=16;const ctx=canvas.getContext("2d")!;ctx.drawImage(bitmap,0,0,16,16);bitmap.close();const data=ctx.getImageData(0,0,16,16).data;const lum:number[]=[];for(let i=0;i<data.length;i+=4)lum.push(Math.round(data[i]*.299+data[i+1]*.587+data[i+2]*.114));const avg=lum.reduce((a,b)=>a+b,0)/lum.length;return lum.map(v=>v>=avg?"1":"0").join("")}
 async function prepareUpload(file:File){
- const target=900*1024,max=1600;
- const bitmap=await createImageBitmap(file);
- const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
- const canvas=document.createElement("canvas");
- canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
- const ctx=canvas.getContext("2d");if(!ctx){bitmap.close();throw new Error("Impossible de préparer cette image.")}
- ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
- let quality=.82,blob:Blob|null=null;
- do{blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",quality));quality-=.08}while(blob&&blob.size>target&&quality>=.42);
+ const target=2.5*1024*1024;
+ let bitmap:ImageBitmap;
+ try{bitmap=await createImageBitmap(file)}catch{throw new Error(`Impossible d’ouvrir « ${file.name} ». Utilisez JPG, PNG ou WebP.`)}
+ let max=2200,quality=.88,blob:Blob|null=null;
+ try{
+  // Les très grandes photos sont réduites par paliers jusqu'à obtenir un fichier
+  // assez léger pour Cloudflare, sans refuser arbitrairement l'original.
+  for(let pass=0;pass<5;pass++){
+   const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+   const canvas=document.createElement("canvas");
+   canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Impossible de préparer cette image.");
+   ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+   blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",quality));
+   if(blob&&blob.size<=target)break;
+   max=Math.max(900,Math.round(max*.78));quality=Math.max(.58,quality-.08);
+  }
+ }finally{bitmap.close()}
  if(!blob)throw new Error("Impossible de compresser cette image.");
- if(blob.size>target)throw new Error("Cette image reste trop volumineuse après compression.");
- return new File([blob],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg",lastModified:Date.now()});
+ if(blob.size>4*1024*1024)throw new Error(`« ${file.name} » reste trop volumineuse après optimisation.`);
+ return new File([blob],file.name.replace(/\.[^.]+$/,"")+".webp",{type:"image/webp",lastModified:Date.now()});
 }
 // Comparaison des pixels normalisés : indépendante du nom, de la marque et du format JPEG/PNG.
 async function imagePixels(blob:Blob){const bitmap=await createImageBitmap(blob);try{const canvas=document.createElement("canvas");canvas.width=64;canvas.height=64;const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw new Error("Canvas indisponible");ctx.fillStyle="#fff";ctx.fillRect(0,0,64,64);const scale=Math.min(64/bitmap.width,64/bitmap.height);const w=bitmap.width*scale,h=bitmap.height*scale;ctx.drawImage(bitmap,(64-w)/2,(64-h)/2,w,h);const data=ctx.getImageData(0,0,64,64).data;const rgb=new Uint8Array(64*64*3);for(let i=0,j=0;i<data.length;i+=4){const alpha=data[i+3]/255;rgb[j++]=Math.round(data[i]*alpha+255*(1-alpha));rgb[j++]=Math.round(data[i+1]*alpha+255*(1-alpha));rgb[j++]=Math.round(data[i+2]*alpha+255*(1-alpha))}return {rgb,ratio:bitmap.width/bitmap.height}}finally{bitmap.close()}}
