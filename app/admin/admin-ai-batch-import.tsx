@@ -280,6 +280,7 @@ async function createAll(){const exactDuplicates=items.filter(x=>!x.duplicate&&x
                 <span>Confiance : {Math.round((item.catalogScore||0)*100)} %</span><span><b>Pourquoi :</b> {item.catalogMatches?.find(m=>String(m.product.id)===String(item.catalogMatch?.id))?.reason||"Comparaison catalogue"}</span>
                 <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:8}}>
                   <button type="button" className="cms-primary" onClick={()=>setZoomImage(String(item.catalogMatch!.image_url||item.preview))}>Voir l’image existante en grand</button>
+                  <button type="button" className="cms-secondary" title="Refuse cette proposition de doublon. La photo importée reste un produit distinct et pourra être enregistrée comme nouvelle fiche." onClick={()=>setItems(a=>a.map(x=>x.id===item.id?{...x,matchRejected:true,matchAccepted:false}:x))}>✕ Ce n’est pas le même produit</button>
                   <button type="button" className="cms-secondary" disabled={working||!item.url} title="Conserve ce produit dans le catalogue et remplace son image actuelle par la photo que tu es en train d’importer." onClick={()=>void replaceMatchedImage(item)}>↻ Remplacer par la nouvelle image</button>
                   <button type="button" className="cms-danger" disabled={working} title="Supprime du catalogue le produit correspondant à l’image affichée juste au-dessus." onClick={()=>void deleteMatchedProduct(item)}>🗑 Supprimer ce doublon</button>
                 </div>
