@@ -17,46 +17,39 @@ type Options = {
 };
 
 async function prepareImageForUpload(file: File): Promise<File> {
-  const optimizeAbove = 3.5 * 1024 * 1024;
   const safeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+  if (!safeTypes.has(file.type)) throw new Error("Format non pris en charge. Utilisez PNG, JPG ou WebP.");
 
-  if (!safeTypes.has(file.type)) {
-    throw new Error("Format non pris en charge. Utilisez PNG, JPG ou WebP.");
-  }
-  if (file.size <= optimizeAbove) return file;
+  // Toujours normaliser avant l'envoi. Ainsi une grosse photo ne dépend jamais
+  // de la limite du proxy/Worker, même si l'original fait plusieurs dizaines de Mo.
+  let bitmap: ImageBitmap;
+  try { bitmap = await createImageBitmap(file); }
+  catch { throw new Error(`Impossible d’ouvrir « ${file.name} ». Utilisez JPG, PNG ou WebP.`); }
 
-  // Les grosses images sont réduites AVANT l'envoi. WebP conserve la
-  // transparence des PNG, contrairement au JPEG, et évite la limite HTTP.
-  const bitmap = await createImageBitmap(file);
-  const maxDimension = 2200;
-  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-  const context = canvas.getContext("2d");
-  if (!context) {
-    bitmap.close();
-    throw new Error("Impossible de préparer cette image.");
-  }
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-
-  const outputType = file.type === "image/jpeg" ? "image/jpeg" : "image/webp";
-  let quality = 0.9;
+  const target = 650 * 1024;
+  let maxDimension = 1600;
+  let quality = 0.82;
   let blob: Blob | null = null;
-  do {
-    blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, outputType, quality));
-    quality -= 0.07;
-  } while (blob && blob.size > 3.5 * 1024 * 1024 && quality >= 0.48);
+  try {
+    for (let pass = 0; pass < 6; pass++) {
+      const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Impossible de préparer cette image.");
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", quality));
+      if (blob && blob.size <= target) break;
+      maxDimension = Math.max(700, Math.round(maxDimension * 0.72));
+      quality = Math.max(0.48, quality - 0.09);
+    }
+  } finally { bitmap.close(); }
 
   if (!blob) throw new Error("Impossible de compresser cette image.");
-  if (blob.size > 8 * 1024 * 1024) {
-    throw new Error("Cette image reste trop volumineuse après optimisation.");
-  }
-
+  if (blob.size > 900 * 1024) throw new Error(`« ${file.name} » reste trop volumineuse après optimisation.`);
   const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
-  const extension = outputType === "image/webp" ? "webp" : "jpg";
-  return new File([blob], `${baseName}.${extension}`, { type: outputType, lastModified: Date.now() });
+  return new File([blob], `${baseName}.webp`, { type: "image/webp", lastModified: Date.now() });
 }
 
 export function useAdminActions({ market, load, setError, setNotice }: Options) {
