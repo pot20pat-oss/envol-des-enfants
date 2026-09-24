@@ -30,6 +30,8 @@ async function imagePixels(blob:Blob){const bitmap=await createImageBitmap(blob)
 function pixelSimilarity(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){if(Math.abs(a.ratio-b.ratio)>.06)return 0;let difference=0;for(let i=0;i<a.rgb.length;i++)difference+=Math.abs(a.rgb[i]-b.rgb[i]);return Math.max(0,1-difference/(255*a.rgb.length))}
 function pixelColorSimilarity(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){if(Math.abs(a.ratio-b.ratio)>.10)return 0;let same=0,total=0;for(let i=0;i<a.rgb.length;i+=3){const aw=Math.max(a.rgb[i],a.rgb[i+1],a.rgb[i+2])<242,bw=Math.max(b.rgb[i],b.rgb[i+1],b.rgb[i+2])<242;if(!aw&&!bw)continue;total++;const d=(Math.abs(a.rgb[i]-b.rgb[i])+Math.abs(a.rgb[i+1]-b.rgb[i+1])+Math.abs(a.rgb[i+2]-b.rgb[i+2]))/3;if(d<=34)same++}return total?same/total:0}
 function sameImagePixels(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){return Math.abs(a.ratio-b.ratio)<=.012&&pixelSimilarity(a,b)>=1-3/255}
+function foregroundBox(p:{rgb:Uint8Array;ratio:number}){let minX=64,minY=64,maxX=-1,maxY=-1;for(let y=0;y<64;y++)for(let x=0;x<64;x++){const i=(y*64+x)*3;if(Math.min(p.rgb[i],p.rgb[i+1],p.rgb[i+2])<238){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}}return maxX>=minX?{minX,minY,maxX,maxY}:null}
+function foregroundSimilarity(a:{rgb:Uint8Array;ratio:number},b:{rgb:Uint8Array;ratio:number}){const ab=foregroundBox(a),bb=foregroundBox(b);if(!ab||!bb)return 0;let diff=0,count=0;for(let gy=0;gy<48;gy++)for(let gx=0;gx<32;gx++){const ax=Math.round(ab.minX+(ab.maxX-ab.minX)*gx/31),ay=Math.round(ab.minY+(ab.maxY-ab.minY)*gy/47),bx=Math.round(bb.minX+(bb.maxX-bb.minX)*gx/31),by=Math.round(bb.minY+(bb.maxY-bb.minY)*gy/47),ai=(ay*64+ax)*3,bi=(by*64+bx)*3;for(let c=0;c<3;c++){diff+=Math.abs(a.rgb[ai+c]-b.rgb[bi+c]);count++}}return count?Math.max(0,1-diff/(255*count)):0}
 function distance(a:string,b:string){let n=0;for(let i=0;i<Math.min(a.length,b.length);i++)if(a[i]!==b[i])n++;return n+Math.abs(a.length-b.length)}
 function visualSimilarity(a:string,b:string){if(!a||!b)return 0;return Math.max(0,1-distance(a,b)/Math.max(a.length,b.length))}
 async function visualHashUrl(url:string){const res=await fetch(url);if(!res.ok)throw new Error("image");const blob=await res.blob();return visualHash(new File([blob],"catalog-image",{type:blob.type||"image/jpeg"}))}
@@ -73,22 +75,21 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
  async function choose(files:FileList|null){setImportResult(null);const selected=Array.from(files||[]).filter(f=>f.type.startsWith("image/"));const seen=new Set<string>();const visual:string[]=[];const next:Item[]=[];
   for(const file of selected){const hash=await sha256(file),vh=await visualHash(file);const exact=seen.has(hash);const near=!exact&&visual.some(x=>distance(x,vh)<=18);seen.add(hash);if(!exact)visual.push(vh);/* Seul un fichier strictement identique est éliminé avant analyse. Une ressemblance visuelle n’est plus un doublon : la photo est analysée comme nouveau produit puis l’IA peut proposer de la regrouper avec une autre vue du même article. */next.push({id:crypto.randomUUID(),file,preview:URL.createObjectURL(file),hash,visualHash:vh,duplicate:exact,duplicateKind:exact?"exact":near?"visual":undefined,state:"ready"})}setItems(next);setSelectedImportItems(new Set(next.filter(x=>!x.duplicate).map(x=>x.id)));setShowSelectedOnly(false)}
  async function exactCatalogMatch(file:File):Promise<Row|undefined>{
-  const incoming=await imagePixels(file);
-  const batchSize=12;
-  for(let i=0;i<catalogProducts.length;i+=batchSize){
-    const matches=await Promise.all(catalogProducts.slice(i,i+batchSize).map(async product=>{
-      const urls=[String(product.image_url||"")];try{const additional=JSON.parse(String(product.images_json||"[]"));if(Array.isArray(additional))urls.push(...additional.filter((u:unknown)=>typeof u==="string"))}catch{}
-      for(const url of urls.filter(Boolean)){
-        let cached=catalogPixelCache.current.get(url);
-        if(!cached){cached=fetch(url).then(r=>{if(!r.ok)throw new Error("Image du catalogue inaccessible");return r.blob()}).then(imagePixels).catch(()=>null);catalogPixelCache.current.set(url,cached)}
-        const pixels=await cached;if(pixels&&sameImagePixels(incoming,pixels))return product;
-      }
-      return undefined;
-    }));
-    const match=matches.find(Boolean);if(match)return match;
+   const incoming=await imagePixels(file);let best:{product:Row;score:number}|undefined;const batchSize=12;
+   for(let i=0;i<catalogProducts.length;i+=batchSize){
+     await Promise.all(catalogProducts.slice(i,i+batchSize).map(async product=>{
+       const urls=[String(product.image_url||"")];try{const additional=JSON.parse(String(product.images_json||"[]"));if(Array.isArray(additional))urls.push(...additional.filter((u:unknown)=>typeof u==="string"))}catch{}
+       for(const url of urls.filter(Boolean))try{
+         let cached=catalogPixelCache.current.get(url);if(!cached){cached=fetch(url).then(r=>{if(!r.ok)throw new Error("Image du catalogue inaccessible");return r.blob()}).then(imagePixels).catch(()=>null);catalogPixelCache.current.set(url,cached)}
+         const pixels=await cached;if(!pixels)continue;if(sameImagePixels(incoming,pixels))return void(best={product,score:1});
+         const fg=foregroundSimilarity(incoming,pixels),global=pixelSimilarity(incoming,pixels),color=pixelColorSimilarity(incoming,pixels);
+         const score=fg*.72+global*.18+color*.10;if(fg>=.82&&(!best||score>best.score))best={product,score};
+       }catch{}
+     }));
+     if(best?.score===1)return best.product;
+   }
+   return best&&best.score>=.78?best.product:undefined;
   }
-  return undefined;
- }
  async function rankCatalogVisually(item:Item,suggestion:Row){
   const textMatches=catalogMatches(suggestion,catalogProducts);
   const textById=new Map(textMatches.map(m=>[String(m.product.id),m.score]));
