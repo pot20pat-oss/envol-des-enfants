@@ -30,7 +30,7 @@ test("different-brand blasters need strong visual evidence",()=>{
 });
 
 const importVisualCandidate=({visual,text,distinctive,sameArticle=false,sameBrand=true})=>{
- const semanticIdentity=sameArticle||distinctive>=.55||text>=.82;
+ const semanticIdentity=sameArticle||distinctive>=.55;
  const visualCopy=visual>=.965&&semanticIdentity;
  return visualCopy||(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55)));
 };
@@ -43,4 +43,8 @@ test("same Barbie packaging is not enough to call different dolls duplicates",()
 test("same superhero packaging is not enough when character identity disagrees",()=>{
  assert.equal(importVisualCandidate({visual:.98,text:.30,distinctive:0,sameBrand:false}),false);
  assert.equal(importVisualCandidate({visual:.98,text:.86,distinctive:.72,sameBrand:false}),true);
+});
+
+test("generic same-range descriptions cannot prove exact identity",()=>{
+ assert.equal(importVisualCandidate({visual:.99,text:.95,distinctive:0,sameBrand:true}),false);
 });
