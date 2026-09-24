@@ -122,12 +122,14 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     const sourceTokens=usefulWords(sourceName),productTokens=usefulWords(productName);
     const distinctive=overlap(sourceTokens,productTokens);
     const sameArticle=!!(norm(suggestion.article_number)&&norm(suggestion.article_number)===norm(p.article_number));
-    // Ne jamais exclure une copie visuelle parce que l'IA a mal identifié la marque.
-    const visualCopy=visual>=.965;
+    // Le hash visuel 16x16 repère très bien une famille d'emballages, mais ne suffit pas
+    // à prouver l'identité du produit (ex. plusieurs Barbie/Titan Hero dans la même boîte).
+    const semanticIdentity=sameArticle||distinctive>=.55||text>=.82;
+    const visualCopy=visual>=.965&&semanticIdentity;
     if(visualCopy||(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55)))){
-      let kind:Match["kind"]="probable",reason=visualCopy?"Image quasi identique à un article du catalogue":"Même marque + identité du produit compatible + image très ressemblante";
+      let kind:Match["kind"]="probable",reason=visualCopy?"Image très ressemblante + identité du produit compatible":"Même marque + identité du produit compatible + image très ressemblante";
       if(sameArticle){kind="certain";reason="Même numéro d’article + correspondance catalogue"}
-      else if(visual>=.985){kind="certain";reason="Copie visuelle quasi conforme d’un article du catalogue"}
+      else if(visual>=.985&&distinctive>=.70&&text>=.84){kind="certain";reason="Image presque identique + nom/contenu très similaire"}
       else if(sameBrand&&visual>=.97&&text>=.84&&distinctive>=.70){kind="certain";reason="Même marque + nom/contenu très similaire + image presque identique"}
       scored.push({product:p,score:Math.min(score,1),kind,reason})
     }
