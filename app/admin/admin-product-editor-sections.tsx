@@ -224,11 +224,48 @@ function saveProductImages(
   update("images_json", JSON.stringify(images.slice(1)));
 }
 
-export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<ProductEditorProps, "editing" | "update" | "upload">) {
+export function ProductMediaAndTermsFields({ editing, setEditing, update, upload }: Pick<ProductEditorProps, "editing" | "setEditing" | "update" | "upload">) {
   const images = productImages(editing);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisNotice, setAnalysisNotice] = useState("");
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+
+  const toggleImageSelection = (image: string) => {
+    setSelectedImages((current) => current.includes(image)
+      ? current.filter((item) => item !== image)
+      : [...current, image]);
+  };
+
+  const detachSelectedImages = () => {
+    if (!selectedImages.length) return;
+    saveProductImages(images.filter((image) => !selectedImages.includes(image)), update);
+    setSelectedImages([]);
+  };
+
+  const makeNewProductFromSelected = () => {
+    if (!selectedImages.length) return;
+    const detached = images.filter((image) => !selectedImages.includes(image));
+    const moved = images.filter((image) => selectedImages.includes(image));
+    setEditing((current) => current ? {
+      ...current,
+      id: undefined,
+      article_number: undefined,
+      name_fr: `${String(current.name_fr || "")} — nouveau produit`,
+      image_url: moved[0] || "",
+      images_json: JSON.stringify(moved.slice(1)),
+      stock_qc: 1,
+      stock_conakry: 1,
+      visible_qc: false,
+      visible_conakry: false,
+      visible: false,
+      featured: false,
+    } : current);
+    setSelectedImages([]);
+    // Les images sont réutilisées par URL : elles ne sont jamais supprimées de R2.
+    // La fiche d'origine devra être enregistrée séparément avant de créer la nouvelle fiche.
+    sessionStorage.setItem("cms-detached-product-images", JSON.stringify(detached));
+  };
 
   const moveImage = (index: number, direction: -1 | 1) => {
     const destination = index + direction;
@@ -314,6 +351,14 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
                 <span>Agrandir</span>
               </button>
               <div className="cms-product-image-meta">
+                <label className="cms-checkbox" style={{marginBottom:6}}>
+                  <input
+                    type="checkbox"
+                    checked={selectedImages.includes(image)}
+                    onChange={() => toggleImageSelection(image)}
+                  />{" "}
+                  Sélectionner
+                </label>
                 <strong>{index === 0 ? "Photo principale" : `Photo ${index + 1}`}</strong>
                 <span>Position {index + 1}</span>
               </div>
@@ -352,6 +397,19 @@ export function ProductMediaAndTermsFields({ editing, update, upload }: Pick<Pro
         </div>
       ) : (
         <p className="cms-product-images-empty">Aucune photo. Ajoutez une ou plusieurs photos ci-dessus.</p>
+      )}
+
+      {selectedImages.length > 0 && (
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",padding:"12px 14px",marginTop:14,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
+          <strong>{selectedImages.length} photo{selectedImages.length === 1 ? "" : "s"} sélectionnée{selectedImages.length === 1 ? "" : "s"}</strong>
+          <button type="button" className="cms-secondary" onClick={detachSelectedImages}>
+            ↗ Retirer de ce produit
+          </button>
+          <button type="button" className="cms-primary" onClick={makeNewProductFromSelected}>
+            ＋ En faire un nouveau produit
+          </button>
+          <span style={{fontSize:".9rem",opacity:.75}}>Pour les déplacer vers un produit existant, retirez-les ici puis réutilisez leurs images dans la fiche cible.</span>
+        </div>
       )}
 
       <div className="cms-product-analysis">
