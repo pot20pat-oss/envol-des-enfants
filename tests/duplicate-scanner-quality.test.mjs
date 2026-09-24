@@ -28,3 +28,19 @@ test("different-brand blasters need strong visual evidence",()=>{
  const a="Nerf grand blaster bleu et orange",b="Adventure Force Lancer blaster orange";
  assert.equal(pass({legacy:.90,cropped:.91,name:similarity(a,b),distinctive:similarity(a,b,distinctive,"max"),sameBrand:false},2),false);
 });
+
+const importVisualCandidate=({visual,text,distinctive,sameArticle=false,sameBrand=true})=>{
+ const semanticIdentity=sameArticle||distinctive>=.55||text>=.82;
+ const visualCopy=visual>=.965&&semanticIdentity;
+ return visualCopy||(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55)));
+};
+
+test("same Barbie packaging is not enough to call different dolls duplicates",()=>{
+ assert.equal(importVisualCandidate({visual:.99,text:.48,distinctive:0,sameBrand:true}),false);
+ assert.equal(importVisualCandidate({visual:.98,text:.76,distinctive:.70,sameBrand:true}),true);
+});
+
+test("same superhero packaging is not enough when character identity disagrees",()=>{
+ assert.equal(importVisualCandidate({visual:.98,text:.30,distinctive:0,sameBrand:false}),false);
+ assert.equal(importVisualCandidate({visual:.98,text:.86,distinctive:.72,sameBrand:false}),true);
+});
