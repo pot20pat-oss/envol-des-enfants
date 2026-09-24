@@ -124,7 +124,9 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
     const sameArticle=!!(norm(suggestion.article_number)&&norm(suggestion.article_number)===norm(p.article_number));
     // Le hash visuel 16x16 repère très bien une famille d'emballages, mais ne suffit pas
     // à prouver l'identité du produit (ex. plusieurs Barbie/Titan Hero dans la même boîte).
-    const semanticIdentity=sameArticle||distinctive>=.55||text>=.82;
+    // Un score textuel élevé peut venir d'une description générique de gamme (Barbie, Titan Hero, etc.).
+    // Pour une copie visuelle, exiger un identifiant exact ou des mots réellement distinctifs communs.
+    const semanticIdentity=sameArticle||distinctive>=.55;
     const visualCopy=visual>=.965&&semanticIdentity;
     if(visualCopy||(sameBrand&&(sameArticle||(visual>=.94&&text>=.72&&distinctive>=.55)))){
       let kind:Match["kind"]="probable",reason=visualCopy?"Image très ressemblante + identité du produit compatible":"Même marque + identité du produit compatible + image très ressemblante";
