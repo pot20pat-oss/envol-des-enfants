@@ -143,7 +143,7 @@ export default function Administration() {
         <SettingsSection market={market} settings={settings} setSettings={setSettings} passwords={passwords} setPasswords={setPasswords} busy={busy} saveSettings={(event) => void saveSettings(event, settings)} changePassword={(event) => void changePassword(event)} />
       )}
 
-      {editing && <AdminEditModal editing={editing} editingType={editingType} setEditing={setEditing} save={(event) => void saveEditing(event, editing, editingType, setEditing)} update={(field, value) => updateEditing(setEditing, field, value)} upload={(files) => void upload(files, setEditing)} busy={busy} market={market} products={products} deleteOrder={async(order)=>{if(!window.confirm("Supprimer définitivement cette commande ?"))return;try{setBusy(true);await request(`/api/admin/orders?id=${encodeURIComponent(String(order.id))}`,{method:"DELETE"});setEditing(null);await load()}catch(failure){setError(failure instanceof Error?failure.message:"Suppression impossible.")}finally{setBusy(false)}}} />}
+      {editing && <AdminEditModal editing={editing} editingType={editingType} setEditing={setEditing} save={(event) => void saveEditing(event, editing, editingType, setEditing)} update={(field, value) => updateEditing(setEditing, field, value)} upload={(files) => upload(files, setEditing)} busy={busy} market={market} products={products} deleteOrder={async(order)=>{if(!window.confirm("Supprimer définitivement cette commande ?"))return;try{setBusy(true);await request(`/api/admin/orders?id=${encodeURIComponent(String(order.id))}`,{method:"DELETE"});setEditing(null);await load()}catch(failure){setError(failure instanceof Error?failure.message:"Suppression impossible.")}finally{setBusy(false)}}} />}
     </AdminLayout>
   );
 }
