@@ -27,6 +27,12 @@ type Props = {
 
 export default function StorefrontNavigation({ market, whatsappUrl, say }: Props) {
   const commerce = useCommerce();
+  const [search, setSearch] = useState("");
+  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const q = search.trim();
+    window.location.href = `/catalogue?region=${market}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
+  }
   return <div className="ref-header">
     <div className="ref-top wrap"><span className="ref-canadian-business"><span aria-hidden="true" className="ref-maple-leaf">🍁</span> {say("Entreprise canadienne","Canadian business")}</span><b>{say("Des enfants heureux aujourd’hui, un meilleur demain !","Happy children today, a better tomorrow!")}</b>
       <div className="ref-commerce"><button type="button" onClick={()=>commerce.open("account")}><HeaderIcon kind="account"/><small>{say("Mon compte","Account")}</small></button><button type="button" onClick={()=>commerce.open("favorites")}><HeaderIcon kind="heart"/><small>{say("Mes favoris","Favorites")}</small></button><button type="button" onClick={()=>commerce.open("cart")}><HeaderIcon kind="cart"/><small>{say("Mon panier","Cart")}</small></button></div>
