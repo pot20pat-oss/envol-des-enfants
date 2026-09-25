@@ -165,8 +165,13 @@ RÈGLES ABSOLUES:
 - Base ton identification principalement sur ce qui est réellement visible.
 - Identifie d'abord le TYPE DE PRODUIT.
 - Tu peux lire le texte visible uniquement pour identifier le produit, la marque, la licence ou le modèle.
-- Si l'identification exacte est incertaine, utilise un nom générique précis.
+- Si l'identification exacte est incertaine, utilise un nom générique précis, mais jamais une formulation vide comme "produit pour enfants", "jouet pour enfants", "produit de décoration" ou "article pour enfants" si le type réel est visuellement identifiable.
+- Identifie le TYPE CONCRET de l'article avant de rédiger: pâte à modeler, coffret créatif, poupée, véhicule, livre de coloriage, sac, jeu éducatif, etc.
+- Quand plusieurs éléments sont visibles dans un même emballage ou ensemble, décris l'ensemble et les principaux éléments réellement visibles.
+- Si une marque est lisible, combine-la avec le type concret du produit dans le nom quand cela améliore l'identification.
 - N'invente jamais une information qui n'est pas visible ou raisonnablement certaine.
+- Une réponse très générique ne peut jamais avoir une confiance élevée: si tu n'arrives pas à identifier précisément le type de produit, confidence doit être inférieur ou égal à 0.65.
+- confidence = 1 uniquement si le type de produit ET son identification sont clairement établis visuellement; ne donne jamais 1 par défaut.
 
 2. TEXTE SUR L'EMBALLAGE
 - Ne recopie jamais un paragraphe imprimé sur le produit.
@@ -188,8 +193,10 @@ RÈGLES ABSOLUES:
 5. DESCRIPTION FRANÇAISE
 - description_fr doit obligatoirement être en FRANÇAIS.
 - Maximum 2 phrases courtes.
-- Décris le PRODUIT vendu.
-- Mentionne son type, son thème et les caractéristiques clairement visibles.
+- Décris le PRODUIT vendu avec des termes concrets.
+- Mentionne son type exact, sa marque si visible, son thème et les principaux éléments/accessoires clairement visibles.
+- La description doit permettre à un client de comprendre ce qu'il achète sans regarder la photo.
+- Refuse les descriptions génériques comme "Produit de décoration pour enfants" lorsqu'un type d'article plus précis est visible.
 - Ne raconte aucune histoire.
 
 6. DESCRIPTION ANGLAISE
