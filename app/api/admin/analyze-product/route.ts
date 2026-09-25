@@ -6,6 +6,7 @@ import { validateJsonBody } from "@/lib/api-validation";
 
 const analyzeSchema = v.object({
   image_url: v.pipe(v.string(), v.trim(), v.minLength(1)),
+  hint: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(180))),
 });
 
 type NvidiaResponse = {
@@ -347,6 +348,7 @@ async function analyzeWithNvidia(
   apiKey: string,
   image: string,
   categoryList: string,
+  hint = "",
 ): Promise<ProductSuggestion> {
   let lastError = "NVIDIA n'a pas retourné une analyse exploitable.";
 
@@ -424,6 +426,7 @@ Règles:
 
 PREUVES EXTRAITES DE LA PHOTO ACTUELLE:
 ${JSON.stringify(facts)}
+${hint ? `INDICATION FOURNIE PAR L'UTILISATEUR (prioritaire pour le type de produit si l'image est floue): ${hint}` : ""}
 
 RÈGLE DE VALIDATION SUPPLÉMENTAIRE:
 Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence/référence seule n'est pas un produit.
@@ -560,6 +563,7 @@ export async function POST(request: Request) {
       runtime.NVIDIA_API_KEY,
       image,
       categoryList,
+      parsed.data.hint || "",
     );
 
     return Response.json({
