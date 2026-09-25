@@ -67,7 +67,7 @@ export default function ProductLightbox({ product, language, market, whatsappNum
             <button
               type="button"
               className="button button-dark product-lightbox-order"
-              onClick={() => commerce.addToCart(product)}
+              onClick={() => { commerce.addToCart(product); onClose(); }}
             >
               {say("Ajouter au panier", "Add to cart")}
             </button>
