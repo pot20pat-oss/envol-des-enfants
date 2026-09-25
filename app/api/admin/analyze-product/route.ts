@@ -182,7 +182,8 @@ RÈGLES ABSOLUES:
 
 1. ANALYSE VISUELLE
 - Base ton identification principalement sur ce qui est réellement visible.
-- Identifie d'abord le TYPE DE PRODUIT.
+- Identifie d'abord le TYPE PHYSIQUE DE PRODUIT, avant toute marque ou licence.
+- Les personnages, franchises et logos visibles décrivent le THÈME du produit, jamais son type.
 - Tu DOIS lire le texte clairement visible sur l'emballage lorsqu'il nomme le type de produit, l'activité ou le modèle. Ce texte d'identification est prioritaire sur une ressemblance visuelle approximative.
 - Fais une vérification croisée obligatoire: (A) ce que montre l'objet, (B) le nom/type imprimé sur l'emballage. Si A et B semblent diverger, n'invente pas: choisis l'identification explicitement soutenue par l'emballage et baisse confidence.
 - Ne confonds jamais le MATÉRIAU ou le contenu d'un kit avec le PRODUIT vendu. Exemple: de petits pots de peinture dans un kit ne font pas du produit de la pâte à modeler.
@@ -218,6 +219,11 @@ RÈGLES ABSOLUES:
 4. NOMS
 - name_fr doit obligatoirement être en FRANÇAIS.
 - name_en doit obligatoirement être en ANGLAIS.
+- Une marque, licence ou franchise SEULE (ex. un univers de personnages) n'est JAMAIS un nom de produit acceptable.
+- Le nom doit toujours contenir le TYPE PHYSIQUE CONCRET de l'article visible: tablette à dessin, livre, coffret, poupée, sac, véhicule, jeu, etc.
+- Si une licence est visible, combine-la avec le type: "[type concret] [licence]" et non simplement "[licence]".
+- Avant le JSON, pose-toi obligatoirement: "Si j'enlève la marque/licence de mon nom, reste-t-il un type de produit?" Si non, le nom est invalide et doit être corrigé.
+- name_fr et name_en doivent décrire le MÊME objet, chacun dans sa langue.
 - Les noms doivent être courts et adaptés à un catalogue e-commerce.
 
 5. DESCRIPTION FRANÇAISE
