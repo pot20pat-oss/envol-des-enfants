@@ -224,6 +224,8 @@ RÈGLES ABSOLUES:
 
 3. MARQUE ET LICENCE
 - N'invente jamais une marque.
+- brand doit être une chaîne vide si le nom exact de la marque n'est pas clairement LISIBLE dans les preuves extraites.
+- Une illustration, un animal, un personnage, un slogan, un mot descriptif ou une déduction sémantique n'est JAMAIS une marque.
 - Utilise une marque seulement si elle est clairement visible ou identifiable avec une forte certitude.
 - Une licence ou un personnage visible peut être mentionné si l'identification est fiable.
 
@@ -448,6 +450,7 @@ Le nom DOIT contenir un type physique concret compatible avec physical_object. S
 Si main_text nomme clairement une activité ou un apprentissage ET text_certainty est high, le nom doit en conserver le sens.
 Donne priorité à physical_object + visible_parts + object_interaction pour identifier le produit.
 N'utilise brand_or_publisher dans le nom que si text_certainty est high.
+Pour le champ brand lui-même: si brand_or_publisher est vide, incertain, déduit ou non clairement lisible, retourne brand:"". N'invente jamais une marque à partir du contenu de l'image.
 Ne choisis "coloriage" que si les preuves montrent réellement une activité de dessin/coloriage; si peinture/pinceaux servent à décorer des objets physiques, nomme l'objet et l'activité à peindre/décorer.
 Si name_fr et name_en sont exactement identiques, cela n'est acceptable que pour un nom propre accompagné d'un type de produit traduit; sinon corrige les deux noms.`,
         },
