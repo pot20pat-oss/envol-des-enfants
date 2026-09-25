@@ -343,9 +343,11 @@ Retourne exactement:
 {"main_text":[],"secondary_text":[],"brand_or_publisher":"","physical_object":"","visible_parts":[],"activity_or_purpose":"","age_text":"","characters_or_license":"","uncertainties":[]}
 Règles:
 - main_text: transcris fidèlement les gros mots/titres lisibles, sans traduction.
-- physical_object: décris seulement la forme physique visible (livre, tablette à dessin, boîte, poupée, véhicule, etc.).
+- physical_object: donne obligatoirement le TYPE PHYSIQUE concret visible (livre, coffret créatif, tablette à dessin, jeu, poupée, véhicule, etc.), jamais un titre, une marque ou une référence.
+- Si tu ne peux pas déterminer le type physique, écris "incertain" et explique pourquoi dans uncertainties.
 - activity_or_purpose: seulement si le texte ou l'objet le démontre.
 - Une illustration n'est pas une preuve de coloriage, modelage ou autre activité.
+- Un texte court, logo, marque, série ou référence (par ex. quelques mots stylisés) ne doit jamais remplacer physical_object.
 - N'utilise aucune information d'une requête précédente.`,
             },
             { type: "image_url", image_url: { url: image } },
@@ -373,7 +375,10 @@ PREUVES EXTRAITES DE LA PHOTO ACTUELLE:
 ${JSON.stringify(facts)}
 
 RÈGLE DE VALIDATION SUPPLÉMENTAIRE:
-Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence seule n'est pas un produit. Si main_text nomme clairement une activité ou un apprentissage, le nom doit en conserver le sens.`,
+Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence/référence seule n'est pas un produit.
+Le nom DOIT contenir un type physique concret compatible avec physical_object. Si physical_object vaut "incertain", reste générique mais décris l'objet visible; n'utilise jamais seulement main_text.
+Si main_text nomme clairement une activité ou un apprentissage, le nom doit en conserver le sens.
+Si name_fr et name_en sont exactement identiques, cela n'est acceptable que pour un nom propre accompagné d'un type de produit traduit; sinon corrige les deux noms.`,
         },
       ], 650);
 
@@ -393,7 +398,13 @@ Le nom et la catégorie doivent être directement justifiables par ces preuves. 
           role: "user",
           content: `PREUVES: ${JSON.stringify(facts)}
 FICHE: ${JSON.stringify(suggestion)}
-Vérifie surtout que le TYPE de produit, l'activité et le texte principal concordent. Rejette une classification sans rapport avec le titre visible (ex.: modelage si les preuves parlent d'apprentissage des formes/couleurs).`,
+Vérifie surtout que le TYPE physique du produit, l'activité et le texte principal concordent.
+REJETTE la fiche si:
+- le nom ne contient aucun type physique concret;
+- le nom est seulement une marque, licence, série, référence ou transcription de main_text;
+- name_fr et name_en sont identiques alors qu'un type de produit devrait être traduit;
+- la classification contredit le titre ou l'activité visible.
+Une fiche comme {"name_fr":"Tyma + Story E","name_en":"Tyma + Story E"} doit être rejetée car elle ne dit pas ce que le produit est.`,
         },
       ], 180);
 
