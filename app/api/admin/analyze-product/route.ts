@@ -371,18 +371,54 @@ async function analyzeWithNvidia(
         continue;
       }
 
-      const suggestion = parseSuggestion(
-        responseText(
-          result.choices?.[0]?.message?.content,
-        ),
-      );
+      const rawContent = responseText(result.choices?.[0]?.message?.content);
+      const suggestion = parseSuggestion(rawContent);
 
-      if (suggestion) {
+      if (suggestion && (suggestion.name_fr || suggestion.name_en)) {
         return suggestion;
       }
 
+      // Si la première réponse est inexploitable, demander au modèle de la
+      // réparer en JSON au lieu de refaire exactement la même analyse.
+      if (rawContent.trim()) {
+        const repairController = new AbortController();
+        const repairTimeout = setTimeout(() => repairController.abort(), 12_000);
+        try {
+          const repairResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+            method: "POST",
+            signal: repairController.signal,
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: NVIDIA_MODEL,
+              temperature: 0,
+              max_tokens: 420,
+              messages: [
+                {
+                  role: "system",
+                  content: "Convert the supplied model output into one valid compact JSON object only. Preserve its meaning. Required keys: name_fr,name_en,description_fr,description_en,category,brand,ages,confidence.",
+                },
+                {
+                  role: "user",
+                  content: rawContent.slice(0, 6000),
+                },
+              ],
+            }),
+          });
+          if (repairResponse.ok) {
+            const repairedResult = await repairResponse.json() as NvidiaResponse;
+            const repaired = parseSuggestion(responseText(repairedResult.choices?.[0]?.message?.content));
+            if (repaired && (repaired.name_fr || repaired.name_en)) return repaired;
+          }
+        } finally {
+          clearTimeout(repairTimeout);
+        }
+      }
+
       lastError =
-        "NVIDIA a répondu, mais le JSON de la fiche produit était invalide.";
+        "NVIDIA a répondu, mais sa fiche n’a pas pu être reconstruite.";
     } catch (failure) {
       if (
         failure instanceof Error &&
