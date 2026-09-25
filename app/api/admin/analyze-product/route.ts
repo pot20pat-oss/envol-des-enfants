@@ -177,6 +177,8 @@ function buildPrompt(categoryList: string): string {
 Ta tâche est d'identifier LE PRODUIT VENDU et de produire une fiche e-commerce courte, exacte et utile.
 
 RÈGLES ABSOLUES:
+- Chaque requête concerne UNIQUEMENT la photo jointe. Ignore tout produit ou résultat d'une analyse précédente.
+- Ne copie jamais un exemple dans name_fr/name_en. Les noms doivent être dérivés de la photo actuelle.
 
 1. ANALYSE VISUELLE
 - Base ton identification principalement sur ce qui est réellement visible.
@@ -184,8 +186,8 @@ RÈGLES ABSOLUES:
 - Tu DOIS lire le texte clairement visible sur l'emballage lorsqu'il nomme le type de produit, l'activité ou le modèle. Ce texte d'identification est prioritaire sur une ressemblance visuelle approximative.
 - Fais une vérification croisée obligatoire: (A) ce que montre l'objet, (B) le nom/type imprimé sur l'emballage. Si A et B semblent diverger, n'invente pas: choisis l'identification explicitement soutenue par l'emballage et baisse confidence.
 - Ne confonds jamais le MATÉRIAU ou le contenu d'un kit avec le PRODUIT vendu. Exemple: de petits pots de peinture dans un kit ne font pas du produit de la pâte à modeler.
-- Pour un kit créatif, nomme l'ACTIVITÉ ou l'OBJET À RÉALISER (ex. "Kit à peindre un pas japonais") plutôt que seulement un composant (peinture, pâte, crayons).
-- Si l'emballage contient un titre explicite comme "Paint Your Own ...", "Coloring Book", "Modeling Dough", etc., utilise ce titre comme preuve principale du type de produit, en le traduisant correctement pour name_fr/name_en.
+- Pour un kit créatif, nomme l'ACTIVITÉ ou l'OBJET À RÉALISER plutôt que seulement un composant visible dans la boîte.
+- Si l'emballage contient un titre explicite qui décrit le produit, utilise ce texte visible comme preuve principale du type de produit et traduis-le correctement pour name_fr/name_en.
 - Si l'identification exacte est incertaine, utilise un nom générique précis, mais jamais une formulation vide comme "produit pour enfants", "jouet pour enfants", "produit de décoration" ou "article pour enfants" si le type réel est visuellement identifiable.
 - Identifie le TYPE CONCRET de l'article avant de rédiger: pâte à modeler, coffret créatif, poupée, véhicule, livre de coloriage, sac, jeu éducatif, etc.
 - Quand plusieurs éléments sont visibles dans un même emballage ou ensemble, décris l'ensemble et les principaux éléments réellement visibles.
@@ -244,12 +246,6 @@ BON:
 
 MAUVAIS:
 " Cendrillon travaille dur pour réaliser ses rêves et aime son chien Bruno... "
-
-AUTRE EXEMPLE IMPORTANT:
-Si l'emballage indique "Paint Your Own Stepping Stone / Peins ton propre pas japonais" et montre un pas japonais, des peintures et un pinceau:
-BON name_fr: "Kit à peindre un pas japonais"
-BON name_en: "Paint Your Own Stepping Stone Kit"
-MAUVAIS: "Pâte à modeler" / "Modeling clay"
 
 8. ÂGE
 - Utilise l'âge imprimé s'il est clairement visible.
