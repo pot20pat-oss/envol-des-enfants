@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { markets, type Market } from "@/lib/markets";
 import { blankProduct, type Row, type Section } from "./admin-shared";
 
@@ -18,6 +18,27 @@ export function useAdminUiState() {
   const [productStock, setProductStock] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [orderDate, setOrderDate] = useState("");
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("cms-product-draft");
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Row;
+      setEditingType("product");
+      setEditing(draft);
+      setSection("products");
+    } catch {
+      sessionStorage.removeItem("cms-product-draft");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (editingType !== "product" || !editing) {
+      sessionStorage.removeItem("cms-product-draft");
+      return;
+    }
+    sessionStorage.setItem("cms-product-draft", JSON.stringify(editing));
+  }, [editing, editingType]);
 
   function changeSection(next: Section) {
     setSection(next);
