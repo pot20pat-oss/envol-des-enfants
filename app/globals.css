@@ -643,3 +643,17 @@
 .ref-search input::placeholder{color:#6e8490;opacity:1}
 .ref-search button{display:grid;place-items:center;width:38px;height:38px;padding:7px;border:0;background:transparent;color:#0b4168;cursor:pointer}
 .ref-search button svg{width:23px;height:23px}
+
+
+/* Compact homepage partners and collection cards. */
+.home-partners{max-width:1120px}
+.home-partners-grid{max-width:900px;margin-left:auto;margin-right:auto;gap:12px}
+.home-partner-card button{min-height:110px;padding:14px 16px}
+.home-partner-mark{font-size:clamp(1.05rem,1.8vw,1.35rem)}
+.home-section-cards{max-width:780px!important;gap:10px!important;margin-top:18px!important}
+.home-section-cards a{min-width:0}
+.home-section-cards img{width:100%;height:auto;display:block}
+@media (max-width:700px){
+  .home-partners-grid{grid-template-columns:1fr}
+  .home-section-cards{max-width:94%!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
