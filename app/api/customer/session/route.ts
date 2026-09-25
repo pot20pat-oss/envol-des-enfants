@@ -7,7 +7,7 @@ const schema = v.object({
   action: v.picklist(["register", "login"]),
   email: v.pipe(v.string(), v.trim(), v.email()),
   password: v.pipe(v.string(), v.minLength(8)),
-  name: v.optional(v.string()), phone: v.optional(v.string()), address: v.optional(v.string()), region: v.optional(v.string()),
+  name: v.optional(v.pipe(v.string(), v.trim())), phone: v.optional(v.pipe(v.string(), v.trim())), address: v.optional(v.pipe(v.string(), v.trim())), region: v.optional(v.picklist(["qc", "conakry"])),
 });
 
 export async function GET(request: Request) {
