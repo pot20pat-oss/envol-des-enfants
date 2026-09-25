@@ -66,7 +66,7 @@ export function SettingsSection({ market, settings, setSettings, passwords, setP
   saveSettings: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
   changePassword: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
 }) {
-  const fields = [["store_name", "Nom commercial"], ["phone", "Téléphone"], ["whatsapp", "Numéro WhatsApp"], ["facebook", "Page Facebook"], ["address", "Adresse de la boutique"], ["map_url", "Lien Google Maps"], ["opening_hours", "Horaires d’ouverture"], ["welcome_discount", "Rabais de bienvenue (%)"], ["delivery_conditions", "Conditions de livraison"], ["delivery_zones", "Zones et quartiers desservis"]] as const;
+  const fields = [["store_name", "Nom commercial"], ["phone", "Téléphone"], ["whatsapp", "Numéro WhatsApp"], ["facebook", "Page Facebook"], ["address", "Adresse de la boutique"], ["map_url", "Lien Google Maps"], ["opening_hours", "Horaires d’ouverture"], ["welcome_discount", "Rabais de bienvenue (%)"], ["delivery_conditions", "Conditions de livraison"], ["delivery_zones", "Zones et quartiers desservis"], ["order_notification_email", "Courriel recevant les notifications de nouvelles commandes"]] as const;
   return <div className="cms-settings-grid">
     <form className="cms-panel cms-form" onSubmit={saveSettings}>
       <h2>Informations de la boutique · {markets[market].label}</h2><p>Ces coordonnées, horaires, livraisons et préférences ne s’appliquent qu’à la boutique {markets[market].label}.</p>
