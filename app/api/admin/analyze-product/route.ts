@@ -7,6 +7,15 @@ import { validateJsonBody } from "@/lib/api-validation";
 const analyzeSchema = v.object({
   image_url: v.pipe(v.string(), v.trim(), v.minLength(1)),
   hint: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(180))),
+  product_context: v.optional(v.object({
+    name_fr: v.optional(v.pipe(v.string(), v.maxLength(200))),
+    name_en: v.optional(v.pipe(v.string(), v.maxLength(200))),
+    description_fr: v.optional(v.pipe(v.string(), v.maxLength(1000))),
+    description_en: v.optional(v.pipe(v.string(), v.maxLength(1000))),
+    brand: v.optional(v.pipe(v.string(), v.maxLength(200))),
+    category: v.optional(v.pipe(v.string(), v.maxLength(100))),
+    ages: v.optional(v.pipe(v.string(), v.maxLength(100))),
+  })),
 });
 
 type NvidiaResponse = {
@@ -349,6 +358,7 @@ async function analyzeWithNvidia(
   image: string,
   categoryList: string,
   hint = "",
+  productContext?: Record<string, string | undefined>,
 ): Promise<ProductSuggestion> {
   let lastError = "NVIDIA n'a pas retourné une analyse exploitable.";
 
@@ -427,6 +437,7 @@ Règles:
 PREUVES EXTRAITES DE LA PHOTO ACTUELLE:
 ${JSON.stringify(facts)}
 ${hint ? `INDICATION FOURNIE PAR L'UTILISATEUR (prioritaire pour le type de produit si l'image est floue): ${hint}` : ""}
+${productContext ? `FICHE ACTUELLE DU PRODUIT (à vérifier et corriger; peut contenir des erreurs ou décrire un autre produit): ${JSON.stringify(productContext)}` : ""}
 
 RÈGLE DE VALIDATION SUPPLÉMENTAIRE:
 Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence/référence seule n'est pas un produit.
@@ -564,6 +575,7 @@ export async function POST(request: Request) {
       image,
       categoryList,
       parsed.data.hint || "",
+      parsed.data.product_context,
     );
 
     return Response.json({

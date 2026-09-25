@@ -403,7 +403,19 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
     try {
       const result = await request("/api/admin/analyze-product", {
         method: "POST",
-        body: JSON.stringify({ image_url: images[0], hint: correction.trim() || undefined }),
+        body: JSON.stringify({
+          image_url: images[0],
+          hint: correction.trim() || undefined,
+          product_context: {
+            name_fr: String(editing.name_fr || ""),
+            name_en: String(editing.name_en || ""),
+            description_fr: String(editing.description_fr || ""),
+            description_en: String(editing.description_en || ""),
+            brand: String(editing.brand || ""),
+            category: String(editing.category || ""),
+            ages: String(editing.ages || ""),
+          },
+        }),
       });
       const suggestion = result.suggestion;
       if (!suggestion || typeof suggestion !== "object" || Array.isArray(suggestion)) {
@@ -571,7 +583,15 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
       )}
 
       <div className="cms-product-analysis" style={{display:"block",width:"100%"}}>
-        <div style={{width:"100%",boxSizing:"border-box",padding:"16px",marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
+        <button
+          type="button"
+          className="cms-secondary"
+          disabled={!images[0] || analyzing}
+          onClick={() => void analyzeImage()}
+        >
+          {analyzing ? "Analyse en cours…" : editing.id ? "✨ Réanalyser le produit avec l’IA" : "✨ Analyser le produit avec l’IA"}
+        </button>
+        <div style={{width:"100%",boxSizing:"border-box",padding:"16px",marginTop:12,marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
           <strong style={{display:"block",marginBottom:6}}>✏️ Corriger l’identification IA</strong>
           <p style={{margin:"0 0 10px",fontSize:".9rem"}}>Si l’IA se trompe, dites-lui ce que c’est. Elle ajustera le nom, la catégorie, la marque, l’âge et les descriptions FR/EN.</p>
           <textarea
@@ -593,14 +613,6 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
           </button>
         </div>
 
-        <button
-          type="button"
-          className="cms-secondary"
-          disabled={!images[0] || analyzing}
-          onClick={() => void analyzeImage()}
-        >
-          {analyzing ? "Analyse en cours…" : editing.id ? "✨ Réanalyser seulement la photo" : "✨ Analyser seulement la photo"}
-        </button>
         <p style={{marginBottom:0}}>{analysisNotice || "L’IA propose les corrections dans le formulaire. Rien n’est enregistré sans votre confirmation."}</p>
       </div>
     </section>
