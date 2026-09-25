@@ -1,5 +1,5 @@
 import type { Market } from "@/lib/markets";
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { OrderEditor } from "./admin-order-editor";
 import { ProductEditor } from "./admin-product-editor";
 import { request } from "./admin-shared";
@@ -20,6 +20,21 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   products: Row[];
   deleteOrder?: (order: Row) => void | Promise<void>;
 }) {
+  const [selectedPhotoCount, setSelectedPhotoCount] = useState(0);
+
+  useEffect(() => {
+    const onSelection = (event: Event) => {
+      const custom = event as CustomEvent<{ count?: number }>;
+      setSelectedPhotoCount(Number(custom.detail?.count || 0));
+    };
+    window.addEventListener("cms-photo-selection", onSelection);
+    return () => window.removeEventListener("cms-photo-selection", onSelection);
+  }, []);
+
+  const scrollToPhotoActions = () => {
+    document.querySelector<HTMLElement>("[data-cms-selected-photo-actions]")?.scrollIntoView({block:"center",behavior:"smooth"});
+  };
+
   const analyzeProduct = async () => {
     const imageUrl = String(editing.image_url || "").trim();
     if (!imageUrl || busy) return;
@@ -77,6 +92,7 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
             {editing.id ? "Modifier" : "Ajouter"}{" "}
             {editingType === "product" ? "un produit" : editingType === "promotion" ? "une promotion" : "une commande"}
           </h2>
+          {editingType==="product"&&selectedPhotoCount>0&&<button type="button" className="cms-primary" onClick={scrollToPhotoActions}>📷 {selectedPhotoCount} sélectionnée{selectedPhotoCount>1?"s":""} · Actions</button>}
           {editingType==="product"&&<button type="button" className="cms-secondary" disabled={busy||!editing.image_url} onClick={()=>void analyzeProduct()}>✨ IA</button>}
           {editingType==="product"&&editing.id&&<button type="button" className="cms-secondary" disabled={busy} onClick={duplicateAsNewProduct}>＋ Nouveau produit</button>}
           {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
