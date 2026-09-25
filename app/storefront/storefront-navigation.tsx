@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";\nimport type { Translation } from "@/lib/default-catalog";
+import { useState } from "react";
+import type { Translation } from "@/lib/default-catalog";
 import type { Market } from "@/lib/markets";
 import { useCommerce } from "../commerce/commerce-provider";
 
