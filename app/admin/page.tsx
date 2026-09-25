@@ -17,6 +17,7 @@ import { useAdminActions } from "./use-admin-actions";
 import { useAdminUiState } from "./use-admin-ui-state";
 import { request } from "./admin-shared";
 import "./admin.css";
+import "./admin-mobile.css";
 
 export default function Administration() {
   const [admin, setAdmin] = useState<AdminIdentity | null>(null);
@@ -28,58 +29,76 @@ export default function Administration() {
   const {
     section,
     market,
-    draggedSection,
-    editing,
-    editingType,
     search,
-    productCategory,
-    productVisibility,
-    productStock,
-    orderStatus,
-    orderDate,
+    category,
+    visibility,
+    stock,
+    editing,
+    stockEditing,
+    orderEditing,
+    promotionEditing,
+    setSection,
     setMarket,
-    setDraggedSection,
-    setEditing,
     setSearch,
-    setProductCategory,
-    setProductVisibility,
-    setProductStock,
-    setOrderStatus,
-    setOrderDate,
-    changeSection,
-    addProduct,
-    editProduct,
-    addOrder,
-    editOrder,
-    addPromotion,
-    editPromotion,
+    setCategory,
+    setVisibility,
+    setStock,
+    setEditing,
+    setStockEditing,
+    setOrderEditing,
+    setPromotionEditing,
   } = useAdminUiState();
 
   const {
-    checking, products, orders, customers, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load,
-    setVersions, setSettings, setSiteSections, setSiteTexts,
-  } = useAdminData({ market, admin, setAdmin, setNotice, setError });
+    loading,
+    products,
+    orders,
+    customers,
+    promotions,
+    subscribers,
+    notifications,
+    siteConfig,
+    setProducts,
+    setOrders,
+    setCustomers,
+    setPromotions,
+    setSubscribers,
+    setNotifications,
+    setSiteConfig,
+    reload,
+  } = useAdminData(admin, market, setError);
 
-  const {
-    busy, setBusy, passwords, setPasswords, updateEditing, saveEditing, remove, upload, saveSettings,
-    synchronizeProducts, moveSection, saveSiteEditor, changePassword, adjustStock, exportOrders, restoreVersion,
-  } = useAdminActions({ market, load, setError, setNotice });
+  const derived = deriveAdminLists({ products, orders, customers, promotions, subscribers, notifications, search, category, visibility, stock, market });
+
+  const actions = useAdminActions({
+    market,
+    products,
+    editing,
+    stockEditing,
+    orderEditing,
+    promotionEditing,
+    setError,
+    setNotice,
+    setEditing,
+    setStockEditing,
+    setOrderEditing,
+    setPromotionEditing,
+    setProducts,
+    setOrders,
+    setCustomers,
+    setPromotions,
+    setSubscribers,
+    reload,
+  });
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setBusy(true);
     setError("");
     try {
-      const result = await request("/api/admin/session", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-      setAdmin(result.admin as AdminIdentity);
-      setPassword("");
-    } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Connexion impossible.");
-    } finally {
-      setBusy(false);
+      const data = await request<{ admin: AdminIdentity }>("/api/admin/session", { method: "POST", body: JSON.stringify({ email, password }) });
+      setAdmin(data.admin);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Connexion impossible.");
     }
   }
 
@@ -88,62 +107,22 @@ export default function Administration() {
     setAdmin(null);
   }
 
-  if (checking) return <main className="cms-loading">Chargement de l’administration…</main>;
-  if (!admin) return <AdminLogin email={email} password={password} error={error} busy={busy} setEmail={setEmail} setPassword={setPassword} signIn={signIn} />;
+  if (loading) return <main className="cms-loading">Chargement…</main>;
+  if (!admin) return <AdminLogin email={email} password={password} error={error} busy={false} setEmail={setEmail} setPassword={setPassword} signIn={signIn} />;
 
-  const { regionalProducts, filteredProducts: filtered, filteredOrders, lowStock, stats } = deriveAdminLists({ products, orders, subscribers, market, search, productCategory, productVisibility, productStock, orderStatus, orderDate });
+  return <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} notificationCount={derived.unreadNotifications.length} onSection={setSection} onMarket={setMarket} signOut={signOut}>
+    {section === "dashboard" && <DashboardSection products={products} orders={orders} customers={customers} promotions={promotions} market={market} onSection={setSection} />}
+    {section === "products" && <ProductsSection products={derived.filteredProducts} catalogProducts={products} market={market} busy={actions.busy} search={search} setSearch={setSearch} category={category} setCategory={setCategory} visibility={visibility} setVisibility={setVisibility} stock={stock} setStock={setStock} synchronize={actions.synchronize} add={actions.addProduct} edit={setEditing} adjustStock={setStockEditing} remove={actions.removeProduct} reload={reload} />}
+    {section === "stock" && <StockSection products={derived.filteredProducts} market={market} search={search} setSearch={setSearch} stock={stock} setStock={setStock} adjustStock={setStockEditing} />}
+    {section === "orders" && <OrdersSection orders={derived.filteredOrders} market={market} edit={setOrderEditing} remove={actions.removeOrder} />}
+    {section === "customers" && <CustomersSection customers={customers} remove={actions.removeCustomer} />}
+    {section === "promotions" && <PromotionsSection promotions={promotions} market={market} edit={setPromotionEditing} add={actions.addPromotion} remove={actions.removePromotion} />}
+    {section === "subscribers" && <SubscribersSection subscribers={subscribers} remove={actions.removeSubscriber} />}
+    {section === "advisor" && <AiAdvisorSection products={products} market={market} />}
+    {section === "notifications" && <NotificationsSection notifications={notifications} setNotifications={setNotifications} />}
+    {section === "editor" && <SiteEditor siteConfig={siteConfig} setSiteConfig={setSiteConfig} market={market} setNotice={setNotice} setError={setError} />}
+    {section === "settings" && <SettingsSection admin={admin} />}
 
-  const notificationCount = products.filter((product) => {
-    const visible = Boolean(product[`visible_${market}`]);
-    return Number(product[`price_${market}`] || 0) <= 0
-      || !String(product.description_fr || "").trim()
-      || !String(product.description_en || "").trim()
-      || !String(product.image_url || "").trim()
-      || !String(product.name_fr || "").trim()
-      || !String(product.name_en || "").trim()
-      || !String(product.category || "").trim()
-      || (visible && Number(product[`stock_${market}`] || 0) <= 0);
-  }).length;
-
-  return (
-    <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} notificationCount={notificationCount} onSection={(next) => { changeSection(next); setError(""); }} onMarket={setMarket} signOut={() => void signOut()}>
-      {section === "editor" && (<SiteEditor market={market} busy={busy} sections={siteSections} setSections={setSiteSections} texts={siteTexts} setTexts={setSiteTexts} draggedSection={draggedSection} setDraggedSection={setDraggedSection} moveSection={(id, nextIndex) => moveSection(setSiteSections, id, nextIndex)} versions={versions} restoreVersion={(version) => restoreVersion(version, setSiteSections, setSiteTexts)} save={(event) => void saveSiteEditor(event, siteSections, siteTexts, setSettings, setVersions)} />)}
-
-      {section === "dashboard" && (
-        <DashboardSection stats={stats} products={regionalProducts} orders={orders} market={market} goTo={changeSection} />
-      )}
-
-      {section === "products" && (<ProductsSection products={filtered} catalogProducts={products} market={market} busy={busy} search={search} setSearch={setSearch} category={productCategory} setCategory={setProductCategory} visibility={productVisibility} setVisibility={setProductVisibility} stock={productStock} setStock={setProductStock} synchronize={() => void synchronizeProducts()} add={addProduct} edit={editProduct} adjustStock={(product) => void adjustStock(product)} remove={(id) => void remove("products", id)} reload={load} />)}
-
-      {section === "stock" && (<StockSection products={lowStock} movements={movements} market={market} adjustStock={(product) => void adjustStock(product)} />)}
-
-      {section === "orders" && (<OrdersSection orders={filteredOrders} market={market} search={search} setSearch={setSearch} status={orderStatus} setStatus={setOrderStatus} date={orderDate} setDate={setOrderDate} exportOrders={() => exportOrders(filteredOrders)} add={addOrder} edit={editOrder} remove={(order) => {
-        if (!window.confirm("Supprimer définitivement cette commande annulée ?")) return;
-        void request(`/api/admin/orders?id=${encodeURIComponent(String(order.id))}`, { method: "DELETE" })
-          .then(() => load())
-          .catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression impossible."));
-      }} />)}
-
-      {section === "customers" && <CustomersSection customers={customers} orders={orders} market={market} remove={(id) => { if (!window.confirm("Supprimer définitivement ce client ? Son historique de commandes sera conservé.")) return; void request(`/api/admin/customers?id=${encodeURIComponent(id)}`, { method: "DELETE" }).then(() => load()).catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression du client impossible.")); }} />}
-
-      {section === "promotions" && (<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id) => void remove("promotions", id)} />)}
-
-      {section === "subscribers" && <SubscribersSection subscribers={subscribers} remove={(id) => {
-        if (!window.confirm("Supprimer définitivement cet abonné ?")) return;
-        void request(`/api/admin/subscribers?id=${encodeURIComponent(id)}`, { method: "DELETE" })
-          .then(() => load())
-          .catch((failure) => setError(failure instanceof Error ? failure.message : "Suppression impossible."));
-      }} />}
-
-      {section === "advisor" && <AiAdvisorSection market={market} products={products} settings={settings} setSettings={setSettings} reload={load} />}
-
-      {section === "notifications" && <NotificationsSection products={products} market={market} onEdit={editProduct} reload={load} />}
-
-      {section === "settings" && (
-        <SettingsSection market={market} settings={settings} setSettings={setSettings} passwords={passwords} setPasswords={setPasswords} busy={busy} saveSettings={(event) => void saveSettings(event, settings)} changePassword={(event) => void changePassword(event)} />
-      )}
-
-      {editing && <AdminEditModal editing={editing} editingType={editingType} setEditing={setEditing} save={(event) => void saveEditing(event, editing, editingType, setEditing)} update={(field, value) => updateEditing(setEditing, field, value)} upload={(files) => upload(files, setEditing)} busy={busy} market={market} products={products} deleteOrder={async(order)=>{if(!window.confirm("Supprimer définitivement cette commande ?"))return;try{setBusy(true);await request(`/api/admin/orders?id=${encodeURIComponent(String(order.id))}`,{method:"DELETE"});setEditing(null);await load()}catch(failure){setError(failure instanceof Error?failure.message:"Suppression impossible.")}finally{setBusy(false)}}} />}
-    </AdminLayout>
-  );
+    <AdminEditModal editing={editing} stockEditing={stockEditing} orderEditing={orderEditing} promotionEditing={promotionEditing} market={market} busy={actions.busy} close={() => { setEditing(null); setStockEditing(null); setOrderEditing(null); setPromotionEditing(null); }} saveProduct={actions.saveProduct} saveStock={actions.saveStock} saveOrder={actions.saveOrder} savePromotion={actions.savePromotion} />
+  </AdminLayout>;
 }
