@@ -19,6 +19,7 @@ type Product = {
   status?:string;
   article_number?:string;
   badge?:string;
+  brand?:string;
 };
 type CategoryTab = { value:string; labelFr:string; labelEn:string };
 type Props = { title:string; subtitle:string; categories?:string[]; categoryTabs?:CategoryTab[] };
@@ -127,7 +128,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(availability!=="all"&&p.status!==availability) return false;
       if(min!==null&&Number.isFinite(min)&&p.price<min) return false;
       if(max!==null&&Number.isFinite(max)&&p.price>max) return false;
-      if(query.trim()&&!`${p.name_fr} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""} ${p.article_number||""}`.toLowerCase().includes(query.trim().toLowerCase())) return false;
+      if(query.trim()&&!`${p.name_fr} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""} ${p.article_number||""} ${p.brand||""}`.toLowerCase().includes(query.trim().toLowerCase())) return false;
       return true;
     });
     return [...filtered].sort((a,b)=>{
