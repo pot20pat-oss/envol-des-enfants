@@ -103,13 +103,6 @@ export default function Home() {
         sectionStyle={sectionStyle}
       />
 
-      <section className="home-section-cards wrap" aria-label={say("Nos univers", "Our collections")}>
-        <a href={`/catalogue?region=${market}&category=montessori`}><img src="/cartes%20section/74025328-ea79-427e-bf57-027b05097c10.png" alt="Montessori" /></a>
-        <a href={`/jouets?region=${market}`}><img src="/cartes%20section/be962550-9f70-4030-97c0-3addda330a49.png" alt={say("Jouets éducatifs", "Educational toys")} /></a>
-        <a href={`/poupees?region=${market}`}><img src="/cartes%20section/da0e6993-e65b-4d25-8003-d07156664e1e.png" alt={say("Mon monde de poupée", "My doll world")} /></a>
-        <a href={`/catalogue?region=${market}&category=vehicules`}><img src="/cartes%20section/ec693c9d-9133-4e00-bdba-93c2a727636a.png" alt={say("Voitures électriques", "Electric vehicles")} /></a>
-      </section>
-
       <section className="home-partners wrap" aria-labelledby="home-partners-title">
         <div className="home-partners-heading">
           <p className="eyebrow">{say("Des marques choisies avec soin", "Carefully selected brands")}</p>
@@ -135,6 +128,13 @@ export default function Home() {
             </div>}
           </article>)}
         </div>
+      </section>
+
+      <section className="home-section-cards wrap" aria-label={say("Nos univers", "Our collections")}>
+        <a href={`/catalogue?region=${market}&category=montessori`}><img src="/cartes%20section/74025328-ea79-427e-bf57-027b05097c10.png" alt="Montessori" /></a>
+        <a href={`/jouets?region=${market}`}><img src="/cartes%20section/be962550-9f70-4030-97c0-3addda330a49.png" alt={say("Jouets éducatifs", "Educational toys")} /></a>
+        <a href={`/poupees?region=${market}`}><img src="/cartes%20section/da0e6993-e65b-4d25-8003-d07156664e1e.png" alt={say("Mon monde de poupée", "My doll world")} /></a>
+        <a href={`/catalogue?region=${market}&category=vehicules`}><img src="/cartes%20section/ec693c9d-9133-4e00-bdba-93c2a727636a.png" alt={say("Voitures électriques", "Electric vehicles")} /></a>
       </section>
 
       <StorefrontFeaturedCollections products={storeProducts} language={language} market={market} say={say} onOpenProduct={setSelectedProduct} />
