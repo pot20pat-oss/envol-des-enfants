@@ -92,68 +92,53 @@ function parseSuggestion(
 
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
-  if (start < 0 || end <= start) return null;
-
-  let candidate = cleaned.slice(start, end + 1)
+  const candidate = (start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned)
     .replace(/[“”]/g, '"')
     .replace(/[‘’]/g, "'")
     .replace(/,\s*([}\]])/g, "$1");
 
+  let parsed: Record<string, unknown> | null = null;
   try {
-    const parsed = JSON.parse(candidate) as Record<
-      string,
-      unknown
-    >;
-
-    const category =
-      typeof parsed.category === "string" &&
-      parsed.category in categories
-        ? parsed.category
-        : "eveil";
-
-    const confidence = Number(parsed.confidence);
-
-    return {
-      name_fr:
-        typeof parsed.name_fr === "string"
-          ? parsed.name_fr.trim()
-          : "",
-
-      name_en:
-        typeof parsed.name_en === "string"
-          ? parsed.name_en.trim()
-          : "",
-
-      description_fr:
-        typeof parsed.description_fr === "string"
-          ? parsed.description_fr.trim()
-          : "",
-
-      description_en:
-        typeof parsed.description_en === "string"
-          ? parsed.description_en.trim()
-          : "",
-
-      category,
-
-      brand:
-        typeof parsed.brand === "string"
-          ? parsed.brand.trim()
-          : "",
-
-      ages:
-        typeof parsed.ages === "string" &&
-        parsed.ages.trim()
-          ? parsed.ages.trim()
-          : "3+",
-
-      confidence: Number.isFinite(confidence)
-        ? Math.min(1, Math.max(0, confidence))
-        : 0,
-    };
+    parsed = JSON.parse(candidate) as Record<string, unknown>;
   } catch {
-    return null;
+    // NVIDIA peut occasionnellement échapper ou fermer incorrectement une chaîne.
+    // Récupérer les champs individuellement évite de perdre une bonne analyse entière.
+    const field = (name: string): string => {
+      const match = candidate.match(new RegExp(`"${name}"\\s*:\\s*"([\\s\\S]*?)"(?=\\s*,\\s*"|\\s*})`));
+      return match?.[1]?.replace(/\\n/g, " ").replace(/\\\"/g, '"').trim() || "";
+    };
+    const confidenceMatch = candidate.match(/"confidence"\s*:\s*([0-9.]+)/);
+    const recovered = {
+      name_fr: field("name_fr"),
+      name_en: field("name_en"),
+      description_fr: field("description_fr"),
+      description_en: field("description_en"),
+      category: field("category"),
+      brand: field("brand"),
+      ages: field("ages"),
+      confidence: confidenceMatch ? Number(confidenceMatch[1]) : 0,
+    };
+    if (recovered.name_fr && recovered.name_en) parsed = recovered;
   }
+
+  if (!parsed) return null;
+
+  const category =
+    typeof parsed.category === "string" && parsed.category in categories
+      ? parsed.category
+      : "eveil";
+  const confidence = Number(parsed.confidence);
+
+  return {
+    name_fr: typeof parsed.name_fr === "string" ? parsed.name_fr.trim() : "",
+    name_en: typeof parsed.name_en === "string" ? parsed.name_en.trim() : "",
+    description_fr: typeof parsed.description_fr === "string" ? parsed.description_fr.trim() : "",
+    description_en: typeof parsed.description_en === "string" ? parsed.description_en.trim() : "",
+    category,
+    brand: typeof parsed.brand === "string" ? parsed.brand.trim() : "",
+    ages: typeof parsed.ages === "string" && parsed.ages.trim() ? parsed.ages.trim() : "3+",
+    confidence: Number.isFinite(confidence) ? Math.min(1, Math.max(0, confidence)) : 0,
+  };
 }
 
 function buildPrompt(categoryList: string): string {
@@ -312,7 +297,7 @@ async function analyzeWithNvidia(
 
             temperature: 0,
 
-            max_tokens: 650,
+            max_tokens: 850,
 
             response_format: {
               type: "json_object",
