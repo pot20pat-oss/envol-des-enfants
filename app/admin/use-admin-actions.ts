@@ -107,8 +107,11 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
               : [];
 
             if (sourceProductId && selectedImages.length) {
-              const sourceResult = await request(`/api/admin/products?id=${encodeURIComponent(sourceProductId)}`);
-              const sourceProduct = (sourceResult.product || sourceResult) as Row;
+              const sourceList = await request("/api/admin/products");
+              const sourceProducts = Array.isArray(sourceList.products) ? sourceList.products as Row[] : [];
+              const sourceProduct = sourceProducts.find((product) => String(product.id) === sourceProductId);
+              if (!sourceProduct) throw new Error("Produit d’origine introuvable.");
+
               const sourceImages: string[] = [];
               const addSourceImage = (value: unknown) => {
                 if (typeof value !== "string") return;
@@ -119,9 +122,7 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
               try {
                 const extras = JSON.parse(String(sourceProduct.images_json || "[]"));
                 if (Array.isArray(extras)) extras.forEach(addSourceImage);
-              } catch {
-                // Conserver au minimum l'image principale.
-              }
+              } catch {}
 
               const remainingImages = sourceImages.filter((image) => !selectedImages.includes(image));
               await request("/api/admin/products", {
@@ -132,6 +133,20 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
                   images_json: JSON.stringify(remainingImages.slice(1)),
                 }),
               });
+
+              const verifyList = await request("/api/admin/products");
+              const verifyProducts = Array.isArray(verifyList.products) ? verifyList.products as Row[] : [];
+              const verifiedSource = verifyProducts.find((product) => String(product.id) === sourceProductId);
+              if (!verifiedSource) throw new Error("Impossible de vérifier le produit d’origine.");
+
+              const verifiedImages = [String(verifiedSource.image_url || "")];
+              try {
+                const extras = JSON.parse(String(verifiedSource.images_json || "[]"));
+                if (Array.isArray(extras)) verifiedImages.push(...extras.map(String));
+              } catch {}
+              if (selectedImages.some((image) => verifiedImages.includes(image))) {
+                throw new Error("Le nouveau produit est créé, mais une photo est encore présente dans le produit d’origine.");
+              }
             }
             sessionStorage.removeItem("cms-new-product-source");
           }
