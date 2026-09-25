@@ -9,7 +9,11 @@ const analyzeSchema = v.object({
 });
 
 type NvidiaResponse = {
-  choices?: Array<{ message?: { content?: unknown } }>;
+  choices?: Array<{
+    message?: {
+      content?: unknown;
+    };
+  }>;
   detail?: unknown;
   message?: unknown;
 };
@@ -25,49 +29,83 @@ type ProductSuggestion = {
   confidence: number;
 };
 
+const NVIDIA_MODEL = "meta/llama-3.2-11b-vision-instruct";
+const NVIDIA_TIMEOUT_MS = 25_000;
+const NVIDIA_MAX_ATTEMPTS = 2;
+
 function imageKey(imageUrl: string): string | null {
   const prefix = "/api/images/";
+
   if (!imageUrl.startsWith(prefix)) return null;
+
   const key = decodeURIComponent(imageUrl.slice(prefix.length));
-  return key.startsWith("products/") && !key.includes("..") ? key : null;
+
+  return key.startsWith("products/") && !key.includes("..")
+    ? key
+    : null;
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let binary = "";
+
   for (let offset = 0; offset < bytes.length; offset += 32_768) {
-    binary += String.fromCharCode(...bytes.subarray(offset, offset + 32_768));
+    binary += String.fromCharCode(
+      ...bytes.subarray(offset, offset + 32_768),
+    );
   }
+
   return btoa(binary);
 }
 
 function responseText(content: unknown): string {
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) return "";
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (!Array.isArray(content)) {
+    return "";
+  }
 
   return content
-    .map((part) =>
-      part && typeof part === "object" && "text" in part
-        ? String(part.text || "")
-        : ""
-    )
+    .map((part) => {
+      if (
+        part &&
+        typeof part === "object" &&
+        "text" in part
+      ) {
+        return String(part.text || "");
+      }
+
+      return "";
+    })
     .join("");
 }
 
-function parseSuggestion(content: string): ProductSuggestion | null {
+function parseSuggestion(
+  content: string,
+): ProductSuggestion | null {
   const cleaned = content
     .replace(/```(?:json)?/gi, "")
     .replace(/```/g, "")
     .trim();
 
-  const candidate = cleaned.match(/\{[\s\S]*\}/)?.[0];
-  if (!candidate) return null;
+  const candidate =
+    cleaned.match(/\{[\s\S]*\}/)?.[0];
+
+  if (!candidate) {
+    return null;
+  }
 
   try {
-    const parsed = JSON.parse(candidate) as Record<string, unknown>;
+    const parsed = JSON.parse(candidate) as Record<
+      string,
+      unknown
+    >;
 
     const category =
-      typeof parsed.category === "string" && parsed.category in categories
+      typeof parsed.category === "string" &&
+      parsed.category in categories
         ? parsed.category
         : "eveil";
 
@@ -75,23 +113,38 @@ function parseSuggestion(content: string): ProductSuggestion | null {
 
     return {
       name_fr:
-        typeof parsed.name_fr === "string" ? parsed.name_fr.trim() : "",
+        typeof parsed.name_fr === "string"
+          ? parsed.name_fr.trim()
+          : "",
+
       name_en:
-        typeof parsed.name_en === "string" ? parsed.name_en.trim() : "",
+        typeof parsed.name_en === "string"
+          ? parsed.name_en.trim()
+          : "",
+
       description_fr:
         typeof parsed.description_fr === "string"
           ? parsed.description_fr.trim()
           : "",
+
       description_en:
         typeof parsed.description_en === "string"
           ? parsed.description_en.trim()
           : "",
+
       category,
-      brand: typeof parsed.brand === "string" ? parsed.brand.trim() : "",
+
+      brand:
+        typeof parsed.brand === "string"
+          ? parsed.brand.trim()
+          : "",
+
       ages:
-        typeof parsed.ages === "string" && parsed.ages.trim()
+        typeof parsed.ages === "string" &&
+        parsed.ages.trim()
           ? parsed.ages.trim()
           : "3+",
+
       confidence: Number.isFinite(confidence)
         ? Math.min(1, Math.max(0, confidence))
         : 0,
@@ -101,68 +154,88 @@ function parseSuggestion(content: string): ProductSuggestion | null {
   }
 }
 
-async function callNvidia(
-  apiKey: string,
-  model: string,
-  image: string,
-  categoryList: string,
-): Promise<ProductSuggestion | null> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 18_000);
+function buildPrompt(categoryList: string): string {
+  return `Tu analyses la photo d'un produit destiné à une boutique pour enfants.
 
-  try {
-    const response = await fetch(
-      "https://integrate.api.nvidia.com/v1/chat/completions",
-      {
-        method: "POST",
-        signal: controller.signal,
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0,
-          max_tokens: 360,
-          response_format: { type: "json_object" },
+Ta tâche est d'identifier LE PRODUIT VENDU et de produire une fiche e-commerce courte, exacte et utile.
 
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: `Analyse VISUELLEMENT ce produit pour une boutique de jouets.
+RÈGLES ABSOLUES:
 
-OBJECTIF:
-Identifier rapidement et précisément le produit à partir de la photo.
+1. ANALYSE VISUELLE
+- Base ton identification principalement sur ce qui est réellement visible.
+- Identifie d'abord le TYPE DE PRODUIT.
+- Tu peux lire le texte visible uniquement pour identifier le produit, la marque, la licence ou le modèle.
+- Si l'identification exacte est incertaine, utilise un nom générique précis.
+- N'invente jamais une information qui n'est pas visible ou raisonnablement certaine.
 
-RÈGLES:
-- Utilise uniquement ce qui est réellement visible sur la photo.
-- Identifie d'abord le TYPE DE PRODUIT réellement vendu.
-- Le texte visible sur l'emballage peut servir à identifier la marque, la licence, le personnage ou le nom du produit.
-- NE RECOPIE JAMAIS le texte marketing, une histoire, un résumé, des dialogues ou des phrases imprimées sur le produit dans les descriptions.
-- NE RÉSUME JAMAIS l'histoire d'un personnage, d'un film, d'un livre ou d'une licence.
-- N'invente jamais une marque, une fonction, un personnage, une matière ou une caractéristique.
-- Si le modèle exact est incertain, utilise un nom générique précis.
+2. TEXTE SUR L'EMBALLAGE
+- Ne recopie jamais un paragraphe imprimé sur le produit.
+- Ne transforme jamais le texte de l'emballage en description.
+- Ne raconte jamais une histoire imprimée sur un livre, une boîte ou un emballage.
+- Ne résume jamais l'histoire d'un personnage, film, dessin animé ou livre.
+- Le texte visible sert seulement à IDENTIFIER le produit.
+
+3. MARQUE ET LICENCE
+- N'invente jamais une marque.
+- Utilise une marque seulement si elle est clairement visible ou identifiable avec une forte certitude.
+- Une licence ou un personnage visible peut être mentionné si l'identification est fiable.
+
+4. NOMS
 - name_fr doit obligatoirement être en FRANÇAIS.
 - name_en doit obligatoirement être en ANGLAIS.
-- description_fr doit obligatoirement être rédigée en FRANÇAIS.
-- description_en doit obligatoirement être rédigée en ANGLAIS.
-- Les deux descriptions doivent décrire LE PRODUIT À VENDRE et non son histoire ou son personnage.
-- Description FR: 1 ou 2 phrases courtes de fiche e-commerce.
-- Description EN: traduction naturelle et fidèle de la description FR, en 1 ou 2 phrases.
-- Pour un livre, cahier, ensemble créatif ou article scolaire: décris le type d'article, le thème/licence et l'activité visible. Ne raconte jamais le contenu de l'histoire.
-- Pour un jouet: décris uniquement le type de jouet et les éléments/fonctions clairement visibles.
-- Si une caractéristique n'est pas visible ou certaine, omets-la.
-- L'âge doit rester prudent si l'emballage ne l'indique pas clairement.
-- confidence doit refléter la certitude réelle de l'identification.
+- Les noms doivent être courts et adaptés à un catalogue e-commerce.
 
-EXEMPLE IMPORTANT:
-Si l'image montre un livre de dessin Disney Princess avec du texte racontant l'histoire de Cendrillon:
-- BON: "Livre de dessin Disney Princess pour enfants, conçu pour une activité créative autour de l'univers des princesses Disney."
-- MAUVAIS: raconter que Cendrillon poursuit ses rêves, parler de Bruno ou recopier le texte imprimé sur la couverture.
-Réponds UNIQUEMENT en JSON valide avec exactement:
+5. DESCRIPTION FRANÇAISE
+- description_fr doit obligatoirement être en FRANÇAIS.
+- Maximum 2 phrases courtes.
+- Décris le PRODUIT vendu.
+- Mentionne son type, son thème et les caractéristiques clairement visibles.
+- Ne raconte aucune histoire.
+
+6. DESCRIPTION ANGLAISE
+- description_en doit obligatoirement être en ANGLAIS.
+- Maximum 2 phrases courtes.
+- Elle doit correspondre à la description française.
+- Ne raconte aucune histoire.
+
+7. LIVRES ET ARTICLES CRÉATIFS
+Si le produit est un livre, cahier, livre de dessin, livre de coloriage ou article scolaire:
+- décris le type d'article;
+- indique le thème ou la licence si visible;
+- indique l'activité principale;
+- ne décris jamais l'intrigue ou l'histoire imprimée.
+
+EXEMPLE:
+
+Si la photo montre un livre de dessin Disney Princess contenant du texte sur Cendrillon:
+
+BON:
+" Livre de dessin Disney Princess pour enfants. Un cahier créatif sur le thème des princesses Disney pour dessiner et s'amuser. "
+
+MAUVAIS:
+" Cendrillon travaille dur pour réaliser ses rêves et aime son chien Bruno... "
+
+8. ÂGE
+- Utilise l'âge imprimé s'il est clairement visible.
+- Sinon reste prudent.
+- N'invente pas une tranche d'âge très précise sans preuve visuelle.
+
+9. CATÉGORIE
+category doit être EXACTEMENT une clé de la liste fournie ci-dessous.
+
+10. CONFIANCE
+confidence doit être un nombre entre 0 et 1.
+Il représente ta certitude réelle concernant l'identification du produit.
+
+RÉPONSE:
+
+Réponds UNIQUEMENT avec un objet JSON valide.
+
+Aucun markdown.
+Aucune explication.
+Aucun texte avant ou après le JSON.
+
+Format exact:
 
 {
   "name_fr": "",
@@ -175,44 +248,139 @@ Réponds UNIQUEMENT en JSON valide avec exactement:
   "confidence": 0
 }
 
-CATEGORY doit obligatoirement être une des clés suivantes:
+CATÉGORIES AUTORISÉES:
 
-${categoryList}`,
-                },
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: image,
-                  },
-                },
-              ],
+${categoryList}`;
+}
+
+async function analyzeWithNvidia(
+  apiKey: string,
+  image: string,
+  categoryList: string,
+): Promise<ProductSuggestion> {
+  let lastError =
+    "NVIDIA n'a pas retourné une analyse exploitable.";
+
+  for (
+    let attempt = 1;
+    attempt <= NVIDIA_MAX_ATTEMPTS;
+    attempt += 1
+  ) {
+    const controller = new AbortController();
+
+    const timeout = setTimeout(
+      () => controller.abort(),
+      NVIDIA_TIMEOUT_MS,
+    );
+
+    try {
+      const response = await fetch(
+        "https://integrate.api.nvidia.com/v1/chat/completions",
+        {
+          method: "POST",
+
+          signal: controller.signal,
+
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            model: NVIDIA_MODEL,
+
+            temperature: 0,
+
+            max_tokens: 450,
+
+            response_format: {
+              type: "json_object",
             },
-          ],
-        }),
-      },
-    );
 
-    const result = (await response.json()) as NvidiaResponse;
+            messages: [
+              {
+                role: "user",
 
-    if (!response.ok) {
-      return null;
+                content: [
+                  {
+                    type: "text",
+                    text: buildPrompt(categoryList),
+                  },
+
+                  {
+                    type: "image_url",
+
+                    image_url: {
+                      url: image,
+                    },
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+      );
+
+      const result =
+        (await response.json()) as NvidiaResponse;
+
+      if (!response.ok) {
+        lastError =
+          typeof result.detail === "string"
+            ? result.detail
+            : typeof result.message === "string"
+              ? result.message
+              : `Erreur NVIDIA HTTP ${response.status}.`;
+
+        continue;
+      }
+
+      const suggestion = parseSuggestion(
+        responseText(
+          result.choices?.[0]?.message?.content,
+        ),
+      );
+
+      if (suggestion) {
+        return suggestion;
+      }
+
+      lastError =
+        "NVIDIA a répondu, mais le JSON de la fiche produit était invalide.";
+    } catch (failure) {
+      if (
+        failure instanceof Error &&
+        failure.name === "AbortError"
+      ) {
+        lastError =
+          `NVIDIA a dépassé ${NVIDIA_TIMEOUT_MS / 1000} secondes.`;
+      } else {
+        lastError =
+          failure instanceof Error
+            ? failure.message
+            : "Erreur pendant l'analyse NVIDIA.";
+      }
+    } finally {
+      clearTimeout(timeout);
     }
-
-    return parseSuggestion(
-      responseText(result.choices?.[0]?.message?.content),
-    );
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeout);
   }
+
+  throw new Error(lastError);
 }
 
 export async function POST(request: Request) {
-  if (!(await currentAdmin(request))) return forbidden();
+  if (!(await currentAdmin(request))) {
+    return forbidden();
+  }
 
-  const parsed = await validateJsonBody(request, analyzeSchema);
-  if (!parsed.success) return parsed.response;
+  const parsed = await validateJsonBody(
+    request,
+    analyzeSchema,
+  );
+
+  if (!parsed.success) {
+    return parsed.response;
+  }
 
   const runtime = cmsEnv();
 
@@ -220,9 +388,11 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "La clé NVIDIA n’est pas configurée dans Cloudflare.",
+          "La clé NVIDIA n'est pas configurée dans Cloudflare.",
       },
-      { status: 503 },
+      {
+        status: 503,
+      },
     );
   }
 
@@ -232,9 +402,11 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Téléversez d’abord une photo du produit dans le CMS.",
+          "Téléversez d'abord une photo du produit dans le CMS.",
       },
-      { status: 400 },
+      {
+        status: 400,
+      },
     );
   }
 
@@ -243,14 +415,18 @@ export async function POST(request: Request) {
   if (!object) {
     return Response.json(
       {
-        error: "La photo du produit est introuvable.",
+        error:
+          "La photo du produit est introuvable.",
       },
-      { status: 404 },
+      {
+        status: 404,
+      },
     );
   }
 
   const contentType =
-    object.httpMetadata?.contentType || "image/jpeg";
+    object.httpMetadata?.contentType ||
+    "image/jpeg";
 
   const image =
     `data:${contentType};base64,${arrayBufferToBase64(
@@ -258,57 +434,37 @@ export async function POST(request: Request) {
     )}`;
 
   const categoryList = Object.entries(categories)
-    .map(([value, label]) => `${value}: ${label}`)
+    .map(
+      ([value, label]) =>
+        `${value}: ${label}`,
+    )
     .join("\n");
 
-  /*
-   * Ordre:
-   *
-   * 1. modèle configuré dans Cloudflare, s'il existe
-   * 2. GLM 5.3 Flash
-   * 3. Llama Vision comme secours
-   *
-   * Chaque modèle dispose de 18 secondes maximum.
-   */
+  try {
+    const suggestion = await analyzeWithNvidia(
+      runtime.NVIDIA_API_KEY,
+      image,
+      categoryList,
+    );
 
-  const models = [
-    runtime.NVIDIA_VISION_MODEL,
-    "zai-org/GLM-5.3-Flash",
-    "meta/llama-3.2-11b-vision-instruct",
-  ].filter(
-    (model, index, all): model is string =>
-      Boolean(model) &&
-      all.indexOf(model) === index,
-  );
+    return Response.json({
+      suggestion,
+      model: NVIDIA_MODEL,
+    });
+  } catch (failure) {
+    const detail =
+      failure instanceof Error
+        ? failure.message
+        : "Analyse NVIDIA impossible.";
 
-  for (const model of models) {
-    /*
-     * Deux essais maximum.
-     * On ne bloque donc plus indéfiniment le CMS.
-     */
-
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      const suggestion = await callNvidia(
-        runtime.NVIDIA_API_KEY,
-        model,
-        image,
-        categoryList,
-      );
-
-      if (suggestion) {
-        return Response.json({
-          suggestion,
-          model,
-        });
-      }
-    }
+    return Response.json(
+      {
+        error:
+          `${detail} Vous pouvez cliquer sur Réessayer.`,
+      },
+      {
+        status: 502,
+      },
+    );
   }
-
-  return Response.json(
-    {
-      error:
-        "L’analyse NVIDIA n’a pas répondu correctement. Les modèles de secours ont également été essayés. Cliquez sur Réessayer.",
-    },
-    { status: 502 },
-  );
 }
