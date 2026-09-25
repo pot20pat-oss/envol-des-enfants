@@ -594,27 +594,6 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
             </select>
           </label>
         </div>
-        <div style={{width:"100%",boxSizing:"border-box",padding:"16px",marginTop:12,marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
-          <strong style={{display:"block",marginBottom:6}}>✏️ Corriger l’identification IA</strong>
-          <p style={{margin:"0 0 10px",fontSize:".9rem"}}>Si l’IA se trompe, dites-lui ce que c’est. Elle ajustera le nom, la catégorie, la marque, l’âge et les descriptions FR/EN.</p>
-          <textarea
-            value={correctionHint}
-            onChange={(event) => setCorrectionHint(event.target.value)}
-            placeholder="Ex. : C’est un ensemble à déjeuner Tim Story"
-            aria-label="Correction de l’identification IA"
-            rows={2}
-            style={{display:"block",width:"100%",boxSizing:"border-box",resize:"vertical",marginBottom:10}}
-          />
-          <button
-            type="button"
-            className="cms-primary"
-            disabled={!images[0] || analyzing || !correctionHint.trim()}
-            onClick={() => void analyzeImage(correctionHint)}
-            style={{width:"100%"}}
-          >
-            {analyzing ? "Correction en cours…" : "Appliquer ma correction avec l’IA"}
-          </button>
-        </div>
         {canUndoAi && <button type="button" className="cms-secondary" onClick={() => {
           const previous = aiUndo.current;
           if (!previous) return;
@@ -643,6 +622,28 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
       Description · EN
       <textarea value={String(editing.description_en || "")} onChange={(event) => update("description_en", event.target.value)} />
     </label>
+
+        <div style={{width:"100%",boxSizing:"border-box",padding:"16px",marginTop:12,marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
+          <strong style={{display:"block",marginBottom:6}}>✏️ Corriger l’identification IA</strong>
+          <p style={{margin:"0 0 10px",fontSize:".9rem"}}>Si l’IA se trompe, dites-lui ce que c’est. Elle ajustera le nom, la catégorie, la marque, l’âge et les descriptions FR/EN.</p>
+          <textarea
+            value={correctionHint}
+            onChange={(event) => setCorrectionHint(event.target.value)}
+            placeholder="Ex. : C’est un ensemble à déjeuner Tim Story"
+            aria-label="Correction de l’identification IA"
+            rows={2}
+            style={{display:"block",width:"100%",boxSizing:"border-box",resize:"vertical",marginBottom:10}}
+          />
+          <button
+            type="button"
+            className="cms-primary"
+            disabled={!images[0] || analyzing || !correctionHint.trim()}
+            onClick={() => void analyzeImage(correctionHint)}
+            style={{width:"100%"}}
+          >
+            {analyzing ? "Correction en cours…" : "Appliquer ma correction avec l’IA"}
+          </button>
+        </div>
 
     <label>
       Disponible dans quelle boutique ?
