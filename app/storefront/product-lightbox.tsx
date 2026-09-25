@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Product } from "@/lib/default-catalog";
 import { marketPrice, type Market } from "@/lib/markets";
-import { WhatsAppIcon } from "./product-icons";
+import { useCommerce } from "../commerce/commerce-provider";
 
 type Language = "fr" | "en";
 
@@ -16,6 +16,7 @@ type ProductLightboxProps = {
 
 export default function ProductLightbox({ product, language, market, whatsappNumber, whatsappUrl, onClose }: ProductLightboxProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const commerce = useCommerce();
   const isEnglish = language === "en";
   const say = (french: string, english: string) => isEnglish ? english : french;
   const images = [product.imageUrl || `/catalog-${product.sheet}.png`, ...(product.extraImages || [])];
@@ -62,21 +63,16 @@ export default function ProductLightbox({ product, language, market, whatsappNum
           <p className="product-lightbox-price">{marketPrice(product.price, market, language)}</p>
           <p className="product-lightbox-description">{product.detail[language]}</p>
 
-          {whatsappNumber && product.status !== "sold" && Number(product.price || 0) > 0 && (
-            <a
+          {product.status !== "sold" && Number(product.price || 0) > 0 && (
+            <button
+              type="button"
               className="button button-dark product-lightbox-order"
-              href={`${whatsappUrl}?text=${encodeURIComponent(
-                isEnglish
-                  ? `Hello, I would like to order ${product.name.en}. Order no.: ${product.articleNumber || "N/A"}.`
-                  : `Bonjour, je souhaite commander ${product.name.fr}. No de commande : ${product.articleNumber || "N/D"}.`
-              )}`}
-              target="_blank"
-              rel="noreferrer"
+              onClick={() => commerce.addToCart(product)}
             >
-              <WhatsAppIcon />
-              {say("Commander cet article", "Order this item")}
-            </a>
+              {say("Ajouter au panier", "Add to cart")}
+            </button>
           )}
+
         </div>
       </div>
     </div>
