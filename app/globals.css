@@ -657,3 +657,20 @@
   .home-partners-grid{grid-template-columns:1fr}
   .home-section-cards{max-width:94%!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* Laptop/tablet homepage: prevent horizontal clipping and scale the header/hero to viewport. */
+@media (min-width:701px) and (max-width:1280px){
+  html,body,.editable-storefront{max-width:100%;overflow-x:hidden}
+  .wrap{width:min(100% - 28px,1160px)!important;max-width:calc(100vw - 28px)!important}
+  .ref-head{grid-template-columns:170px minmax(280px,1fr) auto!important;gap:16px!important}
+  .ref-logo img{width:150px!important;max-width:100%;height:auto}
+  .ref-search{min-width:0!important;width:100%!important}
+  .ref-service{gap:12px!important}
+  .ref-service span,.ref-service a{min-width:0!important}
+  .shop-age-grid{width:100%!important;max-width:100%!important;grid-template-columns:repeat(9,minmax(0,1fr))!important;gap:8px!important}
+  .shop-age-card{min-width:0!important}
+  .shop-age-card img{max-width:100%!important;height:auto!important}
+  .hero-story,.hero-story-stage,.storefront-hero{max-width:100vw!important;overflow:hidden!important}
+  .hero-story-stage img,.storefront-hero img{max-width:100%!important}
+}
