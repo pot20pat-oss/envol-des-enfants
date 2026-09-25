@@ -1,5 +1,5 @@
 import type { Market } from "@/lib/markets";
-import { useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { OrderEditor } from "./admin-order-editor";
 import { ProductEditor } from "./admin-product-editor";
 import { request } from "./admin-shared";
@@ -21,6 +21,27 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   deleteOrder?: (order: Row) => void | Promise<void>;
 }) {
   const [selectedPhotoCount, setSelectedPhotoCount] = useState(0);
+  const originalEditing = useRef<Row>({ ...editing });
+  const cancelling = useRef(false);
+
+  const cancelEditing = async () => {
+    if (cancelling.current || busy) return;
+    cancelling.current = true;
+    try {
+      const original = originalEditing.current;
+      if (editingType === "product" && original.id) {
+        await request("/api/admin/products", {
+          method: "PUT",
+          body: JSON.stringify(original),
+        });
+      }
+      setEditing(null);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Impossible d’annuler les modifications.");
+    } finally {
+      cancelling.current = false;
+    }
+  };
 
   useEffect(() => {
     const onSelection = (event: Event) => {
@@ -76,7 +97,7 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
       className="cms-overlay"
       style={{position:"fixed",inset:0,zIndex:12000,display:"flex",alignItems:"stretch",justifyContent:"flex-end",padding:"18px",background:"rgba(11,23,36,.38)",overflow:"hidden"}}
       onClick={(event) => {
-        if (event.target === event.currentTarget) setEditing(null);
+        if (event.target === event.currentTarget) void cancelEditing();
       }}
     >
       <form
@@ -96,9 +117,9 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
           {editingType==="product"&&<button type="button" className="cms-secondary" disabled={busy||!editing.image_url} onClick={()=>void analyzeProduct()}>✨ IA</button>}
           {editingType==="product"&&editing.id&&<button type="button" className="cms-secondary" disabled={busy} onClick={duplicateAsNewProduct}>＋ Nouveau produit</button>}
           {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
-          <button type="button" className="cms-secondary" onClick={() => setEditing(null)}>Annuler</button>
+          <button type="button" className="cms-secondary" disabled={busy} onClick={() => void cancelEditing()}>Annuler</button>
           <button className="cms-primary" disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</button>
-          <button type="button" className="cms-close" aria-label="Fermer" onClick={() => setEditing(null)} style={{position:"static",flex:"0 0 auto"}}>×</button>
+          <button type="button" className="cms-close" aria-label="Fermer" disabled={busy} onClick={() => void cancelEditing()} style={{position:"static",flex:"0 0 auto"}}>×</button>
         </div>
         <div style={{flex:"1 1 auto",minHeight:0,overflowY:"auto",overflowX:"hidden",overscrollBehavior:"contain",padding:"16px 24px 96px"}}>
           {editingType === "product" && <ProductEditor editing={editing} setEditing={setEditing} update={update} upload={upload} />}
