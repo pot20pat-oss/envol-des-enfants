@@ -328,69 +328,59 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
     }
   };
 
-  const makeNewProductFromSelected = async () => {
+  const makeNewProductFromSelected = () => {
     if (!selectedImages.length || !editing.id) return;
 
-    const sourceImages = images.filter((image) => !selectedImages.includes(image));
     const moved = images.filter((image) => selectedImages.includes(image));
 
-    if (!window.confirm(`Créer un nouveau produit avec ${moved.length} photo(s) sélectionnée(s) et les retirer du produit actuel ?`)) return;
-
-    setMovingImages(true);
-    setAnalysisNotice("");
+    if (!window.confirm(`Créer un nouveau produit avec ${moved.length} photo(s) sélectionnée(s) ? Le produit d’origine restera intact tant que la nouvelle fiche n’est pas enregistrée.`)) return;
 
     try {
-      await request("/api/admin/products", {
-        method: "PUT",
-        body: JSON.stringify({
-          ...editing,
-          image_url: sourceImages[0] || "",
-          images_json: JSON.stringify(sourceImages.slice(1)),
-        }),
-      });
-
-      setEditing({
-        id: undefined,
-        article_number: undefined,
-        name_fr: "",
-        name_en: "",
-        description_fr: "",
-        description_en: "",
-        category: "eveil",
-        price: 0,
-        price_conakry: 0,
-        price_qc: 0,
-        promo_price_conakry: 0,
-        promo_price_qc: 0,
-        stock: 1,
-        stock_qc: 1,
-        stock_conakry: 1,
-        visible_qc: false,
-        visible_conakry: false,
-        visible: false,
-        featured: false,
-        status: "available",
-        badge: "",
-        ages: "",
-        brand: "",
-        material: "",
-        dimensions: "",
-        variants_json: "[]",
-        exchange_terms_fr: "",
-        exchange_terms_en: "",
-        alert_threshold: 2,
-        image_url: moved[0] || "",
-        images_json: JSON.stringify(moved.slice(1)),
-      });
-
-      setSelectedImages([]);
-      setMoveTargetId("");
-      setAnalysisNotice("Produit d’origine mis à jour. Modifiez maintenant cette nouvelle fiche puis cliquez Enregistrer.");
-    } catch (failure) {
-      setAnalysisNotice(failure instanceof Error ? failure.message : "Création du nouveau produit impossible.");
-    } finally {
-      setMovingImages(false);
+      sessionStorage.setItem("cms-new-product-source", JSON.stringify({
+        sourceProductId: editing.id,
+        selectedImages: moved,
+      }));
+    } catch {
+      // Le brouillon reste utilisable même si le stockage de session est indisponible.
     }
+
+    setEditing({
+      id: undefined,
+      article_number: undefined,
+      name_fr: "",
+      name_en: "",
+      description_fr: "",
+      description_en: "",
+      category: "eveil",
+      price: 0,
+      price_conakry: 0,
+      price_qc: 0,
+      promo_price_conakry: 0,
+      promo_price_qc: 0,
+      stock: 1,
+      stock_qc: 1,
+      stock_conakry: 1,
+      visible_qc: false,
+      visible_conakry: false,
+      visible: false,
+      featured: false,
+      status: "available",
+      badge: "",
+      ages: "",
+      brand: "",
+      material: "",
+      dimensions: "",
+      variants_json: "[]",
+      exchange_terms_fr: "",
+      exchange_terms_en: "",
+      alert_threshold: 2,
+      image_url: moved[0] || "",
+      images_json: JSON.stringify(moved.slice(1)),
+    });
+
+    setSelectedImages([]);
+    setMoveTargetId("");
+    setAnalysisNotice("Nouvelle fiche créée en brouillon. Le produit d’origine est intact. Enregistrez la nouvelle fiche avant de retirer ses photos de l’ancien produit.");
   };
 
   const moveImage = (index: number, direction: -1 | 1) => {
