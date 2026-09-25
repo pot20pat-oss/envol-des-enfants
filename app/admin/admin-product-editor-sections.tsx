@@ -228,7 +228,6 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const images = productImages(editing);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisNotice, setAnalysisNotice] = useState("");
-  const [analysisHint, setAnalysisHint] = useState("");
   const [correctionHint, setCorrectionHint] = useState("");
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -404,7 +403,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
     try {
       const result = await request("/api/admin/analyze-product", {
         method: "POST",
-        body: JSON.stringify({ image_url: images[0], hint: (correction || analysisHint).trim() || undefined }),
+        body: JSON.stringify({ image_url: images[0], hint: correction.trim() || undefined }),
       });
       const suggestion = result.suggestion;
       if (!suggestion || typeof suggestion !== "object" || Array.isArray(suggestion)) {
@@ -571,54 +570,38 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
         <p className="cms-product-images-empty">Aucune photo. Ajoutez une ou plusieurs photos ci-dessus.</p>
       )}
 
-      <div className="cms-product-analysis">
-        <div style={{padding:"12px 14px",marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
+      <div className="cms-product-analysis" style={{display:"block",width:"100%"}}>
+        <div style={{width:"100%",boxSizing:"border-box",padding:"16px",marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
           <strong style={{display:"block",marginBottom:6}}>✏️ Corriger l’identification IA</strong>
-          <p style={{margin:"0 0 8px",fontSize:".9rem"}}>Si l’IA se trompe, dites-lui simplement ce que c’est. Elle refera le nom, la catégorie et les descriptions FR/EN à partir de votre correction et de la photo.</p>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <input
-              value={correctionHint}
-              onChange={(event) => setCorrectionHint(event.target.value)}
-              placeholder="Ex. : C’est un ensemble à déjeuner Tim Story"
-              aria-label="Correction de l’identification IA"
-              style={{flex:"1 1 320px",minWidth:220}}
-            />
-            <button
-              type="button"
-              className="cms-primary"
-              disabled={!images[0] || analyzing || !correctionHint.trim()}
-              onClick={() => void analyzeImage(correctionHint)}
-            >
-              {analyzing ? "Correction en cours…" : "Corriger la fiche avec cette indication"}
-            </button>
-          </div>
-        </div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginBottom:8}}>
-          <input
-            value={analysisHint}
-            onChange={(event) => setAnalysisHint(event.target.value)}
-            placeholder="Si la photo est floue : ex. ensemble à déjeuner Tim Story"
-            aria-label="Indication pour aider l'analyse IA"
-            style={{flex:"1 1 320px",minWidth:220}}
+          <p style={{margin:"0 0 10px",fontSize:".9rem"}}>Si l’IA se trompe, dites-lui ce que c’est. Elle ajustera le nom, la catégorie, la marque, l’âge et les descriptions FR/EN.</p>
+          <textarea
+            value={correctionHint}
+            onChange={(event) => setCorrectionHint(event.target.value)}
+            placeholder="Ex. : C’est un ensemble à déjeuner Tim Story"
+            aria-label="Correction de l’identification IA"
+            rows={2}
+            style={{display:"block",width:"100%",boxSizing:"border-box",resize:"vertical",marginBottom:10}}
           />
           <button
             type="button"
-            className="cms-secondary"
-            disabled={!images[0] || analyzing}
-            onClick={() => setAnalysisHint("")}
+            className="cms-primary"
+            disabled={!images[0] || analyzing || !correctionHint.trim()}
+            onClick={() => void analyzeImage(correctionHint)}
+            style={{width:"100%"}}
           >
-            Effacer l’indication
+            {analyzing ? "Correction en cours…" : "Appliquer ma correction avec l’IA"}
           </button>
         </div>
+
         <button
           type="button"
           className="cms-secondary"
           disabled={!images[0] || analyzing}
           onClick={() => void analyzeImage()}
         >
-          {analyzing ? "Analyse en cours…" : editing.id ? "✨ Corriger la fiche avec l’IA" : "✨ Analyser avec l’IA"}
+          {analyzing ? "Analyse en cours…" : editing.id ? "✨ Réanalyser seulement la photo" : "✨ Analyser seulement la photo"}
         </button>
-        <p>{analysisNotice || "L’IA réanalyse la photo et propose de corriger le nom, la catégorie, la marque, l’âge et les descriptions. Rien n’est enregistré sans votre confirmation."}</p>
+        <p style={{marginBottom:0}}>{analysisNotice || "L’IA propose les corrections dans le formulaire. Rien n’est enregistré sans votre confirmation."}</p>
       </div>
     </section>
 
