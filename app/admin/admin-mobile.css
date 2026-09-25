@@ -252,3 +252,26 @@
     overflow-x:hidden !important;
   }
 }
+
+
+/* Phone editor v7: only persistent primary action; secondary actions stay compact. */
+@media (max-width: 820px) {
+  .cms-editor > .cms-editor-actions {
+    grid-template-columns:minmax(0,1fr) 44px !important;
+  }
+  .cms-editor > .cms-editor-actions h2 { grid-column:1 !important; grid-row:1 !important; }
+  .cms-editor > .cms-editor-actions .cms-close { grid-column:2 !important; grid-row:1 !important; }
+  .cms-editor > .cms-editor-actions .cms-editor-ai-action {
+    grid-column:1 / -1 !important;
+    min-height:40px !important;
+  }
+  .cms-editor > .cms-editor-actions .cms-secondary:not(.cms-editor-ai-action) {
+    grid-column:1 !important;
+    width:auto !important;
+    min-height:40px !important;
+  }
+  .cms-editor > .cms-editor-actions .cms-primary {
+    grid-column:1 / -1 !important;
+    min-height:48px !important;
+  }
+}
