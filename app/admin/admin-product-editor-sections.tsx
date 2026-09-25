@@ -442,6 +442,29 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
               if (!selected.length) return;
               const uploaded = await upload(selected);
               if (!uploaded.length) return;
+
+              // Une nouvelle photo sur une nouvelle fiche ne doit jamais conserver
+              // l'analyse IA du produit précédent.
+              if (!editing.id) {
+                setEditing((current) => current ? {
+                  ...current,
+                  name_fr: "",
+                  name_en: "",
+                  description_fr: "",
+                  description_en: "",
+                  category: "eveil",
+                  brand: "",
+                  ages: "",
+                  material: "",
+                  dimensions: "",
+                  variants_json: "[]",
+                  image_url: uploaded[0] || "",
+                  images_json: JSON.stringify(uploaded.slice(1)),
+                } : current);
+                setAnalysisNotice("Nouvelle photo chargée. Les anciennes suggestions IA ont été effacées.");
+                return;
+              }
+
               const merged = [...images];
               for (const image of uploaded) if (image && !merged.includes(image)) merged.push(image);
               saveProductImages(merged, update);
