@@ -92,7 +92,10 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   useEffect(()=>{
     const saved=window.localStorage.getItem("envol-language");
     if(saved==="en") setLanguage("en");
-    const region=new URLSearchParams(window.location.search).get("region");
+    const params=new URLSearchParams(window.location.search);
+    const region=params.get("region");
+    const initialQuery=params.get("q")?.trim()||"";
+    if(initialQuery) setQuery(initialQuery);
     const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone;
     fetch(`/api/catalog?${region?`region=${encodeURIComponent(region)}&`:""}timezone=${encodeURIComponent(timezone)}`)
       .then(r=>r.json())
