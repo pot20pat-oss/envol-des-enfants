@@ -85,9 +85,14 @@ function CommercePanel({ panel, cart, setCart, favorites, profile, setProfile, c
   async function deleteOrder(id:string){if(!window.confirm(say("Supprimer cette commande de votre historique ?","Delete this order from your history?")))return;setSending(true);try{const response=await fetch(`/api/customer/orders?id=${encodeURIComponent(id)}`,{method:"DELETE"});const result=await response.json() as {error?:string};if(!response.ok)throw new Error(result.error||say("Suppression impossible.","Unable to delete order."));await loadOrders();setNotice(say("Commande supprimée.","Order deleted."))}catch(error){setNotice(error instanceof Error?error.message:say("Suppression impossible.","Unable to delete order."))}finally{setSending(false)}}
 
   async function account(action: "register" | "login") {
-    setSending(true); setNotice("");
+    setNotice("");
+    const email=profile.email.trim();
+    if (!email || !email.includes("@")) { setNotice(say("Entrez une adresse courriel valide.","Enter a valid email address.")); return; }
+    if (password.length < 8) { setNotice(say("Le mot de passe doit contenir au moins 8 caractères.","Password must contain at least 8 characters.")); return; }
+    if (action==="register" && (!profile.name.trim() || !profile.phone.trim() || !profile.address.trim())) { setNotice(say("Complétez votre nom, téléphone et adresse de livraison.","Complete your name, phone and delivery address.")); return; }
+    setSending(true);
     try {
-      const response = await fetch("/api/customer/session", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ action, ...profile, password, region:market }) });
+      const response = await fetch("/api/customer/session", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ action, ...profile, email, password, region:market }) });
       const result = await response.json() as { customer?: Profile; error?: string };
       if (!response.ok) throw new Error(result.error || say("Connexion impossible.","Unable to sign in."));
       if (result.customer) setProfile((current)=>({...current,...result.customer})); setSignedIn(true); setPassword(""); await loadOrders();
