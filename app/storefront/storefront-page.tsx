@@ -50,7 +50,8 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
-  const [showAll, setShowAll] = useState(false);\n  const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const { language, changeLanguage } = useStoreLanguage();
   const { market, storeSettings, storeProducts } = useStoreMarket();
   const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"];
