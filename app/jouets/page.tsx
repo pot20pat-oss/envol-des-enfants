@@ -1,2 +1,4 @@
+import type { Metadata } from "next";
 import CategoryStorefront from "../category-storefront";
+export const metadata: Metadata={title:"Jouets éducatifs et jeux pour enfants | L’Envol des Enfants",description:"Découvrez nos jouets éducatifs, véhicules, robots, jeux sportifs, dinosaures, animaux, jeux d’eau et jeux d’imitation pour enfants.",alternates:{canonical:"/jouets"}};
 export default function Page(){return <CategoryStorefront title="Jouets" subtitle="Jouets éducatifs, super-héros, robots, jeux sportifs, véhicules, jeux d’eau, dinosaures, animaux et jeux d’imitation." categories={["eveil","super_heros","robots","jeux_sportifs","vehicules","piscine","imitation","dinosaures","animaux"]}/>}
