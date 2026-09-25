@@ -137,3 +137,30 @@
   .cms-stat, .cms-panel { width:auto !important; max-width:100% !important; }
   .cms-quick-scroll { display:none !important; }
 }
+
+
+/* Phone layout v4: the search/filter controls must stay in normal flow. */
+@media (max-width: 820px) {
+  .cms-panel-title,
+  .cms-product-filters,
+  .cms-product-actions,
+  .cms-search,
+  .cms-panel input,
+  .cms-panel select {
+    position:static !important;
+    inset:auto !important;
+    transform:none !important;
+    float:none !important;
+  }
+  .cms-panel-title { width:100% !important; overflow:visible !important; }
+  .cms-panel-title > * { width:100% !important; min-width:0 !important; max-width:100% !important; }
+  .cms-search { display:block !important; margin:0 !important; }
+  .cms-product-filters {
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    width:100% !important;
+    max-width:100% !important;
+    overflow:visible !important;
+  }
+  .cms-product-filters > * { grid-column:1 !important; min-width:0 !important; max-width:100% !important; }
+}
