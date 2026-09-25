@@ -9,6 +9,8 @@ export type CmsEnv = {
   NVIDIA_API_KEY?: string;
   NVIDIA_VISION_MODEL?: string;
   NVIDIA_IMAGE_EDIT_MODEL?: string;
+  RESEND_API_KEY?: string;
+  ORDER_EMAIL_FROM?: string;
 };
 
 const COOKIE = "envol_admin_session";
