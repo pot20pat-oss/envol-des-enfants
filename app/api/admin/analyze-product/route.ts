@@ -387,11 +387,20 @@ Règles:
         },
       ], 420);
 
-      const facts = parseFacts(rawFacts);
-      if (!facts) {
-        lastError = "NVIDIA n’a pas pu extraire les faits visuels.";
-        continue;
-      }
+      // Ne bloque jamais toute l'analyse parce que le modèle vision n'a pas
+      // respecté notre format. Le texte brut reste une preuve exploitable par
+      // le passage de raisonnement suivant.
+      const facts = parseFacts(rawFacts) || {
+        main_text: rawFacts.slice(0, 3000),
+        secondary_text: "",
+        brand_or_publisher: "",
+        physical_object: "incertain",
+        visible_parts: "",
+        activity_or_purpose: "",
+        age_text: "",
+        characters_or_license: "",
+        uncertainties: "La réponse vision n'a pas respecté le format structuré; utiliser le texte brut et rester prudent.",
+      };
 
       // PASSAGE 2: raisonnement à partir des faits extraits, pas à partir d'un exemple de produit.
       const rawSuggestion = await nvidiaCall(apiKey, [
@@ -441,7 +450,9 @@ Une fiche comme {"name_fr":"Tyma + Story E","name_en":"Tyma + Story E"} doit êt
       ], 180);
 
       const check = parseFacts(rawCheck);
-      if (check?.valid === false) {
+      // Un audit mal formaté ne doit pas faire échouer une bonne fiche. On
+      // rejette uniquement quand le contrôleur dit explicitement valid=false.
+      if (check?.valid === false || String(check?.valid).toLowerCase() === "false") {
         lastError = `Identification rejetée par le contrôle de cohérence: ${String(check.reason || "contradiction visuelle")}`;
         continue;
       }
