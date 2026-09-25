@@ -101,7 +101,6 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
             {editingType === "product" ? "un produit" : editingType === "promotion" ? "une promotion" : "une commande"}
           </h2>
           {editingType==="product"&&<button type="button" className="cms-secondary" disabled={busy||!editing.image_url} onClick={()=>void analyzeProduct()}>✨ IA</button>}
-          {editingType==="product"&&editing.id&&<button type="button" className="cms-secondary" disabled={busy} onClick={duplicateAsNewProduct}>＋ Nouveau produit</button>}
           {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
           <button type="button" className="cms-secondary" disabled={busy} onClick={() => void cancelEditing()}>Annuler</button>
           <button className="cms-primary" disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</button>
