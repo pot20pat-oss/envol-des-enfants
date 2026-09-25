@@ -212,7 +212,7 @@ Appliquer ces modifications ?`))return;const snapshot=selected.map(p=>({...p}));
     } finally { setDuplicateScanning(false); }
   };
   return <section className="cms-panel">
-    <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} search={search} setSearch={setSearch} synchronize={synchronize} add={add} scanDuplicates={scanDuplicates} duplicateScanning={duplicateScanning} duplicateProgress={duplicateProgress} />
+    <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} search={search} setSearch={setSearch} synchronize={synchronize} add={add} scanDuplicates={scanDuplicates} duplicateScanning={duplicateScanning} duplicateProgress={duplicateProgress} onImageSearch={searchByImage} imageSearchBusy={imageSearchBusy} />
     <section style={{margin:"0 0 16px",padding:14,border:"1px solid #b9cbd5",borderRadius:12,background:"#fff"}}>
       <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
         <strong>🔎 Recherche par image</strong>
