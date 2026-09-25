@@ -17,6 +17,34 @@ const checkoutSchema = v.object({
   })), v.minLength(1), v.maxLength(50)),
 });
 
+function escapeHtml(value: unknown) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] || char);
+}
+
+async function sendOrderEmails(database: D1Database, data: {
+  id: string; region: string; customer_name: string; customer_email?: string; customer_phone: string;
+  delivery_address: string; total: number; currency: string; items: Array<{ name: string; quantity: number; unit_price: number; line_total: number }>;
+}) {
+  const runtime = cmsEnv();
+  if (!runtime.RESEND_API_KEY) return;
+  const keys = [`${data.region}_order_notification_email`, `${data.region}_store_name`];
+  const placeholders = keys.map(() => "?").join(",");
+  const { results } = await database.prepare(`SELECT key,value FROM settings WHERE key IN (${placeholders})`).bind(...keys).all<{ key: string; value: string }>();
+  const settings = Object.fromEntries(results.map((entry) => [entry.key, entry.value]));
+  const storeName = settings[`${data.region}_store_name`] || "L’Envol des Enfants";
+  const ownerEmail = settings[`${data.region}_order_notification_email`]?.trim();
+  const from = runtime.ORDER_EMAIL_FROM || "L’Envol des Enfants <onboarding@resend.dev>";
+  const itemRows = data.items.map((item) => `<tr><td>${escapeHtml(item.quantity)} × ${escapeHtml(item.name)}</td><td style="text-align:right">${escapeHtml(item.line_total)} ${escapeHtml(data.currency)}</td></tr>`).join("");
+  const send = async (to: string, subject: string, html: string) => {
+    const response = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": `Bearer ${runtime.RESEND_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ from, to: [to], subject, html }) });
+    if (!response.ok) console.error("Order email failed", response.status, await response.text());
+  };
+  const summary = `<h2>Commande ${escapeHtml(data.id)}</h2><p><strong>Client :</strong> ${escapeHtml(data.customer_name)}<br><strong>Téléphone :</strong> ${escapeHtml(data.customer_phone)}<br><strong>Adresse :</strong> ${escapeHtml(data.delivery_address)}</p><table style="width:100%">${itemRows}</table><p><strong>Total : ${escapeHtml(data.total)} ${escapeHtml(data.currency)}</strong></p>`;
+  if (ownerEmail) await send(ownerEmail, `Nouvelle commande — ${storeName}`, summary);
+  const customerEmail = data.customer_email?.trim();
+  if (customerEmail) await send(customerEmail, `Confirmation de votre commande — ${storeName}`, `<p>Bonjour ${escapeHtml(data.customer_name)},</p><p>Nous avons bien reçu votre commande.</p>${summary}<p>Merci.</p>`);
+}
+
 export async function POST(request: Request) {
   const parsed = await validateJsonBody(request, checkoutSchema);
   if (!parsed.success) return parsed.response;
@@ -65,6 +93,12 @@ export async function POST(request: Request) {
   if (batchResults.slice(1).some((result) => Number(result.meta?.changes || 0) !== 1)) {
     await database.prepare("DELETE FROM orders WHERE id=?").bind(id).run();
     return Response.json({ error: "Le stock a changé pendant la commande. Veuillez vérifier le panier." }, { status: 409 });
+  }
+  const currency = region === "qc" ? "CAD" : "GNF";
+  try {
+    await sendOrderEmails(database, { id, region, customer_name: data.customer_name, customer_email: stringValue(data.customer_email) || undefined, customer_phone: data.customer_phone, delivery_address: data.delivery_address, total, currency, items });
+  } catch (error) {
+    console.error("Order notification error", error);
   }
   return Response.json({ id, total, status: "new" }, { status: 201 });
 }
