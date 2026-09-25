@@ -209,3 +209,41 @@
   .cms-panel div[style*="grid-template-columns: 140px"]>*{grid-column:1!important}
   .cms-panel input[style*="min-width: 260px"],.cms-panel input[style*="min-width:260px"]{min-width:0!important;width:100%}
 }
+
+
+/* Phone CMS v2 — force every action/control back inside the viewport. */
+@media(max-width:700px){
+  *{box-sizing:border-box}
+  .cms-app,.cms-main,.cms-panel,.cms-topbar,.cms-top-actions,.cms-product-actions,.cms-ai-batch,.cms-ai-batch-head{max-width:100vw;min-width:0}
+  .cms-main{overflow-x:hidden;padding-left:8px;padding-right:8px}
+  .cms-sidebar{position:sticky!important;top:0!important;z-index:1000!important;overflow:hidden}
+  .cms-sidebar nav{display:flex!important;width:100%;overflow-x:auto!important}
+  .cms-sidebar nav button{display:flex!important;visibility:visible!important;opacity:1!important;flex:0 0 auto!important}
+  .cms-topbar{position:sticky;top:57px;z-index:900;background:#f5f7f8;padding:7px 0 9px}
+  .cms-top-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .cms-top-actions>a,.cms-top-actions>button,.cms-top-actions .cms-primary,.cms-top-actions .cms-secondary{display:flex!important;align-items:center;justify-content:center;width:100%!important;min-width:0!important;min-height:46px!important;white-space:normal!important;text-align:center!important}
+  .cms-product-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .cms-product-actions>*{display:flex!important;align-items:center;justify-content:center;min-width:0!important;width:100%!important;min-height:46px!important;white-space:normal!important;text-align:center}
+  .cms-panel>div[style*="display: flex"],.cms-panel>div[style*="display:flex"]{max-width:100%;flex-wrap:wrap!important}
+  .cms-panel>div[style*="display: flex"]>button,.cms-panel>div[style*="display:flex"]>button{min-height:44px}
+  .cms-panel select,.cms-panel input,.cms-panel textarea{max-width:100%;min-width:0}
+  .cms-panel>div[style*="Actions en lot"],.cms-panel>div:has(>strong:first-child){max-width:100%}
+  .cms-ai-batch-head{display:flex!important;flex-direction:column!important;align-items:stretch!important}
+  .cms-ai-file,.cms-ai-file label,.cms-ai-file button{width:100%!important}
+  .cms-ai-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
+  .cms-ai-actions button{display:block!important;width:100%!important;min-height:48px!important}
+  .cms-editor{overflow-x:hidden!important}
+  .cms-editor-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:auto!important}
+  .cms-editor-actions button{display:block!important;width:100%!important;min-width:0!important}
+  .cms-form-grid{display:grid!important;grid-template-columns:1fr!important}
+  .cms-product-filters{grid-template-columns:1fr!important}
+  .cms-product-filters>*{grid-column:1!important;width:100%!important}
+  .cms-order-filters{grid-template-columns:1fr!important}
+  .cms-stats{grid-template-columns:1fr!important}
+  .cms-dashboard-grid,.cms-settings-grid{grid-template-columns:1fr!important}
+  .cms-quick-scroll{z-index:1100}
+}
+@media(max-width:390px){
+  .cms-top-actions,.cms-product-actions,.cms-editor-actions{grid-template-columns:1fr!important}
+  .cms-topbar{top:55px}
+}
