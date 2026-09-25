@@ -349,20 +349,39 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
         }),
       });
 
-      setEditing((current) => current ? {
-        ...current,
+      setEditing({
         id: undefined,
         article_number: undefined,
-        name_fr: `${String(current.name_fr || "")} — nouveau produit`,
-        image_url: moved[0] || "",
-        images_json: JSON.stringify(moved.slice(1)),
+        name_fr: "",
+        name_en: "",
+        description_fr: "",
+        description_en: "",
+        category: "eveil",
+        price: 0,
+        price_conakry: 0,
+        price_qc: 0,
+        promo_price_conakry: 0,
+        promo_price_qc: 0,
+        stock: 1,
         stock_qc: 1,
         stock_conakry: 1,
         visible_qc: false,
         visible_conakry: false,
         visible: false,
         featured: false,
-      } : current);
+        status: "available",
+        badge: "",
+        ages: "",
+        brand: "",
+        material: "",
+        dimensions: "",
+        variants_json: "[]",
+        exchange_terms_fr: "",
+        exchange_terms_en: "",
+        alert_threshold: 2,
+        image_url: moved[0] || "",
+        images_json: JSON.stringify(moved.slice(1)),
+      });
 
       setSelectedImages([]);
       setMoveTargetId("");
