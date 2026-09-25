@@ -332,6 +332,8 @@ function parseFacts(content: string): Record<string, unknown> | null {
       brand_or_publisher: facts.brand_or_publisher || "",
       physical_object: facts.physical_object || "incertain",
       visible_parts: facts.visible_parts || "",
+      object_interaction: facts.object_interaction || "",
+      text_certainty: facts.text_certainty || "low",
       activity_or_purpose: facts.activity_or_purpose || "",
       age_text: facts.age_text || "",
       characters_or_license: facts.characters_or_license || "",
@@ -367,8 +369,10 @@ MAIN_TEXT: texte principal lisible
 SECONDARY_TEXT: autre texte utile
 BRAND_OR_PUBLISHER: marque ou éditeur lisible
 PHYSICAL_OBJECT: type physique concret
-VISIBLE_PARTS: éléments visibles
+VISIBLE_PARTS: objets et pièces physiques visibles
+OBJECT_INTERACTION: action démontrée avec ces objets
 ACTIVITY_OR_PURPOSE: activité démontrée
+TEXT_CERTAINTY: high, medium ou low
 AGE_TEXT: âge lisible
 CHARACTERS_OR_LICENSE: licence/personnages
 UNCERTAINTIES: ce qui reste incertain
@@ -377,8 +381,12 @@ Règles:
 - main_text: transcris fidèlement les gros mots/titres lisibles, sans traduction.
 - physical_object: donne obligatoirement le TYPE PHYSIQUE concret visible (livre, coffret créatif, tablette à dessin, jeu, poupée, véhicule, etc.), jamais un titre, une marque ou une référence.
 - Si tu ne peux pas déterminer le type physique, écris "incertain" et explique pourquoi dans uncertainties.
-- activity_or_purpose: seulement si le texte ou l'objet le démontre.
-- Une illustration n'est pas une preuve de coloriage, modelage ou autre activité.
+- visible_parts: inventorie les objets concrets reconnaissables; ne les remplace pas par le mot générique "kit".
+- object_interaction: indique l'action démontrée par l'ensemble des objets seulement si elle est visible ou lisible.
+- activity_or_purpose: déduis l'activité de la combinaison objets + texte fiable.
+- TEXT_CERTAINTY reflète la lisibilité réelle. Si medium/low, ne transforme pas la lecture en marque ou titre certain.
+- Une illustration n'est pas une preuve de coloriage ou modelage.
+- "Coloriage" exige une surface destinée au dessin/coloriage. Peinture ou pinceaux avec un objet 3D doit orienter vers "à peindre/décorer".
 - Un texte court, logo, marque, série ou référence (par ex. quelques mots stylisés) ne doit jamais remplacer physical_object.
 - N'utilise aucune information d'une requête précédente.`,
             },
@@ -396,6 +404,8 @@ Règles:
         brand_or_publisher: "",
         physical_object: "incertain",
         visible_parts: "",
+        object_interaction: "",
+        text_certainty: "low",
         activity_or_purpose: "",
         age_text: "",
         characters_or_license: "",
@@ -418,7 +428,10 @@ ${JSON.stringify(facts)}
 RÈGLE DE VALIDATION SUPPLÉMENTAIRE:
 Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence/référence seule n'est pas un produit.
 Le nom DOIT contenir un type physique concret compatible avec physical_object. Si physical_object vaut "incertain", reste générique mais décris l'objet visible; n'utilise jamais seulement main_text.
-Si main_text nomme clairement une activité ou un apprentissage, le nom doit en conserver le sens.
+Si main_text nomme clairement une activité ou un apprentissage ET text_certainty est high, le nom doit en conserver le sens.
+Donne priorité à physical_object + visible_parts + object_interaction pour identifier le produit.
+N'utilise brand_or_publisher dans le nom que si text_certainty est high.
+Ne choisis "coloriage" que si les preuves montrent réellement une activité de dessin/coloriage; si peinture/pinceaux servent à décorer des objets physiques, nomme l'objet et l'activité à peindre/décorer.
 Si name_fr et name_en sont exactement identiques, cela n'est acceptable que pour un nom propre accompagné d'un type de produit traduit; sinon corrige les deux noms.`,
         },
       ], 650);
@@ -444,7 +457,9 @@ REJETTE la fiche si:
 - le nom ne contient aucun type physique concret;
 - le nom est seulement une marque, licence, série, référence ou transcription de main_text;
 - name_fr et name_en sont identiques alors qu'un type de produit devrait être traduit;
-- la classification contredit le titre ou l'activité visible.
+- la classification contredit le titre ou l'activité visible;
+- la fiche dit "coloriage" alors que les objets montrent de la peinture/décoration d'objets physiques;
+- une marque ou un titre provenant d'un texte medium/low est présenté comme certain.
 Une fiche comme {"name_fr":"Tyma + Story E","name_en":"Tyma + Story E"} doit être rejetée car elle ne dit pas ce que le produit est.`,
         },
       ], 180);
