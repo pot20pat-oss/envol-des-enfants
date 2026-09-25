@@ -10,27 +10,6 @@ type ProductEditorProps = {
 
 export function ProductIdentityFields({ editing, setEditing, update }: Omit<ProductEditorProps, "upload">) {
   return <>
-    <label>
-      Disponible dans quelle boutique ?
-      <select
-        value={editing.visible_qc && editing.visible_conakry ? "both" : editing.visible_qc ? "qc" : editing.visible_conakry ? "conakry" : ""}
-        onChange={(event) => {
-          const availability = event.target.value;
-          setEditing((current) => current ? {
-            ...current,
-            visible_qc: availability === "qc" || availability === "both",
-            visible_conakry: availability === "conakry" || availability === "both",
-          } : current);
-        }}
-        required
-      >
-        <option value="" disabled>Choisir une boutique</option>
-        <option value="qc">Québec seulement</option>
-        <option value="conakry">Conakry seulement</option>
-        <option value="both">Québec et Conakry</option>
-      </select>
-    </label>
-
     {editing.id && (
       <label>
         Numéro d’article
@@ -170,15 +149,6 @@ export function ProductDetailsFields({ editing, update }: Pick<ProductEditorProp
         <input value={String(editing.variants_json || "[]")} onChange={(event) => update("variants_json", event.target.value)} />
       </label>
     </div>
-
-    <label>
-      Description · FR
-      <textarea value={String(editing.description_fr || "")} onChange={(event) => update("description_fr", event.target.value)} />
-    </label>
-    <label>
-      Description · EN
-      <textarea value={String(editing.description_en || "")} onChange={(event) => update("description_en", event.target.value)} />
-    </label>
 
     <div className="cms-form-grid">
       <label>
@@ -666,17 +636,47 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
     </div>}
 
     <label>
+      Description · FR
+      <textarea value={String(editing.description_fr || "")} onChange={(event) => update("description_fr", event.target.value)} />
+    </label>
+    <label>
+      Description · EN
+      <textarea value={String(editing.description_en || "")} onChange={(event) => update("description_en", event.target.value)} />
+    </label>
+
+    <label>
+      Disponible dans quelle boutique ?
+      <select
+        value={editing.visible_qc && editing.visible_conakry ? "both" : editing.visible_qc ? "qc" : editing.visible_conakry ? "conakry" : ""}
+        onChange={(event) => {
+          const availability = event.target.value;
+          setEditing((current) => current ? {
+            ...current,
+            visible_qc: availability === "qc" || availability === "both",
+            visible_conakry: availability === "conakry" || availability === "both",
+          } : current);
+        }}
+        required
+      >
+        <option value="" disabled>Choisir une boutique</option>
+        <option value="qc">Québec seulement</option>
+        <option value="conakry">Conakry seulement</option>
+        <option value="both">Québec et Conakry</option>
+      </select>
+    </label>
+
+    <label className="cms-checkbox">
+      <input type="checkbox" checked={Boolean(editing.featured)} onChange={(event) => update("featured", event.target.checked)} />{" "}
+      Mettre ce produit en vedette
+    </label>
+
+    <label>
       Conditions d’échange · FR
       <textarea value={String(editing.exchange_terms_fr || "")} onChange={(event) => update("exchange_terms_fr", event.target.value)} />
     </label>
     <label>
       Exchange terms · EN
       <textarea value={String(editing.exchange_terms_en || "")} onChange={(event) => update("exchange_terms_en", event.target.value)} />
-    </label>
-
-    <label className="cms-checkbox">
-      <input type="checkbox" checked={Boolean(editing.featured)} onChange={(event) => update("featured", event.target.checked)} />{" "}
-      Mettre ce produit en vedette
     </label>
   </>;
 }
