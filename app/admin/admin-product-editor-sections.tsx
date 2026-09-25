@@ -228,6 +228,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const images = productImages(editing);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisNotice, setAnalysisNotice] = useState("");
+  const [analysisHint, setAnalysisHint] = useState("");
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [moveTargetId, setMoveTargetId] = useState("");
@@ -402,7 +403,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
     try {
       const result = await request("/api/admin/analyze-product", {
         method: "POST",
-        body: JSON.stringify({ image_url: images[0] }),
+        body: JSON.stringify({ image_url: images[0], hint: analysisHint.trim() || undefined }),
       });
       const suggestion = result.suggestion;
       if (!suggestion || typeof suggestion !== "object" || Array.isArray(suggestion)) {
@@ -570,6 +571,23 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
       )}
 
       <div className="cms-product-analysis">
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginBottom:8}}>
+          <input
+            value={analysisHint}
+            onChange={(event) => setAnalysisHint(event.target.value)}
+            placeholder="Si la photo est floue : ex. ensemble à déjeuner Tim Story"
+            aria-label="Indication pour aider l'analyse IA"
+            style={{flex:"1 1 320px",minWidth:220}}
+          />
+          <button
+            type="button"
+            className="cms-secondary"
+            disabled={!images[0] || analyzing}
+            onClick={() => setAnalysisHint("")}
+          >
+            Effacer l’indication
+          </button>
+        </div>
         <button
           type="button"
           className="cms-secondary"
