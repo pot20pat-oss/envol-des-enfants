@@ -288,151 +288,126 @@ CATÉGORIES AUTORISÉES:
 ${categoryList}`;
 }
 
+async function nvidiaCall(apiKey: string, messages: unknown[], maxTokens = 500): Promise<string> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), NVIDIA_TIMEOUT_MS);
+  try {
+    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: NVIDIA_MODEL, temperature: 0, max_tokens: maxTokens, messages }),
+    });
+    const result = await response.json() as NvidiaResponse;
+    if (!response.ok) throw new Error(
+      typeof result.detail === "string" ? result.detail :
+      typeof result.message === "string" ? result.message :
+      `Erreur NVIDIA HTTP ${response.status}.`
+    );
+    return responseText(result.choices?.[0]?.message?.content).trim();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function parseFacts(content: string): Record<string, unknown> | null {
+  const cleaned = content.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
+  const a = cleaned.indexOf("{"), b = cleaned.lastIndexOf("}");
+  if (a < 0 || b <= a) return null;
+  try { return JSON.parse(cleaned.slice(a, b + 1).replace(/[“”]/g, '"').replace(/,\s*([}\]])/g, "$1")); }
+  catch { return null; }
+}
+
 async function analyzeWithNvidia(
   apiKey: string,
   image: string,
   categoryList: string,
 ): Promise<ProductSuggestion> {
-  let lastError =
-    "NVIDIA n'a pas retourné une analyse exploitable.";
+  let lastError = "NVIDIA n'a pas retourné une analyse exploitable.";
 
-  for (
-    let attempt = 1;
-    attempt <= NVIDIA_MAX_ATTEMPTS;
-    attempt += 1
-  ) {
-    const controller = new AbortController();
-
-    const timeout = setTimeout(
-      () => controller.abort(),
-      NVIDIA_TIMEOUT_MS,
-    );
-
+  for (let attempt = 1; attempt <= NVIDIA_MAX_ATTEMPTS; attempt += 1) {
     try {
-      const response = await fetch(
-        "https://integrate.api.nvidia.com/v1/chat/completions",
+      // PASSAGE 1: observation factuelle. Aucune classification commerciale ici.
+      const rawFacts = await nvidiaCall(apiKey, [
         {
-          method: "POST",
-
-          signal: controller.signal,
-
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            model: NVIDIA_MODEL,
-
-            temperature: 0,
-
-            max_tokens: 650,
-
-            messages: [
-              {
-                role: "system",
-                content: "Return exactly one complete valid JSON object. Never use markdown, comments, trailing commas, or text outside JSON. Always close every quote, array and object.",
-              },
-              {
-                role: "user",
-
-                content: [
-                  {
-                    type: "text",
-                    text: buildPrompt(categoryList),
-                  },
-
-                  {
-                    type: "image_url",
-
-                    image_url: {
-                      url: image,
-                    },
-                  },
-                ],
-              },
-            ],
-          }),
+          role: "system",
+          content: "You are a visual evidence extractor. Inspect only the current image. Do not guess a catalog category or product name. Return one valid JSON object only.",
         },
-      );
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Observe cette photo de produit. Extrais les PREUVES VISIBLES avant toute interprétation.
+Retourne exactement:
+{"main_text":[],"secondary_text":[],"brand_or_publisher":"","physical_object":"","visible_parts":[],"activity_or_purpose":"","age_text":"","characters_or_license":"","uncertainties":[]}
+Règles:
+- main_text: transcris fidèlement les gros mots/titres lisibles, sans traduction.
+- physical_object: décris seulement la forme physique visible (livre, tablette à dessin, boîte, poupée, véhicule, etc.).
+- activity_or_purpose: seulement si le texte ou l'objet le démontre.
+- Une illustration n'est pas une preuve de coloriage, modelage ou autre activité.
+- N'utilise aucune information d'une requête précédente.`,
+            },
+            { type: "image_url", image_url: { url: image } },
+          ],
+        },
+      ], 420);
 
-      const result =
-        (await response.json()) as NvidiaResponse;
-
-      if (!response.ok) {
-        lastError =
-          typeof result.detail === "string"
-            ? result.detail
-            : typeof result.message === "string"
-              ? result.message
-              : `Erreur NVIDIA HTTP ${response.status}.`;
-
+      const facts = parseFacts(rawFacts);
+      if (!facts) {
+        lastError = "NVIDIA n’a pas pu extraire les faits visuels.";
         continue;
       }
 
-      const rawContent = responseText(result.choices?.[0]?.message?.content);
-      const suggestion = parseSuggestion(rawContent);
+      // PASSAGE 2: raisonnement à partir des faits extraits, pas à partir d'un exemple de produit.
+      const rawSuggestion = await nvidiaCall(apiKey, [
+        {
+          role: "system",
+          content: "You create ecommerce product records from supplied visual evidence. Never contradict the evidence. Return one valid JSON object only.",
+        },
+        {
+          role: "user",
+          content: `${buildPrompt(categoryList)}
 
-      if (suggestion && (suggestion.name_fr || suggestion.name_en)) {
-        return suggestion;
+PREUVES EXTRAITES DE LA PHOTO ACTUELLE:
+${JSON.stringify(facts)}
+
+RÈGLE DE VALIDATION SUPPLÉMENTAIRE:
+Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence seule n'est pas un produit. Si main_text nomme clairement une activité ou un apprentissage, le nom doit en conserver le sens.`,
+        },
+      ], 650);
+
+      const suggestion = parseSuggestion(rawSuggestion);
+      if (!suggestion || (!suggestion.name_fr && !suggestion.name_en)) {
+        lastError = "NVIDIA a produit une fiche invalide.";
+        continue;
       }
 
-      // Si la première réponse est inexploitable, demander au modèle de la
-      // réparer en JSON au lieu de refaire exactement la même analyse.
-      if (rawContent.trim()) {
-        const repairController = new AbortController();
-        const repairTimeout = setTimeout(() => repairController.abort(), 12_000);
-        try {
-          const repairResponse = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-            method: "POST",
-            signal: repairController.signal,
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              model: NVIDIA_MODEL,
-              temperature: 0,
-              max_tokens: 420,
-              messages: [
-                {
-                  role: "system",
-                  content: "Convert the supplied model output into one valid compact JSON object only. Preserve its meaning. Required keys: name_fr,name_en,description_fr,description_en,category,brand,ages,confidence.",
-                },
-                {
-                  role: "user",
-                  content: rawContent.slice(0, 6000),
-                },
-              ],
-            }),
-          });
-          if (repairResponse.ok) {
-            const repairedResult = await repairResponse.json() as NvidiaResponse;
-            const repaired = parseSuggestion(responseText(repairedResult.choices?.[0]?.message?.content));
-            if (repaired && (repaired.name_fr || repaired.name_en)) return repaired;
-          }
-        } finally {
-          clearTimeout(repairTimeout);
-        }
+      // PASSAGE 3: contrôleur indépendant. Il rejette les contradictions grossières.
+      const rawCheck = await nvidiaCall(apiKey, [
+        {
+          role: "system",
+          content: 'Audit a product identification against visual evidence. Return JSON only: {"valid":true|false,"reason":"","confidence":0..1}.',
+        },
+        {
+          role: "user",
+          content: `PREUVES: ${JSON.stringify(facts)}
+FICHE: ${JSON.stringify(suggestion)}
+Vérifie surtout que le TYPE de produit, l'activité et le texte principal concordent. Rejette une classification sans rapport avec le titre visible (ex.: modelage si les preuves parlent d'apprentissage des formes/couleurs).`,
+        },
+      ], 180);
+
+      const check = parseFacts(rawCheck);
+      if (check?.valid === false) {
+        lastError = `Identification rejetée par le contrôle de cohérence: ${String(check.reason || "contradiction visuelle")}`;
+        continue;
       }
 
-      lastError =
-        "NVIDIA a répondu, mais sa fiche n’a pas pu être reconstruite.";
+      const auditConfidence = Number(check?.confidence);
+      if (Number.isFinite(auditConfidence)) suggestion.confidence = Math.min(suggestion.confidence, Math.max(0, Math.min(1, auditConfidence)));
+      return suggestion;
     } catch (failure) {
-      if (
-        failure instanceof Error &&
-        failure.name === "AbortError"
-      ) {
-        lastError =
-          `NVIDIA a dépassé ${NVIDIA_TIMEOUT_MS / 1000} secondes.`;
-      } else {
-        lastError =
-          failure instanceof Error
-            ? failure.message
-            : "Erreur pendant l'analyse NVIDIA.";
-      }
-    } finally {
-      clearTimeout(timeout);
+      lastError = failure instanceof Error ? failure.message : "Erreur pendant l'analyse NVIDIA.";
     }
   }
 
