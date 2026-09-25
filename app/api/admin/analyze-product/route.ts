@@ -313,9 +313,32 @@ async function nvidiaCall(apiKey: string, messages: unknown[], maxTokens = 500):
 function parseFacts(content: string): Record<string, unknown> | null {
   const cleaned = content.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
   const a = cleaned.indexOf("{"), b = cleaned.lastIndexOf("}");
-  if (a < 0 || b <= a) return null;
-  try { return JSON.parse(cleaned.slice(a, b + 1).replace(/[“”]/g, '"').replace(/,\s*([}\]])/g, "$1")); }
-  catch { return null; }
+  if (a >= 0 && b > a) {
+    try { return JSON.parse(cleaned.slice(a, b + 1).replace(/[“”]/g, '"').replace(/,\s*([}\]])/g, "$1")); }
+    catch {}
+  }
+
+  // Le passage "vision" n'a pas besoin de JSON parfait. Accepter aussi un
+  // format ligne par ligne beaucoup plus fiable avec les modèles vision.
+  const facts: Record<string, string> = {};
+  for (const line of cleaned.split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Z_]+)\s*:\s*(.+?)\s*$/i);
+    if (match) facts[match[1].toLowerCase()] = match[2].trim();
+  }
+  if (facts.physical_object || facts.main_text) {
+    return {
+      main_text: facts.main_text || "",
+      secondary_text: facts.secondary_text || "",
+      brand_or_publisher: facts.brand_or_publisher || "",
+      physical_object: facts.physical_object || "incertain",
+      visible_parts: facts.visible_parts || "",
+      activity_or_purpose: facts.activity_or_purpose || "",
+      age_text: facts.age_text || "",
+      characters_or_license: facts.characters_or_license || "",
+      uncertainties: facts.uncertainties || "",
+    };
+  }
+  return null;
 }
 
 async function analyzeWithNvidia(
@@ -331,7 +354,7 @@ async function analyzeWithNvidia(
       const rawFacts = await nvidiaCall(apiKey, [
         {
           role: "system",
-          content: "You are a visual evidence extractor. Inspect only the current image. Do not guess a catalog category or product name. Return one valid JSON object only.",
+          content: "You are a visual evidence extractor. Inspect only the current image. Do not guess a catalog category or product name. Follow the requested labeled-line format exactly.",
         },
         {
           role: "user",
@@ -339,8 +362,17 @@ async function analyzeWithNvidia(
             {
               type: "text",
               text: `Observe cette photo de produit. Extrais les PREUVES VISIBLES avant toute interprétation.
-Retourne exactement:
-{"main_text":[],"secondary_text":[],"brand_or_publisher":"","physical_object":"","visible_parts":[],"activity_or_purpose":"","age_text":"","characters_or_license":"","uncertainties":[]}
+Réponds en lignes simples, UNE valeur par ligne. Pas de JSON:
+MAIN_TEXT: texte principal lisible
+SECONDARY_TEXT: autre texte utile
+BRAND_OR_PUBLISHER: marque ou éditeur lisible
+PHYSICAL_OBJECT: type physique concret
+VISIBLE_PARTS: éléments visibles
+ACTIVITY_OR_PURPOSE: activité démontrée
+AGE_TEXT: âge lisible
+CHARACTERS_OR_LICENSE: licence/personnages
+UNCERTAINTIES: ce qui reste incertain
+
 Règles:
 - main_text: transcris fidèlement les gros mots/titres lisibles, sans traduction.
 - physical_object: donne obligatoirement le TYPE PHYSIQUE concret visible (livre, coffret créatif, tablette à dessin, jeu, poupée, véhicule, etc.), jamais un titre, une marque ou une référence.
