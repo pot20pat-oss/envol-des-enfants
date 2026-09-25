@@ -55,3 +55,52 @@
   .cms-top-actions { margin:0; }
   .cms-panel { border-radius:9px !important; }
 }
+
+
+/* Phone layout v2: compact header; never let actions float off-screen. */
+@media (max-width: 820px) {
+  .cms-sidebar { position:relative !important; top:auto !important; }
+  .cms-main { padding-top:0 !important; }
+  .cms-topbar {
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    right:auto !important;
+    z-index:30 !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:8px !important;
+    padding:10px !important;
+    margin:0 0 10px !important;
+    border:1px solid #e3e9ec;
+    border-radius:10px;
+    box-shadow:none !important;
+  }
+  .cms-topbar > div:first-child { min-width:0; }
+  .cms-topbar h1 { font-size:20px !important; }
+  .cms-top-actions {
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    width:100% !important;
+    overflow:visible !important;
+    gap:7px !important;
+  }
+  .cms-top-actions > button,
+  .cms-top-actions > a,
+  .cms-top-actions > .cms-market-switch {
+    width:100% !important;
+    max-width:none !important;
+  }
+  .cms-top-actions > button,
+  .cms-top-actions > a { justify-content:center !important; text-align:center; }
+  .cms-market-switch { display:grid !important; grid-template-columns:1fr 1fr; border-radius:12px !important; }
+  .cms-market-switch button { width:100% !important; white-space:normal !important; }
+  .cms-panel-title { display:grid !important; grid-template-columns:minmax(0,1fr) !important; }
+  .cms-panel-title .cms-search { grid-column:1 !important; }
+  .cms-product-filters { grid-template-columns:1fr !important; }
+  .cms-product-filters > * { width:100% !important; min-width:0 !important; }
+  .cms-ai-batch, .cms-panel, .cms-history, .cms-bulk-toolbar { max-width:100% !important; overflow:hidden; }
+  .cms-ai-actions { display:grid !important; grid-template-columns:1fr !important; gap:7px !important; }
+  .cms-ai-actions button { width:100% !important; min-height:46px; }
+  .cms-quick-scroll { display:none !important; }
+}
