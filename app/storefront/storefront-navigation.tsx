@@ -1,6 +1,6 @@
 "use client";
 
-import type { Translation } from "@/lib/default-catalog";
+import { useState } from "react";\nimport type { Translation } from "@/lib/default-catalog";
 import type { Market } from "@/lib/markets";
 import { useCommerce } from "../commerce/commerce-provider";
 
@@ -32,7 +32,10 @@ export default function StorefrontNavigation({ market, whatsappUrl, say }: Props
     </div>
     <header className="ref-head wrap">
       <a className="ref-logo" href={`/?region=${market}`}><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
-      <a className="ref-search" href="#catalogue"><span>{say("Que cherchez-vous aujourd’hui ?","What are you looking for today?")}</span><b><HeaderIcon kind="search"/></b></a>
+      <form className="ref-search" role="search" onSubmit={submitSearch}>
+        <input type="search" value={search} onChange={event=>setSearch(event.target.value)} placeholder={say("Que cherchez-vous aujourd’hui ?","What are you looking for today?")} aria-label={say("Rechercher dans le catalogue","Search the catalog")} />
+        <button type="submit" aria-label={say("Rechercher","Search")}><HeaderIcon kind="search"/></button>
+      </form>
       <div className="ref-service"><span><HeaderIcon kind="truck"/><b>{say("Livraison rapide","Fast delivery")}</b><small>{say("au Canada et ailleurs","across Canada and beyond")}</small></span><a href={whatsappUrl}><HeaderIcon kind="phone"/><b>{say("Contact WhatsApp","Contact WhatsApp")}</b><small>{say("Une question ?","A question?")}</small></a></div>
     </header>
   </div>;
