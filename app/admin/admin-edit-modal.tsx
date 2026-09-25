@@ -2,6 +2,7 @@ import type { Market } from "@/lib/markets";
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { OrderEditor } from "./admin-order-editor";
 import { ProductEditor } from "./admin-product-editor";
+import { request } from "./admin-shared";
 import { PromotionEditor } from "./admin-promotion-editor";
 import type { Row } from "./admin-shared";
 
@@ -19,6 +20,42 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   products: Row[];
   deleteOrder?: (order: Row) => void | Promise<void>;
 }) {
+  const analyzeProduct = async () => {
+    const imageUrl = String(editing.image_url || "").trim();
+    if (!imageUrl || busy) return;
+    try {
+      const result = await request("/api/admin/analyze-product", {
+        method: "POST",
+        body: JSON.stringify({ image_url: imageUrl }),
+      });
+      const suggestion = result.suggestion;
+      if (!suggestion || typeof suggestion !== "object" || Array.isArray(suggestion)) return;
+      const fields = suggestion as Record<string, unknown>;
+      for (const field of ["name_fr", "name_en", "description_fr", "description_en", "category", "brand", "ages"]) {
+        if (typeof fields[field] === "string" && fields[field]) update(field, fields[field] as string);
+      }
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Analyse IA impossible.");
+    }
+  };
+
+  const duplicateAsNewProduct = () => {
+    if (!editing.id) return;
+    if (!window.confirm("Créer une nouvelle fiche à partir de cet article ? L’article actuel ne sera pas modifié tant que la nouvelle fiche n’est pas enregistrée.")) return;
+    setEditing((current) => current ? {
+      ...current,
+      id: undefined,
+      article_number: undefined,
+      name_fr: `${String(current.name_fr || "")} — nouveau produit`,
+      stock_qc: 1,
+      stock_conakry: 1,
+      visible_qc: false,
+      visible_conakry: false,
+      visible: false,
+      featured: false,
+    } : current);
+  };
+
   return (
     <div
       className="cms-overlay"
@@ -40,6 +77,8 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
             {editing.id ? "Modifier" : "Ajouter"}{" "}
             {editingType === "product" ? "un produit" : editingType === "promotion" ? "une promotion" : "une commande"}
           </h2>
+          {editingType==="product"&&<button type="button" className="cms-secondary" disabled={busy||!editing.image_url} onClick={()=>void analyzeProduct()}>✨ IA</button>}
+          {editingType==="product"&&editing.id&&<button type="button" className="cms-secondary" disabled={busy} onClick={duplicateAsNewProduct}>＋ Nouveau produit</button>}
           {editingType==="order"&&editing.id&&deleteOrder&&<button type="button" className="cms-danger" disabled={busy} onClick={()=>void deleteOrder(editing)}>Supprimer</button>}
           <button type="button" className="cms-secondary" onClick={() => setEditing(null)}>Annuler</button>
           <button className="cms-primary" disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</button>
