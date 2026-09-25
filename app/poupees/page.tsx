@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import CategoryStorefront from "../category-storefront";
+
+export const metadata: Metadata={title:"Poupées, Barbie et princesses | L’Envol des Enfants",description:"Découvrez nos poupées, Barbie, princesses, Disney, Miraculous, LOL Surprise, Rainbow High, Baby Alive et accessoires.",alternates:{canonical:"/poupees"}};
 
 const categoryTabs = [
   { value: "princesses", labelFr: "Princesses", labelEn: "Princesses" },
