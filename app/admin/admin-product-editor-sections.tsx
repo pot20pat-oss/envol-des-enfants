@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { categories, request, type Row } from "./admin-shared";
 
 type ProductEditorProps = {
@@ -233,6 +233,16 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const [moveTargetId, setMoveTargetId] = useState("");
   const [moveTargets, setMoveTargets] = useState<Row[]>([]);
   const [movingImages, setMovingImages] = useState(false);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("cms-photo-selection", {
+      detail: { count: selectedImages.length }
+    }));
+  }, [selectedImages.length]);
+
+  useEffect(() => () => {
+    window.dispatchEvent(new CustomEvent("cms-photo-selection", { detail: { count: 0 } }));
+  }, []);
 
   const toggleImageSelection = (image: string) => {
     setSelectedImages((current) => current.includes(image)
