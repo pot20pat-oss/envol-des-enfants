@@ -600,6 +600,30 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
         >
           {analyzing ? "Analyse en cours…" : editing.id ? "✨ Réanalyser le produit avec l’IA" : "✨ Analyser le produit avec l’IA"}
         </button>
+        <div style={{width:"100%",boxSizing:"border-box",padding:"14px 16px",marginTop:12,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
+          <strong style={{display:"block",marginBottom:8}}>Disponibilité du produit</strong>
+          <label style={{display:"block",margin:0}}>
+            Disponible dans quelle boutique ?
+            <select
+              value={editing.visible_qc && editing.visible_conakry ? "both" : editing.visible_qc ? "qc" : editing.visible_conakry ? "conakry" : ""}
+              onChange={(event) => {
+                const availability = event.target.value;
+                setEditing((current) => current ? {
+                  ...current,
+                  visible_qc: availability === "qc" || availability === "both",
+                  visible_conakry: availability === "conakry" || availability === "both",
+                } : current);
+              }}
+              required
+              style={{display:"block",width:"100%",marginTop:6}}
+            >
+              <option value="" disabled>Choisir une boutique</option>
+              <option value="qc">Québec seulement</option>
+              <option value="conakry">Conakry seulement</option>
+              <option value="both">Québec et Conakry</option>
+            </select>
+          </label>
+        </div>
         <div style={{width:"100%",boxSizing:"border-box",padding:"16px",marginTop:12,marginBottom:12,border:"1px solid #f0c7cf",borderRadius:10,background:"#fff8fa"}}>
           <strong style={{display:"block",marginBottom:6}}>✏️ Corriger l’identification IA</strong>
           <p style={{margin:"0 0 10px",fontSize:".9rem"}}>Si l’IA se trompe, dites-lui ce que c’est. Elle ajustera le nom, la catégorie, la marque, l’âge et les descriptions FR/EN.</p>
