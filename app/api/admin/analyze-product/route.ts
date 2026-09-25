@@ -121,6 +121,36 @@ function parseSuggestion(
     if (recovered.name_fr && recovered.name_en) parsed = recovered;
   }
 
+  if (!parsed) {
+    // Dernier filet: certains modèles renvoient une fiche lisible mais pas un JSON
+    // parfaitement fermé. Extraire les valeurs sans rejeter toute l'analyse.
+    const looseField = (name: string): string => {
+      const patterns = [
+        new RegExp(`["']?${name}["']?\\s*:\\s*["']([^"'\\n\\r}]*)`, "i"),
+        new RegExp(`${name}\\s*[:=-]\\s*([^\\n\\r,}]*)`, "i"),
+      ];
+      for (const pattern of patterns) {
+        const match = cleaned.match(pattern);
+        if (match?.[1]) return match[1].trim();
+      }
+      return "";
+    };
+    const nameFr = looseField("name_fr");
+    const nameEn = looseField("name_en");
+    if (nameFr || nameEn) {
+      parsed = {
+        name_fr: nameFr || nameEn,
+        name_en: nameEn || nameFr,
+        description_fr: looseField("description_fr"),
+        description_en: looseField("description_en"),
+        category: looseField("category"),
+        brand: looseField("brand"),
+        ages: looseField("ages"),
+        confidence: Number(looseField("confidence")) || 0.7,
+      };
+    }
+  }
+
   if (!parsed) return null;
 
   const category =
@@ -297,11 +327,7 @@ async function analyzeWithNvidia(
 
             temperature: 0,
 
-            max_tokens: 850,
-
-            response_format: {
-              type: "json_object",
-            },
+            max_tokens: 650,
 
             messages: [
               {
