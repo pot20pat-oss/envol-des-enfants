@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+﻿import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { categories, request, type Row } from "./admin-shared";
 
 type ProductEditorProps = {
@@ -229,6 +229,8 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisNotice, setAnalysisNotice] = useState("");
   const [correctionHint, setCorrectionHint] = useState("");
+  const aiUndo = useRef<Row | null>(null);
+  const [canUndoAi, setCanUndoAi] = useState(false);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [moveTargetId, setMoveTargetId] = useState("");
@@ -422,11 +424,18 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
         throw new Error("Suggestion NVIDIA invalide.");
       }
       const fields = suggestion as Record<string, unknown>;
-      for (const field of ["name_fr", "name_en", "description_fr", "description_en", "category", "brand", "ages"]) {
-        if (typeof fields[field] === "string" && fields[field]) update(field, fields[field]);
-      }
+      setEditing((current) => {
+        if (!current || String(current.id || "") !== String(editing.id || "") || String(current.image_url || "") !== images[0]) return current;
+        aiUndo.current = { ...current };
+        const proposed = { ...current };
+        for (const field of ["name_fr", "name_en", "description_fr", "description_en", "category", "brand", "ages"]) {
+          if (typeof fields[field] === "string" && fields[field]) proposed[field] = fields[field] as string;
+        }
+        return proposed;
+      });
+      setCanUndoAi(true);
       const confidence = Number(fields.confidence || 0);
-      setAnalysisNotice(`Suggestions ajoutées au formulaire${confidence ? ` · confiance ${Math.round(confidence * 100)} %` : ""}. Vérifiez-les avant d’enregistrer.`);
+      setAnalysisNotice(`Suggestions ajoutées au brouillon${confidence ? ` · confiance ${Math.round(confidence * 100)} %` : ""}. Cliquez sur Enregistrer pour confirmer.`);
     } catch (failure) {
       setAnalysisNotice(failure instanceof Error ? failure.message : "Analyse NVIDIA impossible.");
     } finally {
@@ -612,6 +621,16 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
             {analyzing ? "Correction en cours…" : "Appliquer ma correction avec l’IA"}
           </button>
         </div>
+        {canUndoAi && <button type="button" className="cms-secondary" onClick={() => {
+          const previous = aiUndo.current;
+          if (!previous) return;
+          setEditing((current) => current && String(current.id || "") === String(previous.id || "")
+            ? { ...current, ...Object.fromEntries(["name_fr", "name_en", "description_fr", "description_en", "category", "brand", "ages"].map((field) => [field, previous[field]])) }
+            : current);
+          aiUndo.current = null;
+          setCanUndoAi(false);
+          setAnalysisNotice("Suggestions IA annulées. La fiche enregistrée n’a pas été modifiée.");
+        }}>↶ Annuler la dernière analyse IA</button>}
 
         <p style={{marginBottom:0}}>{analysisNotice || "L’IA propose les corrections dans le formulaire. Rien n’est enregistré sans votre confirmation."}</p>
       </div>

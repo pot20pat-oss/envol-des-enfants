@@ -33,7 +33,9 @@ export function useAdminUiState() {
   }, []);
 
   useEffect(() => {
-    if (editingType !== "product" || !editing) {
+    // Les modifications d'une fiche existante restent locales jusqu'à Enregistrer.
+    // Les restaurer après rechargement donnerait l'impression qu'elles ont été enregistrées.
+    if (editingType !== "product" || !editing || editing.id) {
       sessionStorage.removeItem("cms-product-draft");
       return;
     }

@@ -20,20 +20,15 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
   products: Row[];
   deleteOrder?: (order: Row) => void | Promise<void>;
 }) {
-  const originalEditing = useRef<Row>({ ...editing });
   const cancelling = useRef(false);
 
   const cancelEditing = async () => {
     if (cancelling.current || busy) return;
     cancelling.current = true;
     try {
-      const original = originalEditing.current;
-      if (editingType === "product" && original.id) {
-        await request("/api/admin/products", {
-          method: "PUT",
-          body: JSON.stringify(original),
-        });
-      }
+      // Le formulaire est un brouillon local: annuler ne doit jamais écrire en base.
+      sessionStorage.removeItem("cms-product-draft");
+      sessionStorage.removeItem("cms-new-product-source");
       setEditing(null);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : "Impossible d’annuler les modifications.");

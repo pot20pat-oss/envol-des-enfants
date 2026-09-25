@@ -207,6 +207,7 @@ RÈGLES ABSOLUES:
 - Une réponse très générique ne peut jamais avoir une confiance élevée: si tu n'arrives pas à identifier précisément le type de produit, confidence doit être inférieur ou égal à 0.65.
 - confidence = 1 uniquement si le type de produit ET son identification sont clairement établis visuellement ET concordent avec tout texte d'identification lisible sur l'emballage; ne donne jamais 1 par défaut.
 - Si le nom proposé contredit un titre/type clairement lisible sur l'emballage, la réponse est invalide: corrige le nom avant de répondre.
+- Lis les libellés de type de produit même s'ils sont petits ou bilingues. Par exemple « pâte à modeler parfumée » / « scented modeling dough » désigne de la pâte à modeler, pas un produit de bain. Une figurine posée sur un pot ou le mot « scented » ne prouve aucune utilisation dans le bain.
 - Avant de produire le JSON, fais silencieusement ce contrôle: "Mon name_fr/name_en décrit-il bien le produit complet vendu, et non un accessoire ou un matériau visible dans la boîte ?"
 
 2. LECTURE DU TEXTE SUR L'EMBALLAGE
@@ -397,6 +398,7 @@ Règles:
 - object_interaction: indique l'action démontrée par l'ensemble des objets seulement si elle est visible ou lisible.
 - activity_or_purpose: déduis l'activité de la combinaison objets + texte fiable.
 - TEXT_CERTAINTY reflète la lisibilité réelle. Si medium/low, ne transforme pas la lecture en marque ou titre certain.
+- Recopie aussi les mentions bilingues qui décrivent le contenu ou la matière (par exemple « pâte à modeler », « modeling dough ») dans SECONDARY_TEXT, même si elles sont moins grandes que la marque.
 - Une illustration n'est pas une preuve de coloriage ou modelage.
 - "Coloriage" exige une surface destinée au dessin/coloriage. Peinture ou pinceaux avec un objet 3D doit orienter vers "à peindre/décorer".
 - Un texte court, logo, marque, série ou référence (par ex. quelques mots stylisés) ne doit jamais remplacer physical_object.
@@ -436,11 +438,12 @@ Règles:
 
 PREUVES EXTRAITES DE LA PHOTO ACTUELLE:
 ${JSON.stringify(facts)}
-${hint ? `INDICATION FOURNIE PAR L'UTILISATEUR (prioritaire pour le type de produit si l'image est floue): ${hint}` : ""}
+${hint ? `CORRECTION EXPLICITE FOURNIE PAR L'UTILISATEUR: ${hint}\nTraite cette correction comme l'identification demandée. Reformule les noms et descriptions FR/EN et la catégorie en conséquence; ne reprends pas l'ancien nom erroné. Si la correction contredit clairement la photo, indique une faible confiance plutôt que de recopier l'ancienne fiche.` : ""}
 ${productContext ? `FICHE ACTUELLE DU PRODUIT (à vérifier et corriger; peut contenir des erreurs ou décrire un autre produit): ${JSON.stringify(productContext)}` : ""}
 
 RÈGLE DE VALIDATION SUPPLÉMENTAIRE:
 Le nom et la catégorie doivent être directement justifiables par ces preuves. Une marque/licence/référence seule n'est pas un produit.
+La fiche actuelle n'est PAS une preuve: elle peut être le résultat erroné d'une analyse précédente. Si elle contredit un libellé lisible sur l'emballage, ignore son nom, sa catégorie et ses descriptions. Ne déduis jamais « bain » d'un pot, d'une figurine ou du mot « parfumé » sans indication explicite d'un usage dans l'eau.
 Le nom DOIT contenir un type physique concret compatible avec physical_object. Si physical_object vaut "incertain", reste générique mais décris l'objet visible; n'utilise jamais seulement main_text.
 Si main_text nomme clairement une activité ou un apprentissage ET text_certainty est high, le nom doit en conserver le sens.
 Donne priorité à physical_object + visible_parts + object_interaction pour identifier le produit.
@@ -453,6 +456,15 @@ Si name_fr et name_en sont exactement identiques, cela n'est acceptable que pour
       const suggestion = parseSuggestion(rawSuggestion);
       if (!suggestion || (!suggestion.name_fr && !suggestion.name_en)) {
         lastError = "NVIDIA a produit une fiche invalide.";
+        continue;
+      }
+
+      // Un libellé explicite sur l'emballage prime sur une fiche existante erronée.
+      const packagingText = `${facts.main_text} ${facts.secondary_text}`.toLowerCase();
+      const proposedText = `${suggestion.name_fr} ${suggestion.name_en} ${suggestion.description_fr} ${suggestion.description_en}`.toLowerCase();
+      if (/(p[aâ]te\s+[aà]\s+modeler|model(?:l)?ing\s+dough)/i.test(packagingText)
+        && /\b(bain|bath)\b/i.test(proposedText)) {
+        lastError = "L'analyse contredit la mention pâte à modeler sur l'emballage.";
         continue;
       }
 
@@ -472,6 +484,7 @@ REJETTE la fiche si:
 - le nom est seulement une marque, licence, série, référence ou transcription de main_text;
 - name_fr et name_en sont identiques alors qu'un type de produit devrait être traduit;
 - la classification contredit le titre ou l'activité visible;
+- la fiche présente un produit de bain alors que l'emballage mentionne de la pâte à modeler / modeling dough;
 - la fiche dit "coloriage" alors que les objets montrent de la peinture/décoration d'objets physiques;
 - une marque ou un titre provenant d'un texte medium/low est présenté comme certain.
 Une fiche comme {"name_fr":"Tyma + Story E","name_en":"Tyma + Story E"} doit être rejetée car elle ne dit pas ce que le produit est.`,
