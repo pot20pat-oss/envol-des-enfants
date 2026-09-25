@@ -21,18 +21,19 @@ import "./homepage-only.css";
 import { CommerceProvider } from "./commerce/commerce-provider";
 
 export const metadata: Metadata = {
-  title: "Envol des Enfants",
+  metadataBase: new URL("https://envoldesenfants.com"),
+  title: "L’Envol des Enfants | Jouets et jeux pour enfants",
   description: "Boutique de jouets, poupées et princesses, articles pour bébé, véhicules, jeux de plein air et essentiels scolaires au Québec et à Conakry.",
   openGraph: {
     title: "Envol des Enfants",
     description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
-    images: ["https://envol-des-enfants.pages.dev/boutique-hero.png"],
+    images: ["/boutique-hero.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Envol des Enfants",
     description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
-    images: ["https://envol-des-enfants.pages.dev/boutique-hero.png"],
+    images: ["/boutique-hero.png"],
   },
   icons: {
     icon: "/favicon-envol.png?v=2",
