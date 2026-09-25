@@ -485,7 +485,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
       )}
 
       {selectedImages.length > 0 && (
-        <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",padding:"12px 14px",marginTop:14,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
+        <div data-cms-selected-photo-actions style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",padding:"12px 14px",marginTop:14,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
           <strong>{selectedImages.length} photo{selectedImages.length === 1 ? "" : "s"} sélectionnée{selectedImages.length === 1 ? "" : "s"}</strong>
           <button type="button" className="cms-secondary" disabled={movingImages} onClick={() => void detachSelectedImages()}>
             ↗ Retirer de ce produit
