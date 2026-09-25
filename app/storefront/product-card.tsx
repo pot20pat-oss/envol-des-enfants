@@ -1,6 +1,5 @@
 import type { Product } from "@/lib/default-catalog";
 import { marketPrice, type Market } from "@/lib/markets";
-import { WhatsAppIcon } from "./product-icons";
 import { useCommerce } from "../commerce/commerce-provider";
 
 type Language = "fr" | "en";
@@ -66,23 +65,8 @@ export default function ProductCard({ item, language, market, whatsappNumber, wh
           <span className="product-unavailable">{say("Indisponible", "Unavailable")}</span>
         ) : !hasPrice ? (
           <span className="product-unavailable">{say("À venir", "Coming soon")}</span>
-        ) : whatsappNumber ? (
-          <a
-            className={`product-order${item.status === "reserved" ? " product-order-reserved" : ""}`}
-            href={`${whatsappUrl}?text=${encodeURIComponent(
-              isEnglish
-                ? `Hello, I would like ${item.status === "reserved" ? "to know when this product is back" : "to order"}: ${item.name.en} (${price}).`
-                : `Bonjour, je souhaite ${item.status === "reserved" ? "être averti du retour de" : "commander"} : ${item.name.fr} (${price}).`
-            )}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <WhatsAppIcon />
-            <span>{item.status === "reserved" ? say("Me prévenir", "Notify me") : "WhatsApp"}</span>
-          </a>
-        ) : (
-          <span className="product-unavailable">{say("Nous contacter", "Contact us")}</span>
-        )}
+        ) : null}
+
       </div>
     </article>
   );
