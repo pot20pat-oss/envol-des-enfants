@@ -198,12 +198,17 @@ RÈGLES ABSOLUES:
 - Si le nom proposé contredit un titre/type clairement lisible sur l'emballage, la réponse est invalide: corrige le nom avant de répondre.
 - Avant de produire le JSON, fais silencieusement ce contrôle: "Mon name_fr/name_en décrit-il bien le produit complet vendu, et non un accessoire ou un matériau visible dans la boîte ?"
 
-2. TEXTE SUR L'EMBALLAGE
-- Ne recopie jamais un paragraphe imprimé sur le produit.
-- Ne transforme jamais le texte de l'emballage en description.
-- Ne raconte jamais une histoire imprimée sur un livre, une boîte ou un emballage.
-- Ne résume jamais l'histoire d'un personnage, film, dessin animé ou livre.
-- Le texte visible sert seulement à IDENTIFIER le produit.
+2. LECTURE DU TEXTE SUR L'EMBALLAGE
+- AVANT de classer le produit, lis d'abord les mots les plus grands et les plus centraux de la face avant.
+- Sépare mentalement: MARQUE/ÉDITEUR, TITRE DU PRODUIT, SOUS-TITRE/ACTIVITÉ, ÂGE/QUANTITÉ.
+- Si un titre de produit est clairement lisible, name_fr doit conserver son sens précis. Ne le remplace jamais par une famille générique voisine.
+- Les mots décrivant une compétence ou une activité sont déterminants: nombres, lettres, formes, couleurs, dessin, coloriage, écriture, lecture, puzzle, peinture, modelage, etc. Ne transforme pas une activité d'apprentissage des nombres en coloriage simplement parce que la couverture est illustrée.
+- Pour un livre/cahier, distingue obligatoirement APPRENTISSAGE, ACTIVITÉS, COLORIAGE, DESSIN et HISTOIRE. Ce ne sont pas des synonymes.
+- Si un nombre ou une plage fait partie du titre visible, conserve-la dans le nom lorsqu'elle identifie le contenu du produit.
+- Si la marque ou l'éditeur est clairement lisible, conserve-le dans brand plutôt que de l'inventer à partir du style graphique.
+- Effectue un second contrôle silencieux avant le JSON: relis le titre visible lettre par lettre et vérifie que name_fr/name_en décrivent la même activité.
+- Si le texte principal est lisible mais ton nom ne reprend pas son sens, confidence doit être <= 0.45 et tu dois corriger le nom avant de répondre.
+- Ne recopie jamais un long paragraphe imprimé et ne raconte jamais une histoire. Le texte visible sert à identifier précisément le produit.
 
 3. MARQUE ET LICENCE
 - N'invente jamais une marque.
@@ -231,21 +236,13 @@ RÈGLES ABSOLUES:
 - Ne raconte aucune histoire.
 
 7. LIVRES ET ARTICLES CRÉATIFS
-Si le produit est un livre, cahier, livre de dessin, livre de coloriage ou article scolaire:
-- décris le type d'article;
-- indique le thème ou la licence si visible;
-- indique l'activité principale;
-- ne décris jamais l'intrigue ou l'histoire imprimée.
-
-EXEMPLE:
-
-Si la photo montre un livre de dessin Disney Princess contenant du texte sur Cendrillon:
-
-BON:
-" Livre de dessin Disney Princess pour enfants. Un cahier créatif sur le thème des princesses Disney pour dessiner et s'amuser. "
-
-MAUVAIS:
-" Cendrillon travaille dur pour réaliser ses rêves et aime son chien Bruno... "
+Si le produit est un livre, cahier ou article scolaire:
+- commence par TRANSCRIRE mentalement le titre principal visible avant de choisir le type d'article;
+- identifie l'activité exacte annoncée par ce titre;
+- un livre illustré n'est PAS automatiquement un livre de coloriage;
+- un cahier d'apprentissage n'est PAS automatiquement un cahier d'activités;
+- décris le type d'article, son sujet d'apprentissage ou activité principale, et la marque/éditeur ou licence seulement si visible;
+- ne décris jamais l'intrigue ou une histoire imprimée.
 
 8. ÂGE
 - Utilise l'âge imprimé s'il est clairement visible.
