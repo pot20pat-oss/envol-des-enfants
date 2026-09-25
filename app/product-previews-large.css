@@ -97,3 +97,36 @@
     flex: 0 0 285px !important;
   }
 }
+
+
+/* Catalogue desktop: prevent the product grid from collapsing into a narrow column. */
+#catalogue.univers.wrap{
+  width:min(1480px,calc(100% - 48px)) !important;
+  max-width:1480px !important;
+  min-width:0 !important;
+  margin-inline:auto !important;
+}
+#catalogue .product-grid{
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+#catalogue .product-card{
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+@media (min-width: 1200px){
+  #catalogue .product-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:32px 22px !important;
+  }
+}
+@media (max-width: 700px){
+  #catalogue.univers.wrap{
+    width:calc(100% - 24px) !important;
+  }
+  #catalogue .product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
