@@ -10,7 +10,7 @@ export function DashboardSection({ stats, products, orders, market, goTo }: {
   goTo: (section: Section) => void;
 }) {
   return <>
-    <div className="cms-stats">{stats.map((stat) => <article className={`cms-stat ${stat.tone}`} key={stat.title}><span>{stat.title}</span><strong>{stat.value}</strong></article>)}</div>
+    <div className="cms-stats">{stats.map((stat, index) => { const target: Section = index === 0 ? "products" : index === 1 ? "orders" : index === 2 ? "subscribers" : "stock"; return <button type="button" className={`cms-stat ${stat.tone}`} key={stat.title} onClick={() => goTo(target)} style={{ textAlign: "left", cursor: "pointer" }}><span>{stat.title}</span><strong>{stat.value}</strong></button>; })}</div>
     <div className="cms-dashboard-grid">
       <section className="cms-panel">
         <div className="cms-panel-title"><h2>Derniers produits · {markets[market].label}</h2><button onClick={() => goTo("products")}>Tout voir →</button></div>
