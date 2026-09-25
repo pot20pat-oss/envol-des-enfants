@@ -155,6 +155,29 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
         const metadata=Math.max(name*.55+distinctive*.30+(sameBrand?.15:0),sameBrand&&desc>=.72?Math.min(1,name*.65+desc*.20+.15):0);const visualEvidence=Math.max(scores.cropped,scores.legacy*.94);const visualBoost=visual>=.99?.97:visual>=.985?.94:visual>=.975?.90:0;const match=sameArticle||scores.exact?1:Math.max(visualBoost,Math.min(1,visualEvidence*.82+metadata*.18));const legacyStrong=scores.legacy>=.975;const croppedStrong=scores.cropped>=.985;const metadataStrong=sameBrand||name>=.62||distinctive>=.55;const duplicate=sameArticle||scores.exact||semantic>=.90||legacyStrong||croppedStrong||(scores.cropped>=.955&&metadataStrong)||(sameBrand&&distinctive>=.72&&name>=.90&&desc>=.72);
         if(duplicate){const key=[aid,bid].sort().join("|");if(!seen.has(key)){seen.add(key);const strongNameVisual=scores.legacy>=.975&&name>=.92;const strongBrandVisual=sameBrand&&scores.legacy>=.965&&name>=.72;const strongCrop=scores.cropped>=.985&&metadata>=.48;const multiEvidence=strongNameVisual||strongBrandVisual||strongCrop;const probableEvidence=(scores.legacy>=.965&&name>=.72)||(scores.legacy>=.975&&metadata>=.12)||(scores.cropped>=.965&&metadata>=.32);const confidence:"certain"|"probable"|"review"=sameArticle||scores.exact||semantic>=.965||(semantic>=.93&&name>=.55)||multiEvidence?"certain":semantic>=.90||probableEvidence?"probable":"review";pairs.push({a,b,visual,match,semantic,legacy:scores.legacy,cropped:scores.cropped,name,distinctive,sameBrand,confidence})}}
       }
+      // Le filtre local réduit fortement le nombre d'appels. NVIDIA Vision, avec le
+      // même modèle que l'analyse produit, tranche ensuite les paires réellement suspectes.
+      const aiPairs = pairs.filter(pair => pair.confidence !== "review" || pair.match >= .90).slice(0, 60);
+      for (const pair of aiPairs) {
+        try {
+          const verdict = await request("/api/admin/compare-products", {
+            method: "POST",
+            body: JSON.stringify({ image_a: pair.a.image_url, image_b: pair.b.image_url }),
+          }) as { verdict?: "same"|"variant"|"different"; confidence?: number };
+          const confidence = Math.max(0, Math.min(1, Number(verdict.confidence) || 0));
+          if (verdict.verdict === "same" && confidence >= .82) {
+            pair.confidence = confidence >= .94 ? "certain" : "probable";
+            pair.match = Math.max(pair.match, confidence);
+            pair.semantic = Math.max(pair.semantic, confidence);
+          } else if ((verdict.verdict === "different" || verdict.verdict === "variant") && confidence >= .88) {
+            pair.confidence = "review";
+            pair.semantic = -confidence;
+          }
+        } catch {
+          // Le scanner local reste utilisable si NVIDIA est momentanément indisponible.
+        }
+      }
+
       const rank={certain:0,probable:1,review:2};
       const groups=pairs.map(pair=>({products:[pair.a,pair.b],visual:pair.visual,match:pair.match,semantic:pair.semantic,legacy:pair.legacy,cropped:pair.cropped,name:pair.name,distinctive:pair.distinctive,sameBrand:pair.sameBrand,confidence:pair.confidence}));
       groups.sort((a,b)=>{const evidence=(x:typeof a)=>x.legacy*.38+x.name*.28+(x.legacy*x.name)*.22+Math.min(x.legacy,x.cropped)*.08+(x.sameBrand?.04:0);const tier=(x:typeof a)=>x.legacy>=.975&&x.name>=.92?0:x.legacy>=.965&&x.name>=.80?1:x.legacy>=.99?2:3;return tier(a)-tier(b)||evidence(b)-evidence(a)||rank[a.confidence]-rank[b.confidence]||b.visual-a.visual});
