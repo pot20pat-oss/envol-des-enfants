@@ -137,3 +137,75 @@
 .cms-ai-match-result .cms-ai-existing-match{display:grid!important;width:100%!important;min-width:560px!important;grid-template-columns:260px minmax(240px,1fr)!important;opacity:1!important;visibility:visible!important}
 .cms-ai-match-result .cms-ai-existing-match img{display:block!important;width:260px!important;height:260px!important;opacity:1!important;visibility:visible!important}
 .cms-ai-english{display:block!important;margin-top:8px;color:#536671!important}
+
+
+/* Mobile CMS usability: phone-first controls without changing desktop. */
+@media(max-width:640px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .cms-app{display:block;min-width:0}
+  .cms-sidebar{position:sticky;top:0;z-index:80;width:100%;padding:8px 10px;border-right:0;border-bottom:1px solid #e1e8eb;box-shadow:0 4px 16px #17364a14}
+  .cms-logo{display:none}
+  .cms-sidebar nav{margin:0;gap:6px;padding:2px 0 5px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+  .cms-sidebar nav::-webkit-scrollbar{display:none}
+  .cms-sidebar nav button{flex:0 0 auto;min-height:44px;padding:9px 12px;font-size:13px}
+  .cms-main{width:100%;min-width:0;padding:12px 10px 90px}
+  .cms-topbar{margin-bottom:14px;flex-direction:column;align-items:stretch}
+  .cms-topbar h1{font-size:23px}
+  .cms-top-actions{width:100%;align-items:stretch;flex-direction:row;flex-wrap:wrap}
+  .cms-top-actions>*{flex:1 1 auto}
+  .cms-top-actions>a{text-align:center}
+  .cms-market-switch{justify-content:stretch}
+  .cms-market-switch button{flex:1;min-height:40px}
+  .cms-stats{grid-template-columns:1fr 1fr}
+  .cms-stat{padding:12px}.cms-stat>strong{font-size:26px;margin-top:8px}
+  .cms-panel{width:100%;min-width:0;padding:11px;overflow:hidden}
+  .cms-panel-title{align-items:stretch}
+  .cms-panel-title .cms-search,.cms-search{max-width:none;width:100%}
+  .cms-product-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .cms-product-actions>*{width:100%;min-height:44px}
+  .cms-product-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:9px}
+  .cms-product-filters label{min-width:0}
+  .cms-product-filters .cms-filter-count,.cms-product-filters .cms-secondary{grid-column:1/-1}
+  .cms-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .cms-table-wrap table{min-width:680px}
+  .cms-overlay{padding:0;place-items:stretch}
+  .cms-editor{width:100%;max-width:none;height:100dvh;max-height:100dvh;border-radius:0;padding:14px 12px 90px}
+  .cms-editor-actions{position:sticky;bottom:0;z-index:5;margin:18px -12px -90px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dfe6e9;box-shadow:0 -5px 18px #17364a14}
+  .cms-editor-actions>*{flex:1;min-height:46px}
+  .cms-form input,.cms-form select,.cms-form textarea,.cms-search{font-size:16px;min-height:44px}
+  .cms-ai-batch{padding:11px}
+  .cms-ai-grid{grid-template-columns:1fr}
+  .cms-ai-grid article{grid-template-columns:76px minmax(0,1fr)}
+  .cms-ai-grid img{width:76px;height:76px}
+  .cms-ai-grid input,.cms-ai-grid select,.cms-ai-grid textarea{font-size:16px;min-height:42px}
+  .cms-ai-actions{position:sticky;bottom:0;z-index:8;padding:10px 0 calc(6px + env(safe-area-inset-bottom));background:#f8fbfc}
+  .cms-section-row{padding:10px}
+  .cms-section-controls{justify-content:stretch}
+  .cms-section-controls>button{flex:1;min-width:44px;min-height:44px}
+  .cms-tree-products article{display:grid;grid-template-columns:96px minmax(0,1fr);min-height:0;gap:10px}
+  .cms-tree-products img,.cms-tree-image{width:96px;height:96px}
+  .cms-product-cell{min-width:230px;gap:10px}
+  .cms-product-cell>img,.cms-product-placeholder{width:88px;height:88px}
+  .cms-order-filters{display:grid;grid-template-columns:1fr 1fr}
+  .cms-order-filters>*{width:100%;min-width:0;min-height:44px}
+  button,.cms-primary,.cms-secondary,.cms-danger,.cms-inline{touch-action:manipulation}
+  .cms-primary,.cms-secondary,.cms-danger{min-height:44px}
+  .cms-quick-scroll{bottom:calc(12px + env(safe-area-inset-bottom))}
+}
+
+/* Product list is rendered with inline desktop grid styles; override them on phones. */
+@media(max-width:640px){
+  .cms-panel article[style*="grid-template-columns: 360px"],
+  .cms-panel article[style*="grid-template-columns:360px"]{grid-template-columns:1fr!important;gap:12px!important;padding:12px!important}
+  .cms-panel article[style*="grid-template-columns: 360px"]>button[title="Agrandir l’image"],
+  .cms-panel article[style*="grid-template-columns:360px"]>button[title="Agrandir l’image"]{width:100%!important;height:auto!important;aspect-ratio:1/1}
+  .cms-panel article[style*="grid-template-columns: 360px"]>label,
+  .cms-panel article[style*="grid-template-columns:360px"]>label{left:20px!important;top:20px!important}
+  .cms-panel article[style*="grid-template-columns: 360px"]>div:last-child,
+  .cms-panel article[style*="grid-template-columns:360px"]>div:last-child{grid-template-columns:1fr 1fr!important;min-width:0!important}
+  .cms-panel section[style*="grid-template-columns: 140px"],
+  .cms-panel div[style*="grid-template-columns: 140px"]{grid-template-columns:1fr!important}
+  .cms-panel section[style*="grid-template-columns: 140px"]>*,
+  .cms-panel div[style*="grid-template-columns: 140px"]>*{grid-column:1!important}
+  .cms-panel input[style*="min-width: 260px"],.cms-panel input[style*="min-width:260px"]{min-width:0!important;width:100%}
+}
