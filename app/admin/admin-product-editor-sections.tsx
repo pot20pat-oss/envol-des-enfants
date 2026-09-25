@@ -568,8 +568,18 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
           disabled={!images[0] || analyzing}
           onClick={() => void analyzeImage()}
         >
-          {analyzing ? "Analyse en cours…" : editing.id ? "✨ Réanalyser le produit avec l’IA" : "✨ Analyser le produit avec l’IA"}
+          {analyzing ? "⏳ IA en train d’analyser…" : editing.id ? "✨ Réanalyser le produit avec l’IA" : "✨ Analyser le produit avec l’IA"}
         </button>
+        {analyzing && (
+          <div role="status" aria-live="polite" style={{display:"flex",alignItems:"center",gap:12,width:"100%",boxSizing:"border-box",padding:"14px 16px",marginTop:12,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
+            <span className="cms-ai-working-spinner" aria-hidden="true" style={{fontSize:"1.5rem",display:"inline-block",animation:"cmsAiPulse .8s ease-in-out infinite alternate"}}>✨</span>
+            <div>
+              <strong style={{display:"block"}}>L’IA travaille sur le produit…</strong>
+              <span style={{fontSize:".9rem",opacity:.75}}>Analyse de la photo et préparation des informations.</span>
+            </div>
+            <style>{`@keyframes cmsAiPulse{from{transform:scale(.8) rotate(-8deg);opacity:.45}to{transform:scale(1.2) rotate(8deg);opacity:1}}`}</style>
+          </div>
+        )}
         <div style={{width:"100%",boxSizing:"border-box",padding:"14px 16px",marginTop:12,border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
           <strong style={{display:"block",marginBottom:8}}>Disponibilité du produit</strong>
           <label style={{display:"block",margin:0}}>
