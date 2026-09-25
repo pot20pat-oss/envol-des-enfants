@@ -93,6 +93,56 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
         method: editingType === "product" && editing.id ? "PUT" : "POST",
         body: JSON.stringify(editing),
       });
+
+      // Une fiche créée depuis des photos d'un autre produit ne retire les
+      // photos de la source qu'APRÈS la création réussie du nouveau produit.
+      if (editingType === "product" && !editing.id) {
+        try {
+          const rawSource = sessionStorage.getItem("cms-new-product-source");
+          if (rawSource) {
+            const source = JSON.parse(rawSource) as { sourceProductId?: unknown; selectedImages?: unknown };
+            const sourceProductId = String(source.sourceProductId || "");
+            const selectedImages = Array.isArray(source.selectedImages)
+              ? source.selectedImages.filter((value): value is string => typeof value === "string")
+              : [];
+
+            if (sourceProductId && selectedImages.length) {
+              const sourceResult = await request(`/api/admin/products?id=${encodeURIComponent(sourceProductId)}`);
+              const sourceProduct = (sourceResult.product || sourceResult) as Row;
+              const sourceImages: string[] = [];
+              const addSourceImage = (value: unknown) => {
+                if (typeof value !== "string") return;
+                const image = value.trim();
+                if (image && !sourceImages.includes(image)) sourceImages.push(image);
+              };
+              addSourceImage(sourceProduct.image_url);
+              try {
+                const extras = JSON.parse(String(sourceProduct.images_json || "[]"));
+                if (Array.isArray(extras)) extras.forEach(addSourceImage);
+              } catch {
+                // Conserver au minimum l'image principale.
+              }
+
+              const remainingImages = sourceImages.filter((image) => !selectedImages.includes(image));
+              await request("/api/admin/products", {
+                method: "PUT",
+                body: JSON.stringify({
+                  ...sourceProduct,
+                  image_url: remainingImages[0] || "",
+                  images_json: JSON.stringify(remainingImages.slice(1)),
+                }),
+              });
+            }
+            sessionStorage.removeItem("cms-new-product-source");
+          }
+        } catch (cleanupFailure) {
+          setError(cleanupFailure instanceof Error
+            ? `Nouveau produit enregistré, mais retrait de la photo source impossible : ${cleanupFailure.message}`
+            : "Nouveau produit enregistré, mais retrait de la photo source impossible.");
+        }
+      }
+
+      sessionStorage.removeItem("cms-product-draft");
       setEditing(null);
       await load();
       // Le rechargement de la liste peut replacer la page en haut. Remettre
