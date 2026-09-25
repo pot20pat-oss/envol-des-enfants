@@ -233,7 +233,8 @@ export function useAdminActions({ market, load, setError, setNotice }: Options) 
     event.preventDefault();
     setBusy(true);
     try {
-      const marketSettings = Object.fromEntries(Object.entries(settings).filter(([key]) => key.startsWith(`${market}_`)));\n      await request("/api/admin/settings", { method: "POST", body: JSON.stringify(marketSettings) });
+      const marketSettings = Object.fromEntries(Object.entries(settings).filter(([key]) => key.startsWith(`${market}_`)));
+      await request("/api/admin/settings", { method: "POST", body: JSON.stringify(marketSettings) });
       flash("Réglages enregistrés.");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Enregistrement impossible.");
