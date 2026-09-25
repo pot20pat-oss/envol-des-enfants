@@ -90,12 +90,14 @@ function parseSuggestion(
     .replace(/```/g, "")
     .trim();
 
-  const candidate =
-    cleaned.match(/\{[\s\S]*\}/)?.[0];
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
 
-  if (!candidate) {
-    return null;
-  }
+  let candidate = cleaned.slice(start, end + 1)
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/,\s*([}\]])/g, "$1");
 
   try {
     const parsed = JSON.parse(candidate) as Record<
@@ -298,13 +300,17 @@ async function analyzeWithNvidia(
 
             temperature: 0,
 
-            max_tokens: 450,
+            max_tokens: 650,
 
             response_format: {
               type: "json_object",
             },
 
             messages: [
+              {
+                role: "system",
+                content: "Return exactly one complete valid JSON object. Never use markdown, comments, trailing commas, or text outside JSON. Always close every quote, array and object.",
+              },
               {
                 role: "user",
 
