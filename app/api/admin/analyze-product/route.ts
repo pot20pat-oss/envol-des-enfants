@@ -138,20 +138,30 @@ OBJECTIF:
 Identifier rapidement et précisément le produit à partir de la photo.
 
 RÈGLES:
-- Utilise uniquement ce qui est réellement visible.
-- N'invente jamais une marque.
-- N'invente jamais une fonction.
-- N'invente jamais un personnage.
-- N'invente jamais une caractéristique technique.
+- Utilise uniquement ce qui est réellement visible sur la photo.
+- Identifie d'abord le TYPE DE PRODUIT réellement vendu.
+- Le texte visible sur l'emballage peut servir à identifier la marque, la licence, le personnage ou le nom du produit.
+- NE RECOPIE JAMAIS le texte marketing, une histoire, un résumé, des dialogues ou des phrases imprimées sur le produit dans les descriptions.
+- NE RÉSUME JAMAIS l'histoire d'un personnage, d'un film, d'un livre ou d'une licence.
+- N'invente jamais une marque, une fonction, un personnage, une matière ou une caractéristique.
 - Si le modèle exact est incertain, utilise un nom générique précis.
-- Si une marque est clairement lisible, utilise-la.
-- Si du texte est clairement visible sur l'emballage, utilise-le pour améliorer l'identification.
-- Le nom doit être court, propre et commercial.
-- Description FR: maximum 2 phrases.
-- Description EN: maximum 2 phrases.
+- name_fr doit obligatoirement être en FRANÇAIS.
+- name_en doit obligatoirement être en ANGLAIS.
+- description_fr doit obligatoirement être rédigée en FRANÇAIS.
+- description_en doit obligatoirement être rédigée en ANGLAIS.
+- Les deux descriptions doivent décrire LE PRODUIT À VENDRE et non son histoire ou son personnage.
+- Description FR: 1 ou 2 phrases courtes de fiche e-commerce.
+- Description EN: traduction naturelle et fidèle de la description FR, en 1 ou 2 phrases.
+- Pour un livre, cahier, ensemble créatif ou article scolaire: décris le type d'article, le thème/licence et l'activité visible. Ne raconte jamais le contenu de l'histoire.
+- Pour un jouet: décris uniquement le type de jouet et les éléments/fonctions clairement visibles.
+- Si une caractéristique n'est pas visible ou certaine, omets-la.
 - L'âge doit rester prudent si l'emballage ne l'indique pas clairement.
 - confidence doit refléter la certitude réelle de l'identification.
 
+EXEMPLE IMPORTANT:
+Si l'image montre un livre de dessin Disney Princess avec du texte racontant l'histoire de Cendrillon:
+- BON: "Livre de dessin Disney Princess pour enfants, conçu pour une activité créative autour de l'univers des princesses Disney."
+- MAUVAIS: raconter que Cendrillon poursuit ses rêves, parler de Bruno ou recopier le texte imprimé sur la couverture.
 Réponds UNIQUEMENT en JSON valide avec exactement:
 
 {
