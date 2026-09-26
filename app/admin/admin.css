@@ -439,3 +439,7 @@
 .cms-global-undo strong{font-size:10px;line-height:1.15}
 .cms-global-undo small{display:block;max-width:145px;overflow:hidden;text-overflow:ellipsis;font-size:8px;line-height:1.1;color:var(--cms-muted);font-weight:600}
 .cms-global-undo:disabled{opacity:.48}
+
+
+/* Keep the storefront link perfectly centered in the CMS header */
+.cms-top-actions>a[href^="/?region="]{display:inline-flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;line-height:1.15!important}
