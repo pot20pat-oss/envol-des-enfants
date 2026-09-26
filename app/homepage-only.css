@@ -742,13 +742,13 @@ html,body{overflow-x:hidden!important}
 
 /* 2026-09-26 — header plus lisible sur ordinateur. */
 @media(min-width:901px){
-  .ref-header .ref-top{font-size:13px!important;height:36px!important}
-  .ref-header .ref-commerce small{font-size:12px!important}
-  .ref-header .ref-search{height:48px!important;font-size:15px!important}
-  .ref-header .ref-service{gap:24px!important}
-  .ref-header .ref-service>span,.ref-header .ref-service>a{font-size:13px!important;column-gap:10px!important}
-  .ref-header .ref-service b{font-size:15px!important}
-  .ref-header .ref-service small{font-size:12px!important}
-  .ref-header .ref-service svg{width:30px!important;height:30px!important}
-  .ref-header .ref-commerce button>svg{width:24px!important;height:24px!important}
+  .ref-header .ref-top{font-size:15px!important;height:40px!important}
+  .ref-header .ref-commerce small{font-size:14px!important}
+  .ref-header .ref-search{height:52px!important;font-size:17px!important}
+  .ref-header .ref-service{gap:28px!important}
+  .ref-header .ref-service>span,.ref-header .ref-service>a{font-size:15px!important;column-gap:11px!important}
+  .ref-header .ref-service b{font-size:17px!important}
+  .ref-header .ref-service small{font-size:14px!important}
+  .ref-header .ref-service svg{width:34px!important;height:34px!important}
+  .ref-header .ref-commerce button>svg{width:28px!important;height:28px!important}
 }
