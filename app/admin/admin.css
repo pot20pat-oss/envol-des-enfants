@@ -270,3 +270,17 @@
  .cms-app input,.cms-app select,.cms-app textarea{background:#0f1a22!important;color:var(--cms-text)!important;border-color:var(--cms-border)!important}
  .cms-app button:not(.active){border-color:var(--cms-border)}
 }
+
+
+/* 2026-09-26 — thème CMS explicite, sans panneaux blancs qui clashent. */
+:root[data-cms-theme="dark"] .cms-app{--cms-bg:#0b141b;--cms-surface:#111d26;--cms-surface-2:#172630;--cms-text:#edf4f8;--cms-muted:#a6b7c2;--cms-border:#29404f;--cms-shadow:0 8px 24px rgba(0,0,0,.28)}
+:root[data-cms-theme="light"] .cms-app{--cms-bg:#f2f5f7;--cms-surface:#fff;--cms-surface-2:#f7f9fa;--cms-text:#12344d;--cms-muted:#647b8b;--cms-border:#d8e1e7;--cms-shadow:0 6px 20px rgba(18,52,77,.08)}
+:root[data-cms-theme] .cms-app,:root[data-cms-theme] .cms-main{background:var(--cms-bg)!important;color:var(--cms-text)!important}
+:root[data-cms-theme] .cms-topbar,:root[data-cms-theme] .cms-panel,:root[data-cms-theme] .cms-card,:root[data-cms-theme] .cms-products-toolbar,:root[data-cms-theme] .cms-products-sticky-toolbar,:root[data-cms-theme] .cms-toolbar{background:var(--cms-surface)!important;color:var(--cms-text)!important;border-color:var(--cms-border)!important}
+:root[data-cms-theme="dark"] .cms-app section,:root[data-cms-theme="dark"] .cms-app article,:root[data-cms-theme="dark"] .cms-app form,:root[data-cms-theme="dark"] .cms-app [class*="card"],:root[data-cms-theme="dark"] .cms-app [class*="panel"],:root[data-cms-theme="dark"] .cms-app [class*="toolbar"],:root[data-cms-theme="dark"] .cms-app [class*="filter"],:root[data-cms-theme="dark"] .cms-app [class*="history"]{border-color:var(--cms-border)!important}
+:root[data-cms-theme="dark"] .cms-main [style*="background: white"],:root[data-cms-theme="dark"] .cms-main [style*="background:#fff"],:root[data-cms-theme="dark"] .cms-main [style*="background: #fff"]{background:var(--cms-surface)!important}
+:root[data-cms-theme="dark"] .cms-main input,:root[data-cms-theme="dark"] .cms-main select,:root[data-cms-theme="dark"] .cms-main textarea{background:#0c171f!important;color:#edf4f8!important;border-color:#35505f!important}
+:root[data-cms-theme="dark"] .cms-main button:not(.active):not(.cms-theme-toggle){border-color:#35505f!important}
+:root[data-cms-theme="dark"] .cms-main h1,:root[data-cms-theme="dark"] .cms-main h2,:root[data-cms-theme="dark"] .cms-main h3,:root[data-cms-theme="dark"] .cms-main strong,:root[data-cms-theme="dark"] .cms-main label{color:#edf4f8}
+:root[data-cms-theme="dark"] .cms-main p,:root[data-cms-theme="dark"] .cms-main small{color:#a6b7c2}
+.cms-theme-toggle{min-width:92px!important;border:1px solid var(--cms-border)!important;border-radius:10px!important;background:var(--cms-surface-2)!important;color:var(--cms-text)!important;font-weight:800!important;cursor:pointer!important}
