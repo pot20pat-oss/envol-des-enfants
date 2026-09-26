@@ -236,24 +236,18 @@ Appliquer ces modifications ?`))return;const snapshot=selected.map(p=>({...p}));
       <label>Stock<select value={stock} onChange={(event) => setStock(event.target.value)}><option value="all">Tous</option><option value="available">En stock</option><option value="low">Stock faible</option><option value="empty">Épuisés</option></select></label>
       <span className="cms-filter-count">{products.length} résultat(s)</span><button type="button" className="cms-secondary" onClick={reset}>Réinitialiser</button>
     </div>
-    <div style={{display:"grid",gap:18,marginTop:20}}>
-      {products.map((product) => <article key={String(product.id)} style={{position:"relative",display:"grid",gridTemplateColumns:"360px minmax(300px,1fr) auto",gap:24,alignItems:"center",padding:18,border:selectedProducts.has(String(product.id))?"3px solid #2676a8":"1px solid #dce6eb",borderRadius:14,background:"var(--cms-surface)",color:"var(--cms-text)"}}><label style={{position:"absolute",left:28,top:28,zIndex:3,padding:"7px 9px",borderRadius:8,background:"rgba(255,255,255,.95)",fontWeight:800}}><input type="checkbox" checked={selectedProducts.has(String(product.id))} onChange={e=>toggleSelected(String(product.id),e.target.checked)}/> Sélectionner</label>
-        <button type="button" onClick={() => product.image_url && setZoomImage(String(product.image_url))} title="Agrandir l’image" style={{width:360,height:360,padding:0,border:"1px solid #dfe7ea",borderRadius:12,background:"var(--cms-surface)",color:"var(--cms-text)",overflow:"hidden",cursor:product.image_url?"zoom-in":"default"}}>
-          {product.image_url ? <img src={String(product.image_url)} alt={String(product.name_fr||"")} style={{display:"block",width:"100%",height:"100%",objectFit:"contain"}} /> : <span style={{fontSize:48,color:"#9aa8ae"}}>□</span>}
+    <div className="cms-product-card-list">
+      {products.map((product) => <article key={String(product.id)} className={`cms-product-card${selectedProducts.has(String(product.id))?" is-selected":""}`}>
+        <label className="cms-product-select" title="Sélectionner cet article"><input type="checkbox" checked={selectedProducts.has(String(product.id))} onChange={e=>toggleSelected(String(product.id),e.target.checked)}/><span>Sélectionner</span></label>
+        <button type="button" className="cms-product-card-image" onClick={() => product.image_url && setZoomImage(String(product.image_url))} title="Agrandir l’image">
+          {product.image_url ? <img src={String(product.image_url)} alt={String(product.name_fr||"")} /> : <span className="cms-product-placeholder">□</span>}
         </button>
-        <div style={{display:"grid",gap:10,alignContent:"center"}}>
-          <strong style={{fontSize:20}}>{String(product.name_fr)}</strong>
-          <span>{String(product.name_en || "")}</span>
-          <span><b>No d’article :</b> {String(product.article_number || "—")}</span>
-          <span><b>Catégorie :</b> {categories[String(product.category)] || String(product.category)}</span>
-          <span><b>Prix · {markets[market].label} :</b> {marketPrice(product[`price_${market}`], market)}</span>
-          <span><b>Stock :</b> {String(product[`stock_${market}`] || 0)} <button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster</button></span>
-          <span style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}><b>Visibilité :</b><select aria-label="Boutique où afficher le produit" disabled={visibilityBusy===String(product.id)} value={product.visible_qc&&product.visible_conakry?"both":product.visible_qc?"qc":product.visible_conakry?"conakry":"hidden"} onChange={e=>void setProductBoutique(product,e.target.value)} style={{padding:"7px 10px",border:"1px solid #b9cbd5",borderRadius:8,fontWeight:700}}><option value="hidden">🔒 Masqué partout</option><option value="qc">🇨🇦 Québec seulement</option><option value="conakry">🇬🇳 Conakry seulement</option><option value="both">👁 Québec + Conakry</option></select>{visibilityBusy===String(product.id)&&<span>Enregistrement…</span>}</span>
+        <div className="cms-product-card-info">
+          <div><strong className="cms-product-card-title">{String(product.name_fr)}</strong>{product.name_en&&<span className="cms-product-card-subtitle">{String(product.name_en)}</span>}</div>
+          <div className="cms-product-card-meta"><span><b>No d’article</b>{String(product.article_number || "—")}</span><span><b>Catégorie</b>{categories[String(product.category)] || String(product.category)}</span><span><b>Prix · {markets[market].label}</b>{marketPrice(product[`price_${market}`], market)}</span><span><b>Stock</b>{String(product[`stock_${market}`] || 0)} <button className="cms-inline" onClick={() => adjustStock(product)}>Ajuster</button></span></div>
+          <div className="cms-product-card-visibility"><b>Visibilité</b><select aria-label="Boutique où afficher le produit" disabled={visibilityBusy===String(product.id)} value={product.visible_qc&&product.visible_conakry?"both":product.visible_qc?"qc":product.visible_conakry?"conakry":"hidden"} onChange={e=>void setProductBoutique(product,e.target.value)}><option value="hidden">🔒 Masqué partout</option><option value="qc">🇨🇦 Québec seulement</option><option value="conakry">🇬🇳 Conakry seulement</option><option value="both">👁 Québec + Conakry</option></select>{visibilityBusy===String(product.id)&&<span>Enregistrement…</span>}</div>
         </div>
-        <div style={{display:"grid",gap:10,minWidth:150}}>
-          <button className="cms-primary" onClick={() => edit(product)}>Modifier</button>
-          <button className="cms-danger" onClick={() => remove(String(product.id))}>Supprimer</button>
-        </div>
+        <div className="cms-product-card-actions"><button className="cms-primary" onClick={() => edit(product)}>Modifier</button><button className="cms-danger" onClick={() => remove(String(product.id))}>Supprimer</button></div>
       </article>)}
     </div>
     {!products.length && <p className="cms-empty">Aucun produit trouvé.</p>}
