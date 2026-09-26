@@ -374,3 +374,40 @@
  .cms-ai-fixed-toolbar{position:relative;top:auto;grid-template-columns:1fr}
  .cms-problems .cms-problem{grid-template-columns:88px minmax(0,1fr)}
 }
+
+/* CMS shell: fixed header shared by every section. */
+.cms-main{padding-top:0}
+.cms-topbar{
+ position:fixed!important;top:0!important;left:250px!important;right:0!important;z-index:9980!important;
+ min-height:86px;margin:0!important;padding:12px 24px!important;
+ background:var(--cms-surface)!important;border-bottom:1px solid var(--cms-border)!important;
+ box-shadow:var(--cms-shadow);gap:18px
+}
+.cms-topbar>div:first-child{min-width:180px}
+.cms-topbar h1{font-size:28px;line-height:1.05;margin-top:5px}
+.cms-top-actions{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap}
+.cms-top-actions>a,.cms-top-actions>button,.cms-theme-toggle,.cms-secondary{
+ min-height:38px!important;padding:8px 12px!important;font-size:11px!important;line-height:1.1!important;white-space:nowrap!important
+}
+.cms-theme-toggle{min-width:76px!important}
+.cms-market-switch{flex:none;padding:3px}
+.cms-market-switch button{padding:7px 10px;font-size:10px;white-space:nowrap}
+.cms-main>div[aria-hidden="true"]{height:106px!important}
+.cms-footer{
+ display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+ margin:38px 0 8px;padding:18px 2px 6px;border-top:1px solid var(--cms-border);
+ color:var(--cms-muted);font-size:11px
+}
+.cms-footer strong{color:var(--cms-text)}
+@media(max-width:1100px){
+ .cms-topbar{padding:10px 14px!important}
+ .cms-topbar h1{font-size:23px}
+ .cms-top-actions{gap:5px}
+ .cms-top-actions>a,.cms-top-actions>button,.cms-theme-toggle,.cms-secondary{padding:7px 9px!important;font-size:10px!important}
+ .cms-market-switch button{padding:6px 8px;font-size:9px}
+}
+@media(max-width:820px){
+ .cms-topbar{position:sticky!important;top:0!important;left:auto!important;right:auto!important;min-height:0}
+ .cms-main>div[aria-hidden="true"]{display:none}
+ .cms-footer{flex-direction:column;align-items:flex-start}
+}
