@@ -157,7 +157,7 @@ export default function Home() {
         onSubmit={promo.requestDiscount}
       />
 
-      <footer className="footer wrap"><p className="footer-brand">Une création de <strong>AIP · Atelier Informatique Potvin</strong></p><p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p></footer>
+      <footer className="footer wrap"><p className="footer-brand">Une création de <a href="https://atelierpotvin.ca/" target="_blank" rel="noreferrer"><strong>AIP · Atelier Informatique Potvin</strong></a></p><p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p></footer>
 
       {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
     </main>
