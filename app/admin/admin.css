@@ -432,3 +432,10 @@
 .cms-product-card-actions button{width:100%;min-height:36px;padding:7px 10px;font-size:11px;border-radius:8px}
 @media(max-width:1050px){.cms-product-card{grid-template-columns:150px minmax(0,1fr) 105px}.cms-product-card-image{width:150px;height:150px}.cms-product-card-meta{grid-template-columns:repeat(2,minmax(100px,1fr))}}
 @media(max-width:700px){.cms-product-card{grid-template-columns:100px minmax(0,1fr);align-items:start}.cms-product-card-image{width:100px;height:110px;margin-top:28px}.cms-product-card-actions{grid-column:1/-1;grid-template-columns:1fr 1fr}.cms-product-card-meta{grid-template-columns:1fr 1fr}.cms-product-card-visibility{align-items:flex-start;flex-direction:column}.cms-product-card-visibility select{width:100%;max-width:none}.cms-product-select span{display:none}}
+
+.cms-top-actions .cms-global-undo{display:flex!important;align-items:center!important;gap:7px!important;min-width:168px!important;padding:6px 10px!important;text-align:left!important}
+.cms-global-undo>span:first-child{font-size:18px;line-height:1}
+.cms-global-undo>span:last-child{display:grid;gap:1px}
+.cms-global-undo strong{font-size:10px;line-height:1.15}
+.cms-global-undo small{display:block;max-width:145px;overflow:hidden;text-overflow:ellipsis;font-size:8px;line-height:1.1;color:var(--cms-muted);font-weight:600}
+.cms-global-undo:disabled{opacity:.48}
