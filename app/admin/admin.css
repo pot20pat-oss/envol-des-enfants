@@ -465,3 +465,8 @@
 .cms-history-copy small{color:var(--cms-muted);font-size:8px}
 .cms-history-empty{margin:0;padding:18px 10px;color:var(--cms-muted);font-size:10px;text-align:center}
 @media(max-width:820px){.cms-history-menu{position:static}.cms-history-dropdown{position:fixed;top:120px;left:12px;right:12px;width:auto;max-height:calc(100vh - 145px)}}
+
+.cms-history-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:8px}
+.cms-history-controls button{min-height:34px;border:1px solid var(--cms-border);border-radius:8px;background:var(--cms-surface-soft);color:var(--cms-text);font-size:10px;font-weight:800;cursor:pointer}
+.cms-history-controls button:hover:not(:disabled){background:var(--cms-primary-soft);border-color:var(--cms-primary)}
+.cms-history-controls button:disabled{opacity:.4;cursor:not-allowed}
