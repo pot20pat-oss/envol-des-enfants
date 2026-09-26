@@ -339,3 +339,40 @@
 }
 :root[data-cms-theme="dark"] .cms-main option{background:var(--cms-surface);color:var(--cms-text)}
 :root[data-cms-theme="dark"] .cms-product-actions{box-shadow:var(--cms-shadow)}
+
+/* CMS management surfaces — semantic layout, no white inline shells. */
+.cms-notification-filters,.cms-history-toolbar,.cms-bulk-toolbar{
+ display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 14px;margin-bottom:12px;
+ border:1px solid var(--cms-border);border-radius:12px;background:var(--cms-surface);color:var(--cms-text)
+}
+.cms-notification-filters{margin-top:14px;margin-bottom:16px;background:var(--cms-surface-soft)}
+.cms-notification-filters>strong{margin-left:auto}
+.cms-bulk-toolbar.has-selection{background:var(--cms-primary-soft);border-color:var(--cms-primary)}
+.cms-notification-batchbar{
+ position:sticky;top:82px;z-index:80;display:flex;align-items:center;flex-wrap:wrap;gap:8px;
+ margin:0 0 14px;padding:10px 12px;border:1px solid var(--cms-border-strong);border-radius:12px;
+ background:var(--cms-surface-raised);color:var(--cms-text);box-shadow:var(--cms-shadow)
+}
+.cms-notification-batchbar select{min-width:240px}
+.cms-problems .cms-problem-list{margin-top:14px}
+.cms-problems .cms-problem{
+ position:relative;display:grid;grid-template-columns:110px minmax(0,1fr);grid-template-rows:1fr auto;
+ gap:14px;padding:14px;min-height:210px;align-items:start;border:1px solid var(--cms-border);
+ border-radius:12px;background:var(--cms-surface);color:var(--cms-text)
+}
+.cms-ai-fixed-toolbar{
+ position:sticky;top:82px;z-index:79;display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:10px;
+ padding:10px 12px;border:1px solid var(--cms-border);border-radius:12px;background:var(--cms-surface-raised);
+ color:var(--cms-text);box-shadow:var(--cms-shadow)
+}
+@media(max-width:900px){
+ .cms-notification-batchbar,.cms-ai-fixed-toolbar{top:70px}
+ .cms-notification-filters>div{min-width:100%!important}
+ .cms-notification-filters select{flex:1 1 180px;min-width:0!important}
+}
+@media(max-width:640px){
+ .cms-notification-batchbar{position:relative;top:auto}
+ .cms-notification-batchbar>*{flex:1 1 100%;min-width:0!important}
+ .cms-ai-fixed-toolbar{position:relative;top:auto;grid-template-columns:1fr}
+ .cms-problems .cms-problem{grid-template-columns:88px minmax(0,1fr)}
+}
