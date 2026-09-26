@@ -91,7 +91,7 @@ export async function PUT(request: Request) {
     .bind(...updateProductBindings(data, id, new Date().toISOString()))
     .run();
 
-  if(before){const key=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(key,JSON.stringify({type:"product_update",label:`Modification · ${String(before.name_fr||before.article_number||"Produit")}`,before}),new Date().toISOString()).run();}
+  if(before){const after=await database.prepare("SELECT * FROM products WHERE id=?").bind(id).first<Record<string,unknown>>();const key=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(key,JSON.stringify({type:"product_update",label:`Modification · ${String(before.name_fr||before.article_number||"Produit")}`,before,after,state:"applied"}),new Date().toISOString()).run();}
   return Response.json({ success: true });
 }
 
