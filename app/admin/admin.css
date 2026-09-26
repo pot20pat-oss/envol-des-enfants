@@ -306,3 +306,36 @@
 .cms-app button:disabled{opacity:.48;cursor:not-allowed}
 .cms-product-cell>img,.cms-tree-products img,.cms-tree-image,.cms-product-image-item>img,.cms-ai-grid img{background:#fff}
 @media(max-width:820px){.cms-topbar{background:var(--cms-surface)}}
+
+/* 2026-09-26 — dark theme contrast fixes verified against Products + Notifications screenshots. */
+:root[data-cms-theme="dark"] .cms-product-actions,
+:root[data-cms-theme="dark"] .cms-panel>div[style*="background:#fff"],
+:root[data-cms-theme="dark"] .cms-panel>div[style*="background: #fff"],
+:root[data-cms-theme="dark"] .cms-panel>section[style*="background:#fff"],
+:root[data-cms-theme="dark"] .cms-panel>article[style*="background:#fff"],
+:root[data-cms-theme="dark"] .cms-main div[style*="background:#ffffff"]{
+  background:var(--cms-surface)!important;color:var(--cms-text)!important;border-color:var(--cms-border)!important
+}
+:root[data-cms-theme="dark"] .cms-main [style*="background:#f8fbfd"],
+:root[data-cms-theme="dark"] .cms-main [style*="background:#f8fbfc"],
+:root[data-cms-theme="dark"] .cms-main [style*="background:#eef5f8"],
+:root[data-cms-theme="dark"] .cms-main [style*="background:#f4f9fc"]{
+  background:var(--cms-surface-soft)!important;color:var(--cms-text)!important;border-color:var(--cms-border)!important
+}
+:root[data-cms-theme="dark"] .cms-problem-stats button{
+  background:var(--cms-surface-raised)!important;color:var(--cms-text)!important;border-color:var(--cms-border)!important
+}
+:root[data-cms-theme="dark"] .cms-problem-stats button span{color:var(--cms-muted)!important}
+:root[data-cms-theme="dark"] .cms-problem-stats button.active{background:var(--cms-primary-soft)!important;border-color:var(--cms-primary)!important}
+:root[data-cms-theme="dark"] .cms-main [style*="color:#17384c"],
+:root[data-cms-theme="dark"] .cms-main [style*="color: #17384c"],
+:root[data-cms-theme="dark"] .cms-main [style*="color:#17364a"],
+:root[data-cms-theme="dark"] .cms-main [style*="color:#536b7a"],
+:root[data-cms-theme="dark"] .cms-main [style*="color:#667b87"]{color:var(--cms-text)!important}
+:root[data-cms-theme="dark"] .cms-main select,
+:root[data-cms-theme="dark"] .cms-main input:not([type="checkbox"]):not([type="radio"]),
+:root[data-cms-theme="dark"] .cms-main textarea{
+  background:var(--cms-surface-soft)!important;color:var(--cms-text)!important;border-color:var(--cms-border-strong)!important
+}
+:root[data-cms-theme="dark"] .cms-main option{background:var(--cms-surface);color:var(--cms-text)}
+:root[data-cms-theme="dark"] .cms-product-actions{box-shadow:var(--cms-shadow)}
