@@ -85,11 +85,11 @@ export function AdminEditModal({ editing, editingType, setEditing, save, update,
       <form
         className="cms-editor cms-form"
         onSubmit={save}
-        style={{position:"relative",width:"min(760px,calc(100vw - 36px))",maxWidth:"100%",height:"calc(100dvh - 36px)",maxHeight:"calc(100dvh - 36px)",overflow:"hidden",borderRadius:16,background:"#fff",boxShadow:"0 18px 60px rgba(0,0,0,.24)",boxSizing:"border-box",display:"flex",flexDirection:"column"}}
+        style={{position:"relative",width:"min(760px,calc(100vw - 36px))",maxWidth:"100%",height:"calc(100dvh - 36px)",maxHeight:"calc(100dvh - 36px)",overflow:"hidden",borderRadius:16,background:"var(--cms-surface)",color:"var(--cms-text)",border:"1px solid var(--cms-border)",boxShadow:"var(--cms-shadow)",boxSizing:"border-box",display:"flex",flexDirection:"column"}}
       >
         <div
           className="cms-editor-actions"
-          style={{position:"relative",zIndex:100,flex:"0 0 auto",display:"flex",alignItems:"center",gap:10,padding:"12px 14px",background:"#fff",borderBottom:"2px solid #b9cbd5",boxShadow:"0 6px 16px rgba(20,45,60,.14)"}}
+          style={{position:"relative",zIndex:100,flex:"0 0 auto",display:"flex",alignItems:"center",gap:10,padding:"12px 14px",background:"var(--cms-surface)",borderBottom:"2px solid var(--cms-border-strong)",boxShadow:"var(--cms-shadow)"}}
         >
           <h2 style={{margin:0,fontSize:18,flex:1}}>
             {editing.id ? "Modifier" : "Ajouter"}{" "}
