@@ -172,7 +172,43 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
         onSubmit={promo.requestDiscount}
       />
 
-      <footer className="footer wrap"><p className="footer-brand">Une création de <a href="https://atelierpotvin.ca/" target="_blank" rel="noreferrer" aria-label="AIP · Atelier Informatique Potvin"><img src="https://raw.githubusercontent.com/pot20pat-oss/AIP_GPT_SITE/main/public/aip-icon-v7.png" alt="AIP · Atelier Informatique Potvin" style={{height:52,width:"auto",display:"inline-block",verticalAlign:"middle",marginLeft:10,objectFit:"contain"}} /></a></p><p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p></footer>
+      <footer className="footer wrap">
+        <p
+          className="footer-brand"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+            margin: 0,
+          }}
+        >
+          <span>Une création de</span>
+          <a
+            href="https://atelierpotvin.ca/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="AIP · Atelier Informatique Potvin"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              lineHeight: 0,
+            }}
+          >
+            <img
+              src="https://raw.githubusercontent.com/pot20pat-oss/AIP_GPT_SITE/main/public/aip-icon-v7.png"
+              alt="AIP · Atelier Informatique Potvin"
+              style={{
+                height: 52,
+                width: "auto",
+                display: "block",
+                objectFit: "contain",
+                transform: "translateY(-10px)",
+              }}
+            />
+          </a>
+        </p>
+        <p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p>
+      </footer>
 
       {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
     </main>
