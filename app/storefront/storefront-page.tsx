@@ -172,7 +172,7 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
         onSubmit={promo.requestDiscount}
       />
 
-      <footer className="footer wrap"><p className="footer-brand">Une création de <a href="https://atelierpotvin.ca/" target="_blank" rel="noreferrer"><strong>AIP</strong></a></p><p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p></footer>
+      <footer className="footer wrap"><p className="footer-brand">Une création de <a href="https://atelierpotvin.ca/" target="_blank" rel="noreferrer" aria-label="AIP · Atelier Informatique Potvin"><img src="https://raw.githubusercontent.com/pot20pat-oss/AIP_GPT_SITE/main/public/aip-icon-v7.png" alt="AIP · Atelier Informatique Potvin" style={{height:34,width:"auto",display:"inline-block",verticalAlign:"middle",marginLeft:8,objectFit:"contain"}} /></a></p><p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p></footer>
 
       {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
     </main>
