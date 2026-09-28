@@ -32,8 +32,10 @@ function mapCatalogProduct(item: Record<string, unknown>): Product {
   };
 }
 
-export function useStoreMarket() {
-  const [managedProducts, setManagedProducts] = useState<Product[] | null>(null);
+export function useStoreMarket(initialProducts: Product[] = []) {
+  const [managedProducts, setManagedProducts] = useState<Product[] | null>(
+    initialProducts.length ? initialProducts : null
+  );
   const [storeSettings, setStoreSettings] = useState<Record<string, string>>({});
   const [market, setMarket] = useState<Market>("qc");
 
