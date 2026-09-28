@@ -45,7 +45,7 @@ const categories: { label: Translation; value: string }[] = [
   { label: { fr: "Animaux & compagnons", en: "Animals & companions" }, value: "animaux" },
 ];
 
-export default function Home() {
+export default function Home({ initialProducts = [] }: { initialProducts?: Product[] }) {
   const [active, setActive] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [query, setQuery] = useState("");
@@ -53,7 +53,7 @@ export default function Home() {
   const [showAll, setShowAll] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const { language, changeLanguage } = useStoreLanguage();
-  const { market, storeSettings, storeProducts } = useStoreMarket();
+  const { market, storeSettings, storeProducts } = useStoreMarket(initialProducts);
   const dollCategories = ["poupees", "princesses", "disney", "barbie", "mylife", "miraculous", "lol", "rainbowhigh", "babyalive", "hairmazing", "karma", "mysweetbaby", "glamourgirl", "autres_poupees"];
   const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => dollCategories.includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const {
@@ -76,6 +76,21 @@ export default function Home() {
 
   return (
     <main className="editable-storefront">
+      <h1
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {say("Jouets et jeux pour enfants | L’Envol des Enfants", "Toys and games for children | L’Envol des Enfants")}
+      </h1>
       <div className="announcement"><span>{say("Nouveaux abonnés :", "New subscribers:")} <strong>{say("10 % de rabais", "10% off")}</strong> {say("sur votre première commande.", "your first order.")}</span><button onClick={promo.openPromo}>{say("J’en profite", "Get the offer")} →</button></div>
 
       <StorefrontNavigation
