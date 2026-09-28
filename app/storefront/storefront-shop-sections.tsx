@@ -42,7 +42,13 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
       <div className="shop-category-rail shop-category-reference">
         <img className="shop-category-reference-image" src="/category-buttons-row.png" alt={say("Éveil 0–3 ans, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques, Scolaire", "Shop categories")} />
         <div className="shop-category-reference-links">
-          {categories.map((category) => <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)} />)}
+          {categories.map((category) => (
+            <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)}>
+              <span style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0, 0, 0, 0)",whiteSpace:"nowrap",border:0}}>
+                {say(category.labelFr, category.labelEn)}
+              </span>
+            </a>
+          ))}
         </div>
       </div>
     </section>
