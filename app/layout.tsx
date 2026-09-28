@@ -25,13 +25,13 @@ export const metadata: Metadata = {
   title: "L’Envol des Enfants | Jouets et jeux pour enfants",
   description: "Boutique de jouets, poupées et princesses, articles pour bébé, véhicules, jeux de plein air et essentiels scolaires au Québec et à Conakry.",
   openGraph: {
-    title: "Envol des Enfants",
+    title: "L’Envol des Enfants | Jouets et jeux pour enfants",
     description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
     images: ["/boutique-hero.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Envol des Enfants",
+    title: "L’Envol des Enfants | Jouets et jeux pour enfants",
     description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
     images: ["/boutique-hero.png"],
   },
@@ -43,12 +43,18 @@ export const metadata: Metadata = {
 
 const styleBlockerCheck = `
 (function () {
+  function showWarning() {
+    if (document.getElementById('envol-style-warning')) return;
+    var warning = document.createElement('div');
+    warning.id = 'envol-style-warning';
+    warning.setAttribute('role', 'alert');
+    warning.style.cssText = 'display:block;position:fixed;inset:12px 12px auto 12px;z-index:2147483647;max-width:760px;margin:0 auto;padding:14px 18px;border:2px solid #b42318;border-radius:10px;background:#fff4f2;color:#7a271a;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;box-shadow:0 8px 30px rgba(0,0,0,.18)';
+    warning.innerHTML = '<strong>Le bloqueur de contenu empêche l’affichage normal du site.</strong> Si vous utilisez Opera, autorisez <strong>envoldesenfants.com</strong> dans « Bloquer les publicités », puis rechargez la page.';
+    document.body.appendChild(warning);
+  }
   function checkStyles() {
-    var root = document.documentElement;
-    var warning = document.getElementById('envol-style-warning');
-    if (!warning) return;
-    var cssReady = getComputedStyle(root).getPropertyValue('--navy').trim();
-    warning.style.display = cssReady ? 'none' : 'block';
+    var cssReady = getComputedStyle(document.documentElement).getPropertyValue('--navy').trim();
+    if (!cssReady) showWarning();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { setTimeout(checkStyles, 250); }, { once: true });
@@ -66,30 +72,6 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="antialiased">
-        <div
-          id="envol-style-warning"
-          role="alert"
-          style={{
-            display: "none",
-            position: "fixed",
-            inset: "12px 12px auto 12px",
-            zIndex: 2147483647,
-            maxWidth: "760px",
-            margin: "0 auto",
-            padding: "14px 18px",
-            border: "2px solid #b42318",
-            borderRadius: "10px",
-            background: "#fff4f2",
-            color: "#7a271a",
-            fontFamily: "Arial, Helvetica, sans-serif",
-            fontSize: "14px",
-            lineHeight: 1.45,
-            boxShadow: "0 8px 30px rgba(0,0,0,.18)",
-          }}
-        >
-          <strong>Le bloqueur de contenu empêche l’affichage normal du site.</strong>{" "}
-          Si vous utilisez Opera, autorisez <strong>envoldesenfants.com</strong> dans « Bloquer les publicités », puis rechargez la page.
-        </div>
         <CommerceProvider>{children}</CommerceProvider>
         <script dangerouslySetInnerHTML={{ __html: styleBlockerCheck }} />
       </body>
