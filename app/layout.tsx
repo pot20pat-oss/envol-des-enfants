@@ -23,7 +23,9 @@ import { CommerceProvider } from "./commerce/commerce-provider";
 export const metadata: Metadata = {
   metadataBase: new URL("https://envoldesenfants.com"),
   title: "L’Envol des Enfants | Jouets et jeux pour enfants",
-  description: "Boutique de jouets, poupées et princesses, articles pour bébé, véhicules, jeux de plein air et essentiels scolaires au Québec et à Conakry.",
+  description: "L’Envol des Enfants est une boutique de jouets en ligne : jouets éducatifs, poupées, articles pour bébé, véhicules, plein air et scolaire au Québec et à Conakry.",
+  alternates: { canonical: "/" },
+  keywords: ["L’Envol des Enfants", "boutique de jouets", "jouets pour enfants", "jouets éducatifs", "Québec", "Conakry"],
   openGraph: {
     title: "L’Envol des Enfants | Jouets et jeux pour enfants",
     description: "Une sélection de jouets et d’univers pour accompagner les découvertes et les petits bonheurs de l’enfance.",
@@ -73,6 +75,24 @@ export default function RootLayout({
     <html lang="fr">
       <body className="antialiased">
         <CommerceProvider>{children}</CommerceProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "OnlineStore",
+              "@id": "https://envoldesenfants.com/#store",
+              name: "L’Envol des Enfants",
+              url: "https://envoldesenfants.com/",
+              description: "Boutique de jouets en ligne pour enfants au Québec et à Conakry.",
+              image: "https://envoldesenfants.com/boutique-hero.png",
+              areaServed: [
+                { "@type": "AdministrativeArea", name: "Québec, Canada" },
+                { "@type": "City", name: "Conakry, Guinée" }
+              ]
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
         <script dangerouslySetInnerHTML={{ __html: styleBlockerCheck }} />
       </body>
     </html>
