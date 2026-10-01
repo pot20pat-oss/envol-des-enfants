@@ -44,7 +44,22 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+
+    // Le CMS/catalogue est piloté par D1 et peut changer sans changement d'URL.
+    // Les documents HTML et les réponses API doivent donc être revalidés par le navigateur
+    // afin qu'un client qui garde un onglet ouvert ne reste pas sur une ancienne version.
+    const pathname = url.pathname;
+    const isApi = pathname.startsWith("/api/");
+    const isHtml = response.headers.get("content-type")?.includes("text/html") ?? false;
+    if (isApi || isHtml) {
+      const headers = new Headers(response.headers);
+      headers.set("Cache-Control", "no-cache, must-revalidate");
+      headers.set("CDN-Cache-Control", "no-store");
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+    }
+
+    return response;
   },
 };
 
