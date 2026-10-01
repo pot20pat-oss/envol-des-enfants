@@ -170,7 +170,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
           if(!(vehicleMatch && electricMatch)) return false;
         } else if(wantsVehicle){
           if(!vehicleMatch) return false;
-        } else if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;
+        } else if(!queryTerms.some(term=>{\n          const normalizedTerm=normalizeSearch(term);\n          return normalizedTerm && new RegExp(`(^| )${normalizedTerm.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\        } else if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;")}( |$)`).test(searchable);\n        })) return false;
       }
       return true;
     });
