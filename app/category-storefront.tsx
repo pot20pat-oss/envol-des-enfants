@@ -153,12 +153,13 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(normalizedQuery){
         const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" "));
         const normalizedCategory=normalizeSearch(p.category);
-        const vehicleMatch=wantsVehicle && (normalizedCategory==="vehicules" || queryWords.some(word=>vehicleTerms.has(word) && searchable.includes(word)));
+        // Un terme de véhicule doit filtrer par la catégorie métier, jamais par une simple mention dans le texte.
+        const vehicleMatch=wantsVehicle && normalizedCategory==="vehicules";
         const electricMatch=wantsElectric && /(electri|electric)/.test(searchable);
         if(wantsVehicle && wantsElectric){
           if(!(vehicleMatch && electricMatch)) return false;
         } else if(wantsVehicle){
-          if(!(vehicleMatch || queryTerms.some(term=>searchable.includes(normalizeSearch(term))))) return false;
+          if(!vehicleMatch) return false;
         } else if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;
       }
       return true;
