@@ -32,20 +32,22 @@ export async function ensureArchiveProducts(database: D1Database) {
 
   for (const product of allArchiveProducts) {
     if (product.id.startsWith("mama4-")) {
+      // Existing CMS images are authoritative. Only fill an image when the
+      // database row has no image yet; never overwrite an image chosen in CMS.
       statements.push(database.prepare(
-        "UPDATE products SET image_url=?,updated_at=? WHERE id=?",
+        "UPDATE products SET image_url=CASE WHEN image_url IS NULL OR TRIM(image_url)='' THEN ? ELSE image_url END,updated_at=? WHERE id=?",
       ).bind(productImageUrl(product), now, product.id));
       continue;
     }
 
     if (product.id.startsWith("piscine-")) {
+      // Keep the existing CMS image while synchronizing archive metadata.
       statements.push(database.prepare(
-        "UPDATE products SET article_number=?,category=?,brand=?,image_url=?,name_fr=?,name_en=?,description_fr=?,description_en=?,visible=1,visible_qc=?,visible_conakry=?,updated_at=? WHERE id=?",
+        "UPDATE products SET article_number=?,category=?,brand=?,name_fr=?,name_en=?,description_fr=?,description_en=?,visible=1,visible_qc=?,visible_conakry=?,updated_at=? WHERE id=?",
       ).bind(
         product.articleNumber ?? null,
         product.category,
         product.brand || null,
-        productImageUrl(product),
         product.name.fr,
         product.name.en,
         product.detail.fr,
@@ -58,6 +60,8 @@ export async function ensureArchiveProducts(database: D1Database) {
     }
   }
 
+  // Add the complementary image only when the product already has the known
+  // historical main image and has no extra images. Never replace the main CMS image.
   statements.push(database.prepare(
     "UPDATE products SET images_json=?,updated_at=? WHERE image_url=? AND (images_json IS NULL OR images_json='[]')",
   ).bind(
