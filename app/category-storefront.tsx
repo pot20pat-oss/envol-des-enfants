@@ -139,6 +139,8 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const queryTerms=(searchAliases[normalizedQuery]||[normalizedQuery]).filter(Boolean);
     const queryWords=normalizedQuery.split(" ").filter(Boolean);
     const vehicleTerms=new Set(["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vtt","quad","quads","moto","motos","scooter","scooters","kart","karts","4 roues"]);
+    const vehicleCategories=new Set(["vehicules","voitures_electriques","motos_electriques","velos","vehicules_12_24v","vehicules_age","autonomie","accessoires_vehicules"]);
+    const electricCategories=new Set(["vehicules","voitures_electriques","motos_electriques","vehicules_12_24v"]);
     const electricTerms=new Set(["electrique","electriques","electric","electrical"]);
     const wantsVehicle=queryWords.some(word=>vehicleTerms.has(word));
     const wantsElectric=queryWords.some(word=>electricTerms.has(word));
@@ -153,9 +155,9 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(normalizedQuery){
         const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" "));
         const normalizedCategory=normalizeSearch(p.category);
-        // Un terme de véhicule doit filtrer par la catégorie métier, jamais par une simple mention dans le texte.
-        const vehicleMatch=wantsVehicle && normalizedCategory==="vehicules";
-        const electricMatch=wantsElectric && /(electri|electric)/.test(searchable);
+        // Les sous-catégories véhicule du CMS font partie du même univers de recherche.
+        const vehicleMatch=wantsVehicle && vehicleCategories.has(normalizedCategory);
+        const electricMatch=wantsElectric && (electricCategories.has(normalizedCategory) || /(electri|electric)/.test(searchable));
         if(wantsVehicle && wantsElectric){
           if(!(vehicleMatch && electricMatch)) return false;
         } else if(wantsVehicle){
