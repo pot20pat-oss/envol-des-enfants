@@ -138,9 +138,11 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const normalizedQuery=normalizeSearch(query);
     const queryTerms=(searchAliases[normalizedQuery]||[normalizedQuery]).filter(Boolean);
     const queryWords=normalizedQuery.split(" ").filter(Boolean);
+    const semanticVehicleQueries=["vehicule electrique","vehicules electriques","voiture electrique","voitures electriques","vtt electrique","vtt electriques","quad electrique","quads electriques","moto electrique","motos electriques","scooter electrique","scooters electriques","kart electrique","karts electriques"];
+    const isElectricVehicleQuery=semanticVehicleQueries.includes(normalizedQuery);
     const vehicleTerms=new Set(["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vtt","quad","quads","moto","motos","scooter","scooters","kart","karts","4 roues"]);
     const vehicleCategories=new Set(["vehicules","voitures_electriques","motos_electriques","velos","vehicules_12_24v","vehicules_age","autonomie","accessoires_vehicules"]);
-    const electricCategories=new Set(["vehicules","voitures_electriques","motos_electriques","vehicules_12_24v"]);
+    const electricCategories=new Set(["vehicules","voitures_electriques","motos_electriques","velos","vehicules_12_24v"]);
     const electricTerms=new Set(["electrique","electriques","electric","electrical"]);
     const wantsVehicle=queryWords.some(word=>vehicleTerms.has(word));
     const wantsElectric=queryWords.some(word=>electricTerms.has(word));
@@ -158,7 +160,9 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         // Les sous-catégories véhicule du CMS font partie du même univers de recherche.
         const vehicleMatch=wantsVehicle && vehicleCategories.has(normalizedCategory);
         const electricMatch=wantsElectric && (electricCategories.has(normalizedCategory) || /(electri|electric)/.test(searchable));
-        if(wantsVehicle && wantsElectric){
+        if(isElectricVehicleQuery){
+          if(!(vehicleMatch && electricMatch)) return false;
+        } else if(wantsVehicle && wantsElectric){
           if(!(vehicleMatch && electricMatch)) return false;
         } else if(wantsVehicle){
           if(!vehicleMatch) return false;
