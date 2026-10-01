@@ -176,7 +176,6 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
           if(normalizedTerm.includes(" ")) return searchable.includes(normalizedTerm);
           return new Set(searchable.split(" ").filter(Boolean)).has(normalizedTerm);
         })) return false;
-      } else if(!queryTerms.some(term=>{\n          const normalizedTerm=normalizeSearch(term);\n          return normalizedTerm && new RegExp(`(^| )${normalizedTerm.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\        } else if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;")}( |$)`).test(searchable);\n        })) return false;
       }
       return true;
     });
