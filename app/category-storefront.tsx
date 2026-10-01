@@ -137,6 +137,11 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     };
     const normalizedQuery=normalizeSearch(query);
     const queryTerms=(searchAliases[normalizedQuery]||[normalizedQuery]).filter(Boolean);
+    const queryWords=normalizedQuery.split(" ").filter(Boolean);
+    const vehicleTerms=new Set(["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vtt","quad","quads","moto","motos","scooter","scooters","kart","karts","4 roues"]);
+    const electricTerms=new Set(["electrique","electriques","electric","electrical"]);
+    const wantsVehicle=queryWords.some(word=>vehicleTerms.has(word));
+    const wantsElectric=queryWords.some(word=>electricTerms.has(word));
     const filtered=products.filter(p=>{
       if(isFullCatalog&&excludedCatalogCategories.has(p.category)) return false;
       if(categories?.length&&!categories.includes(p.category)) return false;
@@ -147,7 +152,14 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(max!==null&&Number.isFinite(max)&&p.price>max) return false;
       if(normalizedQuery){
         const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" "));
-        if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;
+        const normalizedCategory=normalizeSearch(p.category);
+        const vehicleMatch=wantsVehicle && (normalizedCategory==="vehicules" || queryWords.some(word=>vehicleTerms.has(word) && searchable.includes(word)));
+        const electricMatch=wantsElectric && /(electri|electric)/.test(searchable);
+        if(wantsVehicle && wantsElectric){
+          if(!(vehicleMatch && electricMatch)) return false;
+        } else if(wantsVehicle){
+          if(!(vehicleMatch || queryTerms.some(term=>searchable.includes(normalizeSearch(term))))) return false;
+        } else if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;
       }
       return true;
     });
