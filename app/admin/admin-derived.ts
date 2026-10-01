@@ -4,7 +4,23 @@ import type { Row } from "./admin-shared";
 export function deriveAdminLists({ products, orders, subscribers, market, search, productCategory, productVisibility, productStock, orderStatus, orderDate }: { products: Row[]; orders: Row[]; subscribers: Row[]; market: Market; search: string; productCategory: string; productVisibility: string; productStock: string; orderStatus: string; orderDate: string }) {
   const regionalProducts = products.filter((item) => Boolean(item[`visible_${market}`]));
   const filteredProducts = products.filter((item) => {
-    const matchesSearch = `${item.article_number || ""} ${item.name_fr} ${item.name_en} ${item.category} ${item.brand || ""}`.toLowerCase().includes(search.trim().toLowerCase());
+    const normalizeSearch = (value: unknown) => String(value ?? "")
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toLocaleLowerCase("fr")
+      .replace(/œ/g, "oe")
+      .replace(/æ/g, "ae")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+    const query = normalizeSearch(search);
+    const categoryLabel = categories[item.category] || item.category;
+    const searchable = normalizeSearch(
+      `${item.article_number || ""} ${item.name_fr || ""} ${item.name_en || ""} ${item.category || ""} ${categoryLabel} ${item.brand || ""} ${item.description_fr || ""} ${item.description_en || ""}`,
+    );
+    const vehicleQuery = /\\bvehicule(s)?\\b/.test(query) && /\\belectrique(s)?\\b/.test(query);
+    const isVehicleCategory = ["vehicules", "voitures_electriques", "motos_electriques", "velos", "vehicules_12_24v", "vehicules_age", "autonomie", "accessoires_vehicules"].includes(String(item.category));
+    const hasElectricTerm = /\\belectri(qu|c)[a-z0-9]*\\b/.test(searchable) || ["vehicules", "voitures_electriques", "motos_electriques", "vehicules_12_24v"].includes(String(item.category));
+    const matchesSearch = !query || (vehicleQuery ? isVehicleCategory && hasElectricTerm : searchable.includes(query));
     const matchesCategory = productCategory === "all" || item.category === productCategory;
     const qc=Boolean(item.visible_qc),conakry=Boolean(item.visible_conakry); const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : productVisibility === "hidden" ? !qc&&!conakry : productVisibility === "qc" ? qc&&!conakry : productVisibility === "conakry" ? conakry&&!qc : productVisibility === "both" ? qc&&conakry : true);
     const stock = Number(item[`stock_${market}`] || 0);
