@@ -164,7 +164,8 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         const electricCategoryMatch=electricCategoryPatterns.some(pattern=>pattern.test(normalizedCategory));
         const electricMatch=wantsElectric && (electricTextMatch||electricCategoryMatch);
         const genericVehicleMatch=wantsGenericVehicle && vehicleCategoryMatch;
-        const specificVehicleMatch=wantsSpecificVehicle && queryWords.every(word=>!semanticSpecificVehicleTerms.has(word)||searchable.includes(word));
+        const searchableWords=searchable.split(" ").filter(Boolean);
+        const specificVehicleMatch=wantsSpecificVehicle && queryWords.every(word=>!semanticSpecificVehicleTerms.has(word)||searchableWords.some(candidate=>candidate===word||candidate.startsWith(word)));
         const vehicleMatch=genericVehicleMatch||specificVehicleMatch;
         if(isElectricVehicleQuery|| (wantsVehicle && wantsElectric)){
           if(!(vehicleMatch && electricMatch)) return false;
