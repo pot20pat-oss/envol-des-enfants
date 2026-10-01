@@ -142,7 +142,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const semanticSpecificVehicleTerms=new Set(["voiture","voitures","auto","autos","camion","camions","vtt","quad","quads","moto","motos","scooter","scooters","kart","karts","4 roues"]);
     const genericVehicleTerms=new Set(["vehicule","vehicules"]);
     const electricTerms=new Set(["electrique","electriques","electric","electrical"]);
-    const electricCategoryPatterns=[/\\bvoitures? electriques\\b/,/\\bmotos? electriques?\\b/,/\\bvelos?\\b/,/\\bvehicules 12 24v\\b/];
+    const electricCategoryPatterns=[/\bvoitures? electriques\b/,/\bmotos? electriques?\b/,/\bvelos?\b/,/\bvehicules 12 24v\b/];
     const wantsSpecificVehicle=queryWords.some(word=>semanticSpecificVehicleTerms.has(word));
     const wantsGenericVehicle=queryWords.some(word=>genericVehicleTerms.has(word));
     const wantsVehicle=wantsSpecificVehicle||wantsGenericVehicle;
@@ -160,7 +160,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand].filter(Boolean).join(" "));
         const normalizedCategory=normalizeSearch(p.category);
         const vehicleCategoryMatch=/(^| )(vehicules?|voitures?|motos?|velos?|camions?|accessoires vehicules|autonomie|4 roues)( |$)/.test(normalizedCategory);
-        const electricTextMatch=/\\b(electri|electric)[a-z0-9]*\\b/.test(searchable);
+        const electricTextMatch=/\b(electri|electric)[a-z0-9]*\b/.test(searchable);
         const electricCategoryMatch=electricCategoryPatterns.some(pattern=>pattern.test(normalizedCategory));
         const electricMatch=wantsElectric && (electricTextMatch||electricCategoryMatch);
         const genericVehicleMatch=wantsGenericVehicle && vehicleCategoryMatch;
