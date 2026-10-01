@@ -120,7 +120,23 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const visible=useMemo(()=>{
     const min=minPrice.trim()===""?null:Number(minPrice);
     const max=maxPrice.trim()===""?null:Number(maxPrice);
-    const normalizedQuery=query.trim().toLocaleLowerCase("fr");
+    const normalizeSearch=(value:string)=>{
+      return value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase("fr")
+        .replace(/œ/g,"oe").replace(/æ/g,"ae").replace(/[^a-z0-9]+/g," ").trim();
+    };
+    const searchAliases:Record<string,string[]> = {
+      poupee:["poupee","poupees","poupee"],
+      poupees:["poupee","poupees","poupee"],
+      vehicule:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions"],
+      vehicules:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions"],
+      pleinair:["plein air","pleinair","exterieur","exterieur"],
+      jouet:["jouet","jouets"],
+      jouets:["jouet","jouets"],
+      bebe:["bebe","bébé"],
+      scolaire:["scolaire","ecole","école"],
+    };
+    const normalizedQuery=normalizeSearch(query);
+    const queryTerms=(searchAliases[normalizedQuery]||[normalizedQuery]).filter(Boolean);
     const filtered=products.filter(p=>{
       if(isFullCatalog&&excludedCatalogCategories.has(p.category)) return false;
       if(categories?.length&&!categories.includes(p.category)) return false;
@@ -130,8 +146,8 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(min!==null&&Number.isFinite(min)&&p.price<min) return false;
       if(max!==null&&Number.isFinite(max)&&p.price>max) return false;
       if(normalizedQuery){
-        const searchable=[p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" ").toLocaleLowerCase("fr");
-        if(!searchable.includes(normalizedQuery)) return false;
+        const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" "));
+        if(!queryTerms.some(term=>searchable.includes(normalizeSearch(term)))) return false;
       }
       return true;
     });
