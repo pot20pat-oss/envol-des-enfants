@@ -125,15 +125,15 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         .replace(/œ/g,"oe").replace(/æ/g,"ae").replace(/[^a-z0-9]+/g," ").trim();
     };
     const searchAliases:Record<string,string[]> = {
-      poupee:["poupee","poupees","poupee"],
-      poupees:["poupee","poupees","poupee"],
+      poupee:["poupee","poupees"],
+      poupees:["poupee","poupees"],
       vehicule:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions"],
       vehicules:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions"],
-      pleinair:["plein air","pleinair","exterieur","exterieur"],
+      pleinair:["plein air","pleinair","exterieur"],
       jouet:["jouet","jouets"],
       jouets:["jouet","jouets"],
-      bebe:["bebe","bébé"],
-      scolaire:["scolaire","ecole","école"],
+      bebe:["bebe","bebes"],
+      scolaire:["scolaire","ecole","ecoles"],
     };
     const normalizedQuery=normalizeSearch(query);
     const queryTerms=(searchAliases[normalizedQuery]||[normalizedQuery]).filter(Boolean);
