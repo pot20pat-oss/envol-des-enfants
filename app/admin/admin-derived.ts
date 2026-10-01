@@ -1,5 +1,5 @@
 import { markets, type Market } from "@/lib/markets";
-import { categories, type Row } from "./admin-shared";
+import type { Row } from "./admin-shared";
 
 export function deriveAdminLists({ products, orders, subscribers, market, search, productCategory, productVisibility, productStock, orderStatus, orderDate }: { products: Row[]; orders: Row[]; subscribers: Row[]; market: Market; search: string; productCategory: string; productVisibility: string; productStock: string; orderStatus: string; orderDate: string }) {
   const regionalProducts = products.filter((item) => Boolean(item[`visible_${market}`]));
