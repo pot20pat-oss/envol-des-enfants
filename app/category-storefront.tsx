@@ -127,8 +127,8 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const searchAliases:Record<string,string[]> = {
       poupee:["poupee","poupees"],
       poupees:["poupee","poupees"],
-      vehicule:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vehicule electrique","vehicules electriques","voiture electrique","voitures electriques"],
-      vehicules:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vehicule electrique","vehicules electriques","voiture electrique","voitures electriques"],
+      vehicule:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vehicule electrique","vehicules electriques","voiture electrique","voitures electriques","vtt","vtt electrique","vtt electriques","quad","quads","quad electrique","quads electriques","moto","motos","moto electrique","motos electriques","scooter","scooters","scooter electrique","scooters electriques","kart","karts","kart electrique","karts electriques","4 roues"],
+      vehicules:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vehicule electrique","vehicules electriques","voiture electrique","voitures electriques","vtt","vtt electrique","vtt electriques","quad","quads","quad electrique","quads electriques","moto","motos","moto electrique","motos electriques","scooter","scooters","scooter electrique","scooters electriques","kart","karts","kart electrique","karts electriques","4 roues"],
       pleinair:["plein air","pleinair","exterieur"],
       jouet:["jouet","jouets"],
       jouets:["jouet","jouets"],
