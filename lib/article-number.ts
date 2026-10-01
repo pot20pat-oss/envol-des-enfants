@@ -1,4 +1,4 @@
-import categoryPrefixes from "../data/category-prefixes.json";
+import categoryPrefixes from "../data/category-prefixes.json" with { type: "json" };
 
 const CATEGORY_PREFIXES: Record<string, string> = categoryPrefixes;
 
