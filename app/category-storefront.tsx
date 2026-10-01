@@ -127,8 +127,8 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const searchAliases:Record<string,string[]> = {
       poupee:["poupee","poupees"],
       poupees:["poupee","poupees"],
-      vehicule:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions"],
-      vehicules:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions"],
+      vehicule:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vehicule electrique","vehicules electriques","voiture electrique","voitures electriques"],
+      vehicules:["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vehicule electrique","vehicules electriques","voiture electrique","voitures electriques"],
       pleinair:["plein air","pleinair","exterieur"],
       jouet:["jouet","jouets"],
       jouets:["jouet","jouets"],
