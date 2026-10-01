@@ -121,8 +121,6 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const visible=useMemo(()=>{
     const min=minPrice.trim()===""?null:Number(minPrice);
     const max=maxPrice.trim()===""?null:Number(maxPrice);
-    const min=minPrice.trim()===""?null:Number(minPrice);
-    const max=maxPrice.trim()===""?null:Number(maxPrice);
     const filtered=products.filter(p=>{ 
       if(isFullCatalog&&excludedCatalogCategories.has(p.category)) return false;
       if(categories?.length&&!categories.includes(p.category)) return false;
