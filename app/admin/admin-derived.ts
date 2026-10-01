@@ -21,9 +21,10 @@ export function deriveAdminLists({ products, orders, subscribers, market, search
     const isVehicleCategory = ["vehicules", "voitures_electriques", "motos_electriques", "velos", "vehicules_12_24v", "vehicules_age", "autonomie", "accessoires_vehicules"].includes(String(item.category));
     const hasElectricTerm = /\belectri(qu|c)[a-z0-9]*\b/.test(searchable) || ["voitures_electriques", "motos_electriques", "vehicules_12_24v"].includes(String(item.category));
     const queryTerms = query.split(" ").filter(Boolean);
+    const searchableTerms = searchable.split(" ").filter(Boolean);
     const matchesSearch = !query || (vehicleQuery
       ? isVehicleCategory && hasElectricTerm
-      : queryTerms.every((term) => searchable.includes(term)));
+      : queryTerms.every((term) => searchableTerms.some((word) => word === term || word.startsWith(term))));
     const matchesCategory = productCategory === "all" || item.category === productCategory;
     const qc=Boolean(item.visible_qc),conakry=Boolean(item.visible_conakry); const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : productVisibility === "hidden" ? !qc&&!conakry : productVisibility === "qc" ? qc&&!conakry : productVisibility === "conakry" ? conakry&&!qc : productVisibility === "both" ? qc&&conakry : true);
     const stock = Number(item[`stock_${market}`] || 0);
