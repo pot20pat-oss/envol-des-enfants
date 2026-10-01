@@ -138,14 +138,16 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const normalizedQuery=normalizeSearch(query);
     const queryTerms=(searchAliases[normalizedQuery]||[normalizedQuery]).filter(Boolean);
     const queryWords=normalizedQuery.split(" ").filter(Boolean);
-    const semanticVehicleQueries=["vehicule electrique","vehicules electriques","voiture electrique","voitures electriques","vtt electrique","vtt electriques","quad electrique","quads electriques","moto electrique","motos electriques","scooter electrique","scooters electriques","kart electrique","karts electriques"];
-    const isElectricVehicleQuery=semanticVehicleQueries.includes(normalizedQuery);
-    const vehicleTerms=new Set(["vehicule","vehicules","voiture","voitures","auto","autos","camion","camions","vtt","quad","quads","moto","motos","scooter","scooters","kart","karts","4 roues"]);
-    const vehicleCategories=new Set(["vehicules","voitures_electriques","motos_electriques","velos","vehicules_12_24v","vehicules_age","autonomie","accessoires_vehicules"]);
-    const electricCategories=new Set(["voitures_electriques","motos_electriques","velos","vehicules_12_24v"]);
+    const semanticElectricVehicleQueries=["vehicule electrique","vehicules electriques","voiture electrique","voitures electriques","vtt electrique","vtt electriques","quad electrique","quads electriques","moto electrique","motos electriques","scooter electrique","scooters electriques","kart electrique","karts electriques"];
+    const semanticSpecificVehicleTerms=new Set(["voiture","voitures","auto","autos","camion","camions","vtt","quad","quads","moto","motos","scooter","scooters","kart","karts","4 roues"]);
+    const genericVehicleTerms=new Set(["vehicule","vehicules"]);
     const electricTerms=new Set(["electrique","electriques","electric","electrical"]);
-    const wantsVehicle=queryWords.some(word=>vehicleTerms.has(word));
+    const electricCategoryPatterns=[/\\bvoitures? electriques\\b/,/\\bmotos? electriques?\\b/,/\\bvelos?\\b/,/\\bvehicules 12 24v\\b/];
+    const wantsSpecificVehicle=queryWords.some(word=>semanticSpecificVehicleTerms.has(word));
+    const wantsGenericVehicle=queryWords.some(word=>genericVehicleTerms.has(word));
+    const wantsVehicle=wantsSpecificVehicle||wantsGenericVehicle;
     const wantsElectric=queryWords.some(word=>electricTerms.has(word));
+    const isElectricVehicleQuery=semanticElectricVehicleQueries.includes(normalizedQuery);
     const filtered=products.filter(p=>{
       if(isFullCatalog&&excludedCatalogCategories.has(p.category)) return false;
       if(categories?.length&&!categories.includes(p.category)) return false;
@@ -155,14 +157,16 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(min!==null&&Number.isFinite(min)&&p.price<min) return false;
       if(max!==null&&Number.isFinite(max)&&p.price>max) return false;
       if(normalizedQuery){
-        const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" "));
+        const searchable=normalizeSearch([p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand].filter(Boolean).join(" "));
         const normalizedCategory=normalizeSearch(p.category);
-        // Les sous-catégories véhicule du CMS font partie du même univers de recherche.
-        const vehicleMatch=wantsVehicle && vehicleCategories.has(normalizedCategory);
-        const electricMatch=wantsElectric && (electricCategories.has(normalizedCategory) || /\b(electri|electric)[a-z0-9]*\b/.test(searchable));
-        if(isElectricVehicleQuery){
-          if(!(vehicleMatch && electricMatch)) return false;
-        } else if(wantsVehicle && wantsElectric){
+        const vehicleCategoryMatch=/(^| )(vehicules?|voitures?|motos?|velos?|camions?|accessoires vehicules|autonomie|4 roues)( |$)/.test(normalizedCategory);
+        const electricTextMatch=/\\b(electri|electric)[a-z0-9]*\\b/.test(searchable);
+        const electricCategoryMatch=electricCategoryPatterns.some(pattern=>pattern.test(normalizedCategory));
+        const electricMatch=wantsElectric && (electricTextMatch||electricCategoryMatch);
+        const genericVehicleMatch=wantsGenericVehicle && vehicleCategoryMatch;
+        const specificVehicleMatch=wantsSpecificVehicle && queryWords.every(word=>!semanticSpecificVehicleTerms.has(word)||searchable.includes(word));
+        const vehicleMatch=genericVehicleMatch||specificVehicleMatch;
+        if(isElectricVehicleQuery|| (wantsVehicle && wantsElectric)){
           if(!(vehicleMatch && electricMatch)) return false;
         } else if(wantsVehicle){
           if(!vehicleMatch) return false;
