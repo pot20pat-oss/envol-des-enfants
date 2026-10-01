@@ -82,13 +82,14 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const [market,setMarket]=useState<Market>("conakry");
   const [selectedProduct,setSelectedProduct]=useState<Product|null>(null);
   const [selectedImageIndex,setSelectedImageIndex]=useState(0);
-  const [activeCategory,setActiveCategory]=useState("all");
   const [availability,setAvailability]=useState("all");
+  const [brand,setBrand]=useState("all");
+  const [age,setAge]=useState("all");
   const [sort,setSort]=useState("newest");
   const [minPrice,setMinPrice]=useState("");
   const [maxPrice,setMaxPrice]=useState("");
   const commerce=useCommerce();
-  const themeCategory = activeCategory !== "all" && activeCategory !== "new" ? activeCategory : (categories?.[0] || "all");
+  const themeCategory = categories?.[0] || "all";
 
   useEffect(()=>{
     const saved=window.localStorage.getItem("envol-language");
@@ -113,22 +114,25 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     return ()=>{document.removeEventListener("keydown",onKeyDown);document.body.style.overflow=previousOverflow;};
   },[selectedProduct]);
 
+  const availableBrands=useMemo(()=>Array.from(new Set(products.map(p=>p.brand?.trim()).filter(Boolean) as string[])).sort((a,b)=>a.localeCompare(b,"fr")),[products]);
+  const availableAges=useMemo(()=>Array.from(new Set(products.map(p=>p.ages?.trim()).filter(Boolean) as string[])).sort((a,b)=>a.localeCompare(b,"fr")),[products]);
+
   const visible=useMemo(()=>{
     const min=minPrice.trim()===""?null:Number(minPrice);
     const max=maxPrice.trim()===""?null:Number(maxPrice);
-    const family=catalogFamilies.find(item=>item.value===activeCategory);
+    const normalizedQuery=query.trim().toLocaleLowerCase("fr");
     const filtered=products.filter(p=>{
       if(isFullCatalog&&excludedCatalogCategories.has(p.category)) return false;
       if(categories?.length&&!categories.includes(p.category)) return false;
-      if(activeCategory==="new"&&p.badge!=="new") return false;
-      if(activeCategory!=="all"&&activeCategory!=="new") {
-        if(family) { if(!family.categories.includes(p.category)) return false; }
-        else if(p.category!==activeCategory) return false;
-      }
       if(availability!=="all"&&p.status!==availability) return false;
+      if(brand!=="all"&&p.brand!==brand) return false;
+      if(age!=="all"&&p.ages!==age) return false;
       if(min!==null&&Number.isFinite(min)&&p.price<min) return false;
       if(max!==null&&Number.isFinite(max)&&p.price>max) return false;
-      if(query.trim()&&!`${p.name_fr} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""} ${p.article_number||""} ${p.brand||""}`.toLowerCase().includes(query.trim().toLowerCase())) return false;
+      if(normalizedQuery){
+        const searchable=[p.name_fr,p.name_en,p.description_fr,p.description_en,p.article_number,p.brand,p.category].filter(Boolean).join(" ").toLocaleLowerCase("fr");
+        if(!searchable.includes(normalizedQuery)) return false;
+      }
       return true;
     });
     return [...filtered].sort((a,b)=>{
@@ -138,7 +142,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(sort==="newest") return (b.badge==="new"?1:0)-(a.badge==="new"?1:0);
       return 0;
     });
-  },[products,categories,isFullCatalog,activeCategory,availability,minPrice,maxPrice,query,sort,language]);
+  },[products,categories,isFullCatalog,availability,brand,age,minPrice,maxPrice,query,sort,language]);
 
   const productImages=(product:Product)=>{
     let extras:string[]=[];
@@ -179,24 +183,18 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         <button type="button" onClick={()=>setQuery(query.trim())}>{label("Rechercher","Search")}</button>
       </div>
 
-      <nav className="catalog-menu" aria-label={label("Familles du catalogue","Catalog families")}>
-        <button type="button" className={activeCategory==="new"?"active":""} onClick={()=>selectCategory("new")}>{label("Nouveautés","New arrivals")}</button>
-        <button type="button" className={activeCategory==="all"?"active":""} onClick={()=>selectCategory("all")}>{label("Tout voir","View all")}</button>
-        {catalogFamilies.map(family=><details className="catalog-menu-group" key={family.value} onMouseLeave={event=>event.currentTarget.removeAttribute("open")}>
-          <summary className={family.categories.includes(activeCategory)||family.value===activeCategory?"active":""}>{label(family.labelFr,family.labelEn)} <span>⌄</span></summary>
-          <div className="catalog-menu-panel">
-            <button type="button" onClick={event=>{selectCategory(family.value);event.currentTarget.closest("details")?.removeAttribute("open");}}>{label("Voir toute la famille","View all in this family")}</button>
-            {family.children.map(child=><button type="button" className={activeCategory===child.value?"active":""} key={child.value} onClick={event=>{selectCategory(child.value);event.currentTarget.closest("details")?.removeAttribute("open");}}>{label(child.labelFr,child.labelEn)}</button>)}
-          </div>
-        </details>)}
-      </nav>
-
-      <div className="catalog-filters">
+      <div className="catalog-filters catalog-filters-search" aria-label={label("Recherche et filtres du catalogue","Catalog search and filters")}>
+        <label className="catalog-searchbar">
+          <span aria-hidden="true">⌕</span>
+          <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={label("Rechercher un produit, une marque, une catégorie ou un numéro…","Search by product, brand, category or item number…")}/>
+        </label>
         <label><span>{label("Disponibilité","Availability")}</span><select value={availability} onChange={e=>setAvailability(e.target.value)}><option value="all">{label("Toutes","All")}</option><option value="available">{label("Disponible","Available")}</option><option value="reserved">{label("Réservé","Reserved")}</option><option value="sold">{label("Vendu","Sold out")}</option></select></label>
+        <label><span>{label("Marque","Brand")}</span><select value={brand} onChange={e=>setBrand(e.target.value)}><option value="all">{label("Toutes les marques","All brands")}</option>{availableBrands.map(item=><option key={item} value={item}>{item}</option>)}</select></label>
+        <label><span>{label("Âge","Age")}</span><select value={age} onChange={e=>setAge(e.target.value)}><option value="all">{label("Tous les âges","All ages")}</option>{availableAges.map(item=><option key={item} value={item}>{item}</option>)}</select></label>
         <label><span>{label("Prix min.","Min price")}</span><input inputMode="numeric" type="number" min="0" value={minPrice} onChange={e=>setMinPrice(e.target.value)} placeholder="0"/></label>
         <label><span>{label("Prix max.","Max price")}</span><input inputMode="numeric" type="number" min="0" value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} placeholder="∞"/></label>
         <label><span>{label("Trier par","Sort by")}</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">{label("Nouveautés d’abord","Newest first")}</option><option value="price-asc">{label("Prix croissant","Price: low to high")}</option><option value="price-desc">{label("Prix décroissant","Price: high to low")}</option><option value="name">{label("Nom A–Z","Name A–Z")}</option></select></label>
-        <button className="catalog-reset" type="button" onClick={()=>{setActiveCategory("all");setAvailability("all");setMinPrice("");setMaxPrice("");setQuery("");setSort("newest");}}>{label("Réinitialiser","Reset")}</button>
+        <button className="catalog-reset" type="button" onClick={()=>{setAvailability("all");setBrand("all");setAge("all");setMinPrice("");setMaxPrice("");setQuery("");setSort("newest");}}>{label("Réinitialiser","Reset")}</button>
       </div>
       <div className="catalog-result-line"><strong>{visible.length}</strong> {label("articles affichés","items shown")} · {market==="qc"?label("Québec","Quebec"):"Conakry"}</div>
     </section>}
