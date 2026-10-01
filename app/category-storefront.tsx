@@ -121,7 +121,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const min=minPrice.trim()===""?null:Number(minPrice);
     const max=maxPrice.trim()===""?null:Number(maxPrice);
     const normalizeSearch=(value:string)=>{
-      return value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase("fr")
+      return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("fr")
         .replace(/œ/g,"oe").replace(/æ/g,"ae").replace(/[^a-z0-9]+/g," ").trim();
     };
     const searchAliases:Record<string,string[]> = {
