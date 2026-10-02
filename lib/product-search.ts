@@ -11,7 +11,7 @@ export type SearchableProduct = {
 export function normalizeProductSearch(value: unknown): string {
   return String(value ?? "")
     .normalize("NFD")
-    .replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("fr")
     .replace(/œ/g, "oe")
     .replace(/æ/g, "ae")
