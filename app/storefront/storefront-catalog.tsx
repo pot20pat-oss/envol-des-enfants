@@ -27,8 +27,17 @@ export default function StorefrontCatalog({ products, availableCategories, dollC
     { key: "pleinair", label: say("Véhicules & plein air", "Vehicles & outdoor play"), values: ["vehicules", "piscine"] },
   ];
   const groupValues = (key: string) => groups.find((group) => group.key === key)?.values || [];
+  const isBarbieAccessory = (item: Product) =>
+    item.category === "barbie" &&
+    /accessoires?|accessory|accessories/i.test(`${item.name.fr} ${item.name.en}`);
   const matchingProducts = products.filter((item) =>
-    (active === "all" || item.category === active || groupValues(active).includes(item.category) || (active === "disney" && item.category === "princesses") || (active === "poupees" && dollCategories.includes(item.category))) &&
+    (active === "all" ||
+      item.category === active ||
+      groupValues(active).includes(item.category) ||
+      (active === "barbie-accessories" && isBarbieAccessory(item)) ||
+      (active === "barbie" && item.category === "barbie" && !isBarbieAccessory(item)) ||
+      (active === "disney" && item.category === "princesses") ||
+      (active === "poupees" && dollCategories.includes(item.category))) &&
     (status === "all" || item.status === status) &&
     (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase()))
   );
@@ -52,6 +61,18 @@ export default function StorefrontCatalog({ products, availableCategories, dollC
             {group.label}
           </button>;
         })}
+        {products.some((product) => product.category === "barbie") && (
+          <>
+            <button type="button" className={`category-group-button${active === "barbie" ? " active" : ""}`} onClick={() => chooseCategory("barbie")}>
+              {say("Barbie", "Barbie")}
+            </button>
+            {products.some(isBarbieAccessory) && (
+              <button type="button" className={`category-group-button${active === "barbie-accessories" ? " active" : ""}`} onClick={() => chooseCategory("barbie-accessories")}>
+                {say("Barbie accessoires", "Barbie accessories")}
+              </button>
+            )}
+          </>
+        )}
       </div>
       <div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
       <div className="product-grid" id="coups-de-coeur" key={`${active}-${status}-${query}`}>{visibleProducts.map((item) => <ProductCard key={item.id || `${item.sheet}-${item.position}`} item={item} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onOpen={onOpenProduct} />)}</div>
