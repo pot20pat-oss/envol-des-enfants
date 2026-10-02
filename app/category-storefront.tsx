@@ -93,9 +93,13 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     return value;
   };
   const availableBrands=useMemo(()=>{
-    return Array.from(new Set(
-      (products.map(p=>p.brand).filter(Boolean) as string[]).map(canonicalBrand)
-    )).sort((a,b)=>a.localeCompare(b,"fr"));
+    const unique=new Map<string,string>();
+    for(const raw of (products.map(p=>p.brand).filter(Boolean) as string[])){
+      const value=canonicalBrand(raw);
+      const key=value.trim().toLocaleLowerCase("fr").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
+      if(key && !unique.has(key)) unique.set(key,value.trim());
+    }
+    return Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"fr"));
   },[products]);
   const availableAges=useMemo(()=>Array.from(new Set(products.map(p=>p.ages?.trim()).filter(Boolean) as string[])).sort((a,b)=>a.localeCompare(b,"fr")),[products]);
 
