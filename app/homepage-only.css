@@ -752,3 +752,111 @@ html,body{overflow-x:hidden!important}
   .ref-header .ref-service svg{width:34px!important;height:34px!important}
   .ref-header .ref-commerce button>svg{width:28px!important;height:28px!important}
 }
+
+
+/* 2026-10-02 — accueil mobile: lisibilité du header et des catégories. */
+@media(max-width:600px){
+  .ref-header .wrap{
+    width:calc(100% - 20px)!important;
+  }
+  .ref-header .ref-top{
+    min-height:46px!important;
+    gap:10px!important;
+    padding-block:8px!important;
+    font-size:14px!important;
+  }
+  .ref-header .ref-canadian-business{
+    font-size:14px!important;
+    gap:7px!important;
+  }
+  .ref-header .ref-maple-leaf{
+    font-size:20px!important;
+  }
+  .ref-header .ref-commerce{
+    width:100%!important;
+    justify-content:space-between!important;
+    gap:8px!important;
+  }
+  .ref-header .ref-commerce button{
+    gap:6px!important;
+    min-width:0!important;
+    font-size:14px!important;
+  }
+  .ref-header .ref-commerce button>svg{
+    width:26px!important;
+    height:26px!important;
+    flex:0 0 26px!important;
+  }
+  .ref-header .ref-commerce small{
+    font-size:13px!important;
+    line-height:1.15!important;
+  }
+  .ref-header .ref-head{
+    grid-template-columns:145px minmax(0,1fr)!important;
+    gap:14px!important;
+    padding-block:10px!important;
+  }
+  .ref-header .ref-logo{
+    width:140px!important;
+    height:118px!important;
+  }
+  .ref-header .ref-logo img{
+    width:135px!important;
+    height:115px!important;
+    max-width:135px!important;
+  }
+  .ref-header .ref-service{
+    gap:15px!important;
+  }
+  .ref-header .ref-service>span,
+  .ref-header .ref-service>a{
+    grid-template-columns:40px minmax(0,1fr)!important;
+    column-gap:10px!important;
+  }
+  .ref-header .ref-service svg,
+  .ref-header .ref-service>a>svg{
+    width:38px!important;
+    height:38px!important;
+  }
+  .ref-header .ref-service b{
+    font-size:14px!important;
+    line-height:1.15!important;
+  }
+  .ref-header .ref-service small{
+    font-size:12px!important;
+    line-height:1.2!important;
+    margin-top:3px!important;
+  }
+  .ref-header .ref-search{
+    height:56px!important;
+    font-size:16px!important;
+  }
+  .ref-header .ref-search>span{
+    padding-inline:14px!important;
+  }
+  .ref-header .ref-search>b{
+    flex-basis:56px!important;
+  }
+  .ref-header .ref-search svg{
+    width:26px!important;
+    height:26px!important;
+  }
+
+  /* Les 9 catégories sont illisibles si on les comprime toutes dans 375 px. */
+  .editable-storefront .shop-category-strip{
+    width:100%!important;
+    max-width:none!important;
+    padding:10px 0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+  }
+  .editable-storefront .shop-category-strip::-webkit-scrollbar{
+    display:none!important;
+  }
+  .editable-storefront .shop-category-rail.shop-category-reference{
+    width:760px!important;
+    min-width:760px!important;
+    max-width:none!important;
+  }
+}
