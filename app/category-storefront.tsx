@@ -72,10 +72,9 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   },[selectedProduct]);
 
   const canonicalBrand=(raw:string)=>{
-    const value=raw.trim().replace(/\\s+/g," ");
-    const key=value.toLocaleLowerCase("fr").replace(/[’']/g,"'");
-    if(/^barbie(?:\\s|$)/i.test(value)) return "Barbie";
-    if(/^disney(?:\\s|$)/i.test(value)) return "Disney";
+    const value=raw.trim().replace(/\s+/g," ");
+    if(/^barbie(?:\s|$)/i.test(value)) return "Barbie";
+    if(/^disney(?:\s|$)/i.test(value)) return "Disney";
     if(/^fisher[- ]?price$/i.test(value)) return "Fisher-Price";
     if(/^leap ?frog$/i.test(value)) return "LeapFrog";
     if(/^petits génies$/i.test(value)) return "Petits Génies";
