@@ -115,7 +115,17 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     return ()=>{document.removeEventListener("keydown",onKeyDown);document.body.style.overflow=previousOverflow;};
   },[selectedProduct]);
 
-  const availableBrands=useMemo(()=>Array.from(new Set(products.map(p=>p.brand?.trim()).filter(Boolean) as string[])).sort((a,b)=>a.localeCompare(b,"fr")),[products]);
+  const availableBrands=useMemo(()=>{
+    const canonical=new Map<string,string>();
+    for(const raw of products.map(p=>p.brand).filter(Boolean) as string[]){
+      const value=raw.trim().replace(/\\s+/g," ");
+      if(!value) continue;
+      const key=value.toLocaleLowerCase("fr");
+      const current=canonical.get(key);
+      if(!current || value.length<current.length) canonical.set(key,value);
+    }
+    return Array.from(canonical.values()).sort((a,b)=>a.localeCompare(b,"fr"));
+  },[products]);
   const availableAges=useMemo(()=>Array.from(new Set(products.map(p=>p.ages?.trim()).filter(Boolean) as string[])).sort((a,b)=>a.localeCompare(b,"fr")),[products]);
 
   const visible=useMemo(()=>{
