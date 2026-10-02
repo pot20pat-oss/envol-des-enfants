@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { type Product, type Translation } from "@/lib/default-catalog";
+import { type Product } from "@/lib/default-catalog";
 import { markets } from "@/lib/markets";
 import StorefrontCatalog from "./storefront-catalog";
 import ProductLightbox from "./product-lightbox";
@@ -16,9 +16,9 @@ import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
 import { useStorefrontSettings } from "../hooks/use-storefront-settings";
 import { useStorefrontPromo } from "../hooks/use-storefront-promo";
-iconst categories = catalogCategoryOptions;
- { fr: "Animaux & compagnons", en: "Animals & companions" }, value: "animaux" },
-];
+import { catalogCategoryOptions, dollCategories } from "@/lib/catalog-navigation";
+
+const categories = catalogCategoryOptions;
 
 export default function Home({ initialProducts = [] }: { initialProducts?: Product[] }) {
   const [active, setActive] = useState("all");
