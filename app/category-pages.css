@@ -192,3 +192,86 @@
     padding:0!important;
   }
 }
+
+
+/* 2026-10-02 — petits téléphones: privilégier la lisibilité plutôt que 2 cartes serrées. */
+@media(max-width:430px){
+  .category-page .category-grid,
+  .catalog-marketplace .category-products .category-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:16px!important;
+  }
+  .category-page .category-card{
+    grid-template-rows:240px minmax(0,1fr)!important;
+    border-radius:16px!important;
+  }
+  .category-page .category-image-button,
+  .category-page .category-image{
+    height:240px!important;
+    min-height:240px!important;
+    max-height:240px!important;
+  }
+  .category-page .category-copy{
+    min-height:250px!important;
+    padding:16px!important;
+    overflow:visible!important;
+  }
+  .category-page .category-copy h2{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    font-size:17px!important;
+    line-height:1.3!important;
+    margin-bottom:10px!important;
+  }
+  .category-page .category-copy>strong{
+    min-height:0!important;
+    font-size:18px!important;
+    margin-bottom:8px!important;
+  }
+  .category-page .category-copy>p:not(.category-kicker){
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    font-size:12px!important;
+    line-height:1.5!important;
+    margin-bottom:8px!important;
+  }
+  .category-page .category-copy>small{
+    height:auto!important;
+    min-height:0!important;
+    font-size:11px!important;
+    margin-top:4px!important;
+  }
+  .category-page .product-seo-link{
+    display:inline-block!important;
+    margin-top:10px!important;
+    margin-bottom:14px!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+  }
+  .category-page .product-commerce-buttons{
+    grid-template-columns:minmax(0,1fr) 46px!important;
+    gap:10px!important;
+    min-height:46px!important;
+    height:46px!important;
+    overflow:visible!important;
+  }
+  .category-page .product-cart,
+  .category-page .product-favorite{
+    height:46px!important;
+    min-height:46px!important;
+    max-height:46px!important;
+  }
+  .category-page .product-cart{
+    padding:0 14px!important;
+    font-size:13px!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  .category-page .product-favorite{
+    width:46px!important;
+    min-width:46px!important;
+  }
+}
