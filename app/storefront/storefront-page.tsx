@@ -16,9 +16,7 @@ import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
 import { useStorefrontSettings } from "../hooks/use-storefront-settings";
 import { useStorefrontPromo } from "../hooks/use-storefront-promo";
-import { catalogCategoryOptions, dollCategories } from "@/lib/catalog-navigation";
 
-const categories = catalogCategoryOptions;
 
 export default function Home({ initialProducts = [] }: { initialProducts?: Product[] }) {
   const [active, setActive] = useState("all");
@@ -29,7 +27,6 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const { language, changeLanguage } = useStoreLanguage();
   const { market, storeSettings, storeProducts } = useStoreMarket(initialProducts);
-  const availableCategories = categories.filter((category) => category.value === "all" || (category.value === "poupees" ? storeProducts.some((product) => dollCategories.includes(product.category)) : storeProducts.some((product) => product.category === category.value)));
   const {
     storePhone, whatsappNumber, whatsappUrl, facebookUrl, address, mapsUrl, mapEmbedUrl, welcomeDiscount,
     isEnglish, say, editable, sectionStyle, sectionVisible,
@@ -72,7 +69,6 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
         market={market}
         storePhone={storePhone}
         whatsappUrl={whatsappUrl}
-        availableCategories={availableCategories}
         say={say}
         sectionVisible={sectionVisible}
         changeLanguage={changeLanguage}
