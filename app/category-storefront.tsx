@@ -42,6 +42,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   const [brand,setBrand]=useState("all");
   const [age,setAge]=useState("all");
   const [sort,setSort]=useState("newest");
+  const [activeCategory,setActiveCategory]=useState("all");
   const [minPrice,setMinPrice]=useState("");
   const [maxPrice,setMaxPrice]=useState("");
   const commerce=useCommerce();
@@ -112,7 +113,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
       if(sort==="newest") return (b.badge==="new"?1:0)-(a.badge==="new"?1:0);
       return 0;
     });
-  },[products,categories,isFullCatalog,availability,brand,age,minPrice,maxPrice,query,sort,language]);
+  },[products,categories,isFullCatalog,activeCategory,availability,brand,age,minPrice,maxPrice,query,sort,language]);
 
   const productImages=(product:Product)=>{
     let extras:string[]=[];
