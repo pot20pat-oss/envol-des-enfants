@@ -73,7 +73,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
 
   const canonicalBrand=(raw:string)=>{
     const value=raw.trim().replace(/\s+/g," ");
-    const key=value.toLocaleLowerCase("fr").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    const key=value.toLocaleLowerCase("fr").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
     if(/^barbie(?:\s|$)/i.test(value)) return "Barbie";
     if(/^disney(?:\s|$)/i.test(value)) return "Disney";
     if(/^fisher[- ]?price$/i.test(value)) return "Fisher-Price";
