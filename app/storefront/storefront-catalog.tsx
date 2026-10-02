@@ -17,14 +17,17 @@ type Props = {
 export default function StorefrontCatalog({ products, availableCategories, dollCategories, language, market, active, query, status, showAll, whatsappNumber, whatsappUrl, style, title, accent, description, onActiveChange, onQueryChange, onStatusChange, onShowAll, onOpenProduct }: Props) {
   const isEnglish = language === "en";
   const say = (fr: string, en: string) => isEnglish ? en : fr;
+  const groupValues = (key: string) => groups.find((group) => group.key === key)?.values || [];
   const matchingProducts = products.filter((item) =>
-    (active === "all" || item.category === active || (active === "disney" && item.category === "princesses") || (active === "poupees" && dollCategories.includes(item.category))) &&
+    (active === "all" || item.category === active || groupValues(active).includes(item.category) || (active === "disney" && item.category === "princesses") || (active === "poupees" && dollCategories.includes(item.category))) &&
     (status === "all" || item.status === status) &&
     (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase()))
   );
   const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
   const chooseCategory = (category: string) => { onActiveChange(category); onStatusChange("all"); onQueryChange(""); };
 
+  // Navigation simplifiée : les sous-catégories et marques restent des données
+  // de catalogue, mais ne sont plus exposées comme autant de catégories à choisir.
   const groups = [
     { key: "jouets", label: say("Jouets & jeux", "Toys & games"), values: ["eveil", "imitation", "dinosaures", "animaux"] },
     { key: "poupees", label: say("Poupées & princesses", "Dolls & princesses"), values: dollCategories },
@@ -43,16 +46,12 @@ export default function StorefrontCatalog({ products, availableCategories, dollC
       <div className="category-tabs category-dropdowns" role="group" aria-label={say("Filtrer les univers", "Filter collections")}>
         <button type="button" className={active === "all" ? "active" : ""} onClick={() => chooseCategory("all")}>{say("Tout voir", "View all")}</button>
         {groups.map((group) => {
-          const children = availableCategories.filter((category) => group.values.includes(category.value));
-          if (children.length === 0) return null;
-          const groupActive = group.key === "poupees" ? dollCategories.includes(active) : group.values.includes(active);
-          return <details className={`category-menu-group category-menu-${group.key}${groupActive ? " is-active" : ""}`} key={group.key}>
-            <summary><span>{group.label}</span><span className="category-menu-chevron" aria-hidden="true">⌄</span></summary>
-            <div className="category-menu-panel">
-              {group.key === "poupees" && <button type="button" className={`doll-world-choice${active === "poupees" ? " active" : ""}`} onClick={(event) => { chooseCategory("poupees"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{say("Toutes les poupées", "All dolls")}</button>}
-              {children.filter((category) => !(group.key === "poupees" && category.value === "poupees")).map((category) => <button type="button" key={category.value} className={`${group.key === "poupees" ? "doll-brand-choice" : ""}${active === category.value ? " active" : ""}`} onClick={(event) => { chooseCategory(category.value); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{category.label[language].replace("↳ ", "")}</button>)}
-            </div>
-          </details>;
+          const hasProducts = products.some((product) => group.values.includes(product.category));
+          if (!hasProducts) return null;
+          const groupActive = group.values.includes(active);
+          return <button type="button" className={`category-group-button${groupActive ? " active" : ""}`} key={group.key} onClick={() => chooseCategory(group.key)}>
+            {group.label}
+          </button>;
         })}
       </div>
       <div className="catalog-summary"><span>{matchingProducts.length} {say("trouvailles", "little finds")} · {markets[market].label}</span><span>{market === "qc" ? say("Prix en dollars canadiens", "Prices in Canadian dollars") : say("Prix en francs guinéens", "Prices in Guinean francs")}</span></div>
