@@ -6,7 +6,6 @@ import type { Market } from "@/lib/markets";
 import { useCommerce } from "../commerce/commerce-provider";
 
 type Language = "fr" | "en";
-type Category = { label: Translation; value: string };
 function HeaderIcon({ kind }: { kind: "account" | "heart" | "cart" | "search" | "truck" | "phone" }) {
   const paths = {
     account: "M20 21v-2a7 7 0 0 0-14 0v2M17 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
@@ -20,7 +19,7 @@ function HeaderIcon({ kind }: { kind: "account" | "heart" | "cart" | "search" | 
 }
 type Props = {
   language: Language; market: Market; storePhone: string; whatsappUrl: string;
-  availableCategories: Category[]; say: (fr:string,en:string)=>string;
+  say: (fr:string,en:string)=>string;
   sectionVisible: (id:string)=>boolean; changeLanguage:(language:Language)=>void;
   chooseCategory:(category:string)=>void;
 };
