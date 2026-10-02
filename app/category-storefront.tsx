@@ -5,6 +5,7 @@ import { marketPrice, normalizeMarket, type Market } from "@/lib/markets";
 import type { Product as CommerceProduct } from "@/lib/default-catalog";
 import { useCommerce } from "./commerce/commerce-provider";
 import { matchesProductSearch } from "@/lib/product-search";
+import { catalogFamilies, dollCategories } from "@/lib/catalog-navigation";
 
 type Product = {
   id:string;
@@ -24,53 +25,7 @@ type Product = {
 };
 type CategoryTab = { value:string; labelFr:string; labelEn:string };
 type Props = { title:string; subtitle:string; categories?:string[]; categoryTabs?:CategoryTab[] };
-type Family = { value:string; labelFr:string; labelEn:string; categories:string[]; children:{value:string;labelFr:string;labelEn:string}[] };
 
-const catalogFamilies: Family[] = [
-  {
-    value:"jouets", labelFr:"Jouets & jeux", labelEn:"Toys & games",
-    categories:["eveil","imitation","dinosaures","animaux"],
-    children:[
-      {value:"eveil",labelFr:"Jouets éducatifs",labelEn:"Educational toys"},
-      {value:"imitation",labelFr:"Métiers & imitation",labelEn:"Pretend play"},
-      {value:"dinosaures",labelFr:"Dinosaures & aventures",labelEn:"Dinosaurs & adventures"},
-      {value:"animaux",labelFr:"Animaux & compagnons",labelEn:"Animals & companions"},
-    ],
-  },
-  {
-    value:"poupees", labelFr:"Poupées & princesses", labelEn:"Dolls & princesses",
-    categories:["poupees","princesses","disney","barbie","mylife","miraculous","lol","rainbowhigh","babyalive","hairmazing","karma","mysweetbaby","glamourgirl","autres_poupees"],
-    children:[
-      {value:"poupees",labelFr:"Toutes les poupées",labelEn:"All dolls"},
-      {value:"disney",labelFr:"Disney",labelEn:"Disney"},
-      {value:"barbie",labelFr:"Barbie",labelEn:"Barbie"},
-      {value:"miraculous",labelFr:"Miraculous",labelEn:"Miraculous"},
-      {value:"lol",labelFr:"LOL Surprise & OMG",labelEn:"LOL Surprise & OMG"},
-      {value:"rainbowhigh",labelFr:"Rainbow High",labelEn:"Rainbow High"},
-      {value:"babyalive",labelFr:"Baby Alive",labelEn:"Baby Alive"},
-      {value:"mylife",labelFr:"My Life",labelEn:"My Life"},
-      {value:"autres_poupees",labelFr:"Autres poupées",labelEn:"Other dolls"},
-    ],
-  },
-  {
-    value:"bebe", labelFr:"Bébé & éveil", labelEn:"Baby & early learning", categories:["bebe"],
-    children:[{value:"bebe",labelFr:"Jouets et articles pour bébé",labelEn:"Baby toys & items"}],
-  },
-  {
-    value:"ecole", labelFr:"Articles scolaires", labelEn:"School supplies", categories:["scolaire","sacs"],
-    children:[
-      {value:"scolaire",labelFr:"Fournitures scolaires",labelEn:"School supplies"},
-      {value:"sacs",labelFr:"Sacs & gourdes",labelEn:"Bags & bottles"},
-    ],
-  },
-  {
-    value:"pleinair", labelFr:"Véhicules & plein air", labelEn:"Vehicles & outdoor play", categories:["vehicules","piscine"],
-    children:[
-      {value:"vehicules",labelFr:"Véhicules",labelEn:"Vehicles"},
-      {value:"piscine",labelFr:"Piscine & jeux d’eau",labelEn:"Pool & water play"},
-    ],
-  },
-];
 
 const excludedCatalogCategories = new Set(["vetements","chaussures"]);
 
