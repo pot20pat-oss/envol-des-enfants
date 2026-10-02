@@ -17,15 +17,6 @@ type Props = {
 export default function StorefrontCatalog({ products, availableCategories, dollCategories, language, market, active, query, status, showAll, whatsappNumber, whatsappUrl, style, title, accent, description, onActiveChange, onQueryChange, onStatusChange, onShowAll, onOpenProduct }: Props) {
   const isEnglish = language === "en";
   const say = (fr: string, en: string) => isEnglish ? en : fr;
-  const groupValues = (key: string) => groups.find((group) => group.key === key)?.values || [];
-  const matchingProducts = products.filter((item) =>
-    (active === "all" || item.category === active || groupValues(active).includes(item.category) || (active === "disney" && item.category === "princesses") || (active === "poupees" && dollCategories.includes(item.category))) &&
-    (status === "all" || item.status === status) &&
-    (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase()))
-  );
-  const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
-  const chooseCategory = (category: string) => { onActiveChange(category); onStatusChange("all"); onQueryChange(""); };
-
   // Navigation simplifiée : les sous-catégories et marques restent des données
   // de catalogue, mais ne sont plus exposées comme autant de catégories à choisir.
   const groups = [
@@ -35,6 +26,14 @@ export default function StorefrontCatalog({ products, availableCategories, dollC
     { key: "ecole", label: say("Articles scolaires", "School supplies"), values: ["scolaire", "sacs"] },
     { key: "pleinair", label: say("Véhicules & plein air", "Vehicles & outdoor play"), values: ["vehicules", "piscine"] },
   ];
+  const groupValues = (key: string) => groups.find((group) => group.key === key)?.values || [];
+  const matchingProducts = products.filter((item) =>
+    (active === "all" || item.category === active || groupValues(active).includes(item.category) || (active === "disney" && item.category === "princesses") || (active === "poupees" && dollCategories.includes(item.category))) &&
+    (status === "all" || item.status === status) &&
+    (!query.trim() || `${item.name.fr} ${item.name.en} ${item.detail.fr} ${item.detail.en}`.toLowerCase().includes(query.trim().toLowerCase()))
+  );
+  const visibleProducts = showAll || active !== "all" || status !== "all" || query.trim() ? matchingProducts : matchingProducts.slice(0, 12);
+  const chooseCategory = (category: string) => { onActiveChange(category); onStatusChange("all"); onQueryChange(""); };
 
   return (
     <section className="univers section wrap" id="catalogue" style={style}>
@@ -48,7 +47,7 @@ export default function StorefrontCatalog({ products, availableCategories, dollC
         {groups.map((group) => {
           const hasProducts = products.some((product) => group.values.includes(product.category));
           if (!hasProducts) return null;
-          const groupActive = group.values.includes(active);
+          const groupActive = active === group.key || group.values.includes(active);
           return <button type="button" className={`category-group-button${groupActive ? " active" : ""}`} key={group.key} onClick={() => chooseCategory(group.key)}>
             {group.label}
           </button>;
