@@ -87,7 +87,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     if(key==="battat") return "Battat";
     if(key==="intex") return "Intex";
     if(key==="kidconnection") return "Kid Connection";
-    if(key==="tuttifruiti" || key==="tuttifruitti") return "Tutti Fruiti";
+    if(key==="tuttifruiti" || key==="tuttifrutti") return "Tutti Fruiti";
     if(key==="poupeemode" || key==="poupeesmode") return "Poupées mode";
     if(/^vtech(?:\s|$)/i.test(value)) return "VTech";
     return value;
