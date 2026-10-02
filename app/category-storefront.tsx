@@ -5,7 +5,7 @@ import { marketPrice, normalizeMarket, type Market } from "@/lib/markets";
 import type { Product as CommerceProduct } from "@/lib/default-catalog";
 import { useCommerce } from "./commerce/commerce-provider";
 import { matchesProductSearch } from "@/lib/product-search";
-import { catalogFamilies, dollCategories } from "@/lib/catalog-navigation";
+import { dollCategories } from "@/lib/catalog-navigation";
 
 type Product = {
   id:string;
