@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cmsEnv } from "@/lib/cms";
+import BackToOrigin from "@/app/components/back-to-origin";
 
 type Product = Record<string, unknown>;
 async function getProduct(id:string){
@@ -20,6 +21,7 @@ export default async function ProductPage({params}:{params:Promise<{id:string}>}
   const brand=text(p.brand); const article=text(p.article_number); const price=Number(p.price_qc||p.price||0); const stock=Number(p.stock_qc||0);
   const schema={"@context":"https://schema.org","@type":"Product",name,description:description||undefined,image:image||undefined,sku:article||undefined,brand:brand?{"@type":"Brand",name:brand}:undefined,offers:price>0?{"@type":"Offer",priceCurrency:"CAD",price:String(price),availability:stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:`https://envoldesenfants.com/produit/${id}`}:undefined};
   return <main className="seo-product wrap">
+    <div className="seo-product-return"><BackToOrigin fallbackHref="/catalogue" label="Retour"/></div>
     <nav className="seo-product-nav"><a href="/">Accueil</a><span>›</span><a href="/catalogue">Catalogue</a><span>›</span><span>{name}</span></nav>
     <article className="seo-product-card">
       <div className="seo-product-image">{image?<img src={image} alt={name}/>:<div>Envol des Enfants</div>}</div>
