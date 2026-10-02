@@ -71,16 +71,25 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     return ()=>{document.removeEventListener("keydown",onKeyDown);document.body.style.overflow=previousOverflow;};
   },[selectedProduct]);
 
+  const canonicalBrand=(raw:string)=>{
+    const value=raw.trim().replace(/\\s+/g," ");
+    const key=value.toLocaleLowerCase("fr").replace(/[’']/g,"'");
+    if(/^barbie(?:\\s|$)/i.test(value)) return "Barbie";
+    if(/^disney(?:\\s|$)/i.test(value)) return "Disney";
+    if(/^fisher[- ]?price$/i.test(value)) return "Fisher-Price";
+    if(/^leap ?frog$/i.test(value)) return "LeapFrog";
+    if(/^petits génies$/i.test(value)) return "Petits Génies";
+    if(/^my sweet baby$/i.test(value)) return "My Sweet Baby";
+    if(/^my life(?: as)?$/i.test(value)) return "My Life";
+    if(/^lol(?: omg| surprise)?$/i.test(value)) return "LOL";
+    if(/^marvel(?: .*)?$/i.test(value)) return "Marvel";
+    if(/^dc(?: .*)?$/i.test(value)) return "DC";
+    return value;
+  };
   const availableBrands=useMemo(()=>{
-    const canonical=new Map<string,string>();
-    for(const raw of products.map(p=>p.brand).filter(Boolean) as string[]){
-      const value=raw.trim().replace(/\\s+/g," ");
-      if(!value) continue;
-      const key=value.toLocaleLowerCase("fr");
-      const current=canonical.get(key);
-      if(!current || value.length<current.length) canonical.set(key,value);
-    }
-    return Array.from(canonical.values()).sort((a,b)=>a.localeCompare(b,"fr"));
+    return Array.from(new Set(
+      (products.map(p=>p.brand).filter(Boolean) as string[]).map(canonicalBrand)
+    )).sort((a,b)=>a.localeCompare(b,"fr"));
   },[products]);
   const availableAges=useMemo(()=>Array.from(new Set(products.map(p=>p.ages?.trim()).filter(Boolean) as string[])).sort((a,b)=>a.localeCompare(b,"fr")),[products]);
 
@@ -99,7 +108,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
         if(/accessoires?|accessory|accessories/i.test(text)) return false;
       }
       if(availability!=="all"&&p.status!==availability) return false;
-      if(brand!=="all"&&p.brand!==brand) return false;
+      if(brand!=="all"&&canonicalBrand(p.brand||"")!==brand) return false;
       if(age!=="all"&&p.ages!==age) return false;
       if(min!==null&&Number.isFinite(min)&&p.price<min) return false;
       if(max!==null&&Number.isFinite(max)&&p.price>max) return false;
