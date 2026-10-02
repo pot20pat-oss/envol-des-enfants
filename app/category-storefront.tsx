@@ -73,16 +73,23 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
 
   const canonicalBrand=(raw:string)=>{
     const value=raw.trim().replace(/\s+/g," ");
+    const key=value.toLocaleLowerCase("fr").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     if(/^barbie(?:\s|$)/i.test(value)) return "Barbie";
     if(/^disney(?:\s|$)/i.test(value)) return "Disney";
     if(/^fisher[- ]?price$/i.test(value)) return "Fisher-Price";
     if(/^leap ?frog$/i.test(value)) return "LeapFrog";
-    if(/^petits génies$/i.test(value)) return "Petits Génies";
-    if(/^my sweet baby$/i.test(value)) return "My Sweet Baby";
-    if(/^my life(?: as)?$/i.test(value)) return "My Life";
+    if(/^petits? genies$/i.test(key)) return "Petits Génies";
+    if(/^my sweet baby$/i.test(key) || key==="mysweetbaby") return "My Sweet Baby";
+    if(/^my life(?: as)?$/i.test(key)) return "My Life";
     if(/^lol(?: omg| surprise)?$/i.test(value)) return "LOL";
     if(/^marvel(?: .*)?$/i.test(value)) return "Marvel";
     if(/^dc(?: .*)?$/i.test(value)) return "DC";
+    if(key==="battat") return "Battat";
+    if(key==="intex") return "Intex";
+    if(key==="kid connection") return "Kid Connection";
+    if(key==="tutti fruiti" || key==="tutti fruitti") return "Tutti Fruiti";
+    if(key==="poupee mode" || key==="poupees mode") return "Poupées mode";
+    if(/^vtech(?:\s|$)/i.test(value)) return "VTech";
     return value;
   };
   const availableBrands=useMemo(()=>{
