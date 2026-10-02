@@ -721,3 +721,37 @@
   }
   .back-to-origin-arrow{font-size:21px}
 }
+
+
+/* 2026-10-02 — bouton flottant retour en haut. */
+.scroll-to-top{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:120;
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border:1px solid #d9dfe5;
+  border-radius:50%;
+  background:#fff;
+  color:#123c63;
+  font-size:24px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:0 8px 24px rgba(23,54,74,.18);
+}
+.scroll-to-top:hover{
+  background:#f8fafc;
+}
+@media(max-width:700px){
+  .scroll-to-top{
+    right:12px;
+    bottom:12px;
+    width:44px;
+    height:44px;
+    font-size:22px;
+  }
+}
