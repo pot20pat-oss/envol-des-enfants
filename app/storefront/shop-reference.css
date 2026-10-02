@@ -127,6 +127,43 @@
 
 /* 2026-10-02 — iPad/tablette: navigation depuis la gauche et 3 cartes lisibles. */
 @media(max-width:900px) and (min-width:701px){
+  .category-header{
+    grid-template-columns:130px minmax(220px,1fr) auto!important;
+    grid-template-rows:auto!important;
+    align-items:center!important;
+    gap:14px!important;
+    min-height:108px!important;
+    padding-top:8px!important;
+    padding-bottom:8px!important;
+  }
+  .category-header .category-brand{
+    grid-column:1!important;
+    grid-row:1!important;
+    align-self:center!important;
+  }
+  .category-header .category-brand img{
+    width:125px!important;
+    height:88px!important;
+  }
+  .category-header .category-header-search{
+    grid-column:2!important;
+    grid-row:1!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  .category-header .commerce-actions{
+    grid-column:3!important;
+    grid-row:1!important;
+    align-self:center!important;
+    justify-content:flex-end!important;
+    gap:8px!important;
+    margin:0!important;
+    white-space:nowrap!important;
+  }
+  .category-header .category-back{
+    font-size:12px!important;
+  }
   .category-main-nav{
     justify-content:flex-start!important;
     overflow-x:auto!important;
