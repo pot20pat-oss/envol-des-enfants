@@ -16,11 +16,11 @@
   height:177px!important;
   display:block!important;
   overflow:visible!important;
-  background:transparent url('/envol-logo-officiel.svg') center/contain no-repeat!important;
+  background:transparent url('/envol-logo-transparent.png') center/contain no-repeat!important;
 }
 .header .brand-picture img{display:none!important}
 .promo-logo.brand-picture{
-  background:transparent url('/envol-logo-officiel.svg') center/contain no-repeat!important;
+  background:transparent url('/envol-logo-transparent.png') center/contain no-repeat!important;
   overflow:visible!important;
 }
 .promo-logo.brand-picture img{display:none!important}

@@ -5,7 +5,7 @@ import { matchesProductSearch } from "@/lib/product-search";
 export function deriveAdminLists({ products, orders, subscribers, market, search, productCategory, productVisibility, productStock, orderStatus, orderDate }: { products: Row[]; orders: Row[]; subscribers: Row[]; market: Market; search: string; productCategory: string; productVisibility: string; productStock: string; orderStatus: string; orderDate: string }) {
   const regionalProducts = products.filter((item) => Boolean(item[`visible_${market}`]));
   const filteredProducts = products.filter((item) => {
-    const matchesSearch = matchesProductSearch(item, search, categoryLabel);
+    const matchesSearch = matchesProductSearch(item, search);
     const matchesCategory = productCategory === "all" || item.category === productCategory;
     const qc=Boolean(item.visible_qc),conakry=Boolean(item.visible_conakry); const matchesVisibility = productVisibility === "all" || (productVisibility === "visible" ? Boolean(item[`visible_${market}`]) : productVisibility === "hidden" ? !qc&&!conakry : productVisibility === "qc" ? qc&&!conakry : productVisibility === "conakry" ? conakry&&!qc : productVisibility === "both" ? qc&&conakry : true);
     const stock = Number(item[`stock_${market}`] || 0);

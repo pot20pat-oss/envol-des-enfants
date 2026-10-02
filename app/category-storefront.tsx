@@ -160,7 +160,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
 
   return <main className={`category-page${isFullCatalog?" catalog-marketplace":""} theme-${themeCategory}`}>
     <header className="category-header wrap">
-      <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-officiel.svg" alt="Envol des Enfants"/></a>
+      <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-transparent.png" alt="Envol des Enfants"/></a>
       <label className="category-header-search"><span className="sr-only">{label("Rechercher", "Search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={label("Que recherchez-vous? (ex. Barbie, LEGO, Montessori…)","What are you looking for? (e.g. Barbie, LEGO, Montessori…)")}/><b aria-hidden="true">⌕</b></label>
       <div className="commerce-actions"><a href={`/?region=${market}`} className="category-back">← {label("Accueil","Home")}</a><button className="commerce-action" onClick={()=>commerce.open("account")}>♙ <span>{label("Compte","Account")}</span></button><button className="commerce-action" onClick={()=>commerce.open("favorites")}>♡ <span>{label("Favoris","Favorites")}</span>{commerce.favorites.length>0&&<b>{commerce.favorites.length}</b>}</button><button className="commerce-action" onClick={()=>commerce.open("cart")}>🛒 <span>{label("Panier","Cart")}</span>{commerce.cartCount>0&&<b>{commerce.cartCount}</b>}</button></div>
     </header>
