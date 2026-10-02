@@ -123,3 +123,22 @@
     width:100%!important;
   }
 }
+
+
+/* 2026-10-02 — iPad/tablette: navigation depuis la gauche et 3 cartes lisibles. */
+@media(max-width:900px) and (min-width:701px){
+  .category-main-nav{
+    justify-content:flex-start!important;
+    overflow-x:auto!important;
+    scrollbar-width:none;
+  }
+  .category-main-nav::-webkit-scrollbar{display:none}
+  .catalog-marketplace .category-products .category-grid,
+  .category-page .category-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+  .category-page .category-card{
+    min-width:0!important;
+  }
+}
