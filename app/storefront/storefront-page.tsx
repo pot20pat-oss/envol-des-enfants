@@ -180,6 +180,8 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
         <p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p>
       </footer>
 
+      <StorefrontQuickScroll say={say} />
+
       {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
     </main>
   );
