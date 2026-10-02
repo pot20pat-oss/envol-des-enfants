@@ -78,3 +78,48 @@
 .shop-category-circle img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
 .shop-category-circles strong{font-size:12px;line-height:1.15;max-width:105px}
 @media(max-width:800px){.shop-category-circles{min-width:820px!important}.shop-category-strip{overflow-x:auto!important}}
+
+
+/* 2026-10-02 — tablette catalogue: supprimer la colonne fantôme du menu latéral. */
+@media(max-width:1100px) and (min-width:701px){
+  .catalog-marketplace .catalog-command{
+    grid-template-columns:minmax(0,1fr)!important;
+    width:min(100% - 32px,1180px)!important;
+    max-width:min(100% - 32px,1180px)!important;
+    min-width:0!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
+  .catalog-marketplace .catalog-searchbar{
+    grid-column:1!important;
+    min-width:0!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .catalog-marketplace .catalog-filters,
+  .catalog-marketplace .catalog-result-line{
+    grid-column:1!important;
+    grid-row:auto!important;
+    min-width:0!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .catalog-marketplace .catalog-filters{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+  .catalog-marketplace .catalog-filters label{
+    min-width:0!important;
+  }
+  .catalog-marketplace .catalog-filters select,
+  .catalog-marketplace .catalog-filters input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .catalog-marketplace .catalog-reset{
+    width:100%!important;
+  }
+}
