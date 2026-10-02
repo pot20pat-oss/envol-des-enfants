@@ -89,6 +89,14 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
     const filtered=products.filter(p=>{
       if(isFullCatalog&&excludedCatalogCategories.has(p.category)) return false;
       if(categories?.length&&!categories.includes(p.category)) return false;
+      if(activeCategory==="barbie-accessories"){
+        const text=`${p.name_fr} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""}`;
+        if(p.category!=="barbie" || !/accessoires?|accessory|accessories/i.test(text)) return false;
+      }
+      if(activeCategory==="barbie" && p.category==="barbie"){
+        const text=`${p.name_fr} ${p.name_en||""} ${p.description_fr||""} ${p.description_en||""}`;
+        if(/accessoires?|accessory|accessories/i.test(text)) return false;
+      }
       if(availability!=="all"&&p.status!==availability) return false;
       if(brand!=="all"&&p.brand!==brand) return false;
       if(age!=="all"&&p.ages!==age) return false;
