@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { Product, Translation } from "@/lib/default-catalog";
 import { markets, type Market } from "@/lib/markets";
 import ProductCard from "./product-card";
+import { catalogFamilies } from "@/lib/catalog-navigation";
 
 type Language = "fr" | "en";
 type Category = { label: Translation; value: string };
@@ -19,14 +20,11 @@ export default function StorefrontCatalog({ products, availableCategories, dollC
   const say = (fr: string, en: string) => isEnglish ? en : fr;
   // Navigation simplifiée : les sous-catégories et marques restent des données
   // de catalogue, mais ne sont plus exposées comme autant de catégories à choisir.
-  const groups = [
-    { key: "jouets", label: say("Jouets & jeux", "Toys & games"), values: ["eveil", "imitation", "dinosaures", "animaux"] },
-    { key: "poupees", label: say("Poupées & princesses", "Dolls & princesses"), values: dollCategories },
-    { key: "bebe", label: say("Bébé & éveil", "Baby & early learning"), values: ["bebe"] },
-    { key: "ecole", label: say("Articles scolaires", "School supplies"), values: ["scolaire", "sacs"] },
-    { key: "pleinair", label: say("Véhicules & plein air", "Vehicles & outdoor play"), values: ["vehicules", "piscine"] },
-  ];
-  const groupValues = (key: string) => groups.find((group) => group.key === key)?.values || [];
+  const groups = catalogFamilies.map((family) => ({
+    key: family.value,
+    label: say(family.labelFr, family.labelEn),
+    values: family.categories,
+  }));  const groupValues = (key: string) => groups.find((group) => group.key === key)?.values || [];
   const isBarbieAccessory = (item: Product) =>
     item.category === "barbie" &&
     /accessoires?|accessory|accessories/i.test(`${item.name.fr} ${item.name.en}`);
