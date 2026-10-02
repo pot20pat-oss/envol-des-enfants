@@ -10,7 +10,6 @@ import StorefrontNavigation from "./storefront-navigation";
 import StorefrontPromo from "./storefront-promo";
 import StorefrontHero from "./storefront-hero";
 import StorefrontFeaturedCollections from "./storefront-featured-collections";
-import StorefrontQuickScroll from "./storefront-quick-scroll";
 import StorefrontShopSections from "./storefront-shop-sections";
 import { useStoreLanguage } from "../hooks/use-store-language";
 import { useStoreMarket } from "../hooks/use-store-market";
@@ -179,8 +178,6 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
         </p>
         <p>© {new Date().getFullYear()} Envol des Enfants · Tous droits réservés.</p>
       </footer>
-
-      <StorefrontQuickScroll say={say} />
 
       {selectedProduct && <ProductLightbox key={selectedProduct.id || `${selectedProduct.sheet}-${selectedProduct.position}`} product={selectedProduct} language={language} market={market} whatsappNumber={whatsappNumber} whatsappUrl={whatsappUrl} onClose={() => setSelectedProduct(null)} />}
     </main>

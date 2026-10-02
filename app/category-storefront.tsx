@@ -6,7 +6,6 @@ import type { Product as CommerceProduct } from "@/lib/default-catalog";
 import { useCommerce } from "./commerce/commerce-provider";
 import { matchesProductSearch } from "@/lib/product-search";
 import { dollCategories } from "@/lib/catalog-navigation";
-import ScrollToTop from "./components/scroll-to-top";
 
 type Product = {
   id:string;
@@ -153,7 +152,6 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
   });
 
   return <main className={`category-page${isFullCatalog?" catalog-marketplace":""} theme-${themeCategory}`}>
-    <ScrollToTop />
     <header className="category-header wrap">
       <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-transparent.png" alt="Envol des Enfants"/></a>
       <label className="category-header-search"><span className="sr-only">{label("Rechercher", "Search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={label("Que recherchez-vous? (ex. Barbie, LEGO, Montessori…)","What are you looking for? (e.g. Barbie, LEGO, Montessori…)")}/><b aria-hidden="true">⌕</b></label>

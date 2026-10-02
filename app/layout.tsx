@@ -19,6 +19,7 @@ import "./commerce/storefront-commerce.css";
 import "./storefront/shop-reference.css";
 import "./homepage-only.css";
 import { CommerceProvider } from "./commerce/commerce-provider";
+import ScrollToTop from "./components/scroll-to-top";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://envoldesenfants.com"),
@@ -76,6 +77,7 @@ export default function RootLayout({
     <html lang="fr">
       <body className="antialiased">
         <CommerceProvider>{children}</CommerceProvider>
+        <ScrollToTop />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
