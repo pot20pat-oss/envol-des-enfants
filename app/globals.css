@@ -779,3 +779,25 @@
 .editable-storefront .footer-brand>span{
   color:#9a4c13!important;
 }
+
+
+/* 2026-10-06 — Lighthouse contrast pass 2. */
+.editable-storefront{
+  --muted:#586a73!important;
+}
+.editable-storefront .eyebrow,
+.editable-storefront .home-partner-summary,
+.editable-storefront .product-description,
+.editable-storefront .catalog-summary,
+.editable-storefront .tiny-note,
+.editable-storefront .promo-intro,
+.editable-storefront .promo-content form small{
+  color:#586a73!important;
+}
+.editable-storefront .home-partner-card small{
+  color:#971946!important;
+}
+.editable-storefront .featured-copy>span,
+.editable-storefront .product-badge.new{
+  color:#8f3040!important;
+}
