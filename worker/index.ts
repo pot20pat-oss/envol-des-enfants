@@ -29,19 +29,49 @@ interface ExecutionContext {
 // dangerouslyAllowSVG: true in next.config.js and uncomment below:
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
+function withSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://cloudflareinsights.com https://*.cloudflareinsights.com",
+    "frame-src 'self' https://www.google.com https://maps.google.com",
+    "upgrade-insecure-requests",
+  ].join("; "));
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
-      return handleImageOptimization(request, {
+      const imageResponse = await handleImageOptimization(request, {
         fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
         transformImage: async (body, { width, format, quality }) => {
           const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
           return result.response();
         },
       }, allowedWidths);
+      return withSecurityHeaders(imageResponse);
     }
 
     const response = await handler.fetch(request, env, ctx);
@@ -56,10 +86,10 @@ const worker = {
       const headers = new Headers(response.headers);
       headers.set("Cache-Control", "no-cache, must-revalidate");
       headers.set("CDN-Cache-Control", "no-store");
-      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+      return withSecurityHeaders(new Response(response.body, { status: response.status, statusText: response.statusText, headers }));
     }
 
-    return response;
+    return withSecurityHeaders(response);
   },
 };
 
