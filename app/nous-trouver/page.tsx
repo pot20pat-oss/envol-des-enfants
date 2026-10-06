@@ -42,7 +42,7 @@ export default function Page(){
 
   return <main className="category-page">
     <header className="category-header wrap">
-      <a href={homeUrl} className="category-brand"><img src="/_vinext/image?url=%2Fenvol-logo-transparent.png&w=440&q=78" alt="Envol des Enfants"/></a>
+      <a href={homeUrl} className="category-brand"><img src="/envol-logo-transparent.png" alt="Envol des Enfants"/></a>
       <a href={homeUrl} className="category-back">← Accueil</a>
     </header>
     <section className="category-hero wrap">
