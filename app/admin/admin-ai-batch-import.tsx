@@ -273,18 +273,18 @@ async function createAll(){const exactDuplicates=items.filter(x=>!x.duplicate&&x
  const duplicates=items.filter(i=>i.duplicate).length,ready=items.filter(i=>!i.duplicate&&i.state==="done"&&i.suggestion&&i.url&&!i.error).length,failed=items.filter(i=>!i.duplicate&&i.state==="error").length,allAnalyzed=items.filter(i=>!i.duplicate).length>0&&items.filter(i=>!i.duplicate).every(i=>i.state==="done"&&!!i.suggestion&&!!i.url&&!i.error),groups=new Set(items.filter(i=>i.group).map(i=>i.group)).size;
  return <section className="cms-ai-batch">
   <div className="cms-ai-fixed-toolbar">
-    <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}>
+    <div className="cms-ai-toolbar-search" style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}>
       <input className="cms-search" placeholder="Rechercher un produit…" value={search} onChange={e=>setSearch(e.target.value)} style={{flex:"1 1 320px",minWidth:180,maxWidth:460}} />
       <button className="cms-secondary" disabled={busy} onClick={synchronize}>↻ Catalogue</button>
       <button className="cms-secondary" onClick={add}>+ Produit manuel</button>
       <button type="button" className="cms-secondary" disabled={duplicateScanning||busy||working} onClick={()=>void scanDuplicates()}>{duplicateScanning?`⌛ Doublons ${duplicateProgress.total?Math.round(duplicateProgress.done/duplicateProgress.total*100):0}%`:"⌕ Vérifier les doublons"}</button>
       <label className="cms-secondary" style={{margin:0,cursor:imageSearchBusy?"wait":"pointer"}}>🔎 {imageSearchBusy?"Recherche…":"Rechercher par image"}<input type="file" accept="image/*" disabled={busy||working||imageSearchBusy} style={{display:"none"}} onChange={e=>{const file=e.target.files?.[0];if(file&&onImageSearch)void onImageSearch(file);e.currentTarget.value=""}}/></label>
     </div>
-    <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:8}}>
+    <div className="cms-ai-toolbar-actions" style={{display:"flex",alignItems:"center",justifyContent:"flex-end",gap:8}}>
       <label className="cms-primary cms-ai-file" style={{margin:0}}>1 · Choisir les photos<input type="file" accept="image/*" multiple disabled={busy||working} onChange={e=>void choose(e.target.files)}/></label>
       {items.length>0&&<><button className="cms-primary" disabled={working||unique.length===0} onClick={()=>void analyzeAll()}>2 · Analyser</button><button className="cms-primary" disabled={working||ready===0||!allAnalyzed} title={!allAnalyzed?"Toutes les photos doivent réussir leur analyse avant l’importation":undefined} onClick={()=>void createAll()}>3 · Enregistrer</button><button type="button" className="cms-danger" disabled={working} onClick={cancelBatch}>Annuler</button></>}
     </div>
-    {items.length>0&&<div style={{gridColumn:"1 / -1",display:"flex",alignItems:"center",gap:10,paddingTop:8,borderTop:"1px solid #e4ecef",flexWrap:"wrap"}}>
+    {items.length>0&&<div className="cms-ai-toolbar-options" style={{gridColumn:"1 / -1",display:"flex",alignItems:"center",gap:10,paddingTop:8,borderTop:"1px solid #e4ecef",flexWrap:"wrap"}}>
       <strong style={{fontSize:12,color:"#536b7a"}}>OPTIONS DU LOT</strong>
       <label title="Les fiches seront enregistrées dans le CMS mais resteront masquées du site jusqu’à leur activation." style={{display:"flex",alignItems:"center",gap:6,padding:"7px 9px",border:"1px solid #dce6eb",borderRadius:8,background:standby?"#eef7ff":"#fff",fontWeight:700,cursor:"pointer"}}><input type="checkbox" checked={standby} onChange={e=>setStandby(e.target.checked)}/><span>En attente</span></label>
       <label style={{display:"flex",alignItems:"center",gap:6,fontWeight:700}}>Visibilité <select value={targetVisibility} onChange={e=>{const value=e.target.value as "hidden"|"qc"|"conakry"|"both";setTargetVisibility(value);setItems(a=>a.map(x=>x.suggestion?{...x,suggestion:{...x.suggestion,visible_qc:value==="qc"||value==="both",visible_conakry:value==="conakry"||value==="both"}}:x))}} style={{padding:"7px 9px",border:"1px solid #b9cbd5",borderRadius:8}}><option value="hidden">Masqué</option><option value="qc">Québec</option><option value="conakry">Conakry</option><option value="both">Québec + Conakry</option></select></label>
