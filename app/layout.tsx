@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./navigation-large.css";
+import "./nav-icons.css";
+import "./nav-joy.css";
+import "./brand-logos.css";
+import "./typography-large.css";
+import "./product-previews-large.css";
+import "./catalog-search-highlight.css";
+import "./logo-large.css";
+import "./nav-icons-final.css";
+import "./hero-mobile.css";
+import "./product-lightbox.css";
+import "./dialog-responsive.css";
 import "./commerce/commerce.css";
-import { CommerceProvider } from "./commerce/commerce-provider";
-import ScrollToTop from "./components/scroll-to-top";
+import "./commerce/storefront-commerce.css";
+import "./storefront/shop-reference.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://envoldesenfants.com"),
@@ -22,9 +34,9 @@ export const metadata: Metadata = {
     images: ["/boutique-hero.png"],
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: "/envol-logo-transparent.png",
+    shortcut: "/envol-logo-transparent.png",
+    apple: "/envol-logo-transparent.png",
   },
 };
 

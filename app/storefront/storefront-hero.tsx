@@ -26,6 +26,12 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
     { name: "nouveau-ne", alt: say("Tout petit. Déjà tout un monde.", "So little. A whole world of wonder.") },
     { name: "bebe", alt: say("Petits gestes. Grandes découvertes.", "Little moves. Big discoveries.") },
   ];
+  const fallbackSlides: Record<string, string> = {
+    costume: "/hero-client/01-costume.webp",
+    creativite: "/hero-client/02-jouets.webp",
+    "nouveau-ne": "/hero-client/05-nouveau-ne.webp",
+    bebe: "/hero-client/06-bebe.webp",
+  };
   const slide = slides[active];
   useEffect(() => {
     let interval: number | undefined;
@@ -60,6 +66,12 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
           loading={active === 0 ? "eager" : "lazy"}
           fetchPriority={active === 0 ? "high" : "auto"}
           draggable={false}
+          onError={(event) => {
+            const fallback = fallbackSlides[slide.name];
+            if (fallback && event.currentTarget.src !== new URL(fallback, window.location.href).href) {
+              event.currentTarget.src = fallback;
+            }
+          }}
         />
       </a>
     </section>
