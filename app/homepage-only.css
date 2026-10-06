@@ -967,7 +967,7 @@ html,body{overflow-x:hidden!important}
   flex:0 0 50px!important;
   display:block!important;
   border-radius:50%!important;
-  background:#25d366!important;color:#fff!important;display:grid!important;place-items:center!important;
+  background:transparent!important;display:block!important;object-fit:contain!important;object-position:center!important;
 }
 .ref-header .ref-whatsapp-contact-copy{
   display:grid!important;
@@ -1062,7 +1062,7 @@ html,body{overflow-x:hidden!important}
   height:50px!important;
   flex:0 0 50px!important;
   border-radius:50%!important;
-  background:#25d366!important;color:#fff!important;display:grid!important;place-items:center!important;
+  background:transparent!important;display:block!important;object-fit:contain!important;object-position:center!important;
 }
 .ref-header .ref-whatsapp-contact::before{
   display:none!important;
@@ -1139,5 +1139,3 @@ html,body{overflow-x:hidden!important}
   }
 }
 
-.ref-header .ref-whatsapp-contact-icon>svg{width:30px!important;height:30px!important;display:block!important;stroke:currentColor!important}
-@media(max-width:800px){.ref-header .ref-whatsapp-contact-icon>svg{width:26px!important;height:26px!important}}
