@@ -4,6 +4,7 @@ type SavedDeletion = {
   name_fr?: unknown;
   name_en?: unknown;
   product?: Record<string, unknown>;
+  restored_at?: unknown;
 };
 
 function matchesQuery(product: Record<string, unknown>, query: string) {
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
   for (const row of deletedRows.results) {
     try {
       const parsed = JSON.parse(row.value) as SavedDeletion;
+      if (parsed.restored_at) continue;
       const product = parsed.product && typeof parsed.product === "object" ? parsed.product : {};
       if (matchesQuery(product, query)) deleted.push({ key: row.key, updated_at: row.updated_at, product });
     } catch {}
