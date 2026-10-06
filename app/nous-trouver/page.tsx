@@ -1,5 +1,5 @@
-import "../category-pages.css";
 "use client";
+import "../category-pages.css";
 import { useEffect,useState } from "react";
 
 type Market = "conakry" | "qc";
