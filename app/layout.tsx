@@ -39,9 +39,9 @@ export const metadata: Metadata = {
     images: ["/boutique-hero.png"],
   },
   icons: {
-    icon: "/envol-logo-transparent.png",
-    shortcut: "/envol-logo-transparent.png",
-    apple: "/envol-logo-transparent.png",
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
   },
 };
 
