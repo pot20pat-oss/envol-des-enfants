@@ -136,8 +136,10 @@ const sqlForProduct = (product) => {
   const priceQc = product.priceQc ?? 0;
   const stockConakry = product.stockConakry ?? product.stock ?? (product.status === "sold" ? 0 : 1);
   const stockQc = product.stockQc ?? product.stock ?? (product.status === "sold" ? 0 : 1);
-  const nameKey = product.name.fr.trim();
-  const where = `(id=${sqlString(product.id)} OR lower(trim(name_fr))=lower(trim(${sqlString(nameKey)})))`;
+  // Un produit seed ne peut mettre à jour qu'une fiche portant le même ID stable.
+  // Un nom identique n'est jamais une identité fiable : il peut correspondre à
+  // un autre article saisi manuellement par la cliente.
+  const where = `id=${sqlString(product.id)}`;
   const priceConakrySql = sqlNumber(priceConakry);
   const priceQcSql = sqlNumber(priceQc);
   const stockConakrySql = sqlNumber(stockConakry, 1);
@@ -193,7 +195,7 @@ console.log("Doublons ID/nom/image: 0.");
 console.log(`Prix Conakry à 0 dans les JSON: ${zeroPriceCount}.`);
 console.log("Protection production: prix, stock, stock par marché, statut et images CMS existantes sont conservés sur les produits existants.");
 console.log(`SQL généré: ${path.relative(root, outputPath)}`);
-console.log("Le seed réutilise les produits existants par ID ou nom FR et ne modifie jamais article_number.");
+console.log("Le seed réutilise uniquement les produits existants par ID stable et ne modifie jamais article_number.");
 
 if (!process.argv.includes("--apply")) {
   console.log("Dry-run terminé. Utilise --apply pour exécuter le seed sur D1 distant.");

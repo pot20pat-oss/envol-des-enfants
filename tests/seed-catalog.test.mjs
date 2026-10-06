@@ -29,3 +29,18 @@ test("catalog seed preserves live inventory fields on existing products", () => 
 
   assert.match(sql, /INSERT INTO products \([^)]*stock[^)]*status[^)]*stock_qc[^)]*stock_conakry/);
 });
+
+
+test("catalog seed matches existing rows by stable ID only, never by French name", () => {
+  const run = spawnSync(process.execPath, ["scripts/seed-catalog-d1.mjs"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+
+  const sql = fs.readFileSync(path.join(root, ".wrangler", "catalog-seed.sql"), "utf8");
+  assert.doesNotMatch(sql, /lower\(trim\(name_fr\)\)/i);
+  assert.match(sql, /UPDATE products SET [^;]+ WHERE id='/);
+  assert.match(run.stdout, /uniquement les produits existants par ID stable/);
+});

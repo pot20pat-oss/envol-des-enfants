@@ -20,15 +20,6 @@ export async function GET(request: Request) {
       .bind(region, new Date().toISOString().slice(0, 10), new Date().toISOString().slice(0, 10)).all();
     const allSettings = Object.fromEntries(settings.results.map((entry) => [entry.key, entry.value]));
 
-    const seenNames = new Set<string>();
-    const deduplicatedResults = results.filter((product) => {
-      const normalizedName = String(product.name_fr || "").trim().toLocaleLowerCase("fr");
-      if (!normalizedName) return true;
-      if (seenNames.has(normalizedName)) return false;
-      seenNames.add(normalizedName);
-      return true;
-    });
-
     // Les 4 cartes « Nouveautés » de l'accueil prennent les premiers produits badge=new.
     // On mélange donc les grandes familles avant de retourner le catalogue afin d'éviter
     // d'afficher quatre poupées simplement parce qu'elles ont été ajoutées en dernier.
@@ -45,8 +36,8 @@ export async function GET(request: Request) {
       return "jouets";
     };
 
-    const newProducts = deduplicatedResults.filter((product) => String(product.badge || "") === "new");
-    const otherProducts = deduplicatedResults.filter((product) => String(product.badge || "") !== "new");
+    const newProducts = results.filter((product) => String(product.badge || "") === "new");
+    const otherProducts = results.filter((product) => String(product.badge || "") !== "new");
     const buckets = new Map<string, Record<string, unknown>[]>();
     for (const product of newProducts) {
       const group = noveltyGroup(product);
