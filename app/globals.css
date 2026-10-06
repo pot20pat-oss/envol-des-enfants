@@ -625,6 +625,7 @@
 .home-partner-card>button:hover,.home-partner-card>button:focus-visible{transform:translateY(-3px);box-shadow:0 10px 28px rgba(20,53,75,.13);outline:none}
 .home-partner-mark{font-family:Georgia,"Times New Roman",serif;font-size:28px;font-weight:700}
 .home-partner-card small{color:#e33f77;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+.home-partner-summary{max-width:320px;margin:0;color:#667985;font-size:12px;line-height:1.55;text-align:center}
 .home-partner-card b{margin-top:8px;font-size:12px}
 .partner-modal{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;background:rgba(7,25,38,.78);backdrop-filter:blur(5px)}
 .partner-modal-card{position:relative;width:min(600px,100%);padding:42px 42px 38px;border-radius:18px;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.3)}
