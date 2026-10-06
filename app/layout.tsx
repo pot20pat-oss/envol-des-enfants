@@ -72,6 +72,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/hero-client/costume-fr.webp"
+          fetchPriority="high"
+        />
+      </head>
       <body className="antialiased">
         <CommerceProvider>{children}</CommerceProvider>
         <ScrollToTop />
