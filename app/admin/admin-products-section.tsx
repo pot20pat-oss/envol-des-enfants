@@ -16,6 +16,8 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
   const [imageSearchResults,setImageSearchResults]=useState<Array<{product:Row;score:number}>>([]);
   const imageSearchInput=useRef<HTMLInputElement>(null);
   const [visibilityBusy, setVisibilityBusy] = useState<string | null>(null);
+  const [recoveryBusy,setRecoveryBusy]=useState(false);
+  const [recoveryAudit,setRecoveryAudit]=useState<{query:string;current:Row[];deleted:Array<{key:string;updated_at:string;product:Row}>}|null>(null);
   const [selectedProducts,setSelectedProducts]=useState<Set<string>>(new Set());
   const [bulkBusy,setBulkBusy]=useState(false);
   const [bulkPrice,setBulkPrice]=useState("");
@@ -73,6 +75,23 @@ export function ProductsSection({ products, catalogProducts, market, busy, searc
       }finally{URL.revokeObjectURL(objectUrl)}
     }catch(error){window.alert(error instanceof Error?error.message:"Recherche par image impossible.")}
     finally{setImageSearchBusy(false);if(imageSearchInput.current)imageSearchInput.current.value=""}
+  };
+  const auditDeletedProducts=async(query="vtech")=>{
+    setRecoveryBusy(true);
+    try{
+      const result=await request(`/api/admin/recovery-audit?q=${encodeURIComponent(query)}`) as {query:string;current:Row[];deleted:Array<{key:string;updated_at:string;product:Row}>};
+      setRecoveryAudit(result);
+    }catch(error){window.alert(error instanceof Error?error.message:"Audit de récupération impossible.");}
+    finally{setRecoveryBusy(false);}
+  };
+  const restoreDeletedProduct=async(key:string)=>{
+    if(!window.confirm("Restaurer cette fiche produit supprimée dans le catalogue ?"))return;
+    setRecoveryBusy(true);
+    try{
+      await request("/api/admin/recovery-audit",{method:"POST",body:JSON.stringify({key})});
+      await reload();
+      await auditDeletedProducts(recoveryAudit?.query||"vtech");
+    }catch(error){window.alert(error instanceof Error?error.message:"Restauration impossible.");setRecoveryBusy(false);}
   };
   const reset = () => { setSearch(""); setCategory("all"); setVisibility("all"); setStock("all"); };
   const setProductBoutique=async(product:Row,value:string)=>{setVisibilityBusy(String(product.id));try{await request("/api/admin/products",{method:"PUT",body:JSON.stringify({...product,visible_qc:value==="qc"||value==="both",visible_conakry:value==="conakry"||value==="both",visible:value!=="hidden"})});await reload()}finally{setVisibilityBusy(null)}};
@@ -207,6 +226,20 @@ Appliquer ces modifications ?`))return;setBulkBusy(true);try{for(const product o
   };
   return <section className="cms-panel">
     <AiBatchImport market={market} busy={busy} onDone={reload} catalogProducts={catalogProducts} search={search} setSearch={setSearch} synchronize={synchronize} add={add} scanDuplicates={scanDuplicates} duplicateScanning={duplicateScanning} duplicateProgress={duplicateProgress} onImageSearch={searchByImage} imageSearchBusy={imageSearchBusy} />
+    <section style={{margin:"0 0 16px",padding:14,border:"1px solid #d9c99c",borderRadius:12,background:"#fffaf0",color:"#17364a"}}>
+      <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+        <strong>🧰 Récupération produits supprimés</strong>
+        <button type="button" className="cms-secondary" disabled={recoveryBusy} onClick={()=>void auditDeletedProducts("vtech")}>{recoveryBusy?"⏳ Analyse…":"Auditer les VTech"}</button>
+        {recoveryAudit&&<small>{recoveryAudit.current.length} VTech présent(s) · {recoveryAudit.deleted.length} fiche(s) supprimée(s) retrouvée(s)</small>}
+      </div>
+      {recoveryAudit&&recoveryAudit.deleted.length>0&&<div style={{display:"grid",gap:8,marginTop:10}}>
+        {recoveryAudit.deleted.map(item=><div key={item.key} style={{display:"flex",gap:10,alignItems:"center",justifyContent:"space-between",padding:10,border:"1px solid #eadbb0",borderRadius:9,background:"#fff"}}>
+          <span><strong>{String(item.product.name_fr||item.product.article_number||"Produit")}</strong><small style={{display:"block"}}>No {String(item.product.article_number||"—")} · {String(item.product.brand||"")} · supprimé {item.updated_at||"date inconnue"}</small></span>
+          <button type="button" className="cms-primary" disabled={recoveryBusy} onClick={()=>void restoreDeletedProduct(item.key)}>Restaurer</button>
+        </div>)}
+      </div>}
+      {recoveryAudit&&recoveryAudit.deleted.length===0&&<small style={{display:"block",marginTop:8}}>Aucune fiche VTech supprimée n’est conservée dans l’historique D1.</small>}
+    </section>
     <section style={{margin:"0 0 16px",padding:14,border:"1px solid #b9cbd5",borderRadius:12,background:"var(--cms-surface)",color:"var(--cms-text)"}}>
       <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
         <strong>🔎 Recherche par image</strong>
