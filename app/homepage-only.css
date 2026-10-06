@@ -1179,3 +1179,117 @@ html,body{overflow-x:hidden!important}
     gap:14px!important;
   }
 }
+
+
+/* 2026-10-06 — structure finale des services du header. */
+.ref-header .ref-head{
+  grid-template-columns:230px minmax(260px,1fr) 500px!important;
+}
+.ref-header .ref-service{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:26px!important;
+  min-width:0!important;
+}
+.ref-header .ref-delivery-service,
+.ref-header .ref-whatsapp-contact{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-width:0!important;
+  width:100%!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-sizing:border-box!important;
+  text-decoration:none!important;
+}
+.ref-header .ref-delivery-service>svg{
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+}
+.ref-header .ref-service-copy,
+.ref-header .ref-whatsapp-contact-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:5px!important;
+  min-width:0!important;
+}
+.ref-header .ref-service-copy b,
+.ref-header .ref-whatsapp-contact-copy b{
+  margin:0!important;
+  font-size:17px!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.ref-header .ref-service-copy small,
+.ref-header .ref-whatsapp-contact-copy small{
+  margin:0!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+  white-space:normal!important;
+  overflow:visible!important;
+}
+.ref-header .ref-whatsapp-contact-icon{
+  display:block!important;
+  width:50px!important;
+  height:50px!important;
+  flex:0 0 50px!important;
+  border-radius:50%!important;
+  background:url("/contact-whatsapp-metallic.webp") center/contain no-repeat!important;
+}
+.ref-header .ref-whatsapp-contact::before{
+  display:none!important;
+  content:none!important;
+}
+
+@media(max-width:1250px){
+  .ref-header .ref-head{
+    grid-template-columns:190px minmax(220px,1fr) 440px!important;
+    gap:18px!important;
+  }
+  .ref-header .ref-service{gap:18px!important}
+  .ref-header .ref-service-copy b,
+  .ref-header .ref-whatsapp-contact-copy b{font-size:15px!important}
+  .ref-header .ref-service-copy small,
+  .ref-header .ref-whatsapp-contact-copy small{font-size:12px!important}
+  .ref-header .ref-delivery-service>svg{
+    width:40px!important;height:40px!important;flex-basis:40px!important;
+  }
+  .ref-header .ref-whatsapp-contact-icon{
+    width:44px!important;height:44px!important;flex-basis:44px!important;
+  }
+}
+
+@media(max-width:980px){
+  .ref-header .ref-head{
+    grid-template-columns:150px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    gap:14px!important;
+  }
+  .ref-header .ref-logo{grid-column:1!important;grid-row:1!important}
+  .ref-header .ref-service{
+    grid-column:2!important;
+    grid-row:1!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:16px!important;
+  }
+  .ref-header .ref-search{
+    grid-column:1 / -1!important;
+    grid-row:2!important;
+  }
+}
+
+@media(max-width:720px){
+  .ref-header .ref-head{grid-template-columns:120px minmax(0,1fr)!important}
+  .ref-header .ref-service{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+}
