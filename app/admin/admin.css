@@ -748,3 +748,88 @@
     font-size:8px!important;
   }
 }
+
+
+/* 2026-10-06 — cartes d'import IA adaptatives selon la largeur réelle du panneau. */
+.cms-ai-batch{
+  container-type:inline-size;
+  container-name:aiimport;
+}
+@container aiimport (max-width:1050px){
+  .cms-ai-import-item{
+    grid-template-columns:1fr!important;
+    gap:18px!important;
+    padding:14px!important;
+  }
+  .cms-ai-import-media{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .cms-ai-import-preview{
+    width:min(100%,520px)!important;
+    height:auto!important;
+    aspect-ratio:1/1!important;
+    justify-self:center!important;
+  }
+  .cms-ai-import-form{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .cms-ai-import-form label,
+  .cms-ai-import-form input,
+  .cms-ai-import-form textarea,
+  .cms-ai-import-form select,
+  .cms-ai-import-form details{
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .cms-ai-import-form input,
+  .cms-ai-import-form textarea,
+  .cms-ai-import-form select{
+    width:100%!important;
+  }
+  .cms-ai-import-category,
+  .cms-ai-import-visibility{
+    width:100%!important;
+    max-width:none!important;
+  }
+  .cms-ai-import-visibility{
+    display:grid!important;
+    grid-template-columns:120px minmax(0,1fr)!important;
+    align-items:center!important;
+  }
+  .cms-ai-import-visibility select{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .cms-ai-import-duplicate{
+    grid-template-columns:1fr!important;
+    gap:16px!important;
+    padding:14px!important;
+  }
+  .cms-ai-import-duplicate-image{
+    width:min(100%,420px)!important;
+    height:auto!important;
+    aspect-ratio:1/1!important;
+    justify-self:center!important;
+  }
+  .cms-ai-import-duplicate>div{
+    min-width:0!important;
+  }
+}
+@container aiimport (max-width:680px){
+  .cms-ai-import-item{
+    padding:10px!important;
+  }
+  .cms-ai-import-preview{
+    width:100%!important;
+  }
+  .cms-ai-import-visibility{
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  .cms-ai-import-duplicate{
+    padding:10px!important;
+  }
+}
