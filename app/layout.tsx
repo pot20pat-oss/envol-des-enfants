@@ -42,28 +42,6 @@ export const metadata: Metadata = {
   },
 };
 
-const styleBlockerCheck = `
-(function () {
-  function showWarning() {
-    if (document.getElementById('envol-style-warning')) return;
-    var warning = document.createElement('div');
-    warning.id = 'envol-style-warning';
-    warning.setAttribute('role', 'alert');
-    warning.style.cssText = 'display:block;position:fixed;inset:12px 12px auto 12px;z-index:2147483647;max-width:760px;margin:0 auto;padding:14px 18px;border:2px solid #b42318;border-radius:10px;background:#fff4f2;color:#7a271a;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;box-shadow:0 8px 30px rgba(0,0,0,.18)';
-    warning.innerHTML = '<strong>Le bloqueur de contenu empêche l’affichage normal du site.</strong> Si vous utilisez Opera, autorisez <strong>envoldesenfants.com</strong> dans « Bloquer les publicités », puis rechargez la page.';
-    document.body.appendChild(warning);
-  }
-  function checkStyles() {
-    var cssReady = getComputedStyle(document.documentElement).getPropertyValue('--navy').trim();
-    if (!cssReady) showWarning();
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { setTimeout(checkStyles, 250); }, { once: true });
-  } else {
-    setTimeout(checkStyles, 250);
-  }
-  window.addEventListener('load', function () { setTimeout(checkStyles, 100); }, { once: true });
-})();`;
 
 export default function RootLayout({
   children,
@@ -101,7 +79,6 @@ export default function RootLayout({
             }).replace(/</g, "\\u003c"),
           }}
         />
-        <script dangerouslySetInnerHTML={{ __html: styleBlockerCheck }} />
       </body>
     </html>
   );
