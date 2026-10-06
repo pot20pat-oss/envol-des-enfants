@@ -34,7 +34,8 @@ export function CustomersSection({ customers, orders, market, remove }: { custom
         const customerOrders = orders.filter((order) => String(order.customer_email || "").toLowerCase() === email);
         return <tr key={String(customer.id)}>
           <td><strong>{String(customer.name || "Sans nom")}</strong><br/><small>{String(customer.email || "")}</small></td>
-          <td>{String(customer.region) === "qc" ? "Québec" : "Conakry"}</td>\n          <td>{String(customer.phone || "—")}</td>
+          <td>{String(customer.region) === "qc" ? "Québec" : "Conakry"}</td>
+          <td>{String(customer.phone || "—")}</td>
           <td>{String(customer.address || "—")}</td>
           <td><strong>{Number(customer.order_count || customerOrders.length)}</strong>{customerOrders.length > 0 && <><br/><small>{customerOrders.slice(0, 3).map((order) => String(order.product_name)).join(" · ")}</small></>}</td>
           <td>{customer.created_at ? new Date(String(customer.created_at)).toLocaleDateString("fr-CA") : "—"}</td>
