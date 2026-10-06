@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./typography-large.css";
-import "./product-previews-large.css";
-import "./product-lightbox.css";
-import "./dialog-responsive.css";
 import "./commerce/commerce.css";
-import "./storefront/shop-reference.css";
 import { CommerceProvider } from "./commerce/commerce-provider";
 import ScrollToTop from "./components/scroll-to-top";
 
