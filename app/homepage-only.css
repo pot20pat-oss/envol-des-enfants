@@ -867,13 +867,13 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-cart-icon{position:relative;display:inline-grid;place-items:center;overflow:visible!important}
 .ref-header .ref-cart-icon>svg{width:28px;height:28px}
 .ref-header .ref-cart-count{
-  position:absolute;top:-23px;right:-27px;display:grid;place-items:center;
-  min-width:36px;height:36px;padding:0 8px;box-sizing:border-box;border-radius:999px;
-  background:#ed2470;color:#fff;font-size:19px;line-height:1;font-weight:900;
-  box-shadow:0 0 0 4px #fff,0 3px 9px rgba(18,52,77,.22);
+  position:absolute;top:-8px;right:-18px;display:grid;place-items:center;
+  min-width:34px;height:34px;padding:0 8px;box-sizing:border-box;border-radius:999px;
+  background:#ed2470;color:#fff;font-size:18px;line-height:1;font-weight:900;
+  box-shadow:0 0 0 4px #fff,0 3px 9px rgba(18,52,77,.20);
   z-index:4;
 }
 @media(max-width:600px){
   .ref-header .ref-cart-icon>svg{width:26px;height:26px}
-  .ref-header .ref-cart-count{top:-20px;right:-24px;min-width:32px;height:32px;font-size:17px;padding:0 7px}
+  .ref-header .ref-cart-count{top:-7px;right:-16px;min-width:30px;height:30px;font-size:16px;padding:0 6px}
 }
