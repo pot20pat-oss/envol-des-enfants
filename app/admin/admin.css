@@ -512,3 +512,36 @@
 .cms-theme-dropdown button b{color:var(--cms-primary)}
 :root[data-cms-theme="rose"] .cms-sidebar,:root[data-cms-theme="menthe"] .cms-sidebar,:root[data-cms-theme="lavande"] .cms-sidebar,:root[data-cms-theme="peche"] .cms-sidebar{background:var(--cms-surface)}
 @media(max-width:820px){.cms-theme-menu{position:static}.cms-theme-dropdown{position:fixed;top:120px;right:12px;left:12px;width:auto}}
+
+
+/* 2026-10-06 — écrans peu hauts : empêcher le compte de chevaucher le bas du menu. */
+@media (min-width:821px) and (max-height:760px){
+  .cms-sidebar{
+    height:100vh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+  }
+  .cms-sidebar nav{
+    padding-bottom:8px!important;
+  }
+  .cms-account{
+    position:static!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    margin-top:14px!important;
+    padding:14px 0 18px!important;
+    background:inherit!important;
+  }
+  .cms-account strong,
+  .cms-account small{
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  .cms-account>button{
+    display:block!important;
+    margin-top:10px!important;
+  }
+}
