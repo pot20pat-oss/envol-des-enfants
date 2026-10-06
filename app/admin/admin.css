@@ -620,3 +620,57 @@
     grid-column:1!important;
   }
 }
+
+
+/* 2026-10-06 — toolbar IA robuste: layout selon l'espace réel du CMS, pas le viewport. */
+.cms-ai-fixed-toolbar{
+  grid-template-columns:minmax(0,1fr)!important;
+  align-items:stretch!important;
+}
+.cms-ai-toolbar-search,
+.cms-ai-toolbar-actions{
+  width:100%!important;
+  min-width:0!important;
+}
+.cms-ai-toolbar-search{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.cms-ai-toolbar-search .cms-search{
+  flex:1 1 260px!important;
+  min-width:220px!important;
+  max-width:none!important;
+}
+.cms-ai-toolbar-search>*:not(.cms-search){
+  flex:0 1 auto!important;
+  min-width:max-content!important;
+}
+.cms-ai-toolbar-actions{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;
+  gap:8px!important;
+  justify-content:stretch!important;
+}
+.cms-ai-toolbar-actions>*{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  white-space:normal!important;
+  text-align:center!important;
+}
+.cms-ai-toolbar-options{
+  width:100%!important;
+  min-width:0!important;
+  flex-wrap:wrap!important;
+}
+@media(max-width:900px){
+  .cms-ai-toolbar-search>*{
+    min-width:0!important;
+  }
+  .cms-ai-toolbar-search .cms-search{
+    flex:1 1 100%!important;
+    min-width:0!important;
+  }
+}
