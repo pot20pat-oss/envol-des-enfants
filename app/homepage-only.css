@@ -334,8 +334,9 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-search>span{padding:0 16px}
 .ref-header .ref-search>b{display:grid;place-items:center;align-self:stretch;flex:0 0 50px;background:#ed3978;color:#fff}
 .ref-header .ref-search svg{width:23px;height:23px}
-.ref-header .ref-service{gap:24px;justify-content:space-between}
+.ref-header .ref-service{gap:34px;justify-content:flex-end}
 .ref-header .ref-service>span,.ref-header .ref-service>a{grid-template-columns:40px auto;align-content:center;align-items:center;column-gap:10px;text-decoration:none}
+.ref-header .ref-service>span{padding-right:28px;border-right:1px solid #d9e1e5}
 .ref-header .ref-service svg{grid-row:1/3;width:36px;height:36px}
 .ref-header .ref-service b{font-size:14px;white-space:nowrap}
 .ref-header .ref-service small{font-size:12px;margin-top:4px}
@@ -356,6 +357,8 @@ html,body{overflow-x:hidden!important}
   .ref-header .ref-logo img{width:auto;height:170px}
   .ref-header .ref-service{display:flex;flex-direction:column;gap:12px;grid-column:2;grid-row:1}
   .ref-header .ref-service>span,.ref-header .ref-service>a{grid-template-columns:32px auto}
+  .ref-header .ref-service>span{padding-right:0;border-right:0;padding-bottom:10px;border-bottom:1px solid #d9e1e5}
+  .ref-header .ref-whatsapp-contact{margin-left:0!important}
   .ref-header .ref-service svg,.ref-header .ref-service>a>svg{width:30px;height:30px}
   .ref-header .ref-search{grid-column:1/-1;grid-row:2}
 }
@@ -916,7 +919,8 @@ html,body{overflow-x:hidden!important}
   display:inline-flex!important;
   align-items:center!important;
   gap:12px!important;
-  padding:7px 10px!important;
+  margin-left:8px!important;
+  padding:7px 0 7px 10px!important;
   border-radius:14px!important;
   text-decoration:none!important;
   color:#12344d!important;
