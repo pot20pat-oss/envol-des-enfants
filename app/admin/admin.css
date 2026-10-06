@@ -674,3 +674,74 @@
     min-width:0!important;
   }
 }
+
+
+/* 2026-10-06 — Nest Hub / écrans larges mais peu hauts (ex. 1024×600). */
+@media (min-width:821px) and (max-height:700px){
+  .cms-sidebar{
+    padding:10px 12px!important;
+    height:100vh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  .cms-logo img{
+    width:125px!important;
+    height:68px!important;
+    margin:0 auto 6px!important;
+    display:block!important;
+  }
+  .cms-sidebar>.cms-eyebrow{
+    margin-bottom:4px!important;
+    font-size:8px!important;
+  }
+  .cms-sidebar nav{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:4px!important;
+    margin-top:6px!important;
+    padding-bottom:6px!important;
+  }
+  .cms-sidebar nav button{
+    min-width:0!important;
+    min-height:34px!important;
+    padding:6px 7px!important;
+    gap:6px!important;
+    font-size:9px!important;
+    line-height:1.1!important;
+    white-space:normal!important;
+  }
+  .cms-sidebar nav button>span{
+    width:14px!important;
+    flex:0 0 14px!important;
+    font-size:12px!important;
+  }
+  .cms-nav-badge{
+    margin-left:auto!important;
+    flex:0 0 auto!important;
+  }
+  .cms-account{
+    position:static!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    margin-top:8px!important;
+    padding:8px 2px 10px!important;
+    display:grid!important;
+    gap:2px!important;
+  }
+  .cms-account strong{
+    font-size:10px!important;
+    line-height:1.15!important;
+  }
+  .cms-account small{
+    margin-top:0!important;
+    font-size:8px!important;
+    line-height:1.15!important;
+  }
+  .cms-account>button{
+    width:max-content!important;
+    margin-top:5px!important;
+    padding:3px 0!important;
+    font-size:9px!important;
+  }
+}
