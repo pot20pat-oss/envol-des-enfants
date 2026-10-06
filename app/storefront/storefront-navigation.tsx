@@ -42,7 +42,7 @@ export default function StorefrontNavigation({ market, whatsappUrl, say }: Props
         <input type="search" value={search} onChange={event=>setSearch(event.target.value)} placeholder={say("Que cherchez-vous aujourd’hui ?","What are you looking for today?")} aria-label={say("Rechercher dans le catalogue","Search the catalog")} />
         <button type="submit" aria-label={say("Rechercher","Search")}><HeaderIcon kind="search"/></button>
       </form>
-      <div className="ref-service"><span><HeaderIcon kind="truck"/><b>{say("Livraison rapide","Fast delivery")}</b><small>{say("au Canada et ailleurs","across Canada and beyond")}</small></span><a href={whatsappUrl}><HeaderIcon kind="phone"/><b>{say("Contact WhatsApp","Contact WhatsApp")}</b><small>{say("Une question ?","A question?")}</small></a></div>
+      <div className="ref-service"><span><HeaderIcon kind="truck"/><b>{say("Livraison rapide","Fast delivery")}</b><small>{say("au Canada et ailleurs","across Canada and beyond")}</small></span><a className="ref-whatsapp-contact" href={whatsappUrl} target="_blank" rel="noreferrer"><img className="ref-whatsapp-contact-icon" src="/contact-whatsapp-metallic.webp" alt="WhatsApp"/><span className="ref-whatsapp-contact-copy"><b>{say("Contact WhatsApp","Contact WhatsApp")}</b><small>{say("Une question ?","A question?")}</small></span></a></div>
     </header>
   </div>;
 }
