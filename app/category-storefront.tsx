@@ -153,7 +153,7 @@ export default function CategoryStorefront({ title, subtitle, categories, catego
 
   return <main className={`category-page${isFullCatalog?" catalog-marketplace":""} theme-${themeCategory}`}>
     <header className="category-header wrap">
-      <a href={`/?region=${market}`} className="category-brand"><img src="/envol-logo-transparent.png" alt="Envol des Enfants" width="220" height="216"/></a>
+      <a href={`/?region=${market}`} className="category-brand"><img src="/_vinext/image?url=%2Fenvol-logo-transparent.png&w=440&q=78" alt="Envol des Enfants" width="220" height="216"/></a>
       <label className="category-header-search"><span className="sr-only">{label("Rechercher", "Search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={label("Que recherchez-vous? (ex. Barbie, LEGO, Montessori…)","What are you looking for? (e.g. Barbie, LEGO, Montessori…)")}/><b aria-hidden="true">⌕</b></label>
       <div className="commerce-actions"><button className="commerce-action" onClick={()=>commerce.open("account")}>♙ <span>{label("Compte","Account")}</span></button><button className="commerce-action" onClick={()=>commerce.open("favorites")}>♡ <span>{label("Favoris","Favorites")}</span>{commerce.favorites.length>0&&<b>{commerce.favorites.length}</b>}</button><button className="commerce-action category-cart-action" aria-label={`${label("Panier","Cart")} · ${commerce.cartCount}`} onClick={()=>commerce.open("cart")}>🛒 <span className="category-cart-label">{label("Panier","Cart")}{commerce.cartCount>0&&<span className="category-cart-count" aria-hidden="true">{commerce.cartCount>99?"99+":commerce.cartCount}</span>}</span></button></div>
     </header>
