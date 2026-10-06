@@ -925,3 +925,23 @@
     font-size:11px!important;
   }
 }
+
+
+/* 2026-10-06 — logo AIP dans le pied de page du CMS. */
+.cms-footer-brand{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.cms-footer-brand>a{
+  display:inline-flex!important;
+  align-items:center!important;
+  line-height:0!important;
+}
+.cms-footer-brand img{
+  display:block!important;
+  height:34px!important;
+  width:auto!important;
+  max-width:150px!important;
+  object-fit:contain!important;
+}
