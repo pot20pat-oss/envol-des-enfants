@@ -207,6 +207,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const [moveTargets, setMoveTargets] = useState<Row[]>([]);
   const [movingImages, setMovingImages] = useState(false);
   const [whiteBackgroundImage, setWhiteBackgroundImage] = useState<string | null>(null);
+  const [backgroundChecks, setBackgroundChecks] = useState<Record<string, "checking" | "white" | "nonwhite" | "unknown">>({});
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("cms-photo-selection", {
@@ -367,6 +368,43 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
 
   const removeImage = (index: number) => {
     saveProductImages(images.filter((_, imageIndex) => imageIndex !== index), update);
+  };
+
+  const checkImageBackground = async (image: string) => {
+    if (backgroundChecks[image] === "checking") return;
+    setBackgroundChecks((current) => ({ ...current, [image]: "checking" }));
+    try {
+      const source = new Image();
+      source.crossOrigin = "anonymous";
+      source.decoding = "async";
+      await new Promise<void>((resolve, reject) => {
+        source.onload = () => resolve();
+        source.onerror = () => reject(new Error("Image illisible"));
+        source.src = image;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = 40;
+      canvas.height = 40;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) throw new Error("Canvas indisponible");
+      context.drawImage(source, 0, 0, canvas.width, canvas.height);
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+      let sampled = 0;
+      let nearWhite = 0;
+      for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+          if (x > 5 && x < canvas.width - 6 && y > 5 && y < canvas.height - 6) continue;
+          const offset = (y * canvas.width + x) * 4;
+          if (pixels[offset + 3] < 24) { nearWhite++; sampled++; continue; }
+          const r = pixels[offset], g = pixels[offset + 1], b = pixels[offset + 2];
+          if (r >= 238 && g >= 238 && b >= 238 && Math.max(r,g,b) - Math.min(r,g,b) <= 14) nearWhite++;
+          sampled++;
+        }
+      }
+      setBackgroundChecks((current) => ({ ...current, [image]: sampled > 0 && nearWhite / sampled >= 0.9 ? "white" : "nonwhite" }));
+    } catch {
+      setBackgroundChecks((current) => ({ ...current, [image]: "unknown" }));
+    }
   };
 
   const makeWhiteBackground = async (image: string) => {
@@ -547,6 +585,15 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
                 </label>
                 <strong>{index === 0 ? "Photo principale" : `Photo ${index + 1}`}</strong>
                 <span>Position {index + 1}</span>
+                <button
+                  type="button"
+                  className="cms-secondary"
+                  style={{marginTop:6,padding:"5px 8px",fontSize:".78rem"}}
+                  onClick={() => void checkImageBackground(image)}
+                  disabled={backgroundChecks[image] === "checking"}
+                >
+                  {backgroundChecks[image] === "checking" ? "Analyse du fond…" : backgroundChecks[image] === "white" ? "✓ Fond blanc" : backgroundChecks[image] === "nonwhite" ? "⚠ Fond non blanc" : backgroundChecks[image] === "unknown" ? "? Fond indéterminé" : "Vérifier le fond"}
+                </button>
               </div>
               <div className="cms-product-image-controls">
                 <button
