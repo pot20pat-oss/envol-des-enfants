@@ -860,3 +860,19 @@ html,body{overflow-x:hidden!important}
     max-width:none!important;
   }
 }
+
+
+/* 2026-10-06 — quantité du panier visible dans le header. */
+.ref-header .ref-cart-button{position:relative!important}
+.ref-header .ref-cart-icon{position:relative;display:inline-grid;place-items:center}
+.ref-header .ref-cart-icon>svg{width:28px;height:28px}
+.ref-header .ref-cart-count{
+  position:absolute;top:-8px;right:-11px;display:grid;place-items:center;
+  min-width:19px;height:19px;padding:0 4px;box-sizing:border-box;border-radius:999px;
+  background:#ed2470;color:#fff;font-size:11px;line-height:1;font-weight:800;
+  box-shadow:0 0 0 2px #fff;
+}
+@media(max-width:600px){
+  .ref-header .ref-cart-icon>svg{width:26px;height:26px}
+  .ref-header .ref-cart-count{top:-7px;right:-10px;min-width:18px;height:18px;font-size:10px}
+}
