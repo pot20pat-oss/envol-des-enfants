@@ -754,3 +754,28 @@
     font-size:22px;
   }
 }
+
+
+/* 2026-10-06 — Lighthouse contrast hardening. */
+.editable-storefront .ref-whatsapp-contact-copy small,
+.editable-storefront .ref-service-copy small,
+.editable-storefront .home-partners-heading>p:last-child,
+.editable-storefront .section-heading>p,
+.editable-storefront .footer>p,
+.editable-storefront .footer>a:last-child{
+  color:#52636d!important;
+}
+.editable-storefront .home-partner-card small{
+  color:#a51f55!important;
+}
+.editable-storefront .featured-copy>span,
+.editable-storefront .product-badge.new{
+  color:#9d3c4a!important;
+}
+.editable-storefront .reference-home-shop-all{
+  background:#b01858!important;
+  color:#fff!important;
+}
+.editable-storefront .footer-brand>span{
+  color:#9a4c13!important;
+}
