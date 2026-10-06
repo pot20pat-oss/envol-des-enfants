@@ -1,6 +1,7 @@
 "use client";
 
 import type { Market } from "@/lib/markets";
+import Image from "next/image";
 
 type Props = {
   market: Market;
@@ -40,7 +41,7 @@ export default function StorefrontShopSections({ market, say, mode = "all" }: Pr
   const categorySection = (
     <section className="shop-category-strip wrap" aria-label={say("Catégories", "Categories")}>
       <div className="shop-category-rail shop-category-reference">
-        <img className="shop-category-reference-image" src="/category-buttons-row.png" alt={say("Éveil 0–3 ans, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques, Scolaire", "Shop categories")} />
+        <Image className="shop-category-reference-image" src="/category-buttons-row.png" alt={say("Éveil 0–3 ans, Jouets éducatifs, Montessori, Jeux & Jouets, Mon Monde de Poupée, Vêtements, Chaussures, Voitures électriques, Scolaire", "Shop categories")} width={1600} height={220} sizes="100vw" quality={72} />
         <div className="shop-category-reference-links">
           {categories.map((category) => (
             <a href={`${category.href}${category.href.includes("?") ? "&" : "?"}region=${market}`} key={category.labelFr} aria-label={say(category.labelFr, category.labelEn)}>
