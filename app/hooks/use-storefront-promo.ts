@@ -23,8 +23,14 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
 
   useEffect(() => {
     if (window.sessionStorage.getItem("envol-promo-dismissed") === "yes") return;
+    const preloadStyles = window.setTimeout(() => {
+      void import("../dialog-responsive.css");
+    }, 4500);
     const timer = window.setTimeout(() => setPromoOpen(true), 7000);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(preloadStyles);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -36,7 +42,7 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [promoOpen]);
 
-  function openPromo() { setPromoOpen(true); }
+  function openPromo() { void import("../dialog-responsive.css").finally(() => setPromoOpen(true)); }
   function closePromo() {
     setPromoOpen(false);
     window.sessionStorage.setItem("envol-promo-dismissed", "yes");
