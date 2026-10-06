@@ -914,17 +914,17 @@ html,body{overflow-x:hidden!important}
 .ref-header .ref-cart-count-inline{
   display:inline-grid!important;
   place-items:center!important;
-  min-width:34px!important;
-  height:34px!important;
-  padding:0 8px!important;
+  min-width:30px!important;
+  height:30px!important;
+  padding:0 6px!important;
   box-sizing:border-box!important;
   border-radius:999px!important;
   background:#ed2470!important;
   color:#fff!important;
-  font-size:18px!important;
+  font-size:15px!important;
   line-height:1!important;
   font-weight:900!important;
-  box-shadow:0 0 0 3px #fff,0 3px 8px rgba(18,52,77,.18)!important;
+  box-shadow:0 0 0 2px #fff,0 2px 6px rgba(18,52,77,.16)!important;
 }
 @media(max-width:600px){
   .ref-header .ref-cart-button>svg{
