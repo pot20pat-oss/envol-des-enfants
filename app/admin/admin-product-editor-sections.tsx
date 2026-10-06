@@ -206,6 +206,7 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
   const [moveTargetId, setMoveTargetId] = useState("");
   const [moveTargets, setMoveTargets] = useState<Row[]>([]);
   const [movingImages, setMovingImages] = useState(false);
+  const [whiteBackgroundImage, setWhiteBackgroundImage] = useState<string | null>(null);
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("cms-photo-selection", {
@@ -366,6 +367,29 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
 
   const removeImage = (index: number) => {
     saveProductImages(images.filter((_, imageIndex) => imageIndex !== index), update);
+  };
+
+  const makeWhiteBackground = async (image: string) => {
+    if (!editing.id || whiteBackgroundImage) return;
+    if (!window.confirm("Remplacer le fond de cette photo par un fond blanc pur ? La photo originale restera disponible tant que vous n’enregistrez pas la fiche.")) return;
+    setWhiteBackgroundImage(image);
+    setAnalysisNotice("");
+    try {
+      const result = await request("/api/admin/products/white-background", {
+        method: "POST",
+        body: JSON.stringify({ id: String(editing.id), image_url: image }),
+      });
+      const generated = typeof result.url === "string" ? result.url : "";
+      if (!generated) throw new Error("Le service n’a pas retourné de nouvelle photo.");
+      const replaced = images.map((item) => item === image ? generated : item);
+      saveProductImages(replaced, update);
+      setSelectedImages((current) => current.map((item) => item === image ? generated : item));
+      setAnalysisNotice("Fond blanc généré dans le brouillon. Cliquez sur Enregistrer pour confirmer.");
+    } catch (failure) {
+      setAnalysisNotice(failure instanceof Error ? failure.message : "Impossible de générer le fond blanc.");
+    } finally {
+      setWhiteBackgroundImage(null);
+    }
   };
 
   const analyzeImage = async (correction = "") => {
@@ -544,6 +568,15 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
                   title="Descendre"
                 >
                   ↓
+                </button>
+                <button
+                  type="button"
+                  className="cms-secondary"
+                  disabled={!editing.id || !!whiteBackgroundImage}
+                  onClick={() => void makeWhiteBackground(image)}
+                  title={!editing.id ? "Enregistrez d’abord le produit avant de corriger son fond." : "Remplacer uniquement le fond par du blanc pur"}
+                >
+                  {whiteBackgroundImage === image ? "Fond blanc…" : "⬜ Fond blanc"}
                 </button>
                 <button
                   type="button"
