@@ -677,7 +677,7 @@
 
 
 /* 2026-10-06 — Nest Hub / écrans larges mais peu hauts (ex. 1024×600). */
-@media (min-width:821px) and (max-height:700px){
+@media (min-width:821px) and (max-height:900px){
   .cms-sidebar{
     padding:8px 10px!important;
     height:100vh!important;
