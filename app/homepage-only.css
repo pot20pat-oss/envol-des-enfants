@@ -967,7 +967,7 @@ html,body{overflow-x:hidden!important}
   flex:0 0 50px!important;
   display:block!important;
   border-radius:50%!important;
-  background:url("/contact-whatsapp-metallic.webp") center/contain no-repeat!important;
+  object-fit:contain!important;object-position:center!important;background:transparent!important;
 }
 .ref-header .ref-whatsapp-contact-copy{
   display:grid!important;
@@ -1062,7 +1062,7 @@ html,body{overflow-x:hidden!important}
   height:50px!important;
   flex:0 0 50px!important;
   border-radius:50%!important;
-  background:url("/contact-whatsapp-metallic.webp") center/contain no-repeat!important;
+  object-fit:contain!important;object-position:center!important;background:transparent!important;
 }
 .ref-header .ref-whatsapp-contact::before{
   display:none!important;
