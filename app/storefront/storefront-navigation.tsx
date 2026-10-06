@@ -37,7 +37,7 @@ export default function StorefrontNavigation({ market, whatsappUrl, say }: Props
       <div className="ref-commerce"><button type="button" onClick={()=>commerce.open("account")}><HeaderIcon kind="account"/><small>{say("Mon compte","Account")}</small></button><button type="button" onClick={()=>commerce.open("favorites")}><HeaderIcon kind="heart"/><small>{say("Mes favoris","Favorites")}</small></button><button type="button" className="ref-cart-button" aria-label={`${say("Mon panier","Cart")} · ${commerce.cartCount}`} onClick={()=>commerce.open("cart")}><HeaderIcon kind="cart"/><small className="ref-cart-label">{say("Mon panier","Cart")}{commerce.cartCount>0&&<span className="ref-cart-count-inline" aria-hidden="true">{commerce.cartCount>99?"99+":commerce.cartCount}</span>}</small></button></div>
     </div>
     <header className="ref-head wrap">
-      <a className="ref-logo" href={`/?region=${market}`}><img src="/_vinext/image?url=%2Fenvol-logo-transparent.png&w=440&q=78" alt="Envol des Enfants" width="220" height="140" /></a>
+      <a className="ref-logo" href={`/?region=${market}`}><img src="/envol-logo-transparent.png" alt="Envol des Enfants" width="220" height="140" /></a>
       <form className="ref-search" role="search" onSubmit={submitSearch}>
         <input type="search" value={search} onChange={event=>setSearch(event.target.value)} placeholder={say("Que cherchez-vous aujourd’hui ?","What are you looking for today?")} aria-label={say("Rechercher dans le catalogue","Search the catalog")} />
         <button type="submit" aria-label={say("Rechercher","Search")}><HeaderIcon kind="search"/></button>
