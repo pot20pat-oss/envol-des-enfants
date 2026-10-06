@@ -862,18 +862,50 @@ html,body{overflow-x:hidden!important}
 }
 
 
-/* 2026-10-06 — quantité du panier visible dans le header. */
-.ref-header .ref-cart-button{position:relative!important;overflow:visible!important}
-.ref-header .ref-cart-icon{position:relative;display:inline-grid;place-items:center;overflow:visible!important}
-.ref-header .ref-cart-icon>svg{width:28px;height:28px}
-.ref-header .ref-cart-count{
-  position:absolute;top:-8px;right:-18px;display:grid;place-items:center;
-  min-width:34px;height:34px;padding:0 8px;box-sizing:border-box;border-radius:999px;
-  background:#ed2470;color:#fff;font-size:18px;line-height:1;font-weight:900;
-  box-shadow:0 0 0 4px #fff,0 3px 9px rgba(18,52,77,.20);
-  z-index:4;
+/* 2026-10-06 — quantité du panier placée après le libellé. */
+.ref-header .ref-cart-button{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  overflow:visible!important;
+}
+.ref-header .ref-cart-button>svg{
+  width:28px!important;
+  height:28px!important;
+  flex:0 0 28px!important;
+}
+.ref-header .ref-cart-label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  white-space:nowrap!important;
+}
+.ref-header .ref-cart-count-inline{
+  display:inline-grid!important;
+  place-items:center!important;
+  min-width:34px!important;
+  height:34px!important;
+  padding:0 8px!important;
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+  background:#ed2470!important;
+  color:#fff!important;
+  font-size:18px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  box-shadow:0 0 0 3px #fff,0 3px 8px rgba(18,52,77,.18)!important;
 }
 @media(max-width:600px){
-  .ref-header .ref-cart-icon>svg{width:26px;height:26px}
-  .ref-header .ref-cart-count{top:-7px;right:-16px;min-width:30px;height:30px;font-size:16px;padding:0 6px}
+  .ref-header .ref-cart-button>svg{
+    width:26px!important;
+    height:26px!important;
+    flex:0 0 26px!important;
+  }
+  .ref-header .ref-cart-label{gap:7px!important}
+  .ref-header .ref-cart-count-inline{
+    min-width:30px!important;
+    height:30px!important;
+    padding:0 7px!important;
+    font-size:16px!important;
+  }
 }
