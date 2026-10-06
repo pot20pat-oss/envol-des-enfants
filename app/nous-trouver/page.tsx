@@ -1,3 +1,4 @@
+import "../category-pages.css";
 "use client";
 import { useEffect,useState } from "react";
 

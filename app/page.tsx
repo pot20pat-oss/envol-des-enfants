@@ -1,3 +1,4 @@
+import "./homepage-only.css";
 import { cmsEnv } from "@/lib/cms";
 import type { Product } from "@/lib/default-catalog";
 import Home from "./storefront/storefront-page";

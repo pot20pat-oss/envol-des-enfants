@@ -1,1 +1,2 @@
+import "../category-pages.css";
 export default function Page(){return <main className="category-page"><header className="category-header wrap"><a href="/" className="category-brand"><img src="/_vinext/image?url=%2Fenvol-logo-transparent.png&w=440&q=78" alt="Envol des Enfants"/></a><a href="/" className="category-back">← Accueil</a></header><section className="category-hero wrap"><p className="eyebrow">Envol des Enfants</p><h1>Promotions</h1><p>Aucune promotion active pour le moment.</p></section></main>}
