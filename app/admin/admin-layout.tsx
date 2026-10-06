@@ -3,12 +3,56 @@ import { useEffect,useState,type FormEvent,type ReactNode } from "react";
 import { labels, type Section } from "./admin-shared";
 
 export function AdminLogin({ email, password, error, busy, setEmail, setPassword, signIn }: { email: string; password: string; error: string; busy: boolean; setEmail: (value: string) => void; setPassword: (value: string) => void; signIn: (event: FormEvent<HTMLFormElement>) => void | Promise<void> }) {
+  const [resetToken,setResetToken]=useState("");
+  const [resetPassword,setResetPassword]=useState("");
+  const [resetBusy,setResetBusy]=useState(false);
+  const [resetMessage,setResetMessage]=useState("");
+  const [resetError,setResetError]=useState("");
+  useEffect(()=>{setResetToken(new URLSearchParams(window.location.search).get("reset")||"")},[]);
+
+  const requestReset=async()=>{
+    if(!email.trim()){setResetError("Entrez d’abord votre adresse courriel.");return}
+    setResetBusy(true);setResetError("");setResetMessage("");
+    try{
+      const response=await fetch("/api/admin/password-reset",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({email:email.trim()})});
+      const result=await response.json() as {error?:string;message?:string};
+      if(!response.ok)throw new Error(result.error||"Demande impossible.");
+      setResetMessage(result.message||"Si cette adresse est autorisée, un lien a été envoyé.");
+    }catch(failure){setResetError(failure instanceof Error?failure.message:"Demande impossible.")}
+    finally{setResetBusy(false)}
+  };
+
+  const finishReset=async(event:FormEvent<HTMLFormElement>)=>{
+    event.preventDefault();
+    setResetBusy(true);setResetError("");setResetMessage("");
+    try{
+      const response=await fetch("/api/admin/password-reset",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({token:resetToken,new_password:resetPassword})});
+      const result=await response.json() as {error?:string};
+      if(!response.ok)throw new Error(result.error||"Réinitialisation impossible.");
+      setResetPassword("");setResetToken("");
+      window.history.replaceState(null,"","/admin");
+      setResetMessage("Mot de passe modifié. Vous pouvez maintenant vous connecter.");
+    }catch(failure){setResetError(failure instanceof Error?failure.message:"Réinitialisation impossible.")}
+    finally{setResetBusy(false)}
+  };
+
+  if(resetToken)return <main className="cms-login"><form className="cms-login-card" onSubmit={finishReset}>
+    <img src="/envol-logo-transparent.png" alt="Envol des Enfants" /><span className="cms-eyebrow">Réinitialisation sécurisée</span><h1>Nouveau<br /><em>mot de passe.</em></h1><p>Choisissez un nouveau mot de passe administrateur d’au moins 12 caractères.</p>
+    {resetError&&<div className="cms-error">{resetError}</div>}
+    <label>Nouveau mot de passe<input type="password" autoComplete="new-password" minLength={12} value={resetPassword} onChange={(event)=>setResetPassword(event.target.value)} required /></label>
+    <button disabled={resetBusy}>{resetBusy?"Enregistrement…":"Enregistrer le nouveau mot de passe"}</button><a href="/admin">Annuler</a>
+  </form></main>;
+
   return <main className="cms-login"><form className="cms-login-card" onSubmit={signIn}>
     <img src="/envol-logo-transparent.png" alt="Envol des Enfants" /><span className="cms-eyebrow">Espace de gestion sécurisé</span><h1>Votre boutique,<br /><em>au bout des doigts.</em></h1><p>Connectez-vous pour gérer vos produits, vos commandes et vos promotions.</p>
     {error && <div className="cms-error">{error}</div>}
+    {resetError&&<div className="cms-error">{resetError}</div>}
+    {resetMessage&&<div className="cms-notice">✓ {resetMessage}</div>}
     <label>Adresse courriel<input type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
     <label>Mot de passe<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-    <button disabled={busy}>{busy ? "Connexion…" : "Accéder à mon administration →"}</button><a href="/">← Retour à la boutique</a>
+    <button disabled={busy}>{busy ? "Connexion…" : "Accéder à mon administration →"}</button>
+    <button type="button" className="cms-secondary" disabled={resetBusy} onClick={()=>void requestReset()}>{resetBusy?"Envoi…":"Mot de passe oublié ?"}</button>
+    <a href="/">← Retour à la boutique</a>
   </form></main>;
 }
 
