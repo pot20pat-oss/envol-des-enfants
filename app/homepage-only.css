@@ -999,3 +999,101 @@ html,body{overflow-x:hidden!important}
   .ref-header .ref-whatsapp-contact-copy b{font-size:14px!important}
   .ref-header .ref-whatsapp-contact-copy small{font-size:12px!important}
 }
+
+
+/* 2026-10-06 — correctif final portable Livraison / WhatsApp. */
+.ref-header .ref-whatsapp-contact::before{
+  content:""!important;
+  display:block!important;
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+  border-radius:50%!important;
+  background:url("/contact-whatsapp-metallic.webp") center/contain no-repeat!important;
+}
+.ref-header .ref-whatsapp-contact-icon{display:none!important}
+
+@media(max-width:1100px){
+  .ref-header .ref-head{
+    grid-template-columns:170px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    gap:14px 18px!important;
+    height:auto!important;
+  }
+  .ref-header .ref-logo{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+  .ref-header .ref-service{
+    grid-column:2!important;
+    grid-row:1!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:18px!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .ref-header .ref-service>span,
+  .ref-header .ref-whatsapp-contact{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  .ref-header .ref-service>span{
+    padding:0 18px 0 0!important;
+    border-right:1px solid #d9e1e5!important;
+    border-bottom:0!important;
+  }
+  .ref-header .ref-whatsapp-contact{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:10px!important;
+    margin:0!important;
+    padding:6px 0 6px 4px!important;
+    background:transparent!important;
+    border-radius:0!important;
+    transform:none!important;
+  }
+  .ref-header .ref-whatsapp-contact:hover,
+  .ref-header .ref-whatsapp-contact:focus-visible{
+    background:transparent!important;
+    transform:none!important;
+  }
+  .ref-header .ref-whatsapp-contact-copy{
+    min-width:0!important;
+  }
+  .ref-header .ref-whatsapp-contact-copy b{
+    font-size:15px!important;
+    white-space:nowrap!important;
+  }
+  .ref-header .ref-whatsapp-contact-copy small{
+    font-size:12px!important;
+    white-space:nowrap!important;
+  }
+  .ref-header .ref-search{
+    grid-column:1 / -1!important;
+    grid-row:2!important;
+    width:100%!important;
+  }
+}
+
+@media(max-width:760px){
+  .ref-header .ref-head{
+    grid-template-columns:130px minmax(0,1fr)!important;
+  }
+  .ref-header .ref-service{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .ref-header .ref-service>span{
+    padding:0 0 10px!important;
+    border-right:0!important;
+    border-bottom:1px solid #d9e1e5!important;
+  }
+  .ref-header .ref-whatsapp-contact-copy b,
+  .ref-header .ref-whatsapp-contact-copy small{
+    white-space:normal!important;
+  }
+}
