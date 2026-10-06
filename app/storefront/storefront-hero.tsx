@@ -28,10 +28,17 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
   ];
   const slide = slides[active];
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    let interval: number | undefined;
+    const firstTransition = window.setTimeout(() => {
       setActive((current) => (current + 1) % slides.length);
-    }, 5000);
-    return () => window.clearInterval(timer);
+      interval = window.setInterval(() => {
+        setActive((current) => (current + 1) % slides.length);
+      }, 5000);
+    }, 10000);
+    return () => {
+      window.clearTimeout(firstTransition);
+      if (interval !== undefined) window.clearInterval(interval);
+    };
   }, [slides.length]);
   const heroStyle: CSSProperties = {
     ...sectionStyle("hero"),
@@ -50,8 +57,8 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
           width={1916}
           height={821}
           alt={slide.alt}
-          loading="eager"
-          fetchPriority="high"
+          loading={active === 0 ? "eager" : "lazy"}
+          fetchPriority={active === 0 ? "high" : "auto"}
           draggable={false}
         />
       </a>
