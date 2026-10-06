@@ -59,7 +59,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
     <section className="hero-story hero-reference wrap" id="accueil" style={heroStyle} aria-roledescription={say("carrousel", "carousel")} aria-label={say("À découvrir", "Discover")}>
       <a className="hero-reference-link" href={`/catalogue?region=${market}`} aria-label={say("Découvrir nos produits", "Discover our products")}>
         <img
-          src={`/_vinext/image?url=${encodeURIComponent(`/hero-client/${slide.name}-${say("fr", "en")}.webp`)}&w=1200&q=78`}
+          src={`/_vinext/image?url=${encodeURIComponent(`/hero-client/${slide.name}-${say("fr", "en")}.webp`)}&w=750&q=76`}
           width={1916}
           height={821}
           alt={slide.alt}
@@ -67,7 +67,7 @@ export default function StorefrontHero({ market, say, sectionStyle }: Props) {
           fetchPriority={active === 0 ? "high" : "auto"}
           draggable={false}
           onError={(event) => {
-            const fallback = fallbackSlides[slide.name] ? `/_vinext/image?url=${encodeURIComponent(fallbackSlides[slide.name])}&w=1200&q=78` : "";
+            const fallback = fallbackSlides[slide.name] ? `/_vinext/image?url=${encodeURIComponent(fallbackSlides[slide.name])}&w=750&q=76` : "";
             if (fallback && event.currentTarget.src !== new URL(fallback, window.location.href).href) {
               event.currentTarget.src = fallback;
             }

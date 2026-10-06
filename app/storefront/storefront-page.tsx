@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { type Product } from "@/lib/default-catalog";
 import { markets } from "@/lib/markets";
 import StorefrontCatalog from "./storefront-catalog";
@@ -115,10 +114,10 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
       </section>
 
       <section className="home-section-cards wrap" aria-label={say("Nos univers", "Our collections")}>
-        <a href={`/catalogue?region=${market}&category=montessori`}><Image src="/cartes%20section/74025328-ea79-427e-bf57-027b05097c10.png" alt="Montessori" width={720} height={720} sizes="(max-width: 700px) 50vw, 25vw" quality={72} /></a>
-        <a href={`/jouets?region=${market}`}><Image src="/cartes%20section/be962550-9f70-4030-97c0-3addda330a49.png" alt={say("Jouets éducatifs", "Educational toys")} width={720} height={720} sizes="(max-width: 700px) 50vw, 25vw" quality={72} /></a>
-        <a href={`/poupees?region=${market}`}><Image src="/cartes%20section/da0e6993-e65b-4d25-8003-d07156664e1e.png" alt={say("Mon monde de poupée", "My doll world")} width={720} height={720} sizes="(max-width: 700px) 50vw, 25vw" quality={72} /></a>
-        <a href={`/catalogue?region=${market}&category=vehicules`}><Image src="/cartes%20section/ec693c9d-9133-4e00-bdba-93c2a727636a.png" alt={say("Voitures électriques", "Electric vehicles")} width={720} height={720} sizes="(max-width: 700px) 50vw, 25vw" quality={72} /></a>
+        <a href={`/catalogue?region=${market}&category=montessori`}><img src="/_vinext/image?url=%2Fcartes%2520section%2F74025328-ea79-427e-bf57-027b05097c10.png&w=384&q=70" alt="Montessori" width="384" height="384" loading="lazy" decoding="async" /></a>
+        <a href={`/jouets?region=${market}`}><img src="/_vinext/image?url=%2Fcartes%2520section%2Fbe962550-9f70-4030-97c0-3addda330a49.png&w=384&q=70" alt={say("Jouets éducatifs", "Educational toys")} width="384" height="384" loading="lazy" decoding="async" /></a>
+        <a href={`/poupees?region=${market}`}><img src="/_vinext/image?url=%2Fcartes%2520section%2Fda0e6993-e65b-4d25-8003-d07156664e1e.png&w=384&q=70" alt={say("Mon monde de poupée", "My doll world")} width="384" height="384" loading="lazy" decoding="async" /></a>
+        <a href={`/catalogue?region=${market}&category=vehicules`}><img src="/_vinext/image?url=%2Fcartes%2520section%2Fec693c9d-9133-4e00-bdba-93c2a727636a.png&w=384&q=70" alt={say("Voitures électriques", "Electric vehicles")} width="384" height="384" loading="lazy" decoding="async" /></a>
       </section>
 
       <StorefrontFeaturedCollections products={storeProducts} language={language} market={market} say={say} onOpenProduct={setSelectedProduct} />
