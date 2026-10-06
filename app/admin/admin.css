@@ -545,3 +545,78 @@
     margin-top:10px!important;
   }
 }
+
+
+/* 2026-10-06 — import IA responsive sur écrans intermédiaires et petits. */
+@media (max-width:1200px){
+  .cms-ai-fixed-toolbar{
+    grid-template-columns:1fr!important;
+    align-items:stretch!important;
+  }
+  .cms-ai-toolbar-search,
+  .cms-ai-toolbar-actions{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .cms-ai-toolbar-search{
+    flex-wrap:wrap!important;
+  }
+  .cms-ai-toolbar-search .cms-search{
+    flex:1 1 280px!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+  .cms-ai-toolbar-actions{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+    justify-content:stretch!important;
+  }
+  .cms-ai-toolbar-actions>*{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    white-space:normal!important;
+    text-align:center!important;
+  }
+  .cms-ai-toolbar-options{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+@media (max-width:760px){
+  .cms-ai-toolbar-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .cms-ai-toolbar-search{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+  .cms-ai-toolbar-search .cms-search{
+    grid-column:1 / -1!important;
+    width:100%!important;
+  }
+  .cms-ai-toolbar-search>*:not(.cms-search){
+    width:100%!important;
+    min-width:0!important;
+  }
+  .cms-ai-toolbar-options{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    align-items:stretch!important;
+  }
+  .cms-ai-toolbar-options>*{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+}
+@media (max-width:460px){
+  .cms-ai-toolbar-actions,
+  .cms-ai-toolbar-search{
+    grid-template-columns:1fr!important;
+  }
+  .cms-ai-toolbar-search .cms-search{
+    grid-column:1!important;
+  }
+}
