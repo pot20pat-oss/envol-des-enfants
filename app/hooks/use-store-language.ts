@@ -9,10 +9,7 @@ export function useStoreLanguage() {
 
   useEffect(() => {
     const saved = window.localStorage.getItem("envol-language");
-    const initialLanguage: StoreLanguage = saved === "fr" || saved === "en"
-      ? saved
-      : navigator.language.toLowerCase().startsWith("en") ? "en" : "fr";
-    setLanguage(initialLanguage);
+    if (saved === "fr" || saved === "en") setLanguage(saved);
   }, []);
 
   useEffect(() => {
