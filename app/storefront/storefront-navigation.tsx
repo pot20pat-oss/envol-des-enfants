@@ -6,7 +6,7 @@ import type { Market } from "@/lib/markets";
 import { useCommerce } from "../commerce/commerce-provider";
 
 type Language = "fr" | "en";
-function HeaderIcon({ kind }: { kind: "account" | "heart" | "cart" | "search" | "truck" | "phone" }) {
+function HeaderIcon({ kind }: { kind: "account" | "heart" | "cart" | "search" | "truck" | "phone" | "whatsapp" }) {
   const paths = {
     account: "M20 21v-2a7 7 0 0 0-14 0v2M17 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
     heart: "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8",
@@ -14,6 +14,7 @@ function HeaderIcon({ kind }: { kind: "account" | "heart" | "cart" | "search" | 
     search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0",
     truck: "M1 4h13v13H1zM14 8h4l4 5v4h-8M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0M20 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0",
     phone: "M7 3H4c-1 0-1 2-1 3 0 8 7 15 15 15 1 0 3 0 3-1v-4l-5-2-2 2c-3-1-5-3-6-6l2-2-3-5z",
+    whatsapp: "M12 3a8.5 8.5 0 0 0-7.36 12.77L3.5 20.5l4.84-1.1A8.5 8.5 0 1 0 12 3Zm-3.1 5.2c.2-.46.42-.47.62-.48h.52c.17 0 .44.06.67.55.23.5.8 1.95.87 2.09.07.14.12.3.02.48-.1.18-.15.29-.3.45-.15.16-.31.35-.44.47-.15.14-.3.29-.13.57.17.29.74 1.22 1.6 1.97 1.1.98 2.03 1.29 2.32 1.43.29.14.46.12.63-.08.17-.2.72-.84.92-1.13.2-.29.39-.24.66-.14.27.1 1.71.81 2 .96.29.14.48.21.55.33.07.12.07.69-.16 1.36-.23.67-1.34 1.28-1.85 1.36-.47.07-1.06.1-1.71-.1-.39-.12-.89-.29-1.53-.56-.27-.12-4.68-1.74-6.41-6.03-.18-.45-1.84-2.93-1.84-4.44 0-1.5.79-2.24 1.07-2.55Z",
   };
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind]} /></svg>;
 }
@@ -42,7 +43,7 @@ export default function StorefrontNavigation({ market, whatsappUrl, say }: Props
         <input type="search" value={search} onChange={event=>setSearch(event.target.value)} placeholder={say("Que cherchez-vous aujourd’hui ?","What are you looking for today?")} aria-label={say("Rechercher dans le catalogue","Search the catalog")} />
         <button type="submit" aria-label={say("Rechercher","Search")}><HeaderIcon kind="search"/></button>
       </form>
-      <div className="ref-service"><span className="ref-delivery-service"><HeaderIcon kind="truck"/><span className="ref-service-copy"><b>{say("Livraison rapide","Fast delivery")}</b><small>{say("au Canada et ailleurs","across Canada and beyond")}</small></span></span><a className="ref-whatsapp-contact" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Contacter sur WhatsApp","Contact on WhatsApp")}><img className="ref-whatsapp-contact-icon" src="/contact-whatsapp-metallic.webp" alt="" width="50" height="50" aria-hidden="true" /><span className="ref-whatsapp-contact-copy"><b>{say("Contact WhatsApp","Contact WhatsApp")}</b><small>{say("Une question ?","A question?")}</small></span></a></div>
+      <div className="ref-service"><span className="ref-delivery-service"><HeaderIcon kind="truck"/><span className="ref-service-copy"><b>{say("Livraison rapide","Fast delivery")}</b><small>{say("au Canada et ailleurs","across Canada and beyond")}</small></span></span><a className="ref-whatsapp-contact" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={say("Contacter sur WhatsApp","Contact on WhatsApp")}><span className="ref-whatsapp-contact-icon" aria-hidden="true"><HeaderIcon kind="whatsapp"/></span><span className="ref-whatsapp-contact-copy"><b>{say("Contact WhatsApp","Contact WhatsApp")}</b><small>{say("Une question ?","A question?")}</small></span></a></div>
     </header>
   </div>;
 }
