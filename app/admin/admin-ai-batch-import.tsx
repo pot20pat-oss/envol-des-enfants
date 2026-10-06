@@ -189,7 +189,7 @@ export function AiBatchImport({market,busy,onDone,catalogProducts,search,setSear
    }));
    void rows;
   }
-  const rank={certain:3,probable:2,related:1}; return scored.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,8)
+  const rank={certain:3,probable:2,related:1}; return scored.sort((a,b)=>rank[b.kind]-rank[a.kind]||b.score-a.score).slice(0,5)
  }
  async function analyzeAll(){setWorking(true);const queue=unique.filter(i=>i.state!=="done");setAiProgress({done:0,total:queue.length,current:"Préparation…"});let completed=0;for(const item of queue){try{setAiProgress({done:completed,total:queue.length,current:item.file.name});setItems(a=>a.map(x=>x.id===item.id?{...x,state:"uploading"}:x));const prepared=await prepareUpload(item.file);const data=new FormData();data.append("file",prepared);const uploaded=await request("/api/admin/upload",{method:"POST",body:data});const url=String(uploaded.url||"");setItems(a=>a.map(x=>x.id===item.id?{...x,url,state:"analyzing"}:x));let result:any;let lastError:unknown;
 for(let attempt=1;attempt<=3;attempt++){
