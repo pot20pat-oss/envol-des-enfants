@@ -45,6 +45,39 @@ export function CommerceProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (ready) localStorage.setItem("envol-cart", JSON.stringify(cart)); }, [cart, ready]);
   useEffect(() => { if (ready) localStorage.setItem("envol-favorites", JSON.stringify(favorites)); }, [favorites, ready]);
   useEffect(() => { if (ready) localStorage.setItem("envol-profile", JSON.stringify(profile)); }, [profile, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    let cartId = localStorage.getItem("envol-cart-id") || "";
+    if (!cartId) { cartId = crypto.randomUUID() + crypto.randomUUID(); localStorage.setItem("envol-cart-id", cartId); }
+    const market: Market = new URLSearchParams(window.location.search).get("region") === "conakry" ? "conakry" : "qc";
+    const timer = window.setTimeout(() => {
+      if (!cart.length) {
+        void fetch("/api/abandoned-cart", { method:"DELETE", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:cartId}) });
+        return;
+      }
+      const items = cart.filter(line => !!line.product.id).map(line => ({
+        product_id: String(line.product.id),
+        name: line.product.name.fr,
+        quantity: line.quantity,
+        unit_price: Number(line.product.price || 0),
+      }));
+      if (!items.length) return;
+      void fetch("/api/abandoned-cart", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          id:cartId,
+          region:market,
+          customer_name:profile.name,
+          customer_email:profile.email,
+          customer_phone:profile.phone,
+          items,
+        }),
+      });
+    }, 4000);
+    return () => window.clearTimeout(timer);
+  }, [cart, profile.name, profile.email, profile.phone, ready]);
+
 
   const productKey = (product: Product) => product.id || product.articleNumber || product.imageUrl || product.name.fr;
   const addToCart = (product: Product) => {
@@ -110,6 +143,10 @@ function CommercePanel({ panel, cart, setCart, favorites, profile, setProfile, c
       const response = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_name: profile.name, customer_phone: profile.phone, customer_email: profile.email, delivery_address: profile.address, region: market, items: cart.map((line) => ({ product_id: line.product.id, quantity: line.quantity })) }) });
       const result = await response.json() as { id?: string; error?: string };
       if (!response.ok) throw new Error(result.error || say("Commande impossible.", "Unable to place order."));
+      try {
+        const cartId=localStorage.getItem("envol-cart-id");
+        if(cartId)await fetch("/api/abandoned-cart",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:cartId})});
+      } catch {}
       setCart([]); setNotice(`${say("Commande transmise. Numéro", "Order submitted. Number")}: ${result.id}`);
     } catch (error) { setNotice(error instanceof Error ? error.message : say("Commande impossible.", "Unable to place order.")); }
     finally { setSending(false); }
