@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { CustomersSection, DashboardSection, SettingsSection, SubscribersSection } from "./admin-sections";
 import { ProductsSection } from "./admin-products-section";
 import { StockSection } from "./admin-stock-section";
@@ -24,13 +24,15 @@ export default function Administration() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [resetMode, setResetMode] = useState<boolean | null>(null);
+  useEffect(() => { setResetMode(new URLSearchParams(window.location.search).has("reset")); }, []);
   const { section, market, draggedSection, editing, editingType, search, productCategory, productVisibility, productStock, orderStatus, orderDate, setMarket, setDraggedSection, setEditing, setSearch, setProductCategory, setProductVisibility, setProductStock, setOrderStatus, setOrderDate, changeSection, addProduct, editProduct, addOrder, editOrder, addPromotion, editPromotion } = useAdminUiState();
   const { checking, products, orders, customers, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load, setVersions, setSettings, setSiteSections, setSiteTexts } = useAdminData({ market, admin, setAdmin, setNotice, setError });
   const { busy, setBusy, passwords, setPasswords, updateEditing, saveEditing, remove, upload, saveSettings, synchronizeProducts, moveSection, saveSiteEditor, changePassword, adjustStock, exportOrders, restoreVersion } = useAdminActions({ market, load, setError, setNotice });
   async function signIn(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setBusy(true); setError(""); try { const result = await request("/api/admin/session", { method:"POST", body:JSON.stringify({email,password}) }); setAdmin(result.admin as AdminIdentity); setPassword(""); } catch(failure) { setError(failure instanceof Error ? failure.message : "Connexion impossible."); } finally { setBusy(false); } }
   async function signOut(){ await request("/api/admin/session",{method:"DELETE"}); setAdmin(null); }
-  if(checking) return <main className="cms-loading">Chargement de l’administration…</main>;
-  if(!admin) return <AdminLogin email={email} password={password} error={error} busy={busy} setEmail={setEmail} setPassword={setPassword} signIn={signIn}/>;
+  if(resetMode===null || (checking && !resetMode)) return <main className="cms-loading">Chargement de l’administration…</main>;
+  if(resetMode || !admin) return <AdminLogin email={email} password={password} error={error} busy={busy} setEmail={setEmail} setPassword={setPassword} signIn={signIn}/>;
   const { regionalProducts, filteredProducts:filtered, filteredOrders, lowStock, stats }=deriveAdminLists({products,orders,subscribers,market,search,productCategory,productVisibility,productStock,orderStatus,orderDate});
   const notificationCount=products.filter((product)=>{const visible=Boolean(product[`visible_${market}`]);return Number(product[`price_${market}`]||0)<=0||!String(product.description_fr||"").trim()||!String(product.description_en||"").trim()||!String(product.image_url||"").trim()||!String(product.name_fr||"").trim()||!String(product.name_en||"").trim()||!String(product.category||"").trim()||(visible&&Number(product[`stock_${market}`]||0)<=0)}).length;
   return <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} notificationCount={notificationCount} onSection={(next)=>{changeSection(next);setError("")}} onMarket={setMarket} signOut={()=>void signOut()}>
