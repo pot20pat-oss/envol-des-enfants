@@ -166,6 +166,8 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
             <img
               src="https://raw.githubusercontent.com/pot20pat-oss/AIP_GPT_SITE/main/public/aip-icon-v7.png"
               alt="AIP · Atelier Informatique Potvin"
+              width={163}
+              height={91}
               loading="lazy"
               decoding="async"
               style={{
