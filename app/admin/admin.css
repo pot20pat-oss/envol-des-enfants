@@ -679,41 +679,41 @@
 /* 2026-10-06 — Nest Hub / écrans larges mais peu hauts (ex. 1024×600). */
 @media (min-width:821px) and (max-height:700px){
   .cms-sidebar{
-    padding:10px 12px!important;
+    padding:8px 10px!important;
     height:100vh!important;
     overflow-y:auto!important;
     overflow-x:hidden!important;
   }
   .cms-logo img{
-    width:125px!important;
-    height:68px!important;
-    margin:0 auto 6px!important;
+    width:105px!important;
+    height:52px!important;
+    margin:0 auto 2px!important;
     display:block!important;
   }
   .cms-sidebar>.cms-eyebrow{
-    margin-bottom:4px!important;
-    font-size:8px!important;
+    margin:0 0 2px!important;
+    font-size:7px!important;
   }
   .cms-sidebar nav{
     display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:4px!important;
-    margin-top:6px!important;
+    grid-template-columns:1fr!important;
+    gap:2px!important;
+    margin-top:3px!important;
     padding-bottom:6px!important;
   }
   .cms-sidebar nav button{
     min-width:0!important;
-    min-height:34px!important;
-    padding:6px 7px!important;
+    min-height:27px!important;
+    padding:4px 7px!important;
     gap:6px!important;
     font-size:9px!important;
-    line-height:1.1!important;
-    white-space:normal!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
   }
   .cms-sidebar nav button>span{
-    width:14px!important;
-    flex:0 0 14px!important;
-    font-size:12px!important;
+    width:13px!important;
+    flex:0 0 13px!important;
+    font-size:11px!important;
   }
   .cms-nav-badge{
     margin-left:auto!important;
@@ -724,24 +724,27 @@
     left:auto!important;
     right:auto!important;
     bottom:auto!important;
-    margin-top:8px!important;
-    padding:8px 2px 10px!important;
+    clear:both!important;
+    margin:6px 0 0!important;
+    padding:7px 2px 8px!important;
     display:grid!important;
+    grid-template-columns:1fr!important;
     gap:2px!important;
+    border-top:1px solid var(--cms-border)!important;
   }
   .cms-account strong{
-    font-size:10px!important;
-    line-height:1.15!important;
+    font-size:9px!important;
+    line-height:1.1!important;
   }
   .cms-account small{
     margin-top:0!important;
-    font-size:8px!important;
-    line-height:1.15!important;
+    font-size:7px!important;
+    line-height:1.1!important;
   }
   .cms-account>button{
     width:max-content!important;
-    margin-top:5px!important;
-    padding:3px 0!important;
-    font-size:9px!important;
+    margin-top:4px!important;
+    padding:2px 0!important;
+    font-size:8px!important;
   }
 }
