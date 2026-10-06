@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./category-pages.css";
 import "./catalog-menu-autoclose.css";
+import "./catalog-search-highlight.css";
 import { marketPrice, normalizeMarket, type Market } from "@/lib/markets";
 import type { Product as CommerceProduct } from "@/lib/default-catalog";
 import { useCommerce } from "./commerce/commerce-provider";

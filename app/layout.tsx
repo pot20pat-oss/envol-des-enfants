@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./typography-large.css";
 import "./product-previews-large.css";
-import "./catalog-search-highlight.css";
 import "./product-lightbox.css";
 import "./dialog-responsive.css";
 import "./commerce/commerce.css";
