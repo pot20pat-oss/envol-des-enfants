@@ -107,7 +107,6 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
                 <button className="partner-modal-close" type="button" onClick={()=>setSelectedPartner(null)} aria-label={say("Fermer","Close")}>×</button>
                 <p className="eyebrow">{say("Partenaire de L’Envol des Enfants","L’Envol des Enfants partner")}</p>
                 <h2>{partner.name}</h2><strong>{partner.tag}</strong><p>{partner.description}</p>
-                <a href={partner.url} target="_blank" rel="noreferrer">{say(`Découvrir ${partner.name}`,`Discover ${partner.name}`)} →</a>
               </div>
             </div>}
           </article>)}
