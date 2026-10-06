@@ -275,3 +275,35 @@
     min-width:46px!important;
   }
 }
+
+
+/* 2026-10-06 — compteur panier des pages catalogue/Conakry, après le libellé. */
+.category-page .category-cart-action{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  overflow:visible!important;
+}
+.category-page .category-cart-label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  white-space:nowrap!important;
+}
+.category-page .category-cart-count{
+  display:inline-grid!important;
+  place-items:center!important;
+  min-width:28px!important;
+  height:28px!important;
+  padding:0 6px!important;
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+  background:#ed2470!important;
+  color:#fff!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  box-shadow:0 0 0 2px #fff,0 2px 6px rgba(18,52,77,.16)!important;
+  position:static!important;
+  transform:none!important;
+}
