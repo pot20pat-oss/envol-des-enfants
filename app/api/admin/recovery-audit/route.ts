@@ -26,6 +26,9 @@ export async function GET(request: Request) {
   const deletedRows = await database
     .prepare("SELECT key,value,updated_at FROM settings WHERE key LIKE 'deleted_product:%' ORDER BY updated_at DESC")
     .all<{key:string;value:string;updated_at:string}>();
+  const historyRows = await database
+    .prepare("SELECT key,value,updated_at FROM settings WHERE key LIKE 'cms_undo:%' ORDER BY updated_at DESC,key DESC")
+    .all<{key:string;value:string;updated_at:string}>();
 
   const deleted: Array<{key:string;updated_at:string;product:Record<string,unknown>}> = [];
   for (const row of deletedRows.results) {
@@ -37,10 +40,35 @@ export async function GET(request: Request) {
     } catch {}
   }
 
+  const currentIds = new Set(current.results.map((product) => String(product.id || "")));
+  const deletedIds = new Set(deleted.map((entry) => String(entry.product.id || "")));
+  const historicalMap = new Map<string,{key:string;updated_at:string;type:string;label:string;product:Record<string,unknown>;source:"before"|"after"}>();
+  for (const row of historyRows.results) {
+    try {
+      const parsed = JSON.parse(row.value) as {type?:unknown;label?:unknown;before?:Record<string,unknown>;after?:Record<string,unknown>};
+      for (const source of ["before","after"] as const) {
+        const product = parsed[source];
+        if (!product || typeof product !== "object" || !matchesQuery(product, query)) continue;
+        const id = String(product.id || "");
+        const key = id || `${String(product.article_number||"")}:${String(product.name_fr||"")}:${source}`;
+        if (!key || currentIds.has(id) || deletedIds.has(id) || historicalMap.has(key)) continue;
+        historicalMap.set(key,{
+          key: row.key,
+          updated_at: row.updated_at,
+          type: String(parsed.type || ""),
+          label: String(parsed.label || ""),
+          product,
+          source,
+        });
+      }
+    } catch {}
+  }
+
   return Response.json({
     query,
     current: current.results.filter((product) => matchesQuery(product, query)),
     deleted,
+    historical: [...historicalMap.values()],
   });
 }
 
