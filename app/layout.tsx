@@ -76,7 +76,7 @@ export default function RootLayout({
         <link
           rel="preload"
           as="image"
-          href="/hero-client/costume-fr.webp"
+          href="/_vinext/image?url=%2Fhero-client%2Fcostume-fr.webp&w=1200&q=78"
           fetchPriority="high"
         />
       </head>
