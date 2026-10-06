@@ -15,6 +15,8 @@ import "./dialog-responsive.css";
 import "./commerce/commerce.css";
 import "./commerce/storefront-commerce.css";
 import "./storefront/shop-reference.css";
+import { CommerceProvider } from "./commerce/commerce-provider";
+import ScrollToTop from "./components/scroll-to-top";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://envoldesenfants.com"),
