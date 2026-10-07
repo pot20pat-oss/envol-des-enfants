@@ -946,3 +946,70 @@
   max-width:150px!important;
   object-fit:contain!important;
 }
+
+
+/* 2026-10-06 — éditeur produit : galerie lisible sur écran étroit. */
+@media(max-width:620px){
+  .cms-product-image-item{
+    grid-template-columns:1fr!important;
+    align-items:start!important;
+    gap:12px!important;
+    padding:12px!important;
+    min-height:0!important;
+  }
+  .cms-product-image-preview-button{
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:1/1!important;
+    max-height:320px!important;
+    justify-self:stretch!important;
+  }
+  .cms-product-image-meta{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:6px 12px!important;
+    align-items:center!important;
+  }
+  .cms-product-image-meta .cms-checkbox{
+    grid-column:1/-1!important;
+    margin:0 0 2px!important;
+  }
+  .cms-product-image-meta strong{
+    font-size:16px!important;
+    line-height:1.25!important;
+    white-space:normal!important;
+  }
+  .cms-product-image-meta>span{
+    margin:0!important;
+    font-size:13px!important;
+    text-align:right!important;
+    white-space:nowrap!important;
+  }
+  .cms-product-image-meta>.cms-secondary{
+    grid-column:1/-1!important;
+    width:max-content!important;
+    max-width:100%!important;
+    margin-top:2px!important;
+  }
+  .cms-product-image-controls{
+    grid-column:1!important;
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:44px 44px minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    justify-content:stretch!important;
+  }
+  .cms-image-order-button{
+    width:44px!important;
+    height:44px!important;
+  }
+  .cms-product-image-controls .cms-secondary,
+  .cms-image-remove-button{
+    min-height:44px!important;
+    margin:0!important;
+    padding:9px 10px!important;
+    font-size:13px!important;
+    white-space:normal!important;
+  }
+}
