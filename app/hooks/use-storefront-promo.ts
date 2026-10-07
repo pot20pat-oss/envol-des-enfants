@@ -25,8 +25,8 @@ export function useStorefrontPromo({ language, market, whatsappNumber, whatsappU
     if (window.sessionStorage.getItem("envol-promo-dismissed") === "yes") return;
     const preloadStyles = window.setTimeout(() => {
       void import("../dialog-responsive.css");
-    }, 4500);
-    const timer = window.setTimeout(() => setPromoOpen(true), 7000);
+    }, 1200);
+    const timer = window.setTimeout(() => setPromoOpen(true), 3500);
     return () => {
       window.clearTimeout(preloadStyles);
       window.clearTimeout(timer);
