@@ -23,7 +23,7 @@ function escapeHtml(value: unknown) {
 
 async function sendOrderEmails(database: D1Database, data: {
   id: string; region: string; customer_name: string; customer_email?: string; customer_phone: string;
-  delivery_address: string; total: number; currency: string; items: Array<{ name: string; quantity: number; unit_price: number; line_total: number }>;
+  delivery_address: string; total: number; currency: string; items: Array<{ article_number: string; name: string; quantity: number; unit_price: number; line_total: number }>;
 }) {
   const runtime = cmsEnv();
   if (!runtime.RESEND_API_KEY) return;
@@ -34,7 +34,7 @@ async function sendOrderEmails(database: D1Database, data: {
   const storeName = settings[`${data.region}_store_name`] || "L’Envol des Enfants";
   const ownerEmail = settings[`${data.region}_order_notification_email`]?.trim();
   const from = runtime.ORDER_EMAIL_FROM || "L’Envol des Enfants <onboarding@resend.dev>";
-  const itemRows = data.items.map((item) => `<tr><td>${escapeHtml(item.quantity)} × ${escapeHtml(item.name)}</td><td style="text-align:right">${escapeHtml(item.line_total)} ${escapeHtml(data.currency)}</td></tr>`).join("");
+  const itemRows = data.items.map((item) => `<tr><td>${escapeHtml(item.quantity)} × ${escapeHtml(item.name)}${item.article_number ? `<br><small>Référence : ${escapeHtml(item.article_number)}</small>` : ""}</td><td style="text-align:right">${escapeHtml(item.line_total)} ${escapeHtml(data.currency)}</td></tr>`).join("");
   const send = async (to: string, subject: string, html: string) => {
     const response = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "Authorization": `Bearer ${runtime.RESEND_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ from, to: [to], subject, html }) });
     if (!response.ok) console.error("Order email failed", response.status, await response.text());
