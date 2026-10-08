@@ -11,7 +11,14 @@ const loginSchema = v.object({
 export async function GET(request: Request) {
   try {
     const admin = await currentAdmin(request);
-    return Response.json({ authenticated: Boolean(admin), admin });
+    const diagnose = new URL(request.url).searchParams.get("diagnostic") === "1";
+    const cookieReceived = (request.headers.get("cookie") || "").split(";")
+      .some(part => part.trim().startsWith("envol_admin_session="));
+    return Response.json({
+      authenticated: Boolean(admin),
+      admin,
+      ...(diagnose ? { cookie_received: cookieReceived } : {}),
+    }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return Response.json({ authenticated: false, configured: false }, { status: 503 });
   }
@@ -31,7 +38,7 @@ export async function POST(request: Request) {
       .bind(email).first<{ id: string; email: string; name: string; password_hash: string; salt: string }>();
     if (!admin || await hashPassword(password, admin.salt) !== admin.password_hash) return Response.json({ error: "Identifiants invalides." }, { status: 401 });
     await runtime.DB.prepare("UPDATE admins SET last_login_at = ? WHERE id = ?").bind(new Date().toISOString(), admin.id).run();
-    return Response.json({ admin: { id: admin.id, email: admin.email, name: admin.name } }, { headers: { "Set-Cookie": await createSession(admin.id) } });
+    return Response.json({ admin: { id: admin.id, email: admin.email, name: admin.name } }, { headers: { "Set-Cookie": await createSession(admin.id), "Cache-Control": "no-store" } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Connexion impossible." }, { status: 500 });
   }
