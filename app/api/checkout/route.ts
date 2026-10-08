@@ -66,6 +66,9 @@ export async function POST(request: Request) {
       const stock = Number(product[`stock_${region}`] || 0);
       if (!visible || product.status === "sold" || stock < requested.quantity) throw new Error(`${String(product.name_fr)} n’est plus disponible dans la quantité demandée.`);
       const unitPrice = numberValue(product[`price_${region}`]);
+      if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+        throw new Error(`${String(product.name_fr)} est en attente de tarification et ne peut pas être commandé pour le moment.`);
+      }
       return {
         product_id: requested.product_id,
         article_number: stringValue(product.article_number),
