@@ -78,7 +78,7 @@ export async function createSession(adminId: string): Promise<string> {
   const now = new Date();
   await cmsEnv().DB.prepare("INSERT INTO sessions (id, admin_id, expires_at, created_at) VALUES (?, ?, ?, ?)")
     .bind(digest, adminId, new Date(now.getTime() + SESSION_DAYS * 86400000).toISOString(), now.toISOString()).run();
-  return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_DAYS * 86400}`;
+  return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}`;
 }
 
 export async function deleteSession(request: Request): Promise<string> {
@@ -87,7 +87,7 @@ export async function deleteSession(request: Request): Promise<string> {
     const digest = hex(await crypto.subtle.digest("SHA-256", encoder.encode(token)));
     await cmsEnv().DB.prepare("DELETE FROM sessions WHERE id = ?").bind(digest).run();
   }
-  return `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+  return `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
 
 export function forbidden(): Response {
