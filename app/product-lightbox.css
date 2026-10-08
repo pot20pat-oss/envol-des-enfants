@@ -210,3 +210,62 @@
     height: 66px;
   }
 }
+
+/* 2026-10-08 — modal produit: défilement tactile et miniatures dans le flux. */
+@media (max-width: 860px) {
+  .product-lightbox {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .product-lightbox-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    margin: 0 auto 20px !important;
+  }
+  .product-lightbox-image {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 14px !important;
+  }
+  .product-lightbox-image > img {
+    flex: 0 0 auto !important;
+    height: min(42vh, 330px) !important;
+    min-height: 0 !important;
+    max-height: 330px !important;
+  }
+  .product-lightbox-thumbnails {
+    position: static !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    margin: 10px 0 0 !important;
+    padding: 4px 0 !important;
+    height: auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .product-lightbox-info {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 22px 20px 30px !important;
+  }
+  .product-lightbox-order {width: 100%; margin-top: 8px}
+  .product-lightbox-close {position: sticky !important; top: 8px !important; align-self: flex-end; margin-bottom: -44px; z-index: 10}
+}
