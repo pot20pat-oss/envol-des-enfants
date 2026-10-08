@@ -17,33 +17,6 @@ export function ProductIdentityFields({ editing, setEditing, update }: Omit<Prod
       </label>
     )}
 
-    {editing.id && (
-      <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",padding:"12px 14px",border:"1px solid #cbdbe4",borderRadius:10,background:"#f8fbfd"}}>
-        <button
-          type="button"
-          className="cms-primary"
-          onClick={() => {
-            if (!window.confirm("Créer une nouvelle fiche à partir de cet article ? L’article actuel ne sera pas modifié tant que la nouvelle fiche n’est pas enregistrée.")) return;
-            setEditing((current) => current ? {
-              ...current,
-              id: undefined,
-              article_number: undefined,
-              name_fr: `${String(current.name_fr || "")} — nouveau produit`,
-              stock_qc: 0,
-              stock_conakry: 0,
-              visible_qc: false,
-              visible_conakry: false,
-              visible: false,
-              featured: false,
-            } : current);
-          }}
-        >
-          ＋ Ceci est un nouveau produit
-        </button>
-        <span>Crée une fiche indépendante à partir de celle-ci, sans écraser l’article existant.</span>
-      </div>
-    )}
-
     <div className="cms-form-grid">
       <label>
         Nom du produit · FR
@@ -734,27 +707,6 @@ export function ProductMediaAndTermsFields({ editing, setEditing, update, upload
             {analyzing ? "Correction en cours…" : "Appliquer ma correction avec l’IA"}
           </button>
         </div>
-
-    <label>
-      Disponible dans quelle boutique ?
-      <select
-        value={editing.visible_qc && editing.visible_conakry ? "both" : editing.visible_qc ? "qc" : editing.visible_conakry ? "conakry" : ""}
-        onChange={(event) => {
-          const availability = event.target.value;
-          setEditing((current) => current ? {
-            ...current,
-            visible_qc: availability === "qc" || availability === "both",
-            visible_conakry: availability === "conakry" || availability === "both",
-          } : current);
-        }}
-        required
-      >
-        <option value="" disabled>Choisir une boutique</option>
-        <option value="qc">Québec seulement</option>
-        <option value="conakry">Conakry seulement</option>
-        <option value="both">Québec et Conakry</option>
-      </select>
-    </label>
 
     <label className="cms-checkbox">
       <input type="checkbox" checked={Boolean(editing.featured)} onChange={(event) => update("featured", event.target.checked)} />{" "}
