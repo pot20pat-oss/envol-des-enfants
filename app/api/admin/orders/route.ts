@@ -78,7 +78,10 @@ export async function DELETE(request: Request) {
       const now=new Date().toISOString();
       const restocks=items.filter(item=>item.product_id&&Number(item.quantity)>0).map(item=>database.prepare(`UPDATE products SET ${stockColumn} = ${stockColumn} + ?, updated_at=? WHERE id=?`).bind(Number(item.quantity),now,String(item.product_id)));
       if(restocks.length)await database.batch(restocks);
-    } catch {}
+    } catch (error) {
+      console.error("Order stock restoration failed", error);
+      return Response.json({ error: "Impossible de restaurer le stock. La commande n’a pas été supprimée." }, { status: 500 });
+    }
   }
   await database.prepare("DELETE FROM orders WHERE id=?").bind(id).run();
   const undoKey=`cms_undo:${Date.now()}:${crypto.randomUUID()}`;await database.prepare("INSERT INTO settings (key,value,updated_at) VALUES (?,?,?)").bind(undoKey,JSON.stringify({type:"order_delete",table:"orders",label:`Suppression commande · ${String(order.id)}`,before:order}),new Date().toISOString()).run();
