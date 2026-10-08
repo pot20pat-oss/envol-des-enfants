@@ -5,7 +5,7 @@ const REALM = "9341458454408573";
 const ID = "183";
 const DOC_NUMBER = "ENV-TEST-CAD-001";
 const RUN_KEY = "fix_sandbox_invoice_183_number_v1";
-const URL = "/api/quickbooks/sandbox-invoice-number-fix";
+const PAGE_PATH = "/api/quickbooks/sandbox-invoice-number-fix";
 
 type InvoiceData = Record<string, unknown>;
 type RunData = { status: string; error_code: string | null };
@@ -73,7 +73,7 @@ export async function GET(request: Request) {
       content += "<p>Protection : cette facture ne correspond pas au test attendu, ou possède déjà un numéro. Modification interdite.</p>";
     } else {
       content += '<section><p>Cette action ajoutera uniquement un numéro à la facture fictive. Elle ne change pas le montant, la devise, le client ni le paiement.</p>' +
-        `<form method="post" action="${URL}"><input type="hidden" name="confirm" value="fix-183-once"><button type="submit">Attribuer le numéro ${DOC_NUMBER}</button></form></section>`;
+        `<form method="post" action="${PAGE_PATH}"><input type="hidden" name="confirm" value="fix-183-once"><button type="submit">Attribuer le numéro ${DOC_NUMBER}</button></form></section>`;
     }
     return page(content + '<p><a href="/admin">Retour au CMS</a></p>');
   } catch {
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
   if (body.get("confirm") !== "fix-183-once") return page("<h1>Confirmation invalide.</h1>", 400);
   const auth = await sandboxAuth();
   if (!auth) return page("<h1>Entreprise inattendue.</h1>", 409);
-  if (await previousRun()) return Response.redirect(new URL(URL, request.url), 303);
+  if (await previousRun()) return Response.redirect(new URL(PAGE_PATH, request.url), 303);
 
   let invoice: InvoiceData;
   try { invoice = await getInvoice(auth.accessToken); }
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
     "INSERT OR IGNORE INTO quickbooks_sandbox_test_runs " +
     "(test_key,realm_id,status,created_at,updated_at) VALUES (?,?,'attempting',?,?) RETURNING test_key",
   ).bind(RUN_KEY, REALM, now, now).first<{ test_key: string }>();
-  if (!held) return Response.redirect(new URL(URL, request.url), 303);
+  if (!held) return Response.redirect(new URL(PAGE_PATH, request.url), 303);
 
   try {
     const response = await fetch(`https://sandbox-quickbooks.api.intuit.com/v3/company/${REALM}/invoice`, {
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
       await db.prepare(
         "UPDATE quickbooks_sandbox_test_runs SET status=?,error_code=?,updated_at=? WHERE test_key=?",
       ).bind(response.status >= 500 ? "unknown" : "rejected", `intuit_http_${response.status}`, new Date().toISOString(), RUN_KEY).run();
-      return Response.redirect(new URL(URL, request.url), 303);
+      return Response.redirect(new URL(PAGE_PATH, request.url), 303);
     }
     const result = await response.json() as { Invoice?: InvoiceData };
     const updated = result.Invoice;
@@ -156,5 +156,5 @@ export async function POST(request: Request) {
       "UPDATE quickbooks_sandbox_test_runs SET status='unknown',error_code='transport_error',updated_at=? WHERE test_key=?",
     ).bind(new Date().toISOString(), RUN_KEY).run();
   }
-  return Response.redirect(new URL(URL, request.url), 303);
+  return Response.redirect(new URL(PAGE_PATH, request.url), 303);
 }
