@@ -29,7 +29,36 @@ export default function Administration() {
   const { section, market, draggedSection, editing, editingType, search, productCategory, productVisibility, productStock, orderStatus, orderDate, setMarket, setDraggedSection, setEditing, setSearch, setProductCategory, setProductVisibility, setProductStock, setOrderStatus, setOrderDate, changeSection, addProduct, editProduct, addOrder, editOrder, addPromotion, editPromotion } = useAdminUiState();
   const { checking, products, orders, customers, promotions, subscribers, movements, versions, settings, siteSections, siteTexts, load, setVersions, setSettings, setSiteSections, setSiteTexts } = useAdminData({ market, admin, setAdmin, setNotice, setError });
   const { busy, setBusy, passwords, setPasswords, updateEditing, saveEditing, remove, upload, saveSettings, synchronizeProducts, moveSection, saveSiteEditor, changePassword, adjustStock, exportOrders, restoreVersion } = useAdminActions({ market, load, setError, setNotice });
-  async function signIn(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setBusy(true); setError(""); try { const result = await request("/api/admin/session", { method:"POST", body:JSON.stringify({email,password}) }); setAdmin(result.admin as AdminIdentity); setPassword(""); } catch(failure) { setError(failure instanceof Error ? failure.message : "Connexion impossible."); } finally { setBusy(false); } }
+  async function signIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await request("/api/admin/session", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        credentials: "same-origin",
+      });
+      // Do not display the CMS if the server did not actually receive
+      // the session cookie created during login.
+      const verified = await request("/api/admin/session?diagnostic=1", {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+      if (!verified.authenticated || !verified.admin) {
+        setAdmin(null);
+        throw new Error(verified.cookie_received
+          ? "Session non reconnue par le serveur. Réessayez; si le problème persiste, contactez l'administrateur."
+          : "Le navigateur n'a pas conservé le cookie du CMS. Vérifiez les cookies autorisés pour envoldesenfants.com.");
+      }
+      setAdmin(verified.admin as AdminIdentity);
+      setPassword("");
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Connexion impossible.");
+    } finally {
+      setBusy(false);
+    }
+  }
   async function signOut(){ await request("/api/admin/session",{method:"DELETE"}); setAdmin(null); }
   if(resetMode===null || (checking && !resetMode)) return <main className="cms-loading">Chargement de l’administration…</main>;
   if(resetMode || !admin) return <AdminLogin email={email} password={password} error={error} busy={busy} setEmail={setEmail} setPassword={setPassword} signIn={signIn}/>;
