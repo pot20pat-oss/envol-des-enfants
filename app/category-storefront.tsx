@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import "./category-pages.css";
 import "./catalog-menu-autoclose.css";
 import "./catalog-search-highlight.css";
 import { marketPrice, normalizeMarket, type Market } from "@/lib/markets";
