@@ -181,3 +181,45 @@
 @media(max-width:480px){
   .catalog-marketplace .category-grid{grid-template-columns:1fr !important}
 }
+
+/* 2026-10-08 — catalogue: rapprocher les résultats et alléger les cartes.
+   Limité à /catalogue pour préserver les autres pages de catégories. */
+.catalog-marketplace .catalog-command{margin-bottom:12px!important}
+.catalog-marketplace .category-shop-layout.wrap{padding-top:8px!important;padding-bottom:48px!important}
+.catalog-marketplace .category-grid{gap:20px 18px!important;grid-auto-rows:auto!important}
+.catalog-marketplace .category-card{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  grid-template-rows:230px minmax(0,1fr)!important;
+}
+.catalog-marketplace .category-image-button,
+.catalog-marketplace .category-image{
+  height:230px!important;
+  min-height:230px!important;
+  max-height:230px!important;
+}
+.catalog-marketplace .category-copy{
+  height:auto!important;
+  min-height:248px!important;
+  max-height:none!important;
+  padding:12px 14px 14px!important;
+  overflow:hidden!important;
+}
+.catalog-marketplace .category-copy h2{min-height:38px!important;height:auto!important;max-height:none!important}
+.catalog-marketplace .category-copy>p:not(.category-kicker){margin-bottom:4px!important}
+@media(max-width:800px){
+  .catalog-marketplace .catalog-command{margin-bottom:10px!important}
+  .catalog-marketplace .category-grid{gap:14px 12px!important}
+  .catalog-marketplace .category-card{grid-template-rows:180px minmax(0,1fr)!important}
+  .catalog-marketplace .category-image-button,
+  .catalog-marketplace .category-image{height:180px!important;min-height:180px!important;max-height:180px!important}
+  .catalog-marketplace .category-copy{min-height:220px!important;padding:11px!important}
+}
+@media(max-width:430px){
+  .catalog-marketplace .category-grid{gap:14px!important}
+  .catalog-marketplace .category-card{grid-template-rows:210px minmax(0,1fr)!important}
+  .catalog-marketplace .category-image-button,
+  .catalog-marketplace .category-image{height:210px!important;min-height:210px!important;max-height:210px!important}
+  .catalog-marketplace .category-copy{min-height:0!important;padding:14px!important;overflow:visible!important}
+}
