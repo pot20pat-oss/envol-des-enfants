@@ -49,7 +49,8 @@ function withSecurityHeaders(response: Response): Response {
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
   headers.set("X-Frame-Options", "DENY");
   headers.set("X-Content-Type-Options", "nosniff");
-  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  // OAuth callback redirects must not leak its single-use code via Referer.
+  headers.set("Referrer-Policy", response.headers.get("Referrer-Policy") || "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
   return new Response(response.body, {
     status: response.status,
