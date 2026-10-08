@@ -16,6 +16,12 @@ export function marketPrice(value: unknown, market: Market, language = "fr"): st
   return `${new Intl.NumberFormat(language === "en" ? "en-CA" : "fr-GN").format(amount)} GNF`;
 }
 
+export function marketCatalogPrice(value: unknown, market: Market, language = "fr"): string {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return language === "en" ? "Price coming soon" : "Prix à venir";
+  return marketPrice(amount, market, language);
+}
+
 function promotionSectionVisible(value?: string): boolean | null {
   if (!value) return null;
   try {
