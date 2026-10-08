@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
   // Ensure our proposed invoice number does not already exist.
   const lookup = new URL(`https://sandbox-quickbooks.api.intuit.com/v3/company/${REALM}/query`);
-  lookup.searchParams.set("query", `SELECT Id FROM Invoice WHERE DocNumber = '${DOC_NUMBER}'`);
+  lookup.searchParams.set("query", `SELECT * FROM Invoice WHERE DocNumber = '${DOC_NUMBER}'`);
   try {
     const check = await fetch(lookup.toString(), {
       headers: { Authorization: `Bearer ${auth.accessToken}`, Accept: "application/json" },
