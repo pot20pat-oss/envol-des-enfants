@@ -11,6 +11,10 @@ export type CmsEnv = {
   NVIDIA_IMAGE_EDIT_MODEL?: string;
   RESEND_API_KEY?: string;
   ORDER_EMAIL_FROM?: string;
+  QUICKBOOKS_MODE?: string;
+  QUICKBOOKS_CLIENT_ID?: string;
+  QUICKBOOKS_CLIENT_SECRET?: string;
+  QUICKBOOKS_TOKEN_KEY?: string;
 };
 
 const COOKIE = "envol_admin_session";
