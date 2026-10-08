@@ -85,9 +85,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
-  // No cross-site form submission, including same-site subdomains.
-  if (request.headers.get("Origin") !== new URL(request.url).origin) {
-    return htmlResponse("<h1>Origine de requête invalide.</h1>", 403);
+  // Require browser Fetch Metadata to prove the POST came from this exact origin.
+  // Edge can omit Origin on native forms, so do not depend on it alone.
+  const origin = request.headers.get("Origin");
+  const site = request.headers.get("Sec-Fetch-Site");
+  if (site !== "same-origin" || (origin && origin !== "null" && origin !== new URL(request.url).origin)) {
+    return htmlResponse("<h1>Soumission non autorisée : origine différente.</h1>", 403);
   }
   if (!(request.headers.get("Content-Type") || "").startsWith("application/x-www-form-urlencoded")) {
     return htmlResponse("<h1>Format de requête invalide.</h1>", 415);
