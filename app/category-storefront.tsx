@@ -26,18 +26,18 @@ type Product = {
   brand?:string;
 };
 type CategoryTab = { value:string; labelFr:string; labelEn:string };
-type Props = { title:string; subtitle:string; categories?:string[]; categoryTabs?:CategoryTab[] };
+type Props = { title:string; subtitle:string; categories?:string[]; categoryTabs?:CategoryTab[]; initialProducts?:Product[]; initialMarket?:"qc"|"conakry" };
 
 
 const excludedCatalogCategories = new Set(["vetements","chaussures"]);
 
-export default function CategoryStorefront({ title, subtitle, categories, categoryTabs }: Props) {
+export default function CategoryStorefront({ title, subtitle, categories, categoryTabs, initialProducts = [], initialMarket = "conakry" }: Props) {
   const isFullCatalog=!categories?.length&&!categoryTabs?.length;
-  const [products,setProducts]=useState<Product[]>([]);
-  const [loading,setLoading]=useState(true);
+  const [products,setProducts]=useState<Product[]>(initialProducts);
+  const [loading,setLoading]=useState(initialProducts.length===0);
   const [query,setQuery]=useState("");
   const [language,setLanguage]=useState<"fr"|"en">("fr");
-  const [market,setMarket]=useState<Market>("conakry");
+  const [market,setMarket]=useState<Market>(initialMarket);
   const [selectedProduct,setSelectedProduct]=useState<Product|null>(null);
   const [selectedImageIndex,setSelectedImageIndex]=useState(0);
   const [availability,setAvailability]=useState("all");
