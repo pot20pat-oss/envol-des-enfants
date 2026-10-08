@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./category-pages.css";
 import "./typography-large.css";
 import "./product-previews-large.css";
 import "./product-lightbox.css";
