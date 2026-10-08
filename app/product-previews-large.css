@@ -217,9 +217,14 @@
   .catalog-marketplace .category-copy{min-height:220px!important;padding:11px!important}
 }
 @media(max-width:430px){
-  .catalog-marketplace .category-grid{gap:14px!important}
-  .catalog-marketplace .category-card{grid-template-rows:210px minmax(0,1fr)!important}
+  .catalog-marketplace .category-grid{gap:12px!important}
+  .catalog-marketplace .category-card{grid-template-rows:190px minmax(0,1fr)!important}
   .catalog-marketplace .category-image-button,
-  .catalog-marketplace .category-image{height:210px!important;min-height:210px!important;max-height:210px!important}
-  .catalog-marketplace .category-copy{min-height:0!important;padding:14px!important;overflow:visible!important}
+  .catalog-marketplace .category-image{height:190px!important;min-height:190px!important;max-height:190px!important}
+  .catalog-marketplace .category-copy{min-height:0!important;padding:10px 14px 12px!important;overflow:visible!important}
+  .catalog-marketplace .category-copy h2{height:auto!important;min-height:0!important;max-height:none!important;margin-bottom:7px!important}
+  .catalog-marketplace .category-copy>strong{margin-bottom:6px!important}
+  .catalog-marketplace .category-copy>p:not(.category-kicker){margin-bottom:5px!important}
+  .catalog-marketplace .category-copy>small{margin-top:3px!important}
+  .catalog-marketplace .product-seo-link{margin-top:6px!important;margin-bottom:4px!important}
 }
