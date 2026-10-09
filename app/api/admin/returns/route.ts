@@ -1,6 +1,7 @@
 import { cmsEnv, currentAdmin, forbidden } from "@/lib/cms";
 import { normalizeMarket } from "@/lib/markets";
 import { parseRestockLines } from "@/lib/order-stock-restoration";
+import { eligibleDeliveredOrder, validReturnQuantity, canApproveReturnForResale, canRejectReturnAsNonResellable } from "@/lib/return-inspection-policy";
 
 type ReturnInput = {
   order_id?: unknown;
@@ -87,13 +88,13 @@ export async function POST(request: Request) {
 
     const order = await db.prepare("SELECT id,status,region,items_json FROM orders WHERE id=?")
       .bind(orderId).first<{ id: string; status: string; region: string; items_json: string | null }>();
-    if (!order || order.status !== "delivered") {
+    if (!order || !eligibleDeliveredOrder(order.status)) {
       return errorResponse("Seules les commandes livrées peuvent être enregistrées comme retours. Les autres relèvent de l'annulation.", 409);
     }
     if (order.region !== "qc" && order.region !== "conakry") return errorResponse("Boutique inconnue.", 409);
     const lines = parseRestockLines(order.items_json);
     const orderedQuantity = lines.find((line) => line.product_id === productId)?.quantity || 0;
-    if (!orderedQuantity || Number(quantity) > orderedQuantity) {
+    if (!validReturnQuantity(quantity, orderedQuantity, 0)) {
       return errorResponse("Le produit ou la quantité ne correspond pas à la commande.", 409);
     }
     const product = await db.prepare("SELECT id FROM products WHERE id=?")
@@ -144,10 +145,10 @@ export async function PATCH(request: Request) {
   const undamaged = body.undamaged_confirmed === true;
   const packaging = body.packaging_intact_confirmed === true;
   const note = typeof body.notes === "string" ? body.notes.trim().slice(0, 1000) : "";
-  if (approval && !(unused && undamaged && packaging)) {
+  if (approval && !canApproveReturnForResale({unused_confirmed: unused, undamaged_confirmed: undamaged, packaging_intact_confirmed: packaging})) {
     return errorResponse("La revente n'est possible que si le jouet est neuf, intact et que son emballage est conforme.");
   }
-  if (rejection && note.length < 3) {
+  if (rejection && !canRejectReturnAsNonResellable(note)) {
     return errorResponse("Précise pourquoi le jouet ne peut pas être revendu.");
   }
   const next = approval ? "approved_for_resale" : rejection ? "not_resellable" : "quarantined";
