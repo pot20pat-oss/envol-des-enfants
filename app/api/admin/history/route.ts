@@ -1,51 +1,7 @@
 import { cmsEnv,currentAdmin,forbidden } from "@/lib/cms";
-import { updateProductBindings } from "../products/product-input";
+import { nonStockProductAssignments, historyStockRisk } from "@/lib/cms-history-stock-safety";
 
 type Action={key:string;type:string;label:string;before:Record<string,unknown>;after?:Record<string,unknown>;table?:string;state?:"applied"|"restored";updated_at?:string};
-
-// Names and binding positions match updateProductBindings(). Never write the
-// three inventory fields when undoing a stock-neutral product edit.
-const PRODUCT_UPDATE_FIELDS = [
-  "name_fr", "name_en", "description_fr", "description_en", "category",
-  "price", "stock", "status", "badge", "ages", "image_url", "image_sheet",
-  "image_position", "brand", "material", "dimensions", "exchange_terms_fr",
-  "exchange_terms_en", "visible", "price_qc", "price_conakry", "stock_qc",
-  "stock_conakry", "visible_qc", "visible_conakry", "alert_threshold",
-  "featured", "promo_price_qc", "promo_price_conakry",
-  "variants_json", "images_json", "updated_at",
-] as const;
-const INVENTORY_FIELDS = new Set<string>(["stock", "stock_qc", "stock_conakry"]);
-
-function validQuantity(snapshot: Record<string,unknown>, key: string): number | null {
-  if (!Object.prototype.hasOwnProperty.call(snapshot, key)) return null;
-  const n = Number(snapshot[key]);
-  return Number.isSafeInteger(n) && n >= 0 ? n : null;
-}
-
-function historyStockRisk(action: Action): string | null {
-  if (!action.before) return "Données d'historique incomplètes.";
-  if (action.type === "product_update") {
-    if (!action.after) return "Sauvegarde après modification absente.";
-    for (const field of ["stock_qc", "stock_conakry"]) {
-      const before = validQuantity(action.before, field);
-      const after = validQuantity(action.after, field);
-      if (before === null || after === null) return "Quantités historiques manquantes.";
-      if (before !== after) return "Cette action modifie un inventaire.";
-    }
-    return null;
-  }
-  if (action.type === "product_delete" || action.type === "order_delete" ||
-    (action.type === "row_delete" &&
-      (action.table === "orders" || action.table === "products"))) {
-    return "La restauration ou suppression de cette entrée peut modifier l'inventaire.";
-  }
-  if (action.type === "row_delete" &&
-    ["customers", "subscribers", "promotions"].includes(action.table ?? "")) {
-    return null;
-  }
-  return "Type d'historique non vérifié.";
-}
-
 
 async function history():Promise<Action[]>{
  const rows=await cmsEnv().DB.prepare("SELECT key,value,updated_at FROM settings WHERE key LIKE 'cms_undo:%' ORDER BY updated_at DESC,key DESC LIMIT 20").all<{key:string;value:string;updated_at:string}>();
@@ -106,12 +62,7 @@ export async function POST(request:Request){
    if(!target)throw new Error("Cette ancienne modification ne peut pas être rétablie.");
    // Restore only non-stock product fields. The current inventory may have
    // changed since this historical action (sales, restocks, cancellations).
-   const bindings=updateProductBindings(target,id,new Date().toISOString());
-   if(bindings.length!==PRODUCT_UPDATE_FIELDS.length+1){
-    throw new Error("Structure de produit inattendue : restauration annulée.");
-   }
-   const allowed=PRODUCT_UPDATE_FIELDS.map((field,index)=>({field,value:bindings[index]}))
-    .filter(({field})=>!INVENTORY_FIELDS.has(field));
+   const allowed=nonStockProductAssignments(target,id,new Date().toISOString());
    await db.prepare(`UPDATE products SET ${allowed.map(({field})=>field+"=?").join(",")} WHERE id=?`)
     .bind(...allowed.map(({value})=>value),id).run();
    if(!action.after)action.after=current;
