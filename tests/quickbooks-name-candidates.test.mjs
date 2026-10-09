@@ -80,3 +80,10 @@ test("the same brand and color cannot confuse a dress with a cap", () => {
   assert.ok(!result.some(x => x.sku === "CAP-01"));
   assert.ok(result.some(x => x.sku === "DRESS-01"));
 });
+
+test("repeated QuickBooks UGS is explicitly flagged for human review", () => {
+  const matches = find("assiette paw patrol 4+", 5);
+  assert.ok(matches.some(x =>
+    x.sku === "078300031420" && x.caution.includes("UGS répétée")
+  ));
+});
