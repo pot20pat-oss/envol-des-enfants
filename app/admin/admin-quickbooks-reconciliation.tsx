@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ChangeEvent } from "react";
+import { Fragment, useMemo, useState, type ChangeEvent } from "react";
+import { createNameCandidateSearch, type NameCandidate } from "@/lib/quickbooks-name-candidates";
 import { markets, type Market } from "@/lib/markets";
 import { type Row } from "./admin-shared";
 
@@ -18,6 +19,7 @@ type Comparison = {
   qboStock: string;
   qboItemId: string;
   qboType: string;
+  nameCandidates: NameCandidate[];
   status: "exact_sku" | "duplicate_cms" | "duplicate_quickbooks" |
     "not_found" | "missing_article" | "not_inventory";
 };
@@ -75,11 +77,18 @@ function downloadCsv(records: Comparison[], region: Market) {
   const labels = ["Région", "Produit CMS ID", "Article CMS", "Nom CMS",
     "SKU CMS proposé", "Stock CMS", "Prix CMS", "Visible CMS",
     "État du rapprochement", "SKU QuickBooks", "Nom QuickBooks",
-    "Stock QuickBooks (lecture seulement)", "Identifiant QuickBooks", "Type QuickBooks"];
+    "Stock QuickBooks (lecture seulement)", "Identifiant QuickBooks", "Type QuickBooks",
+    "Nom suggéré 1", "UGS suggérée 1", "Score 1",
+    "Nom suggéré 2", "UGS suggérée 2", "Score 2",
+    "Nom suggéré 3", "UGS suggérée 3", "Score 3"];
   const body = records.map(row => [
     region, row.id, row.article, row.productName, row.sku, row.cmsStock,
     row.cmsPrice, row.visible ? "oui" : "non", row.status,
     row.qboSku, row.qboName, row.qboStock, row.qboItemId, row.qboType,
+    ...[0,1,2].flatMap(i => {
+      const suggested = row.nameCandidates[i];
+      return suggested ? [suggested.name,suggested.sku,suggested.score] : ["","",""];
+    }),
   ]);
   const csv = [labels, ...body].map(line => line.map(exportCell).join(";")).join("\r\n");
   const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
@@ -102,6 +111,7 @@ export function QuickBooksReconciliationSection({
   const [idIndex, setIdIndex] = useState(-1);
   const [typeIndex, setTypeIndex] = useState(-1);
   const [filter, setFilter] = useState("all");
+  const [expandedCandidates, setExpandedCandidates] = useState("");
 
   async function openCsv(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -125,6 +135,7 @@ export function QuickBooksReconciliationSection({
       setTypeIndex(suggestedColumn(headers,
         ["type","itemtype","producttype","typedarticle","typeduproduit"]));
       setFilter("all");
+      setExpandedCandidates("");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Fichier CSV invalide.");
     }
@@ -142,6 +153,15 @@ export function QuickBooksReconciliationSection({
       const sku = normalized(record[skuIndex]);
       if (sku) importedBySku.set(sku, [...(importedBySku.get(sku) || []), record]);
     }
+    const searchByName = sheet && nameIndex >= 0
+      ? createNameCandidateSearch(sheet.rows.map((record,i)=>({
+          name: String(record[nameIndex] ?? ""),
+          sku: skuIndex >= 0 ? String(record[skuIndex] ?? "") : "",
+          stock: stockIndex >= 0 ? String(record[stockIndex] ?? "") : "",
+          type: typeIndex >= 0 ? String(record[typeIndex] ?? "") : "",
+          itemId: idIndex >= 0 ? String(record[idIndex] ?? "") : "",
+          rowNumber: i + 2,
+        }))) : null;
     for (const product of products) {
       const article = String(product.article_number ?? "").trim();
       const id = String(product.id ?? "");
@@ -160,6 +180,8 @@ export function QuickBooksReconciliationSection({
         : deduplicated.length === 1 && nonInventory ? "not_inventory"
         : deduplicated.length === 1 ? "exact_sku" : "not_found";
       const match = status === "exact_sku" ? deduplicated[0] : null;
+      const nameCandidates = status === "not_found" && searchByName
+        ? searchByName(String(product.name_fr || ""),3) : [];
       rows.push({
         id, article, productName: String(product.name_fr || ""),
         cmsPrice: Number(product[market === "qc" ? "price_qc" : "price_conakry"] || 0),
@@ -172,6 +194,7 @@ export function QuickBooksReconciliationSection({
         qboStock: match && stockIndex >= 0 ? String(match[stockIndex] || "") : "",
         qboItemId: match && idIndex >= 0 ? String(match[idIndex] || "") : "",
         qboType: match && typeIndex >= 0 ? String(match[typeIndex] || "") : "",
+        nameCandidates,
         status,
       });
     }
@@ -183,11 +206,13 @@ export function QuickBooksReconciliationSection({
         duplicates: rows.filter(r => r.status === "duplicate_cms" ||
           r.status === "duplicate_quickbooks").length,
         noArticle: rows.filter(r => r.status === "missing_article").length,
+        withNameSuggestions: rows.filter(r => r.nameCandidates.length > 0).length,
       },
     };
   }, [products, market, sheet, skuIndex, nameIndex, stockIndex, idIndex, typeIndex]);
 
-  const displayed = comparisons.filter(item => filter === "all" || item.status === filter).slice(0, 80);
+  const displayed = comparisons.filter(item => filter === "all" ||
+    (filter === "has_name_candidate" ? item.nameCandidates.length > 0 : item.status === filter)).slice(0, 80);
   const columnSelector = (label: string, index: number, change: (value: number) => void) =>
     <label style={{display:"grid",gap:6,flex:"1 1 190px"}}>{label}
       <select value={index} onChange={event=>change(Number(event.target.value))}>
@@ -230,6 +255,9 @@ export function QuickBooksReconciliationSection({
         <strong> {sheet && skuIndex >= 0 ? totals.exact : "—"}</strong> ·
         Doublons : <strong>{totals.duplicates}</strong> · Références absentes :
         <strong> {totals.noArticle}</strong></p>
+      <p>Suggestions par nom (non vérifiées) : <strong>{sheet && nameIndex >= 0 ? totals.withNameSuggestions : "—"}</strong> produits.
+        Ce compteur ne signifie pas que ces produits sont identiques.
+      </p>
       <p>Un SKU identique n'est qu'un indice : il faut vérifier manuellement le produit,
         son marché, son type Inventory, son identifiant QuickBooks et sa valorisation
         avant toute association.</p>
@@ -238,7 +266,8 @@ export function QuickBooksReconciliationSection({
           <select value={filter} onChange={event=>setFilter(event.target.value)}>
             <option value="all">Tous les produits</option>
             <option value="exact_sku">SKU exacts non vérifiés</option>
-            <option value="not_found">Sans correspondance</option>
+            <option value="not_found">Sans correspondance SKU</option>
+            <option value="has_name_candidate">Suggestions par nom à examiner</option>
             <option value="duplicate_cms">Références CMS en double</option>
             <option value="duplicate_quickbooks">SKU QuickBooks en double</option>
             <option value="missing_article">Sans référence CMS</option>
@@ -251,19 +280,50 @@ export function QuickBooksReconciliationSection({
       <div className="cms-table-wrap"><table>
         <thead><tr><th>Article CMS</th><th>Produit CMS</th><th>SKU proposé</th>
           <th>Correspondance</th><th>Article QuickBooks</th><th>Stock CMS / QB</th></tr></thead>
-        <tbody>{displayed.map(item=><tr key={item.id}>
-          <td>{item.article || "—"}</td>
-          <td>{item.productName}<small>{item.visible ? "Visible" : "Masqué"}</small></td>
-          <td>{item.sku || "—"}</td>
-          <td>{sheet && skuIndex >= 0 ? ({
-            exact_sku:"SKU identique — à vérifier", duplicate_cms:"Doublon CMS",
-            duplicate_quickbooks:"Doublon QuickBooks", not_found:"Non trouvé",
-            missing_article:"Référence absente",
-            not_inventory:"SKU présent, mais type non Inventory",
-          })[item.status] : "Importer un CSV"}</td>
-          <td>{item.qboName || "—"}{item.qboItemId&&<small>ID : {item.qboItemId}</small>}</td>
-          <td>{item.cmsStock} / {item.qboStock || "—"}</td>
-        </tr>)}</tbody>
+        <tbody>{displayed.map(item=><Fragment key={item.id}>
+          <tr>
+            <td>{item.article || "—"}</td>
+            <td>{item.productName}<small>{item.visible ? "Visible" : "Masqué"}</small></td>
+            <td>{item.sku || "—"}</td>
+            <td>
+              {sheet && skuIndex >= 0 ? ({
+                exact_sku:"SKU identique — à vérifier", duplicate_cms:"Doublon CMS",
+                duplicate_quickbooks:"Doublon QuickBooks", not_found:"SKU non trouvé",
+                missing_article:"Référence absente",
+                not_inventory:"SKU présent, mais type non Inventory",
+              })[item.status] : "Importer un CSV"}
+              {item.nameCandidates.length>0 && <div style={{marginTop:8}}>
+                <button type="button" className="cms-secondary"
+                  aria-expanded={expandedCandidates===item.id}
+                  onClick={()=>setExpandedCandidates(expandedCandidates===item.id?"":item.id)}>
+                  {item.nameCandidates.length} proposition(s) par nom ▾
+                </button>
+              </div>}
+            </td>
+            <td>{item.qboName || "—"}{item.qboItemId&&<small>ID : {item.qboItemId}</small>}</td>
+            <td>{item.cmsStock} / {item.qboStock || "—"}</td>
+          </tr>
+          {expandedCandidates===item.id && item.nameCandidates.length>0 &&
+            <tr><td colSpan={6} style={{padding:16,background:"rgba(120,150,165,.08)"}}>
+              <strong>Articles QuickBooks suggérés pour : {item.productName}</strong>
+              <p style={{marginBlock:8}}>Suggestions non vérifiées fondées uniquement sur les noms.
+                Comparer manuellement le produit, sa référence fabricant, la couleur, la taille,
+                la photo et la boutique. Ne pas modifier le stock.</p>
+              <div className="cms-table-wrap"><table>
+                <thead><tr><th>Nom QuickBooks</th><th>UGS QuickBooks</th>
+                  <th>Score indicatif</th><th>Type</th><th>Stock QB</th><th>Vérification</th></tr></thead>
+                <tbody>{item.nameCandidates.map(suggestion=>
+                  <tr key={suggestion.rowNumber}>
+                    <td>{suggestion.name}</td>
+                    <td>{suggestion.sku || "—"}</td>
+                    <td>{suggestion.score}/100 · {suggestion.reason==="exact_name"?"Nom identique":"Nom similaire"}</td>
+                    <td>{suggestion.type || "Inconnu"}</td>
+                    <td>{suggestion.stock || "—"}</td>
+                    <td>{suggestion.caution}</td>
+                  </tr>)}</tbody>
+              </table></div>
+            </td></tr>}
+        </Fragment>)}</tbody>
       </table></div>
       {comparisons.length > displayed.length &&
         <p>Affichage limité à 80 lignes. Le rapport exporté contient les {comparisons.length} produits.</p>}
