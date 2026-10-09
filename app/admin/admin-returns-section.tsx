@@ -222,11 +222,11 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
     {activeReturn && <div className="cms-panel cms-form" style={{padding:18,marginTop:20}}>
       <h3>Inspection manuelle</h3>
       <p>Cocher uniquement les conditions <strong>vérifiées physiquement</strong>.</p>
-      <label><input type="checkbox" checked={unused} onChange={(event)=>setUnused(event.target.checked)}/>
+      <label style={{display:"flex",alignItems:"center",gap:10}}><input style={{width:18,flex:"0 0 18px"}} type="checkbox" checked={unused} onChange={(event)=>setUnused(event.target.checked)}/>
         Jouet neuf, jamais utilisé</label>
-      <label><input type="checkbox" checked={undamaged} onChange={(event)=>setUndamaged(event.target.checked)}/>
+      <label style={{display:"flex",alignItems:"center",gap:10}}><input style={{width:18,flex:"0 0 18px"}} type="checkbox" checked={undamaged} onChange={(event)=>setUndamaged(event.target.checked)}/>
         Jouet intact, sans défaut ni dommage</label>
-      <label><input type="checkbox" checked={packaging} onChange={(event)=>setPackaging(event.target.checked)}/>
+      <label style={{display:"flex",alignItems:"center",gap:10}}><input style={{width:18,flex:"0 0 18px"}} type="checkbox" checked={packaging} onChange={(event)=>setPackaging(event.target.checked)}/>
         Emballage intact et conforme pour la vente comme neuf</label>
       <label>Observations d'inspection
         <textarea value={inspectionNotes} onChange={(event)=>setInspectionNotes(event.target.value)}
