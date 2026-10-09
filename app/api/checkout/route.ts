@@ -2,6 +2,7 @@ import * as v from "valibot";
 
 import { cmsEnv, numberValue, stringValue } from "@/lib/cms";
 import { normalizeMarket } from "@/lib/markets";
+import { queueSandboxCheckoutOrder } from "@/lib/quickbooks-order-queue";
 import { validateJsonBody } from "@/lib/api-validation";
 
 const checkoutSchema = v.object({
@@ -98,6 +99,21 @@ export async function POST(request: Request) {
     return Response.json({ error: "Le stock a changé pendant la commande. Veuillez vérifier le panier." }, { status: 409 });
   }
   const currency = region === "qc" ? "CAD" : "GNF";
+  // Sandbox opt-in: record a pending job after checkout is committed.
+  // This must never fail a real checkout or send an invoice synchronously.
+  try {
+    await queueSandboxCheckoutOrder({
+      id, region, currency,
+      customer_name: data.customer_name,
+      customer_phone: data.customer_phone,
+      customer_email: stringValue(data.customer_email) || null,
+      delivery_address: data.delivery_address,
+      items, total, created_at: now,
+    });
+  } catch (error) {
+    console.error("QuickBooks sandbox queue failed for order", id,
+      error instanceof Error ? error.message : "unknown");
+  }
   try {
     await sendOrderEmails(database, { id, region, customer_name: data.customer_name, customer_email: stringValue(data.customer_email) || undefined, customer_phone: data.customer_phone, delivery_address: data.delivery_address, total, currency, items });
   } catch (error) {
