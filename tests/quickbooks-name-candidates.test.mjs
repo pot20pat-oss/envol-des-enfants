@@ -119,3 +119,46 @@ test("known character with one shared umbrella brand is not enough", () => {
   ]);
   assert.deepEqual(match("Disney Minnie montre", 5).map(r=>r.sku), ["QBO-MINNIE"]);
 });
+
+test("generic coloring book name does not suggest other generic titles", () => {
+  const compare = createNameCandidateSearch([
+    sample("livre de coloriage", "COLORIAGE-2", 2),
+    sample("livre de coloriage 3+", "9789464762525", 3),
+    sample("colorista livre de coloriage 4+", "9789464762556", 4),
+  ]);
+  assert.deepEqual(compare("Livre de coloriage pour enfants", 5), []);
+});
+test("a similar normalized token set cannot be rated 100 if titles differ", () => {
+  const compare = createNameCandidateSearch([
+    sample("Bluey montre interactive", "3417765545054", 2),
+  ]);
+  const results = compare("Montre interactive Bluey", 5);
+  assert.equal(results.length, 1);
+  assert.ok(results[0].score < 100);
+});
+test("numbers present in only one title require manual lookup, not a proposed match", () => {
+  const compare = createNameCandidateSearch([
+    sample("Montre Bluey 3+", "WATCH-3", 2),
+    sample("Montre Bluey", "WATCH-NO-AGE", 3),
+  ]);
+  const results = compare("Montre Bluey", 5);
+  assert.ok(!results.some(item=>item.sku==="WATCH-3"));
+  assert.ok(results.some(item=>item.sku==="WATCH-NO-AGE"));
+});
+test("identical generic name gets warning and never an identity score of 100", () => {
+  const compare = createNameCandidateSearch([
+    sample("Livre de coloriage pour enfants", "BOOK-GENERIC", 2),
+  ]);
+  const result = compare("Livre de coloriage pour enfants", 5);
+  assert.equal(result.length,1);
+  assert.ok(result[0].score < 100);
+  assert.ok(result[0].caution.includes("Nom générique"));
+});
+test("distinctive exact name retains 100 but remains unverified", () => {
+  const compare = createNameCandidateSearch([
+    sample("Montre Bluey", "WATCH-BLUEY", 2),
+  ]);
+  const result = compare("Montre Bluey");
+  assert.equal(result[0]?.score,100);
+  assert.ok(result[0]?.caution.includes("Vérifier"));
+});
