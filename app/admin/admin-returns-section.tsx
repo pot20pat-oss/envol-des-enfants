@@ -159,6 +159,11 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
     {notice && <p className="cms-notice" role="status">{notice}</p>}
     <div className="cms-panel" style={{padding:18, marginBlock:20}}>
       <h3>Enregistrer un retour reçu</h3>
+      {!delivered.length && <p className="cms-notice" role="status">
+        Aucune commande livrée contenant des produits identifiés n'est disponible
+        pour cette boutique. Le formulaire sera utilisable lorsqu'une commande
+        réelle admissible aura été livrée. Ne crée pas de commande fictive ici.
+      </p>}
       <form onSubmit={(event) => void createReturn(event)} className="cms-form">
         <label>Commande livrée
           <select required value={orderId} onChange={(event) => {
