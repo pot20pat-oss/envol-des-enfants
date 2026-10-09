@@ -45,6 +45,9 @@ export async function GET(request: Request) {
         runtime.QUICKBOOKS_MODE === "sandbox" &&
         runtime.QUICKBOOKS_INVENTORY_AUDIT_MODE === "sandbox_capture",
       cms_product_editor_stock_capture_enabled: cmsEnv().QUICKBOOKS_MODE === 'sandbox' && cmsEnv().QUICKBOOKS_INVENTORY_AUDIT_MODE === 'sandbox_capture',
+      cms_checkout_sale_capture_enabled:
+        runtime.QUICKBOOKS_MODE === "sandbox" &&
+        runtime.QUICKBOOKS_INVENTORY_AUDIT_MODE === "sandbox_capture",
       stock_changed: false,
       quickbooks_adjustments_created: false,
       manual_stock_movements: movements.results,
@@ -52,7 +55,7 @@ export async function GET(request: Request) {
       sandbox_product_mappings: mappings.results,
       sandbox_inventory_events: events.results,
       limitations: [
-        "Le checkout reduit le stock mais ne cree pas de stock_movement associe a la commande.",
+        "Le checkout capture maintenant un evenement sandbox de vente apres la commande reussie; l'ecriture est non bloquante et demande une reconciliation si elle echoue.",
         "La capture des ajustements manuels via la page Stocks exige l'activation explicite du mode sandbox_capture.",
         "Les modifications de stock via l'editeur de produits sont journalisees dans le mode sandbox_capture.",
         "Les annulations et retours doivent etre rapproches de la facture QuickBooks.",
