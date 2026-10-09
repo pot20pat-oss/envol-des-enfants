@@ -115,7 +115,7 @@ type StoredSandboxTokens = {
 };
 
 /** Unseal token data saved with AES-GCM, tied to its sandbox company ID. */
-async function decryptSandboxTokens(
+export async function decryptSandboxTokens(
   encryptionKey: string, realmId: string, encryptedValue: string,
 ): Promise<StoredSandboxTokens> {
   const envelope: unknown = JSON.parse(encryptedValue);
