@@ -57,6 +57,8 @@ const GENERIC_PRODUCT_TERMS = new Set([
   "PETIT","PETITE","PETITS","PETITES","GRAND","GRANDE","GRANDS","GRANDES",
   "INTERACTIF","INTERACTIVE","INTERACTIFS","INTERACTIVES","ROND","RONDE",
   "RONDS","RONDES","EDUCATIF","EDUCATIVE","EDUCATIFS","EDUCATIVES",
+  "MATERNELLE","MATERNELLES","PRESCOLAIRE","PRESCOLAIRES",
+  "TOUCHER","SCOLAIRE","SCOLAIRES","ACTIVITE","ACTIVITES",
 ]);
 function hasDistinctiveNameToken(name: string): boolean {
   return tokens(name).some(term => !GENERIC_PRODUCT_TERMS.has(term));
@@ -226,8 +228,13 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
       const left = new Set(query);
       const right = new Set(terms[id]);
       const common = [...left].filter(token => right.has(token));
-      // One generic token is insufficient to suggest a distinct toy model.
-      if (!matchExact && common.length < 2) continue;
+      // Both names may contain distinctive *different* words (for example
+      // MATERNELLE vs COLORISTA / KARMA) but overlap only on generic words
+      // such as LIVRE and COLORIAGE. Those are not viable suggestions.
+      const sharedDistinctive = common.some(
+        token => !GENERIC_PRODUCT_TERMS.has(token),
+      );
+      if (!matchExact && (!sharedDistinctive || common.length < 2)) continue;
       const coverage = common.length / left.size;
       const precision = common.length / Math.max(right.size, 1);
       const similarity = (coverage * 0.6 + precision * 0.4);
