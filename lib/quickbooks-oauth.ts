@@ -197,9 +197,27 @@ export async function accessTokenForSandbox(): Promise<{ realmId: string; access
     credentials.tokenEncryptionKey, connection.realm_id, refreshedTokens,
   );
   // Optimistic update avoids overwriting tokens saved by a concurrent refresh.
-  await database.prepare(
+  const update = await database.prepare(
     "UPDATE quickbooks_connections SET encrypted_tokens=?,updated_at=? " +
     "WHERE environment='sandbox' AND realm_id=? AND encrypted_tokens=?",
   ).bind(sealed, new Date().toISOString(), connection.realm_id, connection.encrypted_tokens).run();
-  return { realmId: connection.realm_id, accessToken: refreshedTokens.access_token };
+  if (update.meta.changes === 1) {
+    return { realmId: connection.realm_id, accessToken: refreshedTokens.access_token };
+  }
+
+  // Another request changed the connection while this refresh was in flight.
+  // Never return credentials that were not persisted: reload the winning state.
+  const current = await database.prepare(
+    "SELECT realm_id,encrypted_tokens FROM quickbooks_connections WHERE environment='sandbox'",
+  ).first<{ realm_id: string; encrypted_tokens: string }>();
+  if (!current || current.realm_id !== connection.realm_id) {
+    throw new Error("QuickBooks sandbox connection changed during token refresh");
+  }
+  const persisted = await decryptSandboxTokens(
+    credentials.tokenEncryptionKey, current.realm_id, current.encrypted_tokens,
+  );
+  if (persisted.expires_at <= Date.now() + 90_000) {
+    throw new Error("QuickBooks sandbox token refresh conflict; retry the request");
+  }
+  return { realmId: current.realm_id, accessToken: persisted.access_token };
 }
