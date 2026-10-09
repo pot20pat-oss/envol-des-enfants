@@ -115,9 +115,9 @@ export function QuickBooksReconciliationSection({
       if (headers.length < 2) throw new Error("En-têtes CSV insuffisants.");
       setSheet({ headers, rows: rows.slice(1), filename: file.name });
       setSkuIndex(suggestedColumn(headers,
-        ["sku", "reference", "referenceduproduit", "numerodarticle", "codedarticle", "itemsku"]));
+        ["sku", "ugs", "reference", "referenceduproduit", "numerodarticle", "codedarticle", "itemsku"]));
       setNameIndex(suggestedColumn(headers,
-        ["name", "nom", "productservice", "produitservice", "productname", "nomduproduit"]));
+        ["name", "nom", "productservice", "produitservice", "produitservicenom", "productname", "nomduproduit"]));
       setStockIndex(suggestedColumn(headers,
         ["qtyonhand", "quantityonhand", "quantiteenstock", "quantite", "quantity"]));
       setIdIndex(suggestedColumn(headers,
