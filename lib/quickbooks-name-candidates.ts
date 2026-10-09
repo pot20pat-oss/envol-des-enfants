@@ -97,6 +97,53 @@ function incompatibleProductKind(left: string, right: string): boolean {
   return ![...a].some(kind => b.has(kind));
 }
 
+/**
+ * Character / licensed franchise identification. Unlike product kinds,
+ * these must match EXACTLY across both descriptions: "Bluey" and "Dora" are
+ * different items even when both are watches. Unknown brands are not guessed.
+ * Aliases cover common QuickBooks spelling (e.g. PawPatrol vs Paw Patrol).
+ */
+const FRANCHISES: ReadonlyArray<readonly [string, readonly string[]]> = [
+  ["BLUEY", ["BLUEY"]],
+  ["DORA", ["DORA", "DORA L EXPLORATRICE"]],
+  ["PAW_PATROL", ["PAW PATROL", "PAWPATROL", "PAT PATROUILLE", "PAT PATROUILLES"]],
+  ["BARBIE", ["BARBIE"]],
+  ["STITCH", ["STITCH"]],
+  ["FROZEN", ["FROZEN", "REINE DES NEIGES"]],
+  ["SPIDERMAN", ["SPIDERMAN", "SPIDER MAN", "SPIDER-MAN"]],
+  ["MICKEY", ["MICKEY", "MICKEY MOUSE"]],
+  ["MINNIE", ["MINNIE", "MINNIE MOUSE"]],
+  ["HELLO_KITTY", ["HELLO KITTY", "HELLOKITTY"]],
+  ["PEPPA", ["PEPPA", "PEPPA PIG"]],
+  ["SONIC", ["SONIC"]],
+  ["POKEMON", ["POKEMON", "POKÉMON"]],
+  ["GABBY", ["GABBY", "GABBY DOLLHOUSE", "LA MAISON MAGIQUE DE GABBY"]],
+  ["MIRACULOUS", ["MIRACULOUS", "LADYBUG"]],
+  ["LOL_SURPRISE", ["LOL SURPRISE", "L O L SURPRISE", "LOL OMG"]],
+  ["RAINBOW_HIGH", ["RAINBOW HIGH"]],
+  ["VTECH", ["VTECH", "V TECH"]],
+  ["LEGO", ["LEGO"]],
+  ["DISNEY", ["DISNEY"]],
+];
+function licensedFranchises(name: string): Set<string> {
+  const normalizedWords = " " + standard(name) + " ";
+  const found = new Set<string>();
+  for (const [identity, aliases] of FRANCHISES) {
+    if (aliases.some(alias =>
+      normalizedWords.includes(" " + standard(alias) + " "))) found.add(identity);
+  }
+  return found;
+}
+function incompatibleFranchise(left: string, right: string): boolean {
+  const a = licensedFranchises(left);
+  const b = licensedFranchises(right);
+  if (!a.size && !b.size) return false;
+  // One side missing a named licensed franchise is ambiguous; never suggest.
+  if (!a.size || !b.size) return true;
+  // Check every detected identity, not any single overlapping umbrella brand.
+  return a.size !== b.size || [...a].some(franchise => !b.has(franchise));
+}
+
 function misleadingVariant(a: string, b: string): boolean {
   // Never suggest different numerical model numbers or colors as equivalent.
   const an = numbers(a), bn = numbers(b);
@@ -150,7 +197,8 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
       if (!row || !row.name) continue;
       const matchExact = standard(row.name) === name;
       if (!matchExact && (misleadingVariant(cmsName, row.name) ||
-        incompatibleProductKind(cmsName, row.name))) continue;
+        incompatibleProductKind(cmsName, row.name) ||
+        incompatibleFranchise(cmsName, row.name))) continue;
       const left = new Set(query);
       const right = new Set(terms[id]);
       const common = [...left].filter(token => right.has(token));
