@@ -19,6 +19,9 @@ type ReturnEntry = {
   inspection_notes?: string | null;
   stock_posted: number;
   refund_state: string;
+  region: Market;
+  stock_qc: number | null;
+  stock_conakry: number | null;
   created_at: string;
 };
 type Item = { product_id?: string; article_number?: string; name?: string; quantity?: number };
@@ -53,6 +56,8 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
   const [undamaged, setUndamaged] = useState(false);
   const [packaging, setPackaging] = useState(false);
   const [inspectionNotes, setInspectionNotes] = useState("");
+  const [releaseTarget, setReleaseTarget] = useState("");
+  const [releaseConfirmed, setReleaseConfirmed] = useState(false);
 
   const delivered = useMemo(
     () => orders.filter((order) => String(order.region) === market &&
@@ -84,6 +89,8 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
     setOrderId("");
     setProductId("");
     setActiveReturn("");
+    setReleaseTarget("");
+    setReleaseConfirmed(false);
     setNotice("");
     void reload();
   }, [market]);
@@ -144,6 +151,38 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
       await reload();
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Inspection impossible.");
+    } finally { setBusy(false); }
+  }
+
+  const pendingRelease = list.find((item) => item.id === releaseTarget);
+  const releaseStock = pendingRelease
+    ? pendingRelease.region === "qc" ? pendingRelease.stock_qc : pendingRelease.stock_conakry
+    : null;
+
+  async function releaseApprovedReturn() {
+    if (!pendingRelease || !releaseConfirmed || busy || pendingRelease.stock_posted ||
+      pendingRelease.inspection_state !== "approved_for_resale" ||
+      !Number.isSafeInteger(releaseStock) || Number(releaseStock) < 0) return;
+    if (!window.confirm(`CONFIRMATION FINALE : ajouter ${pendingRelease.quantity} unité(s) de ${pendingRelease.product_name || pendingRelease.product_id} au stock vendable de ${markets[market].label} ? Cette opération modifie réellement le stock du CMS. Aucun remboursement ni ajustement QuickBooks ne sera émis.`)) return;
+    setBusy(true); setError(""); setNotice("");
+    try {
+      const result = await request("/api/admin/return-stock-release", {
+        method: "POST",
+        body: JSON.stringify({
+          id: pendingRelease.id,
+          product_id: pendingRelease.product_id,
+          region: pendingRelease.region,
+          quantity: pendingRelease.quantity,
+          expected_stock: releaseStock,
+          confirm_release: true,
+        }),
+      });
+      setNotice(`Remise en stock confirmée : +${String(result.quantity_added)} unité(s). Stock de ${String(result.stock_before)} à ${String(result.stock_after)}. QuickBooks inchangé.`);
+      setReleaseTarget(""); setReleaseConfirmed(false);
+      await reload();
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Remise en stock impossible.");
+      await reload();
     } finally { setBusy(false); }
   }
 
@@ -215,15 +254,51 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
         <td>{item.product_name || item.product_id}<small>{item.article_number || ""}</small></td>
         <td>{item.quantity}</td>
         <td>{stateLabels[item.inspection_state] || item.inspection_state}</td>
-        <td>{item.stock_posted ? "Ajusté" : "Non ajouté"}</td>
-        <td>{["awaiting_inspection","quarantined"].includes(item.inspection_state) &&
-          <button className="cms-secondary" onClick={() => {
-            if (activeReturn === item.id) { setActiveReturn(""); return; }
-            setActiveReturn(item.id);
-            setUnused(false); setUndamaged(false); setPackaging(false);
-            setInspectionNotes(item.inspection_notes || "");
-          }}>Inspecter</button>}</td>
+        <td>{item.stock_posted ? "Remis en vente" : "Non ajouté"}</td>
+        <td>
+          {!item.stock_posted && ["awaiting_inspection","quarantined","approved_for_resale"].includes(item.inspection_state) &&
+            <button type="button" className="cms-secondary" disabled={busy}
+              onClick={() => {
+                if (activeReturn === item.id) { setActiveReturn(""); return; }
+                setReleaseTarget(""); setReleaseConfirmed(false);
+                setActiveReturn(item.id);
+                setUnused(Boolean(item.unused_confirmed));
+                setUndamaged(Boolean(item.undamaged_confirmed));
+                setPackaging(Boolean(item.packaging_intact_confirmed));
+                setInspectionNotes(item.inspection_notes || "");
+              }}>{item.inspection_state === "approved_for_resale" ? "Revoir l'inspection" : "Inspecter"}</button>}
+          {!item.stock_posted && item.inspection_state === "approved_for_resale" &&
+            <button type="button" className="cms-primary" disabled={busy}
+              style={{marginLeft:8}} onClick={() => {
+                setActiveReturn("");
+                setReleaseTarget(item.id);
+                setReleaseConfirmed(false);
+              }}>Préparer remise en stock</button>}
+        </td>
       </tr>)}</tbody></table></div>
+    {pendingRelease && <div className="cms-panel cms-form" style={{padding:18,marginTop:20}}>
+      <h3>Remise en stock — confirmation distincte</h3>
+      <p><strong>{pendingRelease.product_name || pendingRelease.product_id}</strong> · {markets[market].label}</p>
+      <p>Quantité à ajouter : <strong>+{pendingRelease.quantity}</strong>. Stock vendable actuel :
+        <strong> {releaseStock === null ? "indisponible" : releaseStock}</strong>.
+        Stock prévu après confirmation : <strong>{releaseStock === null ? "à vérifier" : Number(releaseStock) + Number(pendingRelease.quantity)}</strong>.</p>
+      <p>L'inspection a été approuvée comme neuve. La remise en vente demande cette nouvelle confirmation.
+        Ce traitement modifie réellement l'inventaire CMS, mais ne crée aucun remboursement ni ajustement QuickBooks.</p>
+      <label style={{display:"flex",alignItems:"center",gap:10}}>
+        <input style={{width:18,flex:"0 0 18px"}} type="checkbox" checked={releaseConfirmed}
+          onChange={(event) => setReleaseConfirmed(event.target.checked)}/>
+        Je confirme que ce jouet est neuf, jamais utilisé, intact et revendable, et j'autorise son ajout au stock disponible.
+      </label>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+        <button type="button" className="cms-primary"
+          disabled={busy || !releaseConfirmed || !Number.isSafeInteger(releaseStock) || Number(releaseStock) < 0}
+          onClick={() => void releaseApprovedReturn()}>
+          Confirmer la remise en stock
+        </button>
+        <button type="button" className="cms-secondary" disabled={busy}
+          onClick={() => {setReleaseTarget("");setReleaseConfirmed(false);}}>Annuler</button>
+      </div>
+    </div>}
     {activeReturn && <div className="cms-panel cms-form" style={{padding:18,marginTop:20}}>
       <h3>Inspection manuelle</h3>
       <p>Cocher uniquement les conditions <strong>vérifiées physiquement</strong>.</p>
@@ -240,8 +315,9 @@ export function ReturnsSection({ orders, market }: { orders: Row[]; market: Mark
       <p><strong>Important :</strong> l'approbation de revente n'augmente pas encore le
         stock et n'émet ni avoir ni remboursement QuickBooks.</p>
       <div style={{display:"flex",flexWrap:"wrap",gap:10}}>
-        <button type="button" className="cms-primary" disabled={busy || !(unused && undamaged && packaging)}
-          onClick={()=>void inspect(activeReturn,"approve")}>Approuver l'état neuf</button>
+        {list.find((item)=>item.id===activeReturn)?.inspection_state !== "approved_for_resale" &&
+          <button type="button" className="cms-primary" disabled={busy || !(unused && undamaged && packaging)}
+            onClick={()=>void inspect(activeReturn,"approve")}>Approuver l'état neuf</button>}
         <button type="button" className="cms-danger" disabled={busy || inspectionNotes.trim().length < 3}
           onClick={()=>void inspect(activeReturn,"reject")}>Non revendable</button>
         <button type="button" className="cms-secondary" disabled={busy}
