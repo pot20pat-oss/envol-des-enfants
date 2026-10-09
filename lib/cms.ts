@@ -13,6 +13,8 @@ export type CmsEnv = {
   ORDER_EMAIL_FROM?: string;
   QUICKBOOKS_MODE?: string;
   QUICKBOOKS_ORDER_SYNC_MODE?: string;
+  /** Opt-in: capture manual CMS inventory adjustments for Sandbox review only. */
+  QUICKBOOKS_INVENTORY_AUDIT_MODE?: string;
   QUICKBOOKS_CLIENT_ID?: string;
   QUICKBOOKS_CLIENT_SECRET?: string;
   QUICKBOOKS_TOKEN_KEY?: string;
