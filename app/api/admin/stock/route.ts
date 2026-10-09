@@ -31,8 +31,52 @@ export async function POST(request: Request) {
   const previous = Number(product.stock || 0);
   const next = numberValue(data.stock);
   const now = new Date().toISOString();
-  const update = region === "conakry" ? cmsEnv().DB.prepare("UPDATE products SET stock_conakry=?,stock=?,updated_at=? WHERE id=?").bind(next, next, now, product.id) : cmsEnv().DB.prepare("UPDATE products SET stock_qc=?,updated_at=? WHERE id=?").bind(next, now, product.id);
-  await cmsEnv().DB.batch([update, cmsEnv().DB.prepare("INSERT INTO stock_movements (id,product_id,region,previous_stock,new_stock,delta,reason,admin_id,created_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), product.id, region, previous, next, next - previous, stringValue(data.reason, "Ajustement manuel"), admin.id, now)]);
+  const runtime = cmsEnv();
+  const db = runtime.DB;
+  const movementId = crypto.randomUUID();
+  const update = region === "conakry"
+    ? db.prepare("UPDATE products SET stock_conakry=?,stock=?,updated_at=? WHERE id=?").bind(next, next, now, product.id)
+    : db.prepare("UPDATE products SET stock_qc=?,updated_at=? WHERE id=?").bind(next, now, product.id);
+  const statements = [
+    update,
+    db.prepare("INSERT INTO stock_movements (id,product_id,region,previous_stock,new_stock,delta,reason,admin_id,created_at) VALUES (?,?,?,?,?,?,?,?,?)")
+      .bind(movementId, product.id, region, previous, next, next - previous, stringValue(data.reason, "Ajustement manuel"), admin.id, now),
+  ];
+
+  // Opt-in only: records a shadow audit event. No calls to QuickBooks and no
+  // automatic stock synchronization. The event is written in the same D1
+  // transaction as the existing CMS movement so it cannot be half-recorded.
+  if (
+    runtime.QUICKBOOKS_MODE === "sandbox" &&
+    runtime.QUICKBOOKS_INVENTORY_AUDIT_MODE === "sandbox_capture" &&
+    next !== previous
+  ) {
+    const sandboxRealm = "9341458454408573";
+    const connection = await db.prepare(
+      "SELECT realm_id FROM quickbooks_connections WHERE environment='sandbox'",
+    ).first<{ realm_id: string }>();
+    if (connection?.realm_id !== sandboxRealm) {
+      return Response.json({
+        error: "Journal Sandbox indisponible. Aucun changement de stock effectué.",
+      }, { status: 409 });
+    }
+    statements.push(
+      db.prepare(
+        "INSERT OR IGNORE INTO quickbooks_inventory_events " +
+        "(id,product_id,region,environment,realm_id,origin,event_key,kind," +
+        "stock_before,stock_after,quantity_change,source_revision,qbo_item_id," +
+        "state,observed_at,updated_at) " +
+        "VALUES (?,?,?,'sandbox',?,'cms',?,'manual_adjustment',?,?,?,?,NULL," +
+        "'manual_review',?,?)",
+      ).bind(
+        crypto.randomUUID(), product.id, region, sandboxRealm,
+        "stock_movement:" + movementId, previous, next, next - previous,
+        movementId, now, now,
+      ),
+    );
+  }
+
+  await db.batch(statements);
   return Response.json({ success: true, stock: next });
 }
 
