@@ -68,6 +68,16 @@ export async function POST(request: Request) {
   }
 
   const beforeStatus = stringValue(existing.status);
+  // Once an order has entered preparation, it may already be packed or shipped.
+  // Never return its items to sellable stock merely by changing its status.
+  if (status === "cancelled" &&
+      beforeStatus !== "cancelled" &&
+      !["new", "confirmed"].includes(beforeStatus)) {
+    return Response.json({
+      error: "Cette commande a déjà commencé la préparation ou la livraison. Le retour doit être inspecté avant toute remise en stock.",
+      code: "RETURN_INSPECTION_REQUIRED",
+    }, { status: 409 });
+  }
   if (beforeStatus === "cancelled" && status !== "cancelled") {
     return Response.json({
       error: "Une commande annulée ne peut pas être réactivée directement : le stock a déjà été restitué. Créez une nouvelle commande.",
@@ -130,6 +140,14 @@ export async function DELETE(request: Request) {
 
   const now = new Date().toISOString();
   const status = stringValue(order.status);
+  // Deletion must never silently put delivered, ready or prepared goods back
+  // on sale. Only unfulfilled orders can use the direct cancellation path.
+  if (!["new", "confirmed", "cancelled"].includes(status)) {
+    return Response.json({
+      error: "Commande en préparation, prête ou livrée : traitement de retour et inspection obligatoire avant suppression.",
+      code: "RETURN_INSPECTION_REQUIRED",
+    }, { status: 409 });
+  }
   let statements: D1PreparedStatement[] = [];
   if (status !== "cancelled") {
     try {
