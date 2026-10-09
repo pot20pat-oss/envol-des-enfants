@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 
 const source = readFileSync(new URL("../app/api/quickbooks/disconnect/route.ts", import.meta.url), "utf8")
-  .replace(/^import .*;\n/gm, "");
+  .replace(/^[\s\S]*?(?=const REVOKE_URL =)/, "");
 const compiled = stripTypeScriptTypes(source, { mode: "strip" }).replace("export async function POST", "async function POST");
 
 function createHarness(revokeHandler) {
