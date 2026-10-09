@@ -1,5 +1,8 @@
 import { cmsEnv } from "@/lib/cms";
 
+// Reserved OAuth-state key acts as a durable, fail-closed revocation fence.
+export const SANDBOX_REVOCATION_FENCE = "quickbooks:sandbox:revocation-pending";
+
 export const QUICKBOOKS_CALLBACK = "https://envoldesenfants.com/api/quickbooks/callback";
 const AUTH_URL = "https://appcenter.intuit.com/connect/oauth2";
 const TOKEN_URL = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer";
@@ -156,6 +159,10 @@ export async function accessTokenForSandbox(): Promise<{ realmId: string; access
     "SELECT realm_id,encrypted_tokens FROM quickbooks_connections WHERE environment='sandbox'",
   ).first<{ realm_id: string; encrypted_tokens: string }>();
   if (!connection) return null;
+  const fence = await database.prepare(
+    "SELECT state_hash FROM quickbooks_oauth_states WHERE state_hash=?",
+  ).bind(SANDBOX_REVOCATION_FENCE).first();
+  if (fence) throw new Error("QuickBooks Sandbox revocation pending; reconnect requires administrator review");
 
   const tokens = await decryptSandboxTokens(
     credentials.tokenEncryptionKey, connection.realm_id, connection.encrypted_tokens,
@@ -199,11 +206,17 @@ export async function accessTokenForSandbox(): Promise<{ realmId: string; access
   // Optimistic update avoids overwriting tokens saved by a concurrent refresh.
   const update = await database.prepare(
     "UPDATE quickbooks_connections SET encrypted_tokens=?,updated_at=? " +
-    "WHERE environment='sandbox' AND realm_id=? AND encrypted_tokens=?",
+    "WHERE environment='sandbox' AND realm_id=? AND encrypted_tokens=? " +
+    "AND NOT EXISTS (SELECT 1 FROM quickbooks_oauth_states WHERE state_hash='quickbooks:sandbox:revocation-pending')",
   ).bind(sealed, new Date().toISOString(), connection.realm_id, connection.encrypted_tokens).run();
   if (update.meta.changes === 1) {
     return { realmId: connection.realm_id, accessToken: refreshedTokens.access_token };
   }
+
+  const fenceAfterRefresh = await database.prepare(
+    "SELECT state_hash FROM quickbooks_oauth_states WHERE state_hash=?",
+  ).bind(SANDBOX_REVOCATION_FENCE).first();
+  if (fenceAfterRefresh) throw new Error("QuickBooks Sandbox revocation pending");
 
   // Another request changed the connection while this refresh was in flight.
   // Never return credentials that were not persisted: reload the winning state.
