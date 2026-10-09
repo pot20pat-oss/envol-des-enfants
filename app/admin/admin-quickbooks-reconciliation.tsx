@@ -253,8 +253,17 @@ export function QuickBooksReconciliationSection({
     kept: Object.values(reviewDecisions).filter(v => v === "review").length,
     rejected: Object.values(reviewDecisions).filter(v => v === "rejected").length,
   };
-  const displayed = comparisons.filter(item => filter === "all" ||
-    (filter === "has_name_candidate" ? item.nameCandidates.length > 0 : item.status === filter)).slice(0, 80);
+  const displayed = comparisons.filter(item =>
+    filter === "all" ||
+    (filter === "has_name_candidate" && item.nameCandidates.length > 0) ||
+    (filter === "review_kept" && item.nameCandidates.some(
+      suggestion => reviewDecisions[reviewKey(item.id,suggestion.rowNumber)] === "review"
+    )) ||
+    (filter === "review_rejected" && item.nameCandidates.some(
+      suggestion => reviewDecisions[reviewKey(item.id,suggestion.rowNumber)] === "rejected"
+    )) ||
+    item.status === filter,
+  ).slice(0, 80);
   const columnSelector = (label: string, index: number, change: (value: number) => void) =>
     <label style={{display:"grid",gap:6,flex:"1 1 190px"}}>{label}
       <select value={index} onChange={event=>change(Number(event.target.value))}>
@@ -317,6 +326,8 @@ export function QuickBooksReconciliationSection({
             <option value="exact_sku">SKU exacts non vérifiés</option>
             <option value="not_found">Sans correspondance SKU</option>
             <option value="has_name_candidate">Suggestions par nom à examiner</option>
+            <option value="review_kept">Pistes retenues pour vérification</option>
+            <option value="review_rejected">Pistes écartées</option>
             <option value="duplicate_cms">Références CMS en double</option>
             <option value="duplicate_quickbooks">SKU QuickBooks en double</option>
             <option value="missing_article">Sans référence CMS</option>
