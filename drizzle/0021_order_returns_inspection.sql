@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS order_returns (
   id TEXT PRIMARY KEY NOT NULL,
   order_id TEXT NOT NULL,
   product_id TEXT NOT NULL,
+  request_key TEXT NOT NULL,
   region TEXT NOT NULL CHECK (region IN ('qc','conakry')),
   quantity INTEGER NOT NULL CHECK (quantity > 0),
   -- Nothing becomes resale stock from the arrival of a returned parcel.
@@ -30,6 +31,7 @@ CREATE TABLE IF NOT EXISTS order_returns (
   created_by TEXT NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
+  UNIQUE (order_id,product_id,request_key),
   CHECK (
     inspection_state <> 'approved_for_resale' OR
     (unused_confirmed=1 AND undamaged_confirmed=1 AND packaging_intact_confirmed=1
