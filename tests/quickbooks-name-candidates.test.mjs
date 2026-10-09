@@ -13,6 +13,13 @@ const find = createNameCandidateSearch([
   sample("Barbie robe rose 50 cm", "7778", 6),
   sample("Lot de poupées Mini", "3552", 7, "Service"),
   sample("Barbie robe rose", "9999", 8),
+  sample("assiette paw patrol 4+", "078300031420", 9),
+  sample("assiettes paw patrol 3+", "078300031420", 10),
+  sample("casquette paw patrol", "62058488526", 11),
+  sample("Montre Paw Patrol enfant", "WATCH-0001", 12),
+  sample("robe Barbie bleu", "DRESS-BLUE", 13),
+  sample("Montre Paw Patrol", "WATCH-EXACT", 14),
+
 ]);
 
 test("name matching is suggestions only", () => {
@@ -44,4 +51,26 @@ test("a name with no distinctive tokens yields no candidates", () => {
 });
 test("result list has at most 3 candidates by default", () => {
   assert.ok(find("Barbie robe rose").length <= 3);
+});
+
+test("a Paw Patrol watch must not match Paw Patrol plates", () => {
+  const suggestions = find("Montre Paw Patrol", 5);
+  assert.ok(!suggestions.some(x => x.name.toLowerCase().includes("assiette")));
+});
+test("a Paw Patrol watch must not match a Paw Patrol cap", () => {
+  assert.ok(!find("Montre Paw Patrol", 5).some(
+    x => x.name.toLowerCase().includes("casquette")
+  ));
+});
+test("a Paw Patrol watch can still match another watch", () => {
+  assert.ok(find("Montre Paw Patrol", 5).some(x => x.sku === "WATCH-EXACT"));
+});
+test("same franchise alone is never enough for a variant without product type", () => {
+  const query = createNameCandidateSearch([
+    sample("Paw Patrol 3+", "UNKNOWN-1", 2),
+  ]);
+  assert.deepEqual(query("Montre Paw Patrol"), []);
+});
+test("product type must match despite similar Barbie and color terms", () => {
+  assert.ok(!find("Barbie robe rose", 5).some(x => x.sku === "UNKNOWN-1"));
 });
