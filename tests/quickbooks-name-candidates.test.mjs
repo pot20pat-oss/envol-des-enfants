@@ -162,3 +162,36 @@ test("distinctive exact name retains 100 but remains unverified", () => {
   assert.equal(result[0]?.score,100);
   assert.ok(result[0]?.caution.includes("Vérifier"));
 });
+
+test("maternelle coloring book does not suggest Colorista, 3-5 or Karma", () => {
+  const compare = createNameCandidateSearch([
+    sample("colorista livre de coloriage 4+", "9789464762556", 2),
+    sample("gros livre de coloriage 3-5 ans", "coloriage 3", 3),
+    sample("livre de coloriage karma", "063652589705", 4),
+  ]);
+  assert.deepEqual(compare("Livre de coloriage pour maternelle", 5), []);
+});
+test("different distinctive words cannot match through LIVRE and COLORIAGE alone", () => {
+  const compare = createNameCandidateSearch([
+    sample("livre de coloriage karma", "KARMA-1", 2),
+  ]);
+  assert.deepEqual(compare("livre de coloriage maternelle", 5), []);
+});
+test("identical generic touching-book title still needs review and score below 100", () => {
+  const compare = createNameCandidateSearch([
+    sample("Mon petit livre à toucher", "GENERIC-BOOK", 2),
+  ]);
+  const results = compare("Mon petit livre à toucher", 5);
+  assert.equal(results.length, 1);
+  assert.ok(results[0].score < 100);
+  assert.ok(results[0].caution.includes("Nom générique"));
+});
+test("shared distinctive brand can still suggest a matching coloring book", () => {
+  const compare = createNameCandidateSearch([
+    sample("Crayola livre coloriage Pokémon", "POKEMON-BOOK", 2),
+    sample("Karma livre coloriage", "KARMA-BOOK", 3),
+  ]);
+  const results = compare("Crayola livre de coloriage Pokémon", 5);
+  assert.ok(results.some(x => x.sku === "POKEMON-BOOK"));
+  assert.ok(!results.some(x => x.sku === "KARMA-BOOK"));
+});
