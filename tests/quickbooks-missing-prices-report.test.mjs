@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 
 const source = readFileSync(new URL("../app/api/quickbooks/missing-prices-report/route.ts", import.meta.url), "utf8")
-  .replace(/^import .*\n/, "");
+  .replace(/^[\s\S]*?(?=type PriceRow =)/, "");
 const compiled = stripTypeScriptTypes(source).replace("export async function GET", "async function GET");
 
 function run(rows, admin = true) {
