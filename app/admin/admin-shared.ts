@@ -6,6 +6,7 @@ export type Section =
   | "stock"
   | "orders"
   | "returns"
+  | "quickbooks_reconciliation"
   | "customers"
   | "promotions"
   | "subscribers"
@@ -159,6 +160,7 @@ export const labels: Record<Section, string> = {
   stock: "Stocks",
   orders: "Commandes",
   returns: "Retours / inspections",
+  quickbooks_reconciliation: "Rapprochement QB",
   customers: "Clients",
   promotions: "Promotions",
   subscribers: "Abonnés",
