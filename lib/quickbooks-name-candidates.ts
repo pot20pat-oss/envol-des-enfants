@@ -52,7 +52,8 @@ const colors = (name: string): string[] => tokens(name)
  * to use the stricter similarity threshold; they are never auto-approved.
  */
 const PRODUCT_KINDS: ReadonlyArray<readonly [string, readonly string[]]> = [
-  ["watch", ["MONTRE","MONTRES","BRACELET MONTRE","REVEIL","REVEILS"]],
+  ["watch", ["MONTRE","MONTRES","BRACELET MONTRE"]],
+  ["alarm_clock", ["REVEIL","REVEILS"]],
   ["plate", ["ASSIETTE","ASSIETTES"]],
   ["cap", ["CASQUETTE","CASQUETTES","CHAPEAU","CHAPEAUX"]],
   ["dress", ["ROBE","ROBES"]],
