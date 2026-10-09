@@ -73,7 +73,8 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!await currentAdmin(request)) return forbidden();
+  const admin = await currentAdmin(request);
+  if (!admin) return forbidden();
 
   const parsed = await validateJsonBody(request, updateProductSchema);
   if (!parsed.success) return parsed.response;
@@ -126,8 +127,8 @@ export async function PUT(request: Request) {
       const delta = newStock - oldStock;
       statements.push(database.prepare(
         "INSERT INTO stock_movements (id,product_id,region,previous_stock,new_stock,delta,reason,admin_id,created_at) " +
-        "VALUES (?,?,?,?,?,?,? ,NULL,?)",
-      ).bind(movementId, id, region, oldStock, newStock, delta, "Modification depuis éditeur de produit", now));
+        "VALUES (?,?,?,?,?,?,?,?,?)",
+      ).bind(movementId, id, region, oldStock, newStock, delta, "Modification depuis éditeur de produit", admin.id, now));
 
       statements.push(database.prepare(
         "INSERT OR IGNORE INTO quickbooks_inventory_events " +
