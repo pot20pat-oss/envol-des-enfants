@@ -44,13 +44,13 @@ export async function GET(request: Request) {
       "SELECT r.id,r.order_id,r.product_id,r.request_key,r.region,r.quantity," +
       "r.inspection_state,r.unused_confirmed,r.undamaged_confirmed," +
       "r.packaging_intact_confirmed,r.inspected_at,r.inspection_notes," +
-      "r.stock_posted,r.refund_state,r.created_at," +
+      "r.stock_posted,r.refund_state,r.created_at,p.stock_qc,p.stock_conakry," +
       "p.name_fr AS product_name,p.article_number,o.customer_name " +
       "FROM order_returns r LEFT JOIN products p ON p.id=r.product_id " +
       "LEFT JOIN orders o ON o.id=r.order_id " +
       "WHERE r.region=? ORDER BY r.created_at DESC LIMIT 100",
     ).bind(region).all();
-    return Response.json({ region, returns: results, automatic_restock_enabled: false, quickbooks_refunds_enabled: false }, { headers: HEADERS });
+    return Response.json({ region, returns: results, automatic_restock_enabled: false, manual_release_requires_confirmation: true, quickbooks_refunds_enabled: false }, { headers: HEADERS });
   } catch {
     return errorResponse("Liste des retours indisponible. Vérifie la migration 0021.", 503);
   }
@@ -159,10 +159,11 @@ export async function PATCH(request: Request) {
       "UPDATE order_returns SET inspection_state=?,unused_confirmed=?," +
       "undamaged_confirmed=?,packaging_intact_confirmed=?,inspected_by=?," +
       "inspected_at=?,inspection_notes=?,updated_at=? " +
-      "WHERE id=? AND inspection_state IN ('awaiting_inspection','quarantined') " +
-      "AND stock_posted=0",
+      "WHERE id=? AND stock_posted=0 AND " +
+      "(inspection_state IN ('awaiting_inspection','quarantined') OR " +
+      "(inspection_state='approved_for_resale' AND ? IN ('reject','quarantine')))",
     ).bind(next, unused ? 1 : 0, undamaged ? 1 : 0, packaging ? 1 : 0,
-      admin.id, now, note || null, now, body.id).run();
+      admin.id, now, note || null, now, body.id, String(body.decision)).run();
     if (Number(result.meta?.changes || 0) !== 1) {
       return errorResponse("Retour déjà traité ou modifié simultanément. Actualise la page.", 409);
     }
