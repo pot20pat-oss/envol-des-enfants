@@ -1,29 +1,7 @@
 import { cmsEnv, currentAdmin, forbidden } from "@/lib/cms";
-import { sandboxCredentials } from "@/lib/quickbooks-oauth";
+import { decryptSandboxTokens, sandboxCredentials } from "@/lib/quickbooks-oauth";
 
 const REVOKE_URL = "https://developer.api.intuit.com/v2/oauth2/tokens/revoke";
-
-type TokenEnvelope = { v: number; iv: string; ciphertext: string };
-
-async function readRefreshToken(keyText: string, realmId: string, stored: string): Promise<string> {
-  const envelope = JSON.parse(stored) as TokenEnvelope;
-  if (envelope.v !== 1 || typeof envelope.iv !== "string" || typeof envelope.ciphertext !== "string") {
-    throw new Error("Invalid stored token envelope");
-  }
-  const decode = (input: string) => Uint8Array.from(atob(input), c => c.charCodeAt(0));
-  const keyData = decode(keyText);
-  if (keyData.length !== 32) throw new Error("Invalid encryption key length");
-  const key = await crypto.subtle.importKey("raw", keyData, "AES-GCM", false, ["decrypt"]);
-  const clear = await crypto.subtle.decrypt({
-    name: "AES-GCM", iv: decode(envelope.iv),
-    additionalData: new TextEncoder().encode(`quickbooks:sandbox:${realmId}`),
-  }, key, decode(envelope.ciphertext));
-  const parsed: unknown = JSON.parse(new TextDecoder().decode(clear));
-  if (!parsed || typeof parsed !== "object" || typeof (parsed as { refresh_token?: unknown }).refresh_token !== "string") {
-    throw new Error("Invalid stored refresh token");
-  }
-  return (parsed as { refresh_token: string }).refresh_token;
-}
 
 /** Explicit admin-only Sandbox disconnection. GET and page visits never revoke tokens. */
 export async function POST(request: Request) {
@@ -54,7 +32,8 @@ export async function POST(request: Request) {
 
   let refreshToken: string;
   try {
-    refreshToken = await readRefreshToken(credentials.tokenEncryptionKey, connection.realm_id, connection.encrypted_tokens);
+    const stored = await decryptSandboxTokens(credentials.tokenEncryptionKey, connection.realm_id, connection.encrypted_tokens);
+    refreshToken = stored.refresh_token;
   } catch {
     return Response.json({ error: "Stored Sandbox credentials could not be decrypted" }, { status: 500 });
   }
