@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 const oauth = readFileSync(new URL("../lib/quickbooks-oauth.ts", import.meta.url), "utf8");
 const disconnect = readFileSync(new URL("../app/api/quickbooks/disconnect/route.ts", import.meta.url), "utf8");
+const callback = readFileSync(new URL("../app/api/quickbooks/callback/route.ts", import.meta.url), "utf8");
 
 test("OAuth sandbox uses the same revocation fence in refresh and disconnect", () => {
   assert.match(oauth, /export const SANDBOX_REVOCATION_FENCE = "quickbooks:sandbox:revocation-pending"/);
@@ -25,4 +26,13 @@ test("access tokens are encrypted and original token cannot be overwritten on co
   assert.match(oauth, /name: "AES-GCM"/);
   assert.match(oauth, /update\.meta\.changes === 1/);
   assert.match(disconnect, /AND encrypted_tokens=\?/);
+});
+
+
+test("OAuth callback enforces revocation fence in its atomic connection INSERT/UPSERT", () => {
+  assert.match(callback, /SANDBOX_REVOCATION_FENCE/);
+  assert.match(callback, /SELECT 'sandbox',\?,\?,\?,\? WHERE NOT EXISTS/);
+  assert.match(callback, /ON CONFLICT\(environment\) DO UPDATE SET/);
+  assert.match(callback, /WHERE NOT EXISTS \(SELECT 1 FROM quickbooks_oauth_states WHERE state_hash=\?\)/);
+  assert.match(callback, /saved\.meta\.changes !== 1/);
 });
