@@ -1,11 +1,17 @@
 "use client";
 
-import { Fragment, useMemo, useState, type ChangeEvent } from "react";
+import { Fragment, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { createNameCandidateSearch, type NameCandidate } from "@/lib/quickbooks-name-candidates";
 import { markets, type Market } from "@/lib/markets";
 import { type Row } from "./admin-shared";
 
 type CsvSheet = { headers: string[]; rows: string[][]; filename: string };
+type ReviewDecision = "review" | "rejected";
+type ReviewDecisions = Record<string, ReviewDecision>;
+const reviewKey = (cmsId: string, rowNumber: number) => cmsId + "::" + rowNumber;
+const reviewLabel = (decision?: ReviewDecision) =>
+  decision === "review" ? "Piste retenue (non vérifiée)" :
+  decision === "rejected" ? "Piste écartée" : "Non examiné";
 type Comparison = {
   id: string;
   article: string;
@@ -74,21 +80,22 @@ function exportCell(value: unknown): string {
   if (/^[\s]*[=+\-@]/.test(text)) text = "'" + text;
   return '"' + text.replace(/"/g, '""') + '"';
 }
-function downloadCsv(records: Comparison[], region: Market) {
+function downloadCsv(records: Comparison[], region: Market, reviews: ReviewDecisions) {
   const labels = ["Région", "Produit CMS ID", "Article CMS", "Nom CMS",
     "SKU CMS proposé", "Stock CMS", "Prix CMS", "Visible CMS",
     "État du rapprochement", "SKU QuickBooks", "Nom QuickBooks",
     "Stock QuickBooks (lecture seulement)", "Identifiant QuickBooks", "Type QuickBooks",
-    "Fiches CMS partageant le nom", "Nom suggéré 1", "UGS suggérée 1", "Score 1",
-    "Nom suggéré 2", "UGS suggérée 2", "Score 2",
-    "Nom suggéré 3", "UGS suggérée 3", "Score 3"];
+    "Fiches CMS partageant le nom", "Nom suggéré 1", "UGS suggérée 1", "Score 1", "Décision 1",
+    "Nom suggéré 2", "UGS suggérée 2", "Score 2", "Décision 2",
+    "Nom suggéré 3", "UGS suggérée 3", "Score 3", "Décision 3"];
   const body = records.map(row => [
     region, row.id, row.article, row.productName, row.sku, row.cmsStock,
     row.cmsPrice, row.visible ? "oui" : "non", row.status,
     row.qboSku, row.qboName, row.qboStock, row.qboItemId, row.qboType,
     row.sameCmsNameCount, ...[0,1,2].flatMap(i => {
       const suggested = row.nameCandidates[i];
-      return suggested ? [suggested.name,suggested.sku,suggested.score] : ["","",""];
+      return suggested ? [suggested.name,suggested.sku,suggested.score,
+        reviewLabel(reviews[reviewKey(row.id,suggested.rowNumber)])] : ["","","",""];
     }),
   ]);
   const csv = [labels, ...body].map(line => line.map(exportCell).join(";")).join("\r\n");
@@ -113,10 +120,36 @@ export function QuickBooksReconciliationSection({
   const [typeIndex, setTypeIndex] = useState(-1);
   const [filter, setFilter] = useState("all");
   const [expandedCandidates, setExpandedCandidates] = useState("");
+  const [reviewDecisions, setReviewDecisions] = useState<ReviewDecisions>({});
+  // Browser-session only; no review decisions are sent to CMS or QuickBooks.
+  useEffect(() => {
+    setReviewDecisions({});
+    setExpandedCandidates("");
+  }, [market]);
+  function markCandidate(cmsId: string, rowNumber: number, decision: ReviewDecision) {
+    setReviewDecisions(previous => {
+      const updated = { ...previous };
+      const key = reviewKey(cmsId,rowNumber);
+      if (updated[key] === decision) {
+        delete updated[key];
+      } else {
+        // Keep at most one provisional candidate per CMS record. This is NOT
+        // an association and does not validate the QuickBooks item identity.
+        if (decision === "review") {
+          for (const oldKey of Object.keys(updated)) {
+            if (oldKey.startsWith(cmsId + "::") && updated[oldKey] === "review")
+              delete updated[oldKey];
+          }
+        }
+        updated[key] = decision;
+      }
+      return updated;
+    });
+  }
 
   async function openCsv(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    setError(""); setSheet(null);
+    setError(""); setSheet(null); setReviewDecisions({}); setExpandedCandidates("");
     if (!file) return;
     if (file.size > 5_000_000) { setError("Fichier trop volumineux (maximum 5 Mo)."); return; }
     if (!/\.csv$/i.test(file.name)) { setError("Enregistre d'abord l'export QuickBooks au format CSV UTF-8."); return; }
@@ -216,6 +249,10 @@ export function QuickBooksReconciliationSection({
     };
   }, [products, market, sheet, skuIndex, nameIndex, stockIndex, idIndex, typeIndex]);
 
+  const reviewCounts = {
+    kept: Object.values(reviewDecisions).filter(v => v === "review").length,
+    rejected: Object.values(reviewDecisions).filter(v => v === "rejected").length,
+  };
   const displayed = comparisons.filter(item => filter === "all" ||
     (filter === "has_name_candidate" ? item.nameCandidates.length > 0 : item.status === filter)).slice(0, 80);
   const columnSelector = (label: string, index: number, change: (value: number) => void) =>
@@ -266,6 +303,13 @@ export function QuickBooksReconciliationSection({
       <p>Un SKU identique n'est qu'un indice : il faut vérifier manuellement le produit,
         son marché, son type Inventory, son identifiant QuickBooks et sa valorisation
         avant toute association.</p>
+      <p><strong>Décisions provisoires :</strong> {reviewCounts.kept} piste(s) retenue(s)
+        pour vérification, {reviewCounts.rejected} écartée(s). Ces choix restent
+        dans ce navigateur jusqu'à l'exportation du rapport; ils ne constituent
+        <strong> aucune association QuickBooks confirmée</strong>.</p>
+      <p><strong>Attention :</strong> le CSV exporté par QuickBooks ne contient pas
+        d'identifiant stable d'article. Il faudra le récupérer et vérifier
+        individuellement avant de créer des correspondances dans D1.</p>
       <div style={{display:"flex",flexWrap:"wrap",gap:12,alignItems:"center",marginBlock:12}}>
         <label>Filtre
           <select value={filter} onChange={event=>setFilter(event.target.value)}>
@@ -280,7 +324,7 @@ export function QuickBooksReconciliationSection({
           </select>
         </label>
         <button type="button" className="cms-secondary" disabled={!sheet || skuIndex < 0}
-          onClick={()=>downloadCsv(comparisons,market)}>Exporter le rapport CSV</button>
+          onClick={()=>downloadCsv(comparisons,market,reviewDecisions)}>Exporter le rapport CSV avec décisions</button>
       </div>
       <div className="cms-table-wrap"><table>
         <thead><tr><th>Article CMS</th><th>Produit CMS</th><th>SKU proposé</th>
@@ -320,7 +364,7 @@ export function QuickBooksReconciliationSection({
                 la photo et la boutique. Ne pas modifier le stock.</p>
               <div className="cms-table-wrap"><table>
                 <thead><tr><th>Nom QuickBooks</th><th>UGS QuickBooks</th>
-                  <th>Score indicatif</th><th>Type</th><th>Stock QB</th><th>Vérification</th></tr></thead>
+                  <th>Score indicatif</th><th>Type</th><th>Stock QB</th><th>Vérification</th><th>Décision provisoire</th></tr></thead>
                 <tbody>{item.nameCandidates.map(suggestion=>
                   <tr key={suggestion.rowNumber}>
                     <td>{suggestion.name}</td>
@@ -329,6 +373,23 @@ export function QuickBooksReconciliationSection({
                     <td>{suggestion.type || "Inconnu"}</td>
                     <td>{suggestion.stock || "—"}</td>
                     <td>{suggestion.caution}</td>
+                    <td style={{minWidth:205}}>
+                      <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",gap:6}}>
+                        <strong>{reviewLabel(reviewDecisions[reviewKey(item.id,suggestion.rowNumber)])}</strong>
+                        <button type="button" className="cms-secondary"
+                          aria-pressed={reviewDecisions[reviewKey(item.id,suggestion.rowNumber)] === "review"}
+                          onClick={()=>markCandidate(item.id,suggestion.rowNumber,"review")}>
+                          {reviewDecisions[reviewKey(item.id,suggestion.rowNumber)] === "review"
+                            ? "Retirer de la liste" : "Retenir pour vérification"}
+                        </button>
+                        <button type="button" className="cms-secondary"
+                          aria-pressed={reviewDecisions[reviewKey(item.id,suggestion.rowNumber)] === "rejected"}
+                          onClick={()=>markCandidate(item.id,suggestion.rowNumber,"rejected")}>
+                          {reviewDecisions[reviewKey(item.id,suggestion.rowNumber)] === "rejected"
+                            ? "Annuler le rejet" : "Écarter cette piste"}
+                        </button>
+                      </div>
+                    </td>
                   </tr>)}</tbody>
               </table></div>
             </td></tr>}
