@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { cmsEnv, numberValue, stringValue } from "@/lib/cms";
 import { normalizeMarket } from "@/lib/markets";
 import { queueSandboxCheckoutOrder } from "@/lib/quickbooks-order-queue";
+import { captureSandboxCheckoutInventorySale } from "@/lib/quickbooks-inventory-capture";
 import { validateJsonBody } from "@/lib/api-validation";
 
 const checkoutSchema = v.object({
@@ -99,6 +100,14 @@ export async function POST(request: Request) {
     return Response.json({ error: "Le stock a changé pendant la commande. Veuillez vérifier le panier." }, { status: 409 });
   }
   const currency = region === "qc" ? "CAD" : "GNF";
+  // Post-commit, sandbox-only inventory event capture. An audit failure must
+  // never block the customer's order; deterministic event keys allow recovery.
+  try {
+    await captureSandboxCheckoutInventorySale({ id, region, items });
+  } catch (error) {
+    console.error("QuickBooks inventory audit capture failed for order", id,
+      error instanceof Error ? error.message : "unknown");
+  }
   // Sandbox opt-in: record a pending job after checkout is committed.
   // This must never fail a real checkout or send an invoice synchronously.
   try {
