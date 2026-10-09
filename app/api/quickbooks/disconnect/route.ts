@@ -1,5 +1,5 @@
 import { cmsEnv, currentAdmin, forbidden } from "@/lib/cms";
-import { decryptSandboxTokens, sandboxCredentials } from "@/lib/quickbooks-oauth";
+import { decryptSandboxTokens, sandboxCredentials, SANDBOX_REVOCATION_FENCE } from "@/lib/quickbooks-oauth";
 
 const REVOKE_URL = "https://developer.api.intuit.com/v2/oauth2/tokens/revoke";
 
@@ -23,10 +23,19 @@ export async function POST(request: Request) {
   }
 
   const database = cmsEnv().DB;
+  // Durable, atomic fence prevents new refresh writes while revocation is in progress.
+  // On network failure it intentionally remains until an administrator investigates.
+  const claimed = await database.prepare(
+    "INSERT OR IGNORE INTO quickbooks_oauth_states (state_hash,admin_id,expires_at,created_at) VALUES (?,?,?,?)",
+  ).bind(SANDBOX_REVOCATION_FENCE, "system:revocation", "9999-12-31T23:59:59.999Z", new Date().toISOString()).run();
+  if (claimed.meta.changes !== 1) {
+    return Response.json({ error: "Sandbox revocation already pending; administrator review required" }, { status: 409 });
+  }
   const connection = await database.prepare(
     "SELECT realm_id,encrypted_tokens FROM quickbooks_connections WHERE environment='sandbox'",
   ).first<{ realm_id: string; encrypted_tokens: string }>();
   if (!connection || connection.realm_id !== input.realmId) {
+    await database.prepare("DELETE FROM quickbooks_oauth_states WHERE state_hash=?").bind(SANDBOX_REVOCATION_FENCE).run();
     return Response.json({ error: "Sandbox connection not found or company mismatch" }, { status: 409 });
   }
 
@@ -35,7 +44,7 @@ export async function POST(request: Request) {
     const stored = await decryptSandboxTokens(credentials.tokenEncryptionKey, connection.realm_id, connection.encrypted_tokens);
     refreshToken = stored.refresh_token;
   } catch {
-    return Response.json({ error: "Stored Sandbox credentials could not be decrypted" }, { status: 500 });
+    return Response.json({ error: "Stored Sandbox credentials could not be decrypted; revocation fence retained for administrator review" }, { status: 500 });
   }
   let response: Response;
   try {
@@ -50,7 +59,7 @@ export async function POST(request: Request) {
       signal: AbortSignal.timeout(15000),
     });
   } catch {
-    return Response.json({ error: "Intuit revocation could not be verified; local connection retained" }, { status: 502 });
+    return Response.json({ error: "Intuit revocation could not be verified; local connection and revocation fence retained" }, { status: 502 });
   }
   if (!response.ok) {
     return Response.json({ error: `Intuit revocation failed (HTTP ${response.status}); local connection retained` }, { status: 502 });
@@ -65,6 +74,7 @@ export async function POST(request: Request) {
       error: "Intuit accepted revocation, but connection changed concurrently; administrator must review remaining connection",
     }, { status: 409 });
   }
+  await database.prepare("DELETE FROM quickbooks_oauth_states WHERE state_hash=?").bind(SANDBOX_REVOCATION_FENCE).run();
   return Response.json({ disconnected: true, environment: "sandbox" }, {
     headers: { "Cache-Control": "no-store" },
   });
