@@ -10,6 +10,7 @@ type Comparison = {
   id: string;
   article: string;
   productName: string;
+  sameCmsNameCount: number;
   cmsPrice: number;
   cmsStock: number;
   visible: boolean;
@@ -78,14 +79,14 @@ function downloadCsv(records: Comparison[], region: Market) {
     "SKU CMS proposé", "Stock CMS", "Prix CMS", "Visible CMS",
     "État du rapprochement", "SKU QuickBooks", "Nom QuickBooks",
     "Stock QuickBooks (lecture seulement)", "Identifiant QuickBooks", "Type QuickBooks",
-    "Nom suggéré 1", "UGS suggérée 1", "Score 1",
+    "Fiches CMS partageant le nom", "Nom suggéré 1", "UGS suggérée 1", "Score 1",
     "Nom suggéré 2", "UGS suggérée 2", "Score 2",
     "Nom suggéré 3", "UGS suggérée 3", "Score 3"];
   const body = records.map(row => [
     region, row.id, row.article, row.productName, row.sku, row.cmsStock,
     row.cmsPrice, row.visible ? "oui" : "non", row.status,
     row.qboSku, row.qboName, row.qboStock, row.qboItemId, row.qboType,
-    ...[0,1,2].flatMap(i => {
+    row.sameCmsNameCount, ...[0,1,2].flatMap(i => {
       const suggested = row.nameCandidates[i];
       return suggested ? [suggested.name,suggested.sku,suggested.score] : ["","",""];
     }),
@@ -144,9 +145,12 @@ export function QuickBooksReconciliationSection({
   const { comparisons, totals } = useMemo(() => {
     const rows: Comparison[] = [];
     const cmsCounts = new Map<string,number>();
+    const cmsNameCounts = new Map<string,number>();
     for (const product of products) {
       const article = normalized(product.article_number);
       if (article) cmsCounts.set(article, (cmsCounts.get(article) || 0) + 1);
+      const productName = normalized(product.name_fr);
+      if (productName) cmsNameCounts.set(productName, (cmsNameCounts.get(productName) || 0) + 1);
     }
     const importedBySku = new Map<string, string[][]>();
     if (sheet && skuIndex >= 0) for (const record of sheet.rows) {
@@ -184,6 +188,7 @@ export function QuickBooksReconciliationSection({
         ? searchByName(String(product.name_fr || ""),3) : [];
       rows.push({
         id, article, productName: String(product.name_fr || ""),
+        sameCmsNameCount: cmsNameCounts.get(normalized(product.name_fr)) || 1,
         cmsPrice: Number(product[market === "qc" ? "price_qc" : "price_conakry"] || 0),
         cmsStock: Number(product[market === "qc" ? "stock_qc" : "stock_conakry"] || 0),
         visible: Number(product[market === "qc" ? "visible_qc" : "visible_conakry"]) === 1 ||
@@ -283,7 +288,11 @@ export function QuickBooksReconciliationSection({
         <tbody>{displayed.map(item=><Fragment key={item.id}>
           <tr>
             <td>{item.article || "—"}</td>
-            <td>{item.productName}<small>{item.visible ? "Visible" : "Masqué"}</small></td>
+            <td>{item.productName}<small>{item.visible ? "Visible" : "Masqué"}</small>
+              {item.sameCmsNameCount>1 && <small style={{fontWeight:700}}>
+                {item.sameCmsNameCount} fiches CMS portent ce nom : vérifier les références séparément
+              </small>}
+            </td>
             <td>{item.sku || "—"}</td>
             <td>
               {sheet && skuIndex >= 0 ? ({
