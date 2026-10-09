@@ -58,7 +58,8 @@ export function previewReturnedItemRelease(
   if (item.product_exists !== true) {
     reasons.push("product_not_found");
   }
-  if (!Number.isSafeInteger(item.current_stock) || Number(item.current_stock) < 0) {
+  if (!Number.isSafeInteger(item.current_stock) || Number(item.current_stock) < 0 ||
+      !Number.isSafeInteger(Number(item.current_stock) + Number(item.quantity))) {
     reasons.push("current_stock_invalid");
   }
   if (explicitConfirmation !== true) {
