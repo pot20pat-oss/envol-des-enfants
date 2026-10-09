@@ -17,8 +17,9 @@ type Comparison = {
   qboSku: string;
   qboStock: string;
   qboItemId: string;
+  qboType: string;
   status: "exact_sku" | "duplicate_cms" | "duplicate_quickbooks" |
-    "not_found" | "missing_article";
+    "not_found" | "missing_article" | "not_inventory";
 };
 const normalized = (value: unknown) => String(value ?? "").trim().toLocaleUpperCase("en");
 const cleanHeader = (s: string) => s.trim().toLocaleLowerCase("fr")
@@ -74,11 +75,11 @@ function downloadCsv(records: Comparison[], region: Market) {
   const labels = ["Région", "Produit CMS ID", "Article CMS", "Nom CMS",
     "SKU CMS proposé", "Stock CMS", "Prix CMS", "Visible CMS",
     "État du rapprochement", "SKU QuickBooks", "Nom QuickBooks",
-    "Stock QuickBooks (lecture seulement)", "Identifiant QuickBooks"];
+    "Stock QuickBooks (lecture seulement)", "Identifiant QuickBooks", "Type QuickBooks"];
   const body = records.map(row => [
     region, row.id, row.article, row.productName, row.sku, row.cmsStock,
     row.cmsPrice, row.visible ? "oui" : "non", row.status,
-    row.qboSku, row.qboName, row.qboStock, row.qboItemId,
+    row.qboSku, row.qboName, row.qboStock, row.qboItemId, row.qboType,
   ]);
   const csv = [labels, ...body].map(line => line.map(exportCell).join(";")).join("\r\n");
   const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
@@ -99,6 +100,7 @@ export function QuickBooksReconciliationSection({
   const [nameIndex, setNameIndex] = useState(-1);
   const [stockIndex, setStockIndex] = useState(-1);
   const [idIndex, setIdIndex] = useState(-1);
+  const [typeIndex, setTypeIndex] = useState(-1);
   const [filter, setFilter] = useState("all");
 
   async function openCsv(event: ChangeEvent<HTMLInputElement>) {
@@ -120,6 +122,8 @@ export function QuickBooksReconciliationSection({
         ["qtyonhand", "quantityonhand", "quantiteenstock", "quantite", "quantity"]));
       setIdIndex(suggestedColumn(headers,
         ["id", "itemid", "productid", "identifiant", "identifiantarticle"]));
+      setTypeIndex(suggestedColumn(headers,
+        ["type","itemtype","producttype","typedarticle","typeduproduit"]));
       setFilter("all");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Fichier CSV invalide.");
@@ -147,9 +151,13 @@ export function QuickBooksReconciliationSection({
           .flatMap(key => importedBySku.get(key) || [])
         : [];
       const deduplicated = [...new Set(possible)];
+      const lone = deduplicated.length === 1 ? deduplicated[0] : null;
+      const qbType = lone && typeIndex >= 0 ? normalized(lone[typeIndex]) : "";
+      const nonInventory = !!qbType && !["INVENTORY", "INVENTAIRE", "STOCK", "PRODUIT EN STOCK", "PRODUIT STOCKE", "PRODUIT STOCKÉ"].includes(qbType);
       const status: Comparison["status"] = !article ? "missing_article"
         : (cmsCounts.get(normalized(article)) || 0) > 1 ? "duplicate_cms"
         : deduplicated.length > 1 ? "duplicate_quickbooks"
+        : deduplicated.length === 1 && nonInventory ? "not_inventory"
         : deduplicated.length === 1 ? "exact_sku" : "not_found";
       const match = status === "exact_sku" ? deduplicated[0] : null;
       rows.push({
@@ -163,6 +171,7 @@ export function QuickBooksReconciliationSection({
         qboSku: match && skuIndex >= 0 ? String(match[skuIndex] || "") : "",
         qboStock: match && stockIndex >= 0 ? String(match[stockIndex] || "") : "",
         qboItemId: match && idIndex >= 0 ? String(match[idIndex] || "") : "",
+        qboType: match && typeIndex >= 0 ? String(match[typeIndex] || "") : "",
         status,
       });
     }
@@ -176,7 +185,7 @@ export function QuickBooksReconciliationSection({
         noArticle: rows.filter(r => r.status === "missing_article").length,
       },
     };
-  }, [products, market, sheet, skuIndex, nameIndex, stockIndex, idIndex]);
+  }, [products, market, sheet, skuIndex, nameIndex, stockIndex, idIndex, typeIndex]);
 
   const displayed = comparisons.filter(item => filter === "all" || item.status === filter).slice(0, 80);
   const columnSelector = (label: string, index: number, change: (value: number) => void) =>
@@ -208,6 +217,7 @@ export function QuickBooksReconciliationSection({
           {columnSelector("Colonne nom",nameIndex,setNameIndex)}
           {columnSelector("Colonne quantité",stockIndex,setStockIndex)}
           {columnSelector("Colonne ID QuickBooks (facultative)",idIndex,setIdIndex)}
+          {columnSelector("Colonne type d’article (Inventory)",typeIndex,setTypeIndex)}
         </div>
         {skuIndex < 0 && <p className="cms-error">
           Sélectionne la colonne SKU / référence. Aucun rapprochement n'est autorisé par le seul nom du produit.
@@ -232,6 +242,7 @@ export function QuickBooksReconciliationSection({
             <option value="duplicate_cms">Références CMS en double</option>
             <option value="duplicate_quickbooks">SKU QuickBooks en double</option>
             <option value="missing_article">Sans référence CMS</option>
+            <option value="not_inventory">Type QuickBooks non admissible</option>
           </select>
         </label>
         <button type="button" className="cms-secondary" disabled={!sheet || skuIndex < 0}
@@ -248,6 +259,7 @@ export function QuickBooksReconciliationSection({
             exact_sku:"SKU identique — à vérifier", duplicate_cms:"Doublon CMS",
             duplicate_quickbooks:"Doublon QuickBooks", not_found:"Non trouvé",
             missing_article:"Référence absente",
+            not_inventory:"SKU présent, mais type non Inventory",
           })[item.status] : "Importer un CSV"}</td>
           <td>{item.qboName || "—"}{item.qboItemId&&<small>ID : {item.qboItemId}</small>}</td>
           <td>{item.cmsStock} / {item.qboStock || "—"}</td>
