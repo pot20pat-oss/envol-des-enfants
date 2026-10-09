@@ -26,16 +26,13 @@ export async function GET(request: Request) {
 
   const database = cmsEnv().DB;
   const digest = await stateHash(state);
-  const pending = await database.prepare(
-    "SELECT admin_id,expires_at FROM quickbooks_oauth_states WHERE state_hash=?",
-  ).bind(digest).first<{ admin_id: string; expires_at: string }>();
-
-  if (!pending || pending.expires_at <= new Date().toISOString()) {
-    return responseWithClearedCookie("Lien d'autorisation expiré. Recommencez depuis le CMS.", 400);
+  // Atomically consume the state: only one concurrent callback may proceed.
+  const consumed = await database.prepare(
+    "DELETE FROM quickbooks_oauth_states WHERE state_hash=? AND expires_at>?",
+  ).bind(digest, new Date().toISOString()).run();
+  if (consumed.meta.changes !== 1) {
+    return responseWithClearedCookie("Lien d'autorisation expiré ou déjà utilisé. Recommencez depuis le CMS.", 400);
   }
-
-  // Single use: reject replay even if the authorization code is repeated.
-  await database.prepare("DELETE FROM quickbooks_oauth_states WHERE state_hash=?").bind(digest).run();
 
   if (url.searchParams.get("error")) {
     return responseWithClearedCookie("Connexion QuickBooks annulée. Aucun compte n'a été associé.", 400);
