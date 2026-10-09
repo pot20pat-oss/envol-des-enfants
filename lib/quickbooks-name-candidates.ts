@@ -43,6 +43,24 @@ const numbers = (name: string): string[] => tokens(name)
   .filter(part => /[0-9]/.test(part));
 const colors = (name: string): string[] => tokens(name)
   .filter(part => COLORS.has(part));
+// A generic category description cannot identify one specific commercial
+// product among thousands of QuickBooks items. Require a distinctive term
+// (licensed franchise, manufacturer, model, etc.) before fuzzy matching.
+const GENERIC_PRODUCT_TERMS = new Set([
+  "LIVRE","LIVRES","COLORIAGE","COLORIAGES","DESSIN","DESSINS","ALBUM","ALBUMS",
+  "MONTRE","MONTRES","REVEIL","REVEILS","CASQUETTE","CASQUETTES",
+  "ASSIETTE","ASSIETTES","ROBE","ROBES","POUPEE","POUPEES","POUPON","POUPONS",
+  "BOUEE","BOUEES","BRASSARD","BRASSARDS","BANDEAU","BANDEAUX",
+  "JEU","JEUX","JOUET","JOUETS","SET","ENSEMBLE","BAIN",
+  "BALLON","BALLONS","BALLE","BALLES","SAC","SACS","GOURDE","GOURDES",
+  "VOITURE","VOITURES","VELO","VELOS","PUZZLE","PUZZLES",
+  "PETIT","PETITE","PETITS","PETITES","GRAND","GRANDE","GRANDS","GRANDES",
+  "INTERACTIF","INTERACTIVE","INTERACTIFS","INTERACTIVES","ROND","RONDE",
+  "RONDS","RONDES","EDUCATIF","EDUCATIVE","EDUCATIFS","EDUCATIVES",
+]);
+function hasDistinctiveNameToken(name: string): boolean {
+  return tokens(name).some(term => !GENERIC_PRODUCT_TERMS.has(term));
+}
 
 /**
  * Concrete product kinds. Franchise names (e.g. Paw Patrol / Barbie) are NOT
@@ -147,6 +165,8 @@ function incompatibleFranchise(left: string, right: string): boolean {
 function misleadingVariant(a: string, b: string): boolean {
   // Never suggest different numerical model numbers or colors as equivalent.
   const an = numbers(a), bn = numbers(b);
+  // Unspecified age, quantity or model on one side cannot validate a match.
+  if ((an.length > 0) !== (bn.length > 0)) return true;
   if (an.length && bn.length && !an.some(x => bn.includes(x))) return true;
   const ac = colors(a), bc = colors(b);
   if (ac.length && bc.length && !ac.some(x => bc.includes(x))) return true;
@@ -196,6 +216,10 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
       const row = rows[id];
       if (!row || !row.name) continue;
       const matchExact = standard(row.name) === name;
+      // A phrase such as "Livre de coloriage pour enfants" must not match
+      // every generic coloring book; exact generic titles remain reviewable.
+      if (!matchExact && (!hasDistinctiveNameToken(cmsName) ||
+        !hasDistinctiveNameToken(row.name))) continue;
       if (!matchExact && (misleadingVariant(cmsName, row.name) ||
         incompatibleProductKind(cmsName, row.name) ||
         incompatibleFranchise(cmsName, row.name))) continue;
@@ -207,7 +231,11 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
       const coverage = common.length / left.size;
       const precision = common.length / Math.max(right.size, 1);
       const similarity = (coverage * 0.6 + precision * 0.4);
-      const score = matchExact ? 100 : Math.round(similarity * 100);
+      // 100 is ONLY for a distinctive, textually identical name. A shared
+      // token set, or a generic identical title, is not unique product identity.
+      const score = matchExact
+        ? (hasDistinctiveNameToken(cmsName) ? 100 : 90)
+        : Math.min(95, Math.round(similarity * 100));
       if (!matchExact && (coverage < 0.6 || precision < 0.4 || score < 65)) continue;
       candidates.push({
         ...row,
@@ -216,6 +244,8 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
         caution: (isStock(row.type)
           ? "Vérifier la photo, les variantes, l'UGS et la boutique"
           : "Type QuickBooks absent ou non Stock : vérifier avant toute association") +
+          (!hasDistinctiveNameToken(cmsName)
+            ? " · Nom générique : identité non démontrée" : "") +
           ((skuCount.get(standard(row.sku)) || 0) > 1
             ? " · UGS répétée dans l'export QuickBooks : identité ambiguë"
             : ""),
