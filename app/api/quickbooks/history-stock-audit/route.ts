@@ -93,8 +93,11 @@ export async function GET(request: Request) {
       inventory_changes_performed: false,
       quickbooks_calls_performed: false,
       history_stock_actions_safe_for_bidirectional_sync: false,
+      inventory_undo_redo_guard_enabled: true,
+      inventory_undo_redo_blocked: "Stock-changing product updates, product deletions and order deletions.",
+      nonstock_product_undo_preserves_current_stock: true,
       caveat: "Une action sans variation historique connue peut tout de meme etre dangereuse si le stock actuel a change entretemps.",
-      next_step: "Preparer une protection transactionnelle du Undo/Redo avant de permettre les operations d'inventaire bidirectionnelles.",
+      next_step: "Tester une annulation non liee au stock, puis concevoir un rapprochement des retours et evenements QuickBooks avant la synchronisation bidirectionnelle.",
     }, { headers: HEADERS });
   } catch {
     return Response.json({
