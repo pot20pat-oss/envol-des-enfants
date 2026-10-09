@@ -59,6 +59,8 @@ const GENERIC_PRODUCT_TERMS = new Set([
   "RONDS","RONDES","EDUCATIF","EDUCATIVE","EDUCATIFS","EDUCATIVES",
   "MATERNELLE","MATERNELLES","PRESCOLAIRE","PRESCOLAIRES",
   "TOUCHER","SCOLAIRE","SCOLAIRES","ACTIVITE","ACTIVITES",
+  "MON","MA","MES","TON","TA","TES","SON","SA","SES",
+  "NOTRE","NOS","VOTRE","VOS","LEUR","LEURS",
 ]);
 function hasDistinctiveNameToken(name: string): boolean {
   return tokens(name).some(term => !GENERIC_PRODUCT_TERMS.has(term));
