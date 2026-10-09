@@ -87,3 +87,35 @@ test("repeated QuickBooks UGS is explicitly flagged for human review", () => {
     x.sku === "078300031420" && x.caution.includes("UGS répétée")
   ));
 });
+
+test("Bluey interactive watch rejects Dora and PawPatrol watches", () => {
+  const match = createNameCandidateSearch([
+    sample("bluey montre", "QBO-BLUEY-1", 2),
+    sample("montre interactive dora", "QBO-DORA-1", 3),
+    sample("montre pawpatrol jeu interactive 3-6 ans", "QBO-PAW-1", 4),
+  ]);
+  const results = match("Montre-jeu interactive Bluey", 5);
+  assert.equal(results.length, 1);
+  assert.equal(results[0].sku, "QBO-BLUEY-1");
+});
+test("same brand alone cannot match a different franchise", () => {
+  const match = createNameCandidateSearch([
+    sample("montre Paw Patrol", "QBO-PAW", 2),
+    sample("montre Dora", "QBO-DORA", 3),
+    sample("montre interactive Bluey", "QBO-BLUEY", 4),
+  ]);
+  assert.deepEqual(match("montre interactive dora", 5).map(r=>r.sku), ["QBO-DORA"]);
+});
+test("missing licensed franchise on one side is not enough for a suggestion", () => {
+  const match = createNameCandidateSearch([
+    sample("montre interactive pour enfant", "NO-FRANCHISE", 2),
+  ]);
+  assert.deepEqual(match("montre interactive Bluey", 5), []);
+});
+test("known character with one shared umbrella brand is not enough", () => {
+  const match = createNameCandidateSearch([
+    sample("Disney Minnie montre", "QBO-MINNIE", 2),
+    sample("Disney Mickey montre", "QBO-MICKEY", 3),
+  ]);
+  assert.deepEqual(match("Disney Minnie montre", 5).map(r=>r.sku), ["QBO-MINNIE"]);
+});
