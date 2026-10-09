@@ -145,7 +145,10 @@ export async function GET(request: Request) {
       cms_stock_modified: false,
       quickbooks_modified: false,
       refunds_issued: false,
-      release_endpoint_active: false,
+      release_endpoint_active: true,
+      release_requires_separate_confirmation: true,
+      release_is_automatic: false,
+      quickbooks_adjustments_enabled: false,
       ready_for_bidirectional_stock_sync: false,
     }, { status: suite.passed === suite.total ? 200 : 500, headers: HEADERS });
   } catch {
