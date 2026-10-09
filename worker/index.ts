@@ -85,7 +85,7 @@ const worker = {
     const isHtml = response.headers.get("content-type")?.includes("text/html") ?? false;
     if (isApi || isHtml) {
       const headers = new Headers(response.headers);
-      headers.set("Cache-Control", "no-cache, must-revalidate");
+      headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
       headers.set("CDN-Cache-Control", "no-store");
       return withSecurityHeaders(new Response(response.body, { status: response.status, statusText: response.statusText, headers }));
     }
