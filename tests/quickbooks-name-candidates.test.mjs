@@ -71,6 +71,12 @@ test("same franchise alone is never enough for a variant without product type", 
   ]);
   assert.deepEqual(query("Montre Paw Patrol"), []);
 });
-test("product type must match despite similar Barbie and color terms", () => {
-  assert.ok(!find("Barbie robe rose", 5).some(x => x.sku === "UNKNOWN-1"));
+test("the same brand and color cannot confuse a dress with a cap", () => {
+  const query = createNameCandidateSearch([
+    sample("casquette Barbie rose", "CAP-01", 2),
+    sample("robe Barbie rose", "DRESS-01", 3),
+  ]);
+  const result = query("Barbie robe rose", 5);
+  assert.ok(!result.some(x => x.sku === "CAP-01"));
+  assert.ok(result.some(x => x.sku === "DRESS-01"));
 });
