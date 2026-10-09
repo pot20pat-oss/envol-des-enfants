@@ -13,7 +13,8 @@ const HEADERS = {
 export async function GET(request: Request) {
   if (!await currentAdmin(request)) return forbidden();
   try {
-    const db = cmsEnv().DB;
+    const runtime = cmsEnv();
+    const db = runtime.DB;
     const [movements, orders, mappings, events] = await Promise.all([
       db.prepare(
         "SELECT region, COUNT(*) AS count, " +
@@ -40,6 +41,9 @@ export async function GET(request: Request) {
       environment: "sandbox",
       read_only: true,
       bidirectional_sync_active: false,
+      cms_manual_stock_capture_enabled:
+        runtime.QUICKBOOKS_MODE === "sandbox" &&
+        runtime.QUICKBOOKS_INVENTORY_AUDIT_MODE === "sandbox_capture",
       stock_changed: false,
       quickbooks_adjustments_created: false,
       manual_stock_movements: movements.results,
@@ -48,6 +52,7 @@ export async function GET(request: Request) {
       sandbox_inventory_events: events.results,
       limitations: [
         "Le checkout reduit le stock mais ne cree pas de stock_movement associe a la commande.",
+        "La capture des ajustements manuels via la page Stocks exige l'activation explicite du mode sandbox_capture.",
         "Des modifications de produit via le CMS peuvent modifier directement le stock sans evenement de synchronisation.",
         "Les annulations et retours doivent etre rapproches de la facture QuickBooks.",
         "Aucun ajustement automatique QuickBooks vers CMS, ni CMS vers QuickBooks, n'est encore implemente.",
