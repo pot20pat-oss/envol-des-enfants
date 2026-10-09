@@ -12,6 +12,7 @@ export type CmsEnv = {
   RESEND_API_KEY?: string;
   ORDER_EMAIL_FROM?: string;
   QUICKBOOKS_MODE?: string;
+  QUICKBOOKS_ORDER_SYNC_MODE?: string;
   QUICKBOOKS_CLIENT_ID?: string;
   QUICKBOOKS_CLIENT_SECRET?: string;
   QUICKBOOKS_TOKEN_KEY?: string;
