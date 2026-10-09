@@ -117,6 +117,11 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
   const index = new Map<string, Set<number>>();
   const exact = new Map<string, number[]>();
   const terms = rows.map(item => tokens(item.name));
+  const skuCount = new Map<string,number>();
+  for (const row of rows) {
+    const sku = standard(row.sku);
+    if (sku) skuCount.set(sku,(skuCount.get(sku)||0)+1);
+  }
   rows.forEach((row, i) => {
     const key = standard(row.name);
     if (key.length >= 5) exact.set(key, [...(exact.get(key) || []), i]);
@@ -159,9 +164,12 @@ export function createNameCandidateSearch(rows: ReconciliationItem[]) {
         ...row,
         score,
         reason: matchExact ? "exact_name" : "similar_name",
-        caution: isStock(row.type)
+        caution: (isStock(row.type)
           ? "Vérifier la photo, les variantes, l'UGS et la boutique"
-          : "Type QuickBooks absent ou non Stock : vérifier avant toute association",
+          : "Type QuickBooks absent ou non Stock : vérifier avant toute association") +
+          ((skuCount.get(standard(row.sku)) || 0) > 1
+            ? " · UGS répétée dans l'export QuickBooks : identité ambiguë"
+            : ""),
       });
     }
     return candidates.sort((a, b) =>
