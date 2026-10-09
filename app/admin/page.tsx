@@ -6,6 +6,7 @@ import { ProductsSection } from "./admin-products-section";
 import { StockSection } from "./admin-stock-section";
 import { OrdersSection } from "./admin-orders-section";
 import { ReturnsSection } from "./admin-returns-section";
+import { QuickBooksReconciliationSection } from "./admin-quickbooks-reconciliation";
 import { PromotionsSection } from "./admin-promotions-section";
 import { SiteEditor } from "./admin-site-editor";
 import { AiAdvisorSection } from "./admin-ai-advisor";
@@ -72,6 +73,7 @@ export default function Administration() {
     {section==="stock"&&<StockSection products={lowStock} movements={movements} market={market} adjustStock={(product)=>void adjustStock(product)}/>}
     {section==="orders"&&<OrdersSection orders={filteredOrders} market={market} search={search} setSearch={setSearch} status={orderStatus} setStatus={setOrderStatus} date={orderDate} setDate={setOrderDate} exportOrders={()=>exportOrders(filteredOrders)} add={addOrder} edit={editOrder} remove={(order)=>{if(!window.confirm("Supprimer définitivement cette commande annulée ?"))return;void request(`/api/admin/orders?id=${encodeURIComponent(String(order.id))}`,{method:"DELETE"}).then(()=>load()).catch((failure)=>setError(failure instanceof Error?failure.message:"Suppression impossible."))}}/>}
     {section==="returns"&&<ReturnsSection orders={orders} market={market}/>}
+    {section==="quickbooks_reconciliation"&&<QuickBooksReconciliationSection products={products} market={market}/>}
     {section==="customers"&&<CustomersSection customers={customers} orders={orders} market={market} remove={(id)=>{if(!window.confirm("Supprimer définitivement ce client ? Son historique de commandes sera conservé."))return;void request(`/api/admin/customers?id=${encodeURIComponent(id)}`,{method:"DELETE"}).then(()=>load()).catch((failure)=>setError(failure instanceof Error?failure.message:"Suppression du client impossible."))}}/>}
     {section==="promotions"&&<PromotionsSection promotions={promotions} market={market} add={addPromotion} edit={editPromotion} remove={(id)=>void remove("promotions",id)}/>}
     {section==="subscribers"&&<SubscribersSection subscribers={subscribers} remove={(id)=>{if(!window.confirm("Supprimer définitivement cet abonné ?"))return;void request(`/api/admin/subscribers?id=${encodeURIComponent(id)}`,{method:"DELETE"}).then(()=>load()).catch((failure)=>setError(failure instanceof Error?failure.message:"Suppression impossible."))}}/>}
