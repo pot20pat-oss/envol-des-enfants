@@ -147,15 +147,13 @@ export async function DELETE(request: Request) {
     }
   }
 
-  // Restock and delete are atomic; if another action changes the status first,
-  // the WHERE status guard prevents the stock restoration.
-  statements.push(db.prepare("DELETE FROM orders WHERE id=? AND status=?").bind(id, status));
-
+  // The undo snapshot, the restock and the DELETE share the same transaction.
+  // The status guard prevents both duplicate restorations and duplicate undo
+  // entries if another administrator has already changed the order.
   const undoKey = `cms_undo:${Date.now()}:${crypto.randomUUID()}`;
-  // The undo snapshot is only created if the DELETE above actually succeeds.
-  // Guard against concurrent DELETE using the deleted row's ID in changes().
   statements.push(db.prepare(
-    "INSERT INTO settings (key,value,updated_at) SELECT ?,?,? WHERE changes()=1"
+    "INSERT INTO settings (key,value,updated_at) " +
+    "SELECT ?,?,? WHERE EXISTS (SELECT 1 FROM orders WHERE id=? AND status=?)"
   ).bind(
     undoKey,
     JSON.stringify({
@@ -163,11 +161,12 @@ export async function DELETE(request: Request) {
       label: `Suppression commande · ${String(order.id)}`,
       before: order,
     }),
-    now,
+    now, id, status,
   ));
+  statements.push(db.prepare("DELETE FROM orders WHERE id=? AND status=?").bind(id, status));
   try {
     const result = await db.batch(statements);
-    const deleteResult = result[result.length - 2];
+    const deleteResult = result[result.length - 1];
     if (Number(deleteResult?.meta?.changes || 0) !== 1) {
       return Response.json({
         error: "Commande déjà modifiée ou supprimée. Rechargez le CMS.",
