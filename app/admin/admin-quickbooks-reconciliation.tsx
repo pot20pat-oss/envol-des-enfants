@@ -113,6 +113,8 @@ export function QuickBooksReconciliationSection({
 }: { products: Row[]; market: Market }) {
   const [sheet, setSheet] = useState<CsvSheet | null>(null);
   const [error, setError] = useState("");
+  const [sandboxLoading, setSandboxLoading] = useState(false);
+  const [sandboxSource, setSandboxSource] = useState(false);
   const [skuIndex, setSkuIndex] = useState(-1);
   const [nameIndex, setNameIndex] = useState(-1);
   const [stockIndex, setStockIndex] = useState(-1);
@@ -147,9 +149,33 @@ export function QuickBooksReconciliationSection({
     });
   }
 
+  async function readSandboxItems() {
+    setError(""); setSandboxLoading(true);
+    try {
+      const response = await fetch("/api/quickbooks/sandbox-items-read", { credentials: "same-origin", cache: "no-store" });
+      const data = await response.json() as {
+        verified?: boolean; error?: string; items?: Array<{ id: string; name: string; sku: string; type: string; stock: number | null; purchase_cost_cad: number | null; sale_price_cad: number | null; active: boolean }>;
+      };
+      if (!response.ok || !data.verified || !Array.isArray(data.items))
+        throw new Error(data.error || "Lecture Sandbox impossible.");
+      const headers = ["SKU", "Nom", "Quantité", "ID QuickBooks", "Type", "Coût CAD", "Prix CAD", "Actif"];
+      setSheet({ filename: "QuickBooks Sandbox (compagnie de test)", headers,
+        rows: data.items.map(item => [
+          item.sku, item.name, item.stock == null ? "" : String(item.stock),
+          item.id, item.type, item.purchase_cost_cad == null ? "" : String(item.purchase_cost_cad),
+          item.sale_price_cad == null ? "" : String(item.sale_price_cad), item.active ? "Oui" : "Non",
+        ]),
+      });
+      setSkuIndex(0); setNameIndex(1); setStockIndex(2); setIdIndex(3); setTypeIndex(4);
+      setReviewDecisions({}); setExpandedCandidates(""); setFilter("all"); setSandboxSource(true);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Lecture Sandbox impossible.");
+    } finally { setSandboxLoading(false); }
+  }
+
   async function openCsv(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    setError(""); setSheet(null); setReviewDecisions({}); setExpandedCandidates("");
+    setError(""); setSheet(null); setSandboxSource(false); setReviewDecisions({}); setExpandedCandidates("");
     if (!file) return;
     if (file.size > 5_000_000) { setError("Fichier trop volumineux (maximum 5 Mo)."); return; }
     if (!/\.csv$/i.test(file.name)) { setError("Enregistre d'abord l'export QuickBooks au format CSV UTF-8."); return; }
@@ -276,12 +302,18 @@ export function QuickBooksReconciliationSection({
     <p><strong>Lecture seule :</strong> cet outil sert à comparer un export CSV de la
       véritable compagnie QuickBooks avec le catalogue du CMS. Aucune donnée du fichier
       QuickBooks n'est envoyée au serveur : le traitement se fait dans ce navigateur.
-      Il ne crée ni association, ni facture, ni écriture de stock.</p>
+      Il ne crée ni association, ni facture, ni écriture de stock. La lecture directe est effectuée via une route administrateur sécurisée.</p>
     <p>Dans QuickBooks, exporte la liste des <strong>produits et services</strong>, incluant
       idéalement SKU / référence, nom, quantité en stock et identifiant de l'article.
       Si QuickBooks fournit un fichier Excel, enregistre une copie au format CSV UTF-8.</p>
     <div className="cms-panel cms-form" style={{padding:18,marginTop:18}}>
-      <h3>1. Importer l'export QuickBooks pour comparaison</h3>
+      <h3>1. Comparer avec les articles QuickBooks</h3>
+      <p>Lecture directe du <strong>Sandbox QuickBooks (compagnie de test en CAD)</strong>, sans écriture. Les correspondances par SKU ne sont que des pistes, jamais des associations approuvées. Ne pas assimiler les coûts CAD aux coûts GNF de Conakry.</p>
+      <button type="button" className="cms-secondary" disabled={sandboxLoading} onClick={() => void readSandboxItems()}>
+        {sandboxLoading ? "Lecture en cours…" : "Lire les articles QuickBooks Sandbox"}
+      </button>
+      {sandboxSource && <p><strong>Source : Sandbox QuickBooks, données de test uniquement.</strong></p>}
+      <h3>Ou importer un fichier CSV QuickBooks</h3>
       <label>Fichier CSV (reste dans le navigateur)
         <input type="file" accept=".csv,text/csv" onChange={event=>void openCsv(event)} />
       </label>
