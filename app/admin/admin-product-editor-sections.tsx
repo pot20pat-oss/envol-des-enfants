@@ -62,6 +62,11 @@ export function ProductMarketFields({ editing, update }: Pick<ProductEditorProps
         </label>
       </div>
       <label>
+        Coût d'achat · GNF (privé, facultatif)
+        <input type="number" min={0} step={1} placeholder="Non renseigné" value={editing.cost_conakry == null ? "" : String(editing.cost_conakry)} onChange={(event) => update("cost_conakry", event.target.value === "" ? "" : Math.round(Number(event.target.value)))} />
+      </label>
+      {editing.cost_conakry != null && editing.cost_conakry !== "" && Number(editing.price_conakry ?? 0) > 0 && <p> Marge brute estimée : {(Number(editing.price_conakry) - Number(editing.cost_conakry)).toLocaleString("fr-FR")} GNF ({((Number(editing.price_conakry) - Number(editing.cost_conakry)) / Number(editing.price_conakry) * 100).toFixed(1)} %)</p>}
+      <label>
         Prix promotionnel · GNF
         <input type="number" min={0} value={Number(editing.promo_price_conakry || 0)} onChange={(event) => update("promo_price_conakry", Number(event.target.value))} />
       </label>
@@ -83,6 +88,11 @@ export function ProductMarketFields({ editing, update }: Pick<ProductEditorProps
           <input type="number" min={0} value={Number(editing.stock_qc || 0)} onChange={(event) => update("stock_qc", Number(event.target.value))} />
         </label>
       </div>
+      <label>
+        Coût d'achat · CAD (privé, facultatif)
+        <input type="number" min={0} step="0.01" placeholder="Non renseigné" value={editing.cost_qc == null ? "" : Number(editing.cost_qc) / 100} onChange={(event) => update("cost_qc", event.target.value === "" ? "" : Math.round(Number(event.target.value) * 100))} />
+      </label>
+      {editing.cost_qc != null && editing.cost_qc !== "" && Number(editing.price_qc ?? 0) > 0 && <p>Marge brute estimée : {((Number(editing.price_qc) - Number(editing.cost_qc)) / 100).toLocaleString("fr-CA", { style: "currency", currency: "CAD" })} ({((Number(editing.price_qc) - Number(editing.cost_qc)) / Number(editing.price_qc) * 100).toFixed(1)} %)</p>}
       <label>
         Prix promotionnel · CAD
         <input type="number" min={0} step="0.01" value={Number(editing.promo_price_qc || 0) / 100} onChange={(event) => update("promo_price_qc", Math.round(Number(event.target.value) * 100))} />
