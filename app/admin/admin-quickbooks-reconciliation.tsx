@@ -348,9 +348,9 @@ export function QuickBooksReconciliationSection({
         pour vérification, {reviewCounts.rejected} écartée(s). Ces choix restent
         dans ce navigateur jusqu'à l'exportation du rapport; ils ne constituent
         <strong> aucune association QuickBooks confirmée</strong>.</p>
-      <p><strong>Attention :</strong> le CSV exporté par QuickBooks ne contient pas
-        d'identifiant stable d'article. Il faudra le récupérer et vérifier
-        individuellement avant de créer des correspondances dans D1.</p>
+      {sandboxSource ? <p><strong>Source API Sandbox :</strong> les identifiants d'articles ont été lus directement auprès de la compagnie de test. Ils ne sont ni des identifiants de production ni une preuve de correspondance avec le CMS.</p> :
+      <p><strong>Attention :</strong> selon les colonnes présentes, un export CSV QuickBooks peut ne pas contenir d'identifiant stable d'article. Vérifie cet identifiant individuellement avant toute association dans D1.</p>}
+      <p><strong>Protection :</strong> aucun rapprochement affiché ici ne déclenche une écriture QuickBooks, un transfert de coût, ni une modification de stock.</p>
       <div style={{display:"flex",flexWrap:"wrap",gap:12,alignItems:"center",marginBlock:12}}>
         <label>Filtre
           <select value={filter} onChange={event=>setFilter(event.target.value)}>
