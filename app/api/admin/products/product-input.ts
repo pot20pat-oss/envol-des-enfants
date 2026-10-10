@@ -147,8 +147,8 @@ export function updateProductBindings(data: ProductInput, id: string, now: strin
     stringValue(data.variants_json, "[]"),
     stringValue(data.images_json, "[]"),
     now,
-    id,
     data.cost_qc == null ? null : Math.max(0, Math.round(numberValue(data.cost_qc))),
     data.cost_conakry == null ? null : Math.max(0, Math.round(numberValue(data.cost_conakry))),
+    id,
   ];
 }
