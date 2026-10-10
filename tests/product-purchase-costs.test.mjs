@@ -15,7 +15,7 @@ const bindings = new Function("numberValue", "stringValue", helperSource + "; re
   (v, d = "") => v == null ? d : String(v),
 );
 const insert = routeSource.match(/"INSERT INTO products \(([^"]+)\) VALUES \(([^"]+)\)"/);
-const update = routeSource.match(/"UPDATE products SET ([^"]+)"/);
+const update = routeSource.match(/"UPDATE products SET name_fr=([^"]+)"/);
 assert.ok(insert && update, "Cannot find product SQL");
 const insertColumns = insert[1].split(",");
 const insertSql = `INSERT INTO products (${insert[1]}) VALUES (${insert[2]})`;
