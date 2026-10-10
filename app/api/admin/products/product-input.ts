@@ -153,7 +153,9 @@ export function updateProductBindings(data: ProductInput, id: string, now: strin
     stringValue(data.variants_json, "[]"),
     stringValue(data.images_json, "[]"),
     now,
+    Object.prototype.hasOwnProperty.call(data, "cost_qc") ? 1 : 0,
     purchaseCost(data.cost_qc),
+    Object.prototype.hasOwnProperty.call(data, "cost_conakry") ? 1 : 0,
     purchaseCost(data.cost_conakry),
     id,
   ];
