@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     }
     const comparisons = [];
     for (const mapping of rows) {
-      if (!/^\\d{1,30}$/.test(mapping.qbo_item_id)) {
+      if (!/^\d{1,30}$/.test(mapping.qbo_item_id)) {
         return Response.json({ verified: false, read_only: true, error: "Identifiant QuickBooks non valide dans une correspondance." }, { status: 409, headers: HEADERS });
       }
       const url = new URL(`https://sandbox-quickbooks.api.intuit.com/v3/company/${REALM}/query`);
