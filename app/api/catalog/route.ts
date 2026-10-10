@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const visibility = region === "qc" ? "visible_qc" : "visible_conakry";
     const database = cmsEnv().DB;
 
-    const { results } = await database.prepare(`SELECT * FROM products WHERE ${visibility}=1 ORDER BY featured DESC,updated_at DESC`).all<Record<string, unknown>>();
+    const { results } = await database.prepare(`SELECT id,article_number,name_fr,name_en,description_fr,description_en,category,price,stock,status,badge,ages,image_url,image_sheet,image_position,brand,material,dimensions,exchange_terms_fr,exchange_terms_en,visible,price_qc,price_conakry,stock_qc,stock_conakry,visible_qc,visible_conakry,alert_threshold,featured,promo_price_qc,promo_price_conakry,variants_json,images_json,created_at,updated_at FROM products WHERE ${visibility}=1 ORDER BY featured DESC,updated_at DESC`).all<Record<string, unknown>>();
     const settings = await database.prepare("SELECT key,value FROM settings").all<{ key: string; value: string }>();
     const promotions = await database.prepare("SELECT * FROM promotions WHERE active=1 AND (region=? OR region='both') AND (starts_at IS NULL OR starts_at<=?) AND (ends_at IS NULL OR ends_at>=?) ORDER BY created_at DESC")
       .bind(region, new Date().toISOString().slice(0, 10), new Date().toISOString().slice(0, 10)).all();
