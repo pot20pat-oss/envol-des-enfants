@@ -56,6 +56,12 @@ export const updateProductSchema = v.looseObject({
 
 type ProductInput = Record<string, unknown>;
 
+function purchaseCost(value: unknown): number | null {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? Math.round(number) : null;
+}
+
 export function createProductBindings(
   data: ProductInput,
   id: string,
@@ -105,8 +111,8 @@ export function createProductBindings(
     stringValue(data.images_json, "[]"),
     now,
     now,
-    data.cost_qc == null ? null : Math.max(0, Math.round(numberValue(data.cost_qc))),
-    data.cost_conakry == null ? null : Math.max(0, Math.round(numberValue(data.cost_conakry))),
+    purchaseCost(data.cost_qc),
+    purchaseCost(data.cost_conakry),
   ];
 }
 
@@ -147,8 +153,8 @@ export function updateProductBindings(data: ProductInput, id: string, now: strin
     stringValue(data.variants_json, "[]"),
     stringValue(data.images_json, "[]"),
     now,
-    data.cost_qc == null ? null : Math.max(0, Math.round(numberValue(data.cost_qc))),
-    data.cost_conakry == null ? null : Math.max(0, Math.round(numberValue(data.cost_conakry))),
+    purchaseCost(data.cost_qc),
+    purchaseCost(data.cost_conakry),
     id,
   ];
 }
