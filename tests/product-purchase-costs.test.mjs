@@ -23,7 +23,7 @@ const updateSql = "UPDATE products SET " + update[1];
 
 function db() {
   const database = new DatabaseSync(":memory:");
-  database.exec("CREATE TABLE products (" + insertColumns.map(x => x === "id" ? "id TEXT PRIMARY KEY" : x + " TEXT").join(",") + ")");
+  database.exec("CREATE TABLE products (" + insertColumns.filter(x => x !== "cost_qc" && x !== "cost_conakry").map(x => x === "id" ? "id TEXT PRIMARY KEY" : x + " TEXT").join(",") + ")");
   database.exec(migration);
   return database;
 }
