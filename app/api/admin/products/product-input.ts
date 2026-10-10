@@ -27,6 +27,8 @@ const optionalProductFields = {
   visible: optionalBooleanInput,
   price_qc: optionalNumericInput,
   price_conakry: optionalNumericInput,
+  cost_qc: optionalNumericInput,
+  cost_conakry: optionalNumericInput,
   stock_qc: optionalNumericInput,
   stock_conakry: optionalNumericInput,
   visible_qc: optionalBooleanInput,
@@ -103,6 +105,8 @@ export function createProductBindings(
     stringValue(data.images_json, "[]"),
     now,
     now,
+    data.cost_qc == null ? null : Math.max(0, Math.round(numberValue(data.cost_qc))),
+    data.cost_conakry == null ? null : Math.max(0, Math.round(numberValue(data.cost_conakry))),
   ];
 }
 
@@ -144,5 +148,7 @@ export function updateProductBindings(data: ProductInput, id: string, now: strin
     stringValue(data.images_json, "[]"),
     now,
     id,
+    data.cost_qc == null ? null : Math.max(0, Math.round(numberValue(data.cost_qc))),
+    data.cost_conakry == null ? null : Math.max(0, Math.round(numberValue(data.cost_conakry))),
   ];
 }
