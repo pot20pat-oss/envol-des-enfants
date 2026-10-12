@@ -202,10 +202,12 @@ export function QuickBooksReconciliationSection({
   }
 
   const { comparisons, totals } = useMemo(() => {
+    // Match the CMS dashboard's definition of products belonging to a market.
+    const marketProducts = products.filter(product => Boolean(product[`visible_${market}`]));
     const rows: Comparison[] = [];
     const cmsCounts = new Map<string,number>();
     const cmsNameCounts = new Map<string,number>();
-    for (const product of products) {
+    for (const product of marketProducts) {
       const article = normalized(product.article_number);
       if (article) cmsCounts.set(article, (cmsCounts.get(article) || 0) + 1);
       const productName = normalized(product.name_fr);
@@ -225,7 +227,7 @@ export function QuickBooksReconciliationSection({
           itemId: idIndex >= 0 ? String(record[idIndex] ?? "") : "",
           rowNumber: i + 2,
         }))) : null;
-    for (const product of products) {
+    for (const product of marketProducts) {
       const article = String(product.article_number ?? "").trim();
       const id = String(product.id ?? "");
       const candidate = (market === "qc" ? "ENV-QC-" : "ENV-CN-") + article;
@@ -334,7 +336,7 @@ export function QuickBooksReconciliationSection({
     </div>
     <div className="cms-panel" style={{padding:18,marginTop:18}}>
       <h3>2. Résultat — {markets[market].label}</h3>
-      <p>Produits CMS examinés : <strong>{comparisons.length}</strong> · SKU exacts (non vérifiés) :
+      <p>Produits CMS visibles pour {markets[market].label} examinés : <strong>{comparisons.length}</strong> · SKU exacts (non vérifiés) :
         <strong> {sheet && skuIndex >= 0 ? totals.exact : "—"}</strong> ·
         Doublons : <strong>{totals.duplicates}</strong> · Références absentes :
         <strong> {totals.noArticle}</strong></p>
