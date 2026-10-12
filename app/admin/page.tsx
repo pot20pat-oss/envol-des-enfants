@@ -22,6 +22,22 @@ import "./admin.css";
 
 export default function Administration() {
   const [admin, setAdmin] = useState<AdminIdentity | null>(null);
+  const [editLock,setEditLock]=useState<{owned:boolean;holder:string|null}|null>(null);
+  useEffect(()=>{
+    if(!admin){setEditLock(null);return;}
+    let active=true;
+    const renew=async()=>{
+      try {
+        const response=await fetch("/api/admin/edit-lock",{method:"POST",credentials:"same-origin",cache:"no-store"});
+        const data=await response.json() as {owned?:boolean;holder?:string|null};
+        if(active)setEditLock({owned:response.ok && data.owned===true,holder:data.holder||null});
+      }catch{if(active)setEditLock({owned:false,holder:null});}
+    };
+    void renew();
+    const timer=window.setInterval(()=>void renew(),15000);
+    return()=>{active=false;window.clearInterval(timer);void fetch("/api/admin/edit-lock",{method:"DELETE",credentials:"same-origin",keepalive:true}).catch(()=>{});};
+  },[admin?.id]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -64,6 +80,12 @@ export default function Administration() {
   async function signOut(){ await request("/api/admin/session",{method:"DELETE"}); setAdmin(null); }
   if(resetMode===null || (checking && !resetMode)) return <main className="cms-loading">Chargement de l’administration…</main>;
   if(resetMode || !admin) return <AdminLogin email={email} password={password} error={error} busy={busy} setEmail={setEmail} setPassword={setPassword} signIn={signIn}/>;
+  if(!editLock || !editLock.owned)return <main className="cms-loading" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,padding:32,textAlign:"center"}}>
+    <h1>{editLock?"CMS temporairement verrouillé":"Vérification de l'accès exclusif…"}</h1>
+    <p>{editLock?.holder?`${editLock.holder} utilise actuellement le CMS. Une seule personne peut modifier à la fois.`:"L'accès en écriture est indisponible. Le système réessaie automatiquement."}</p>
+    <p>Vos produits et commandes ne sont pas modifiés.</p>
+    <button type="button" onClick={()=>void signOut()}>Se déconnecter</button>
+  </main>;
   const { regionalProducts, filteredProducts:filtered, filteredOrders, lowStock, stats }=deriveAdminLists({products,orders,subscribers,market,search,productCategory,productVisibility,productStock,orderStatus,orderDate});
   const notificationCount=products.filter((product)=>{const visible=Boolean(product[`visible_${market}`]);return Number(product[`price_${market}`]||0)<=0||!String(product.description_fr||"").trim()||!String(product.description_en||"").trim()||!String(product.image_url||"").trim()||!String(product.name_fr||"").trim()||!String(product.name_en||"").trim()||!String(product.category||"").trim()||(visible&&Number(product[`stock_${market}`]||0)<=0)}).length;
   return <AdminLayout admin={admin} section={section} market={market} notice={notice} error={error} notificationCount={notificationCount} onSection={(next)=>{changeSection(next);setError("")}} onMarket={setMarket} signOut={()=>void signOut()}>
