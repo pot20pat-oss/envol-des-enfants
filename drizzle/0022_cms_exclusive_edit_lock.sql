@@ -1,1 +1,7 @@
--- Exclusive CMS editor lease; no product or order data is changed.\nCREATE TABLE IF NOT EXISTS cms_edit_lock (id INTEGER PRIMARY KEY CHECK(id=1), session_id TEXT NOT NULL, holder_name TEXT NOT NULL, expires_at INTEGER NOT NULL);\n
+-- Exclusive CMS editor lease; no product or order data is changed.
+CREATE TABLE IF NOT EXISTS cms_edit_lock (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  session_id TEXT NOT NULL,
+  holder_name TEXT NOT NULL,
+  expires_at INTEGER NOT NULL
+);
