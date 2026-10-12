@@ -72,15 +72,37 @@ export async function currentAdmin(request: Request): Promise<{ id: string; emai
   const result = await runtime.DB.prepare("SELECT admins.id, admins.email, admins.name FROM sessions INNER JOIN admins ON admins.id = sessions.admin_id WHERE sessions.id = ? AND sessions.expires_at > ? AND admins.active = 1")
     .bind(digest, new Date().toISOString()).first<{ id: string; email: string; name: string }>();
   if (!result || !allowedEmails(runtime).includes(result.email.toLowerCase())) return null;
-  return result;
+  // A valid cookie is not enough: only the active CMS lease is authenticated.
+  const lease = await runtime.DB.prepare("SELECT session_id FROM cms_edit_lock WHERE id = 1 AND expires_at > ?")
+    .bind(Date.now()).first<{ session_id: string }>();
+  return lease?.session_id === digest ? result : null;
+}
+
+export class CmsAlreadyActiveError extends Error {
+  constructor() { super("Le CMS est déjà utilisé par un autre administrateur. Réessayez après sa déconnexion."); }
 }
 
 export async function createSession(adminId: string): Promise<string> {
   const token = `${crypto.randomUUID()}${crypto.randomUUID()}`;
   const digest = hex(await crypto.subtle.digest("SHA-256", encoder.encode(token)));
   const now = new Date();
-  await cmsEnv().DB.prepare("INSERT INTO sessions (id, admin_id, expires_at, created_at) VALUES (?, ?, ?, ?)")
+  const db = cmsEnv().DB;
+  await db.prepare("INSERT INTO sessions (id, admin_id, expires_at, created_at) VALUES (?, ?, ?, ?)")
     .bind(digest, adminId, new Date(now.getTime() + SESSION_DAYS * 86400000).toISOString(), now.toISOString()).run();
+  try {
+    const holder = await db.prepare("SELECT name FROM admins WHERE id = ?").bind(adminId).first<{ name: string }>();
+    const acquired = await db.prepare(
+      "INSERT INTO cms_edit_lock(id,session_id,holder_name,expires_at) VALUES(1,?,?,?) " +
+      "ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,holder_name=excluded.holder_name,expires_at=excluded.expires_at " +
+      "WHERE cms_edit_lock.session_id=excluded.session_id OR cms_edit_lock.expires_at < ?"
+    ).bind(digest, holder?.name || "Administrateur", Date.now() + 60_000, Date.now()).run();
+    if (!acquired.meta.changes) {
+      throw new CmsAlreadyActiveError();
+    }
+  } catch (error) {
+    await db.prepare("DELETE FROM sessions WHERE id = ?").bind(digest).run();
+    throw error;
+  }
   return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}`;
 }
 
@@ -88,7 +110,11 @@ export async function deleteSession(request: Request): Promise<string> {
   const token = cookieToken(request);
   if (token) {
     const digest = hex(await crypto.subtle.digest("SHA-256", encoder.encode(token)));
-    await cmsEnv().DB.prepare("DELETE FROM sessions WHERE id = ?").bind(digest).run();
+    const db = cmsEnv().DB;
+    await db.batch([
+      db.prepare("DELETE FROM cms_edit_lock WHERE id = 1 AND session_id = ?").bind(digest),
+      db.prepare("DELETE FROM sessions WHERE id = ?").bind(digest),
+    ]);
   }
   return `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
