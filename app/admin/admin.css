@@ -941,9 +941,9 @@
 }
 .cms-footer-brand img{
   display:block!important;
-  height:34px!important;
+  height:50px!important;
   width:auto!important;
-  max-width:150px!important;
+  max-width:190px!important;
   object-fit:contain!important;
 }
 
