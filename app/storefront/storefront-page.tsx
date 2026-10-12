@@ -170,11 +170,11 @@ export default function Home({ initialProducts = [] }: { initialProducts?: Produ
               loading="lazy"
               decoding="async"
               style={{
-                height: 52,
+                height: 70,
                 width: "auto",
                 display: "block",
                 objectFit: "contain",
-                transform: "translateY(-10px)",
+                transform: "none",
               }}
             />
           </a>
