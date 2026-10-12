@@ -59,9 +59,55 @@ function withSecurityHeaders(response: Response): Response {
   });
 }
 
+
+const LOCK_TTL_MS = 60_000;
+const LOCK_COOKIE = "envol_admin_session";
+async function sessionDigest(request: Request): Promise<string | null> {
+  const token = (request.headers.get("cookie") || "").split(";").map(x=>x.trim()).find(x=>x.startsWith(LOCK_COOKIE+"="))?.slice(LOCK_COOKIE.length+1);
+  if (!token) return null;
+  const hash = await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));
+  return Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,"0")).join("");
+}
+async function authenticatedLockSession(request: Request, db: D1Database) {
+  const digest = await sessionDigest(request);
+  if (!digest) return null;
+  return db.prepare("SELECT sessions.id, admins.name FROM sessions JOIN admins ON sessions.admin_id = admins.id WHERE sessions.id = ? AND sessions.expires_at > ? AND admins.active = 1").bind(digest,new Date().toISOString()).first<{id:string;name:string}>();
+}
+async function handleEditLock(request:Request,db:D1Database):Promise<Response> {
+  const session=await authenticatedLockSession(request,db);
+  if (!session) return Response.json({error:"Session administrateur requise."},{status:401});
+  const now=Date.now(), until=now+LOCK_TTL_MS;
+  if(request.method==="DELETE"){
+    await db.prepare("DELETE FROM cms_edit_lock WHERE id=1 AND session_id=?").bind(session.id).run();
+    return Response.json({released:true});
+  }
+  if(request.method==="POST"){
+    await db.prepare("INSERT INTO cms_edit_lock(id,session_id,holder_name,expires_at) VALUES(1,?,?,?) ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,holder_name=excluded.holder_name,expires_at=excluded.expires_at WHERE cms_edit_lock.session_id=excluded.session_id OR cms_edit_lock.expires_at < ?").bind(session.id,session.name,until,now).run();
+  }
+  const current=await db.prepare("SELECT session_id,holder_name,expires_at FROM cms_edit_lock WHERE id=1").first<{session_id:string;holder_name:string;expires_at:number}>();
+  const owned=Boolean(current && current.session_id===session.id && current.expires_at>now);
+  return Response.json({owned,holder:owned?null:current?.expires_at && current.expires_at>now ? current.holder_name : null,expires_at:current?.expires_at||null},{status:owned?200:423,headers:{"Cache-Control":"no-store"}});
+}
+
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    // An exclusive, renewable server-side lease protects every CMS mutation.
+    if (url.pathname === "/api/admin/edit-lock") {
+      try { return withSecurityHeaders(await handleEditLock(request,env.DB)); }
+      catch { return Response.json({error:"Verrou CMS indisponible."},{status:503}); }
+    }
+    if (url.pathname.startsWith("/api/admin/") && !["GET","HEAD","OPTIONS"].includes(request.method)
+        && !["/api/admin/session","/api/admin/password-reset"].includes(url.pathname)) {
+      try {
+        const session=await authenticatedLockSession(request,env.DB);
+        if (!session) return Response.json({error:"Authentification administrateur requise."},{status:401});
+        const lock=await env.DB.prepare("SELECT session_id,expires_at,holder_name FROM cms_edit_lock WHERE id=1").first<{session_id:string;expires_at:number;holder_name:string}>();
+        if (!lock || lock.session_id!==session.id || lock.expires_at<=Date.now())
+          return Response.json({error:"CMS verrouillé : une autre session détient l'accès en écriture. Aucune modification enregistrée.",holder:lock?.expires_at && lock.expires_at>Date.now()?lock.holder_name:null},{status:423});
+      } catch { return Response.json({error:"Impossible de vérifier le verrou CMS. Modification refusée."},{status:503}); }
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
