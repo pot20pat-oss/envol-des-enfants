@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-import { allowedEmails, bootstrapAdmins, cmsEnv, createSession, currentAdmin, deleteSession, hashPassword, stringValue } from "@/lib/cms";
+import { allowedEmails, bootstrapAdmins, CmsAlreadyActiveError, cmsEnv, createSession, currentAdmin, deleteSession, hashPassword, stringValue } from "@/lib/cms";
 import { validateJsonBody } from "@/lib/api-validation";
 
 const loginSchema = v.object({
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     await runtime.DB.prepare("UPDATE admins SET last_login_at = ? WHERE id = ?").bind(new Date().toISOString(), admin.id).run();
     return Response.json({ admin: { id: admin.id, email: admin.email, name: admin.name } }, { headers: { "Set-Cookie": await createSession(admin.id), "Cache-Control": "no-store" } });
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "Connexion impossible." }, { status: 500 });
+    return Response.json({ error: error instanceof Error ? error.message : "Connexion impossible." }, { status: error instanceof CmsAlreadyActiveError ? 423 : 500 });
   }
 }
 
