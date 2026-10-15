@@ -4,12 +4,18 @@ import {
   sandboxCredentials, stateCookie, stateHash, SANDBOX_REVOCATION_FENCE,
 } from "@/lib/quickbooks-oauth";
 
-function responseWithClearedCookie(message: string, status: number): Response {
-  return new Response(message, {
-    status,
+type OAuthOutcome = "invalid-state" | "expired-state" | "cancelled" | "incomplete" | "unconfigured" | "revocation-pending" | "failed";
+
+function redirectWithClearedCookie(outcome: OAuthOutcome): Response {
+  // Never leave OAuth codes, state or realmId in the browser URL after a failed callback.
+  // Use a fixed same-origin destination and a finite set of non-sensitive status values.
+  const location = new URL("https://envoldesenfants.com/admin");
+  location.searchParams.set("quickbooks", `sandbox-${outcome}`);
+  return new Response(null, {
+    status: 303,
     headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-store",
+      Location: location.toString(),
+      "Cache-Control": "no-cache, no-store",
       "Set-Cookie": clearStateCookie,
       "Referrer-Policy": "no-referrer",
     },
@@ -21,7 +27,7 @@ export async function GET(request: Request) {
   const state = url.searchParams.get("state") || "";
   const cookie = stateCookie(request);
   if (!/^[a-f0-9]{64}$/.test(state) || cookie !== state) {
-    return responseWithClearedCookie("Autorisation QuickBooks invalide ou expirée. Recommencez depuis le CMS.", 400);
+    return redirectWithClearedCookie("invalid-state");
   }
 
   const database = cmsEnv().DB;
@@ -31,22 +37,22 @@ export async function GET(request: Request) {
     "DELETE FROM quickbooks_oauth_states WHERE state_hash=? AND expires_at>?",
   ).bind(digest, new Date().toISOString()).run();
   if (consumed.meta.changes !== 1) {
-    return responseWithClearedCookie("Lien d'autorisation expiré ou déjà utilisé. Recommencez depuis le CMS.", 400);
+    return redirectWithClearedCookie("expired-state");
   }
 
   if (url.searchParams.get("error")) {
-    return responseWithClearedCookie("Connexion QuickBooks annulée. Aucun compte n'a été associé.", 400);
+    return redirectWithClearedCookie("cancelled");
   }
 
   const code = url.searchParams.get("code") || "";
   const realmId = url.searchParams.get("realmId") || "";
   if (!code || !/^[0-9]{5,25}$/.test(realmId)) {
-    return responseWithClearedCookie("Réponse QuickBooks incomplète.", 400);
+    return redirectWithClearedCookie("incomplete");
   }
 
   const credentials = sandboxCredentials();
   if (!credentials) {
-    return responseWithClearedCookie("Mode sandbox QuickBooks non configuré.", 503);
+    return redirectWithClearedCookie("unconfigured");
   }
 
   try {
@@ -65,7 +71,7 @@ export async function GET(request: Request) {
       "WHERE NOT EXISTS (SELECT 1 FROM quickbooks_oauth_states WHERE state_hash=?)",
     ).bind(realmId, encrypted, now, now, SANDBOX_REVOCATION_FENCE, SANDBOX_REVOCATION_FENCE).run();
     if (saved.meta.changes !== 1) {
-      return responseWithClearedCookie("Une révocation Sandbox exige une vérification administrative avant toute reconnexion.", 409);
+      return redirectWithClearedCookie("revocation-pending");
     }
 
     return new Response(null, {
@@ -77,9 +83,9 @@ export async function GET(request: Request) {
         "Referrer-Policy": "no-referrer",
       },
     });
-  } catch (error) {
-    // Never log OAuth authorization codes, client secrets or tokens.
-    console.error("QuickBooks sandbox OAuth callback failed", error instanceof Error ? error.message : "unknown");
-    return responseWithClearedCookie("Connexion QuickBooks impossible. Vérifiez les paramètres Intuit et réessayez.", 502);
+  } catch {
+    // Do not log exception details: upstream errors may contain OAuth secrets.
+    console.error("QuickBooks sandbox OAuth callback failed");
+    return redirectWithClearedCookie("failed");
   }
 }
