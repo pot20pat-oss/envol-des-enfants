@@ -56,7 +56,6 @@ export async function GET(request: Request) {
     return redirectWithClearedCookie("unconfigured");
   }
 
-  {
     const tokens = await exchangeAuthorizationCode(code, credentials);
     const encrypted = await encryptSandboxTokens(credentials.tokenEncryptionKey, realmId, tokens);
     const now = new Date().toISOString();
