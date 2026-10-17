@@ -6,6 +6,96 @@ export const SANDBOX_REVOCATION_FENCE = "quickbooks:sandbox:revocation-pending";
 export const QUICKBOOKS_CALLBACK = "https://envoldesenfants.com/api/quickbooks/callback";
 const AUTH_URL = "https://appcenter.intuit.com/connect/oauth2";
 const TOKEN_URL = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer";
+const REVOKE_URL = "https://developer.api.intuit.com/v2/oauth2/tokens/revoke";
+/** Official Intuit Sandbox Discovery document (OpenID Connect discovery). */
+export const INTUIT_SANDBOX_DISCOVERY_URL = "https://developer.api.intuit.com/.well-known/openid_sandbox_configuration";
+export type IntuitOAuthEndpoints = { authorizationEndpoint: string; tokenEndpoint: string; revocationEndpoint: string };
+/** Endpoints matching the Discovery document; used whenever it is unreachable or invalid. */
+export const INTUIT_OAUTH_FALLBACK_ENDPOINTS: IntuitOAuthEndpoints = { authorizationEndpoint: AUTH_URL, tokenEndpoint: TOKEN_URL, revocationEndpoint: REVOKE_URL };
+/** OAuth errors meaning the stored grant is dead: only a new authorization can fix them. */
+const RECONNECT_OAUTH_ERRORS = new Set(["invalid_grant", "invalid_token"]);
+/** Raised when QuickBooks requires a brand-new authorization from the CMS. */
+export class QuickBooksReconnectRequiredError extends Error {
+  readonly requiresReconnect = true;
+  readonly oauthError: string;
+  constructor(oauthError: string, message?: string) {
+    super(message ?? `QuickBooks sandbox authorization no longer valid (${oauthError}); reconnect from the CMS`);
+    this.name = "QuickBooksReconnectRequiredError";
+    this.oauthError = oauthError;
+  }
+}
+export function isQuickBooksReconnectRequired(error: unknown): boolean {
+  if (error instanceof QuickBooksReconnectRequiredError) return true;
+  return !!error && typeof error === "object" && (error as { requiresReconnect?: unknown }).requiresReconnect === true;
+}
+export type ControlledRetryOptions = { fetchImpl?: typeof fetch; sleep?: (ms: number) => Promise<void>; maxAttempts?: number; baseDelayMs?: number; maxDelayMs?: number; cacheDiscovery?: boolean };
+const defaultSleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+function retryDelayMs(response: Response | null, attempt: number, options: ControlledRetryOptions): number {
+  const cap = options.maxDelayMs ?? 10_000;
+  const backoff = Math.min(cap, (options.baseDelayMs ?? 250) * 2 ** (attempt - 1));
+  const header = response?.headers.get("Retry-After")?.trim();
+  if (header) {
+    const seconds = Number(header);
+    if (Number.isFinite(seconds) && seconds >= 0) return Math.min(cap, Math.max(backoff, seconds * 1000));
+    const date = Date.parse(header);
+    if (Number.isFinite(date)) return Math.min(cap, Math.max(backoff, date - Date.now()));
+  }
+  return backoff;
+}
+/** Controlled retries for the Intuit token endpoint: only network failures, HTTP 429 and 5xx are retried (bounded, exponential backoff, Retry-After honoured). OAuth 4xx such as invalid_grant are never retried. */
+export async function fetchTokenWithControlledRetry(url: string, init: RequestInit, options: ControlledRetryOptions = {}): Promise<Response> {
+  const doFetch = options.fetchImpl ?? fetch;
+  const sleep = options.sleep ?? defaultSleep;
+  const maxAttempts = Math.min(5, Math.max(1, Math.floor(options.maxAttempts ?? 3)));
+  for (let attempt = 1; ; attempt++) {
+    let response: Response;
+    try {
+      response = await doFetch(url, init);
+    } catch (error) {
+      if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError")) throw error;
+      if (attempt >= maxAttempts) throw error;
+      await sleep(retryDelayMs(null, attempt, options));
+      continue;
+    }
+    if ((response.status !== 429 && response.status < 500) || attempt >= maxAttempts) return response;
+    await sleep(retryDelayMs(response, attempt, options));
+  }
+}
+let cachedEndpoints: IntuitOAuthEndpoints | null = null;
+function discoveredEndpoint(value: unknown, host: string): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === host ? value : null;
+  } catch { return null; }
+}
+/** Resolves OAuth endpoints from Intuit's official Sandbox Discovery document. Any unreachable, malformed or unexpected document falls back to the known endpoints, so a Discovery outage can never break token refresh. */
+export async function resolveIntuitOAuthEndpoints(options: ControlledRetryOptions = {}): Promise<IntuitOAuthEndpoints> {
+  if (options.cacheDiscovery !== false && cachedEndpoints) return cachedEndpoints;
+  try {
+    const response = await (options.fetchImpl ?? fetch)(INTUIT_SANDBOX_DISCOVERY_URL, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(10_000) });
+    if (!response.ok) throw new Error(`Discovery HTTP ${response.status}`);
+    const doc: unknown = await response.json();
+    if (!doc || typeof doc !== "object") throw new Error("Invalid Discovery document");
+    const fields = doc as Record<string, unknown>;
+    const authorizationEndpoint = discoveredEndpoint(fields.authorization_endpoint, "appcenter.intuit.com");
+    const tokenEndpoint = discoveredEndpoint(fields.token_endpoint, "oauth.platform.intuit.com");
+    const revocationEndpoint = discoveredEndpoint(fields.revocation_endpoint, "developer.api.intuit.com");
+    if (!authorizationEndpoint || !tokenEndpoint || !revocationEndpoint) throw new Error("Unexpected Discovery endpoints");
+    cachedEndpoints = { authorizationEndpoint, tokenEndpoint, revocationEndpoint };
+    return cachedEndpoints;
+  } catch {
+    return INTUIT_OAUTH_FALLBACK_ENDPOINTS;
+  }
+}
+export function resetIntuitDiscoveryCache(): void { cachedEndpoints = null; }
+async function readOAuthError(response: Response): Promise<string | null> {
+  try {
+    const parsed: unknown = JSON.parse(await response.text());
+    if (parsed && typeof parsed === "object" && typeof (parsed as Record<string, unknown>).error === "string") return (parsed as Record<string, string>).error;
+  } catch { /* non-JSON error bodies carry no OAuth error code */ }
+  return null;
+}
 
 export type SandboxCredentials = {
   clientId: string;
@@ -24,8 +114,8 @@ export function sandboxCredentials(): SandboxCredentials | null {
   return { clientId, clientSecret, tokenEncryptionKey };
 }
 
-export function createAuthorizeUrl(clientId: string, state: string): string {
-  const url = new URL(AUTH_URL);
+export function createAuthorizeUrl(clientId: string, state: string, authorizationEndpoint: string = AUTH_URL): string {
+  const url = new URL(authorizationEndpoint);
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "com.intuit.quickbooks.accounting");
@@ -52,7 +142,7 @@ export function stateCookie(request: Request): string | null {
 
 export const clearStateCookie = "qb_oauth_state=; Path=/api/quickbooks/callback; Max-Age=0; HttpOnly; Secure; SameSite=Lax";
 
-export async function exchangeAuthorizationCode(code: string, credentials: SandboxCredentials): Promise<{
+export async function exchangeAuthorizationCode(code: string, credentials: SandboxCredentials, options: ControlledRetryOptions = {}): Promise<{
   access_token: string;
   refresh_token: string;
   expires_in: number;
@@ -63,7 +153,8 @@ export async function exchangeAuthorizationCode(code: string, credentials: Sandb
     code,
     redirect_uri: QUICKBOOKS_CALLBACK,
   });
-  const response = await fetch(TOKEN_URL, {
+  const { tokenEndpoint } = await resolveIntuitOAuthEndpoints(options);
+  const response = await fetchTokenWithControlledRetry(tokenEndpoint, {
     method: "POST",
     headers: {
       Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
@@ -71,8 +162,12 @@ export async function exchangeAuthorizationCode(code: string, credentials: Sandb
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body,
-  });
-  if (!response.ok) throw new Error(`Intuit token endpoint returned HTTP ${response.status}`);
+  }, options);
+  if (!response.ok) {
+    const oauthError = await readOAuthError(response);
+    if (oauthError && RECONNECT_OAUTH_ERRORS.has(oauthError)) throw new QuickBooksReconnectRequiredError(oauthError);
+    throw new Error(`Intuit token endpoint returned HTTP ${response.status}`);
+  }
   const result: unknown = await response.json();
   if (!result || typeof result !== "object") throw new Error("Invalid Intuit token response");
   const tokens = result as Record<string, unknown>;
@@ -151,7 +246,7 @@ export async function decryptSandboxTokens(
 }
 
 /** Refreshes a sandbox OAuth token and persists rotated credentials before API use. */
-export async function accessTokenForSandbox(): Promise<{ realmId: string; accessToken: string } | null> {
+export async function accessTokenForSandbox(options: ControlledRetryOptions = {}): Promise<{ realmId: string; accessToken: string } | null> {
   const credentials = sandboxCredentials();
   if (!credentials) return null;
   const database = cmsEnv().DB;
@@ -171,10 +266,11 @@ export async function accessTokenForSandbox(): Promise<{ realmId: string; access
     return { realmId: connection.realm_id, accessToken: tokens.access_token };
   }
   if (tokens.refresh_expires_at > 0 && tokens.refresh_expires_at <= Date.now()) {
-    throw new Error("QuickBooks sandbox authorization expired; reconnect from the CMS");
+    throw new QuickBooksReconnectRequiredError("refresh_token_expired", "QuickBooks sandbox authorization expired; reconnect from the CMS");
   }
 
-  const response = await fetch(TOKEN_URL, {
+  const { tokenEndpoint } = await resolveIntuitOAuthEndpoints(options);
+  const response = await fetchTokenWithControlledRetry(tokenEndpoint, {
     method: "POST",
     headers: {
       Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
@@ -186,8 +282,12 @@ export async function accessTokenForSandbox(): Promise<{ realmId: string; access
       refresh_token: tokens.refresh_token,
     }),
     signal: AbortSignal.timeout(15_000),
-  });
-  if (!response.ok) throw new Error(`QuickBooks sandbox token refresh failed (${response.status})`);
+  }, options);
+  if (!response.ok) {
+    const oauthError = await readOAuthError(response);
+    if (oauthError && RECONNECT_OAUTH_ERRORS.has(oauthError)) throw new QuickBooksReconnectRequiredError(oauthError);
+    throw new Error(`QuickBooks sandbox token refresh failed (${response.status})`);
+  }
   const payload: unknown = await response.json();
   if (!payload || typeof payload !== "object") throw new Error("Invalid QuickBooks refresh response");
   const refreshed = payload as Record<string, unknown>;
@@ -204,11 +304,11 @@ export async function accessTokenForSandbox(): Promise<{ realmId: string; access
     credentials.tokenEncryptionKey, connection.realm_id, refreshedTokens,
   );
   // Optimistic update avoids overwriting tokens saved by a concurrent refresh.
-  const update = await database.prepare(
+  const update = (await database.prepare(
     "UPDATE quickbooks_connections SET encrypted_tokens=?,updated_at=? " +
     "WHERE environment='sandbox' AND realm_id=? AND encrypted_tokens=? " +
     "AND NOT EXISTS (SELECT 1 FROM quickbooks_oauth_states WHERE state_hash='quickbooks:sandbox:revocation-pending')",
-  ).bind(sealed, new Date().toISOString(), connection.realm_id, connection.encrypted_tokens).run();
+  ).bind(sealed, new Date().toISOString(), connection.realm_id, connection.encrypted_tokens).run()) as { meta: { changes: number } };
   if (update.meta.changes === 1) {
     return { realmId: connection.realm_id, accessToken: refreshedTokens.access_token };
   }

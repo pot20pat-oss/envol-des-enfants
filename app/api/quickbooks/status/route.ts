@@ -1,5 +1,5 @@
 import { currentAdmin, forbidden } from "@/lib/cms";
-import { accessTokenForSandbox } from "@/lib/quickbooks-oauth";
+import { accessTokenForSandbox, isQuickBooksReconnectRequired } from "@/lib/quickbooks-oauth";
 
 /** Admin-only, read-only QuickBooks connection check. No invoices or accounting writes. */
 export async function GET(request: Request) {
@@ -37,7 +37,14 @@ export async function GET(request: Request) {
       company_name: typeof details.CompanyName === "string" ? details.CompanyName : null,
       country: typeof details.Country === "string" ? details.Country : null,
     }, { headers: { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
-  } catch {
+  } catch (cause) {
+    if (isQuickBooksReconnectRequired(cause)) {
+      return Response.json({
+        connected: false, api_verified: false, requires_reconnect: true,
+        reconnect_url: "/api/quickbooks/connect",
+        error: "Autorisation QuickBooks Sandbox expirée ou révoquée. Reconnectez QuickBooks depuis le CMS.",
+      }, { status: 401, headers: { "Cache-Control": "no-store" } });
+    }
     // Never echo stored tokens, credentials or remote API response content.
     return Response.json({
       connected: false, api_verified: false,
