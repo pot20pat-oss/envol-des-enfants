@@ -30,6 +30,9 @@ jobs:
       - name: Unit tests
         run: npm run test:unit
 
+      - name: QuickBooks OAuth callback security tests
+        run: node --experimental-strip-types --test tests/quickbooks-oauth-callback-redirect.test.mjs
+
       - name: Catalog seed dry-run
         run: npm run seed:catalog
 
