@@ -9,7 +9,7 @@ assert.ok(start >= 0, "callback redirect helper must exist");
 const compiled = stripTypeScriptTypes(source.slice(start), { mode: "strip" })
   .replace("export async function GET", "async function GET");
 
-function harness({ stateMatches = true, stateConsumed = true, oauthFailure = false, saveAllowed = true } = {}) {
+function harness({ stateMatches = true, stateConsumed = true, databaseFailure = false, oauthFailure = false, saveAllowed = true } = {}) {
   const state = "a".repeat(64);
   const logs = [];
   const queries = [];
@@ -21,6 +21,7 @@ function harness({ stateMatches = true, stateConsumed = true, oauthFailure = fal
           return {
             async run() {
               if (sql.startsWith("DELETE FROM quickbooks_oauth_states")) {
+                if (databaseFailure) throw new Error("D1 failure");
                 return { meta: { changes: Number(stateConsumed) } };
               }
               if (sql.startsWith("INSERT INTO quickbooks_connections")) {
@@ -80,6 +81,11 @@ test("invalid OAuth state cleans callback URL without touching DB", async () => 
 test("already consumed OAuth state fails closed and clears URL", async () => {
   const h = harness({ stateConsumed: false });
   checkRedirect(await h.GET(h.request(h.query)), "expired-state");
+});
+
+test("D1 state-consumption failure clears the sensitive callback URL", async () => {
+  const h = harness({ databaseFailure: true });
+  checkRedirect(await h.GET(h.request(h.query)), "failed");
 });
 
 test("Intuit denial redirects without reflecting upstream error", async () => {
