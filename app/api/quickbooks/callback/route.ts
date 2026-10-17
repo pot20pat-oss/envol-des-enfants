@@ -30,9 +30,10 @@ export async function GET(request: Request) {
     return redirectWithClearedCookie("invalid-state");
   }
 
-  const database = cmsEnv().DB;
-  const digest = await stateHash(state);
-  // Atomically consume the state: only one concurrent callback may proceed.
+  try {
+    const database = cmsEnv().DB;
+    const digest = await stateHash(state);
+    // Atomically consume the state: only one concurrent callback may proceed.
   const consumed = await database.prepare(
     "DELETE FROM quickbooks_oauth_states WHERE state_hash=? AND expires_at>?",
   ).bind(digest, new Date().toISOString()).run();
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
     return redirectWithClearedCookie("unconfigured");
   }
 
-  try {
+  {
     const tokens = await exchangeAuthorizationCode(code, credentials);
     const encrypted = await encryptSandboxTokens(credentials.tokenEncryptionKey, realmId, tokens);
     const now = new Date().toISOString();
